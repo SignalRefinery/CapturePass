@@ -1,0 +1,11 @@
+BEGIN:VCARD
+VERSION:3.0
+FN:John Keating
+N:Keating;John;;;
+ORG:Signal Refinery
+TITLE:Founder & Principal
+TEL;TYPE=CELL,VOICE:3125935309
+EMAIL;TYPE=INTERNET:john@signalrefinery.pro
+URL:https://signalpass.app/john-keating
+NOTE:Signal Pass profile for John Keating
+END:VCARD
