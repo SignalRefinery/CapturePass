@@ -4,13 +4,22 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { UserMenu } from "@/components/auth/user-menu";
 
+const ADMIN_EMAILS = ["john@signalrefinery.pro"];
+
+const PUBLIC_NAV_LINKS = [
+  { href: "/", label: "Home" },
+  { href: "/how-it-works", label: "How it works" },
+  { href: "/pricing", label: "Pricing" },
+  { href: "/partners", label: "Partners" },
+];
+
 export function Shell({
   children,
-  navLinks,
+  navLinks: _navLinks,
   footerLeft,
   footerRight,
   myProfileHref = null,
-  initialAuth
+  initialAuth,
 }: {
   children: React.ReactNode;
   navLinks?: { href: string; label: string }[];
@@ -24,6 +33,9 @@ export function Shell({
   } | null;
 }) {
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  const isSignedIn = !!initialAuth?.email;
+  const isAdmin = !!initialAuth?.email && ADMIN_EMAILS.includes(initialAuth.email.toLowerCase());
 
   useEffect(() => {
     function handleResize() {
@@ -41,6 +53,24 @@ export function Shell({
     return null;
   }, [myProfileHref, initialAuth?.slug]);
 
+  const effectiveNavLinks = useMemo(() => {
+    const links = [...PUBLIC_NAV_LINKS];
+
+    if (isSignedIn) {
+      links.push({ href: "/dashboard", label: "Dashboard" });
+      links.push({ href: "/account", label: "Account" });
+    } else {
+      links.push({ href: "/login", label: "Log in" });
+      links.push({ href: "/signup", label: "Sign up" });
+    }
+
+    if (isAdmin) {
+      links.push({ href: "/admin", label: "Admin" });
+    }
+
+    return links;
+  }, [isSignedIn, isAdmin]);
+
   return (
     <div className="page">
       <div className={`shell ${mobileOpen ? "shell-menu-open" : ""}`}>
@@ -52,15 +82,13 @@ export function Shell({
 
           <div className="desktop-nav-wrap">
             <nav className="nav">
-              {navLinks?.map((link) => (
+              {effectiveNavLinks.map((link) => (
                 <Link key={link.href} href={link.href}>
                   {link.label}
                 </Link>
               ))}
 
-              {profileHref && (
-                <Link href={profileHref}>My profile</Link>
-              )}
+              {profileHref && <Link href={profileHref}>My profile</Link>}
             </nav>
 
             <UserMenu
@@ -86,7 +114,7 @@ export function Shell({
           <div className="mobile-menu-overlay">
             <div className="mobile-menu-panel">
               <nav className="mobile-nav">
-                {navLinks?.map((link) => (
+                {effectiveNavLinks.map((link) => (
                   <Link key={link.href} href={link.href} onClick={() => setMobileOpen(false)}>
                     {link.label}
                   </Link>
