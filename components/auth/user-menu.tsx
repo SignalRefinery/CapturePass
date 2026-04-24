@@ -3,10 +3,15 @@
 import Link from "next/link";
 
 export function UserMenu({
-  mobile,
-  initialEmail,
-  initialFullName,
-  initialSlug
+  mobile = false,
+  initialEmail = null,
+  initialFullName = null,
+  initialSlug = null
+}: {
+  mobile?: boolean;
+  initialEmail?: string | null;
+  initialFullName?: string | null;
+  initialSlug?: string | null;
 }) {
   const isLoggedIn = !!initialEmail;
 

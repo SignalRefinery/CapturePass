@@ -90,7 +90,14 @@ export async function GET(req: Request) {
       }
     });
 
-    return NextResponse.redirect(session.url);
+    if (!session.url) {
+  return NextResponse.json(
+    { error: "Stripe checkout session did not return a URL." },
+    { status: 500 }
+  );
+}
+
+return NextResponse.redirect(session.url);
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Unknown checkout error";

@@ -7,13 +7,19 @@ export async function POST(request: Request) {
   const signature = request.headers.get("stripe-signature");
 
   if (!signature) {
-    return NextResponse.json({ error: "Missing stripe-signature header." }, { status: 400 });
+    return NextResponse.json(
+      { error: "Missing stripe-signature header." },
+      { status: 400 },
+    );
   }
 
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
   if (!webhookSecret) {
-    return NextResponse.json({ error: "Missing STRIPE_WEBHOOK_SECRET." }, { status: 500 });
+    return NextResponse.json(
+      { error: "Missing STRIPE_WEBHOOK_SECRET." },
+      { status: 500 },
+    );
   }
 
   const rawBody = await request.text();
@@ -23,7 +29,10 @@ export async function POST(request: Request) {
   try {
     event = stripe.webhooks.constructEvent(rawBody, signature, webhookSecret);
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Webhook signature verification failed.";
+    const message =
+      error instanceof Error
+        ? error.message
+        : "Webhook signature verification failed.";
     return NextResponse.json({ error: message }, { status: 400 });
   }
 
@@ -35,11 +44,13 @@ export async function POST(request: Request) {
       const userId = session.metadata?.user_id ?? null;
       const plan = session.metadata?.plan ?? null;
       const customerId =
-        typeof session.customer === "string" ? session.customer : session.customer?.id ?? null;
+        typeof session.customer === "string"
+          ? session.customer
+          : (session.customer?.id ?? null);
       const subscriptionId =
         typeof session.subscription === "string"
           ? session.subscription
-          : session.subscription?.id ?? null;
+          : (session.subscription?.id ?? null);
 
       if (userId) {
         const { error } = await admin
@@ -48,7 +59,7 @@ export async function POST(request: Request) {
             is_active: true,
             stripe_customer_id: customerId,
             stripe_subscription_id: subscriptionId,
-            stripe_plan_key: plan
+            stripe_plan_key: plan,
           })
           .eq("user_id", userId);
 
@@ -68,7 +79,7 @@ export async function POST(request: Request) {
           .update({
             is_active: false,
             stripe_subscription_id:
-              typeof subscription.id === "string" ? subscription.id : null
+              typeof subscription.id === "string" ? subscription.id : null,
           })
           .eq("user_id", userId);
 
@@ -81,7 +92,9 @@ export async function POST(request: Request) {
     if (event.type === "invoice.payment_failed") {
       const invoice = event.data.object as Stripe.Invoice;
       const subscriptionId =
-        typeof invoice.subscription === "string" ? invoice.subscription : null;
+        typeof (invoice as any).subscription === "string"
+          ? (invoice as any).subscription
+          : null;
 
       if (subscriptionId) {
         const { error } = await admin
@@ -97,7 +110,8 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ received: true });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Webhook handler failed.";
+    const message =
+      error instanceof Error ? error.message : "Webhook handler failed.";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

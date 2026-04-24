@@ -9,8 +9,19 @@ export function Shell({
   navLinks,
   footerLeft,
   footerRight,
-  myProfileHref,
+  myProfileHref = null,
   initialAuth
+}: {
+  children: React.ReactNode;
+  navLinks?: { href: string; label: string }[];
+  footerLeft?: string;
+  footerRight?: string;
+  myProfileHref?: string | null;
+  initialAuth?: {
+    email?: string | null;
+    fullName?: string | null;
+    slug?: string | null;
+  } | null;
 }) {
   const [mobileOpen, setMobileOpen] = useState(false);
 

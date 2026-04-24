@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Shell } from "@/components/shared/shell";
 import { createClient } from "@/lib/supabase/server";
 
@@ -11,7 +12,7 @@ async function getAccountData() {
   const supabase = await createClient();
 
   const {
-    data: { user }
+    data: { user },
   } = await supabase.auth.getUser();
 
   if (!user) return null;
@@ -23,21 +24,21 @@ async function getAccountData() {
     cleanValue(
       `${typeof meta.first_name === "string" ? meta.first_name : ""} ${
         typeof meta.last_name === "string" ? meta.last_name : ""
-      }`
+      }`,
     );
 
   const metaSlug = cleanValue(
-    typeof meta.suggested_slug === "string" ? meta.suggested_slug : null
+    typeof meta.suggested_slug === "string" ? meta.suggested_slug : null,
   );
 
   const metaPromo = cleanValue(
-    typeof meta.promo_code === "string" ? meta.promo_code.toUpperCase() : null
+    typeof meta.promo_code === "string" ? meta.promo_code.toUpperCase() : null,
   );
 
   const { data: profile } = await supabase
     .from("profiles")
     .select(
-      "email, full_name, slug, stripe_customer_id, stripe_subscription_id, stripe_plan_key, subscription_status, created_at, lifetime_free, billing_exempt, promo_code_used"
+      "email, full_name, slug, stripe_customer_id, stripe_subscription_id, stripe_plan_key, subscription_status, created_at, lifetime_free, billing_exempt, promo_code_used",
     )
     .eq("user_id", user.id)
     .maybeSingle();
@@ -48,8 +49,7 @@ async function getAccountData() {
   const promoCodeUsed =
     cleanValue(profile?.promo_code_used)?.toUpperCase() || metaPromo;
 
-  const lifetimeFree =
-    !!profile?.lifetime_free || promoCodeUsed === "FOUNDERS";
+  const lifetimeFree = !!profile?.lifetime_free || promoCodeUsed === "FOUNDERS";
   const billingExempt =
     !!profile?.billing_exempt || promoCodeUsed === "FOUNDERS";
 
@@ -64,7 +64,7 @@ async function getAccountData() {
     createdAt: profile?.created_at || user.created_at || null,
     lifetimeFree,
     billingExempt,
-    promoCodeUsed
+    promoCodeUsed,
   };
 }
 
@@ -86,18 +86,19 @@ export default async function AccountPage() {
     <Shell
       footerLeft="Account"
       footerRight="Signal Pass"
+      myProfileHref={account?.slug ? `/${account.slug}` : null}
       initialAuth={
         account
           ? {
               email: account.email,
               fullName: account.fullName,
-              slug: account.slug
+              slug: account.slug,
             }
           : null
       }
       navLinks={[
         { href: "/dashboard", label: "Dashboard" },
-        { href: "/pricing", label: "Pricing" }
+        { href: "/pricing", label: "Pricing" },
       ]}
     >
       <section className="section-wrap">
@@ -147,16 +148,23 @@ export default async function AccountPage() {
               </div>
             </div>
 
-            <div style={{ marginTop: 18, display: "flex", gap: 10, flexWrap: "wrap" }}>
+            <div
+              style={{
+                marginTop: 18,
+                display: "flex",
+                gap: 10,
+                flexWrap: "wrap",
+              }}
+            >
               {hasAccess && !account?.customerId ? (
                 <>
                   <button className="button primary" type="button" disabled>
                     Access included
                   </button>
 
-                  <a href="/dashboard" className="button secondary">
+                  <Link href="/dashboard" className="button secondary">
                     Manage profile
-                  </a>
+                  </Link>
                 </>
               ) : account?.customerId ? (
                 <form action="/api/portal" method="post">
@@ -165,9 +173,9 @@ export default async function AccountPage() {
                   </button>
                 </form>
               ) : (
-                <a href="/pricing" className="button primary">
+                <Link href="/pricing" className="button primary">
                   Choose plan
-                </a>
+                </Link>
               )}
             </div>
           </div>
@@ -178,19 +186,28 @@ export default async function AccountPage() {
             <div className="account-grid">
               <div>
                 <span className="label">Profile URL</span>
-                <div>{account?.slug ? `/${account.slug}` : "Not issued yet"}</div>
+                <div>
+                  {account?.slug ? `/${account.slug}` : "Not issued yet"}
+                </div>
               </div>
             </div>
 
             {account?.slug ? (
-              <div style={{ marginTop: 18, display: "flex", gap: 10, flexWrap: "wrap" }}>
+              <div
+                style={{
+                  marginTop: 18,
+                  display: "flex",
+                  gap: 10,
+                  flexWrap: "wrap",
+                }}
+              >
                 <a href={`/${account.slug}`} className="button secondary">
                   View profile
                 </a>
 
-                <a href="/dashboard" className="button secondary">
+                <Link href="/dashboard" className="button secondary">
                   Edit profile
-                </a>
+                </Link>
               </div>
             ) : null}
           </div>
