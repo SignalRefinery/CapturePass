@@ -17,14 +17,15 @@ type Row = {
 };
 
 const cellStyle: React.CSSProperties = {
-  borderRight: "1px solid rgba(20, 31, 48, 0.1)",
-  borderBottom: "1px solid rgba(20, 31, 48, 0.1)",
+  borderRight: "1px solid #d0d5dd",
+  borderBottom: "1px solid #d0d5dd",
   padding: "8px 10px",
   height: 38,
   whiteSpace: "nowrap",
   overflow: "hidden",
   textOverflow: "ellipsis",
   verticalAlign: "middle",
+  color: "#0f172a",
 };
 
 const headerStyle: React.CSSProperties = {
@@ -32,8 +33,8 @@ const headerStyle: React.CSSProperties = {
   position: "sticky",
   top: 0,
   zIndex: 1,
-  background: "#f7f8fb",
-  color: "#445064",
+  background: "#f1f5f9",
+  color: "#020617",
   fontSize: 11,
   fontWeight: 700,
   textTransform: "uppercase",
@@ -43,15 +44,15 @@ const headerStyle: React.CSSProperties = {
 };
 
 const actionButtonStyle: React.CSSProperties = {
-  border: "1px solid rgba(20, 31, 48, 0.16)",
-  background: "#fff",
+  border: "1px solid #cbd5e1",
+  background: "#ffffff",
   borderRadius: 6,
   padding: "5px 8px",
   fontSize: 12,
   lineHeight: 1,
   cursor: "pointer",
   textDecoration: "none",
-  color: "inherit",
+  color: "#020617",
 };
 
 function Badge({
@@ -62,10 +63,10 @@ function Badge({
   tone?: "neutral" | "good" | "warn" | "risk";
 }) {
   const colorMap = {
-    neutral: { background: "#eef1f5", color: "#344054" },
-    good: { background: "#e8f7ee", color: "#166534" },
-    warn: { background: "#fff4d6", color: "#8a5a00" },
-    risk: { background: "#ffe8e8", color: "#9f1239" },
+    neutral: { background: "#e2e8f0", color: "#020617" },
+    good: { background: "#dcfce7", color: "#14532d" },
+    warn: { background: "#fef3c7", color: "#78350f" },
+    risk: { background: "#fee2e2", color: "#7f1d1d" },
   };
 
   return (
@@ -162,19 +163,19 @@ export function UserManagementTable({ rows }: { rows: Row[] }) {
       style={{
         padding: 0,
         overflow: "hidden",
-        border: "1px solid rgba(20, 31, 48, 0.14)",
+        border: "1px solid #cbd5e1",
         boxShadow: "none",
       }}
     >
       <div
         style={{
           padding: 10,
-          borderBottom: "1px solid rgba(20, 31, 48, 0.12)",
+          borderBottom: "1px solid #cbd5e1",
           display: "grid",
           gridTemplateColumns: "1fr auto",
           gap: 10,
           alignItems: "center",
-          background: "#fbfcfe",
+          background: "#f8fafc",
         }}
       >
         <input
@@ -184,10 +185,11 @@ export function UserManagementTable({ rows }: { rows: Row[] }) {
           style={{
             width: "100%",
             padding: "9px 10px",
-            border: "1px solid rgba(20, 31, 48, 0.16)",
+            border: "1px solid #cbd5e1",
             borderRadius: 6,
             fontSize: 13,
             outline: "none",
+            color: "#020617",
           }}
         />
 
@@ -307,7 +309,7 @@ export function UserManagementTable({ rows }: { rows: Row[] }) {
                       ) : null}
 
                       <Link
-                        href={`/admin/users/${r.user_id}`}
+                        href={`/admin/account/${r.user_id}`}
                         style={actionButtonStyle}
                       >
                         Manage
