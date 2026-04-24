@@ -59,7 +59,7 @@ export function AuthForm({ mode }: AuthFormProps) {
         email: email.trim(),
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
+          emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL || window.location.origin}/auth/callback`,
           data: {
             first_name: trimmedFirst,
             last_name: trimmedLast,
