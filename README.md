@@ -1,26 +1,45 @@
 SignalPass – Developer Handoff README
 
 Overview
-SignalPass is a dynamic digital identity platform that generates personalized profile pages, downloadable vCards, and QR codes tied to unique slugs.
+SignalPass is a controlled digital identity platform that generates personalized profile pages, downloadable vCards, and QR/NFC destinations tied to unique slugs and private token routes.
 
 Profiles are:
-- Non-indexed
-- Accessible only via direct link, NFC, or QR
+- Non-indexed (privacy-first)
+- Accessible via direct link, NFC, or QR
 - Backed by Supabase (auth + database)
 - Monetized via Stripe subscriptions
+- Designed to minimize public surface area
+
+---
+
+Current System Status
+
+The system is now **functionally operational and internally usable**.
+
+Recently completed:
+- Global navigation system (desktop + mobile unified)
+- Role-based navigation (public / user / admin)
+- Admin dashboard (spreadsheet-style user table)
+- Admin user detail page (fully actionable)
+- Token-based routing (`/u/[token]` → redirects to slug)
+- Billing + profile visibility in admin
+- Core Supabase + Stripe wiring functional
+
+The system has moved from prototype → **early production backend**.
 
 ---
 
 Your Role
 
-You are taking over active development and stabilization of this project.
+You are continuing development, stabilization, and production hardening.
 
 Responsibilities:
-- Maintain and improve the system
+- Maintain and improve system stability
 - Complete Stripe integration and subscription UX
 - Harden Supabase + auth flows
-- Improve slug handling and user feedback
-- Prepare the app for production stability
+- Finalize slug moderation and feedback
+- Improve admin tooling and safety controls
+- Prepare system for production reliability
 
 ---
 
@@ -36,26 +55,40 @@ Tech Stack
 Core System Architecture
 
 Profiles:
-- Route: /[slug]
+- Route: `/[slug]`
 - Dynamic rendering
 - Includes contact info, vCard, QR code
 
+Token Routing:
+- Route: `/u/[token]`
+- Resolves profile securely
+- Redirects to approved slug
+- Enforces privacy + approval rules
+
 Supabase:
 - Auth
-- Profiles
+- Profiles table (source of truth)
 - Slug system
 - Token issuance
 - Billing linkage
 
+Admin System:
+- `/admin` dashboard (spreadsheet-style user table)
+- `/admin/account/[userId]` user control panel
+- Supports live updates to profile + billing flags
+
 Slug System:
 - User-selected slugs
-- Restricted slugs
+- Restricted slug detection (partial)
 - Randomized fallback
-- SQL moderation logic
+- SQL-backed moderation fields
+- Admin approval pipeline (partially implemented)
 
 Stripe:
-- Subscription handling
-- Billing tracking
+- Checkout flow working
+- Webhooks connected
+- Subscription data stored
+- Portal not fully implemented
 
 ---
 
@@ -108,26 +141,32 @@ stripe trigger checkout.session.completed
 
 Known Issues (Must Fix)
 
-1. Slug restriction feedback missing
-2. Middleware breaks when Supabase unavailable
-3. Stripe UX incomplete
+1. Slug restriction feedback missing (user does not know why slug fails)
+2. Slug moderation logic not fully enforced in UI/API
+3. Middleware instability if Supabase is unavailable
+4. Stripe customer portal not wired
+5. Admin actions lack confirmation + audit trail
 
 ---
 
 Priority Tasks
 
 High:
-- Fix slug UX
-- Stabilize middleware
-- Verify Stripe webhooks
+- Implement full slug moderation flow (block / restrict / approve)
+- Add user-facing slug feedback (no silent failures)
+- Complete Stripe customer portal
+- Stabilize middleware + auth edge cases
 
 Medium:
-- Subscription UI
-- Error handling improvements
+- Improve subscription UI + plan management
+- Add admin action confirmations
+- Add audit logging for admin changes
+- Improve error handling across API routes
 
 Low:
-- Admin tools
-- Monitoring
+- Monitoring / logging
+- UI polish
+- Performance tuning
 
 ---
 
@@ -136,7 +175,8 @@ Development Rules
 - Never expose service role key client-side
 - Keep profiles non-indexed
 - Do not allow silent failures
-- Preserve slug security
+- Preserve slug security (impersonation prevention is critical)
+- All admin mutations must be server-side only
 
 ---
 
@@ -154,7 +194,7 @@ Tier 2 & Tier 3 Uploads:
 - Admin review capability
 - Linked to fulfillment pipeline
 
-Supported future formats:
+Supported formats:
 - PDF, PNG, SVG (primary)
 - AI/EPS (optional)
 
@@ -196,18 +236,30 @@ Ensure flexibility for:
 
 Deployment
 
-Target:
-- Netlify current. Your best practice is the default here.
+Current:
+- Vercel (active deployments)
 
-Ensure environment variables are set.
+Legacy:
+- Netlify (previous target)
+
+Ensure environment variables are correctly configured.
 
 ---
 
 Final Notes
 
-System is functionally complete but needs:
-- better UX
-- stronger error handling
-- full Stripe integration
+System is now:
+- Functionally usable
+- Internally controllable via admin tools
+- Structurally ready for production hardening
 
-Focus on stability first, then expansion.
+Remaining work focuses on:
+- slug security + UX
+- billing completion
+- system reliability
+
+Focus order:
+1. Stability
+2. Security (slug + access)
+3. Billing completion
+4. Expansion
