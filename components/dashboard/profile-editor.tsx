@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import type { ProfileRecord } from "@/lib/types";
 import { normalizeUrl } from "@/lib/utils";
+import { classifySlug } from "@/lib/slug-moderation";
 import { saveProfileClient } from "@/lib/profile-service-client";
 import { getIssuedProfileUrl, getReadableProfileUrl } from "@/lib/urls/profile-url";
 
@@ -52,8 +53,21 @@ export function ProfileEditor({ userId, initialProfile }: ProfileEditorProps) {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
+  const slugModeration = useMemo(() => classifySlug(form.slug || ""), [form.slug]);
+  const slugIsApproved = form.slug_status === "approved" && slugModeration.state !== "blocked";
   const readableUrl = useMemo(() => getReadableProfileUrl(form), [form]);
   const issuedUrl = useMemo(() => getIssuedProfileUrl(form), [form]);
+  const safeReadableUrl = slugIsApproved ? readableUrl : null;
+  const safeIssuedUrl = form.private_token ? issuedUrl : null;
+  const profileStatusLabel = slugIsApproved
+    ? form.private_token
+      ? "Ready for use"
+      : "Pending token"
+    : form.slug_status === "pending_review"
+      ? "Pending slug approval"
+      : slugModeration.state === "blocked"
+        ? "Slug blocked"
+        : "Not ready";
 
   function update<K extends keyof ProfileRecord>(key: K, value: ProfileRecord[K]) {
     setForm((current) => ({ ...current, [key]: value }));
@@ -61,7 +75,10 @@ export function ProfileEditor({ userId, initialProfile }: ProfileEditorProps) {
 
   async function copyIssuedUrl() {
     try {
-      await navigator.clipboard.writeText(issuedUrl);
+      if (!safeIssuedUrl) {
+        throw new Error("Issued link is not available yet.");
+      }
+      await navigator.clipboard.writeText(safeIssuedUrl);
       setMessage("Issued card link copied.");
       setError("");
     } catch {
@@ -323,17 +340,25 @@ export function ProfileEditor({ userId, initialProfile }: ProfileEditorProps) {
             <div className="status-list">
               <div className="status-row">
                 <span>Public profile</span>
-                <strong>{readableUrl.replace(/^https?:\/\//, "")}</strong>
+                <strong>
+                  {safeReadableUrl
+                    ? safeReadableUrl.replace(/^https?:\/\//, "")
+                    : "Pending approval"}
+                </strong>
               </div>
 
               <div className="status-row">
                 <span>Issued card / QR</span>
-                <strong>{issuedUrl.replace(/^https?:\/\//, "")}</strong>
+                <strong>
+                  {safeIssuedUrl
+                    ? safeIssuedUrl.replace(/^https?:\/\//, "")
+                    : "Not issued"}
+                </strong>
               </div>
 
               <div className="status-row">
                 <span>Status</span>
-                <strong>{form.private_token ? "Ready for use" : "Pending token"}</strong>
+                <strong>{profileStatusLabel}</strong>
               </div>
             </div>
           </div>
@@ -346,13 +371,20 @@ export function ProfileEditor({ userId, initialProfile }: ProfileEditorProps) {
               {saving ? "Saving..." : "Save profile"}
             </button>
 
-            <button className="button secondary" type="button" onClick={copyIssuedUrl}>
+            <button
+              className="button secondary"
+              type="button"
+              onClick={copyIssuedUrl}
+              disabled={!safeIssuedUrl}
+            >
               Copy issued link
             </button>
 
-            <a className="button secondary" href={issuedUrl} target="_blank" rel="noreferrer">
-              Open issued profile
-            </a>
+            {safeIssuedUrl ? (
+              <a className="button secondary" href={safeIssuedUrl} target="_blank" rel="noreferrer">
+                Open issued profile
+              </a>
+            ) : null}
           </div>
         </form>
       </div>
