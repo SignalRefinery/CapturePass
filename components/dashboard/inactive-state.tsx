@@ -7,29 +7,20 @@ type InactiveStateProps = {
 };
 
 export function InactiveState({ email }: InactiveStateProps) {
-  async function handleCheckout(plan: "essential" | "professional" | "premium") {
-    try {
-      const res = await fetch("/api/checkout", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ plan })
-      });
+  function handleCheckout(plan: "essential" | "professional" | "premium") {
+    const form = document.createElement("form");
+    form.method = "POST";
+    form.action = "/api/checkout";
+    form.style.display = "none";
 
-      const data = await res.json();
+    const planInput = document.createElement("input");
+    planInput.type = "hidden";
+    planInput.name = "plan";
+    planInput.value = plan;
 
-      if (!res.ok) {
-        alert(data.error || "Unable to start checkout.");
-        return;
-      }
-
-      if (data.url) {
-        window.location.href = data.url;
-      }
-    } catch {
-      alert("Unable to start checkout.");
-    }
+    form.appendChild(planInput);
+    document.body.appendChild(form);
+    form.submit();
   }
 
   return (
