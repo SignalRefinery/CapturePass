@@ -46,7 +46,7 @@ async function updateProfileForCheckout(session: Stripe.Checkout.Session) {
       stripe_plan_key: plan,
       subscription_status: "active",
     })
-    .eq("user_id", userId);
+    .or(`user_id.eq.${userId},id.eq.${userId}`);
 
   if (error) throw error;
 }
@@ -75,7 +75,7 @@ async function updateProfileForSubscription(subscription: Stripe.Subscription) {
       stripe_plan_key: plan,
       subscription_status: subscription.status,
     })
-    .eq("user_id", userId);
+    .or(`user_id.eq.${userId},id.eq.${userId}`);
 
   if (error) throw error;
 }
@@ -97,7 +97,7 @@ async function updateProfileForInvoice(
       is_active: status === "active",
       subscription_status: status,
     })
-    .eq("user_id", userId);
+    .or(`user_id.eq.${userId},id.eq.${userId}`);
 
   if (error) throw error;
 }
