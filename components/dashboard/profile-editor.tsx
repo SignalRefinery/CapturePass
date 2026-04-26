@@ -69,6 +69,25 @@ export function ProfileEditor({ userId, initialProfile }: ProfileEditorProps) {
         ? "Slug blocked"
         : "Not ready";
 
+  const slugStatusLabel =
+    slugModeration.state === "blocked"
+      ? "Blocked"
+      : form.slug_status === "pending_review"
+        ? "In review"
+        : slugIsApproved
+          ? "Approved"
+          : "Not ready";
+
+  const slugStatusMessage =
+    slugModeration.state === "blocked"
+      ? slugModeration.reason || "This slug is blocked and cannot be used."
+      : form.slug_status === "pending_review"
+        ? form.slug_review_reason ||
+          "This slug needs admin approval before it can go live. Your current public profile URL will stay hidden until approval."
+        : slugIsApproved
+          ? "This slug is approved and can be used publicly."
+          : "This slug is not ready yet.";
+
   function update<K extends keyof ProfileRecord>(key: K, value: ProfileRecord[K]) {
     setForm((current) => ({ ...current, [key]: value }));
   }
@@ -147,7 +166,12 @@ export function ProfileEditor({ userId, initialProfile }: ProfileEditorProps) {
         setForm(result.data as ProfileRecord);
       }
 
-      setMessage("Profile saved.");
+      const savedSlugStatus = (result.data as ProfileRecord | null)?.slug_status;
+      setMessage(
+        savedSlugStatus === "pending_review"
+          ? "Profile saved. Your requested slug is in review and will not go live until approved."
+          : "Profile saved."
+      );
     } catch (err) {
       console.error("Profile save failed:", err);
       setError(err instanceof Error ? err.message : "Unexpected error while saving.");
@@ -191,8 +215,8 @@ export function ProfileEditor({ userId, initialProfile }: ProfileEditorProps) {
             <div className="auth-field">
               <span>Public URL</span>
               <input value={form.slug || ""} readOnly disabled />
-              <small className="auth-message">
-                This is the readable profile address people can open directly.
+              <small className={slugModeration.state === "blocked" ? "auth-error" : "auth-message"}>
+                Slug status: {slugStatusLabel}. {slugStatusMessage}
               </small>
             </div>
           </div>
@@ -359,6 +383,11 @@ export function ProfileEditor({ userId, initialProfile }: ProfileEditorProps) {
               <div className="status-row">
                 <span>Status</span>
                 <strong>{profileStatusLabel}</strong>
+              </div>
+
+              <div className="status-row">
+                <span>Slug status</span>
+                <strong>{slugStatusLabel}</strong>
               </div>
             </div>
           </div>
