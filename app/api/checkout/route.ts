@@ -7,12 +7,12 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 });
 
 const PLAN_PRICE_MAP: Record<string, string> = {
-  essential: "price_1TJiBoDZOWbZIzsXmQCHNoe0",
-  professional: "price_1TJiBsDZOWbZIzsXVvd6mKcC",
-  premium: "price_1TJiBmDZOWbZIzsXqrkBALau"
+  essential: "price_1TQXe5DZOWbZIzsXdW6KI0DM",
+  professional: "price_1TQXeQDZOWbZIzsXviMsCQli",
+  premium: "price_1TQXefDZOWbZIzsXhs6jxr8N"
 };
 
-const SETUP_FEE_PRICE_ID = "price_1TJiBsDZOWbZIzsXVMrTqZqV";
+const SETUP_FEE_PRICE_ID = "price_1TQXexDZOWbZIzsXqVwzapoI";
 
 type CheckoutPayload = {
   plan?: string;
