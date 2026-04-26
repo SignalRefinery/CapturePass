@@ -1,15 +1,17 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Shell } from "@/components/shared/shell";
 import { createClient } from "@/lib/supabase/server";
 import { SlugReviewQueue } from "@/components/admin/slug-review-queue";
 import { UserManagementTable } from "@/components/admin/user-management-table";
+import { classifySlug } from "@/lib/slug-moderation";
 
 const ADMIN_EMAILS = ["john@signalrefinery.pro"];
 
 async function getInitialAuth() {
   const supabase = await createClient();
   const {
-    data: { user },
+    data: { user }
   } = await supabase.auth.getUser();
 
   if (!user) return null;
@@ -23,21 +25,17 @@ async function getInitialAuth() {
   return {
     email: user.email || null,
     fullName: profile?.full_name || null,
-    slug: profile?.slug || null,
+    slug: profile?.slug || null
   };
 }
 
 export default async function AdminPage() {
   const supabase = await createClient();
   const {
-    data: { user },
+    data: { user }
   } = await supabase.auth.getUser();
 
-  if (
-    !user ||
-    !user.email ||
-    !ADMIN_EMAILS.includes(user.email.toLowerCase())
-  ) {
+  if (!user || !user.email || !ADMIN_EMAILS.includes(user.email.toLowerCase())) {
     redirect("/dashboard");
   }
 
@@ -53,13 +51,17 @@ export default async function AdminPage() {
   const rows = profiles || [];
 
   const affiliates = rows.filter((row) => row.is_affiliate);
-  const founders = rows.filter((row) => row.affiliate_tier === "founder");
   const active = rows.filter((row) => row.is_active);
   const pendingSlugRows = rows.filter(
-    (row) => row.slug_status === "pending_review" && row.slug_requested,
+    (row) => row.slug_status === "pending_review" && row.slug_requested
   );
+  const blockedSlugCases = rows.filter((row) => {
+    const liveSlugState = classifySlug(row.slug || "").state;
+    const requestedSlugState = classifySlug(row.slug_requested || "").state;
+    return liveSlugState === "blocked" || requestedSlugState === "blocked";
+  });
   const riskCases = rows.filter(
-    (row) => row.is_public_official && (row.is_affiliate || row.billing_exempt),
+    (row) => row.is_public_official && (row.is_affiliate || row.billing_exempt)
   );
 
   return (
@@ -71,7 +73,7 @@ export default async function AdminPage() {
       navLinks={[
         { href: "/", label: "Home" },
         { href: "/dashboard", label: "Dashboard" },
-        { href: "/pricing", label: "Pricing" },
+        { href: "/pricing", label: "Pricing" }
       ]}
     >
       <section className="section-wrap">
@@ -90,8 +92,8 @@ export default async function AdminPage() {
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(5, minmax(0, 1fr))",
-              gap: 12,
+              gridTemplateColumns: "repeat(6, minmax(0, 1fr))",
+              gap: 12
             }}
           >
             <div className="card" style={{ padding: 16 }}>
@@ -115,6 +117,11 @@ export default async function AdminPage() {
             </div>
 
             <div className="card" style={{ padding: 16 }}>
+              <div className="label">Blocked slugs</div>
+              <strong style={{ fontSize: 28 }}>{blockedSlugCases.length}</strong>
+            </div>
+
+            <div className="card" style={{ padding: 16 }}>
               <div className="label">Risk flags</div>
               <strong style={{ fontSize: 28 }}>{riskCases.length}</strong>
             </div>
@@ -122,6 +129,48 @@ export default async function AdminPage() {
 
           {pendingSlugRows.length > 0 ? (
             <SlugReviewQueue rows={pendingSlugRows} />
+          ) : null}
+
+          {blockedSlugCases.length > 0 ? (
+            <div className="card" style={{ padding: 18, borderColor: "#7f1d1d" }}>
+              <div className="dashboard-kicker">Immediate action needed</div>
+              <h2 className="section-title" style={{ fontSize: 22 }}>
+                Blocked slug accounts
+              </h2>
+              <p className="editor-copy">
+                These accounts contain a blocked live or requested slug. Review and delete,
+                disable, or replace the slug before allowing the account to remain active.
+              </p>
+
+              <div style={{ overflowX: "auto" }}>
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Email</th>
+                      <th>Live slug</th>
+                      <th>Requested slug</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {blockedSlugCases.map((row) => (
+                      <tr key={`blocked-${row.user_id}`}>
+                        <td>{row.full_name || "—"}</td>
+                        <td>{row.email || "—"}</td>
+                        <td>{row.slug || "—"}</td>
+                        <td>{row.slug_requested || "—"}</td>
+                        <td>
+                          <Link className="button secondary" href={`/admin/account/${row.user_id}`}>
+                            Manage
+                          </Link>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           ) : null}
 
           {riskCases.length > 0 ? (
@@ -173,7 +222,7 @@ export default async function AdminPage() {
               is_affiliate: row.is_affiliate,
               affiliate_tier: row.affiliate_tier,
               is_public_official: row.is_public_official,
-              stripe_plan_key: row.stripe_plan_key,
+              stripe_plan_key: row.stripe_plan_key
             }))}
           />
         </div>
