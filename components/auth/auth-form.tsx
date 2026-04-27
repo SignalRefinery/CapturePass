@@ -73,7 +73,22 @@ export function AuthForm({ mode }: AuthFormProps) {
       });
 
       if (signUpError) {
-        setError(signUpError.message);
+        const signUpMessage = signUpError.message || "Unable to create account.";
+        const normalizedMessage = signUpMessage.toLowerCase();
+
+        if (
+          normalizedMessage.includes("already registered") ||
+          normalizedMessage.includes("already exists") ||
+          normalizedMessage.includes("user already") ||
+          normalizedMessage.includes("email")
+        ) {
+          setError(
+            "That email is already associated with a SignalPass account. Try signing in instead, or use password reset if you need access."
+          );
+        } else {
+          setError(signUpMessage);
+        }
+
         setLoading(false);
         return;
       }
