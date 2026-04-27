@@ -25,6 +25,53 @@ async function findUserIdByCustomer(customerId: string | null) {
   return data?.user_id || null;
 }
 
+async function sendCardNotification(userId: string) {
+  const admin = createAdminClient();
+
+  const { data: profile, error } = await admin
+    .from("profiles")
+    .select("email, full_name, slug, private_token, card_notification_sent_at")
+    .or(`user_id.eq.${userId},id.eq.${userId}`)
+    .maybeSingle();
+
+  if (error || !profile || profile.card_notification_sent_at) return;
+
+  const siteUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://signal-pass.vercel.app").replace(/\/$/, "");
+  const tokenUrl = profile.private_token ? `${siteUrl}/u/${profile.private_token}` : null;
+  const qrUrl = tokenUrl
+    ? `https://quickchart.io/qr?text=${encodeURIComponent(tokenUrl)}&size=600`
+    : null;
+
+  if (!process.env.RESEND_API_KEY || !tokenUrl || !qrUrl) return;
+
+  await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from: "SignalPass <notifications@signalpass.app>",
+      to: "john@signalpass.app",
+      subject: `New SignalPass card ready: ${profile.full_name || profile.email}`,
+      html: `
+        <h2>New SignalPass card ready</h2>
+        <p><strong>Name:</strong> ${profile.full_name || "—"}</p>
+        <p><strong>Email:</strong> ${profile.email || "—"}</p>
+        <p><strong>Slug:</strong> ${profile.slug || "—"}</p>
+        <p><strong>Token URL:</strong> <a href="${tokenUrl}">${tokenUrl}</a></p>
+        <p><strong>QR image URL:</strong> <a href="${qrUrl}">${qrUrl}</a></p>
+        <p><img src="${qrUrl}" alt="QR code" width="300" height="300" /></p>
+      `,
+    }),
+  });
+
+  await admin
+    .from("profiles")
+    .update({ card_notification_sent_at: new Date().toISOString() })
+    .or(`user_id.eq.${userId},id.eq.${userId}`);
+}
+
 async function updateProfileForCheckout(session: Stripe.Checkout.Session) {
   const admin = createAdminClient();
 
@@ -49,6 +96,8 @@ async function updateProfileForCheckout(session: Stripe.Checkout.Session) {
     .or(`user_id.eq.${userId},id.eq.${userId}`);
 
   if (error) throw error;
+
+  await sendCardNotification(userId);
 }
 
 async function updateProfileForSubscription(subscription: Stripe.Subscription) {
