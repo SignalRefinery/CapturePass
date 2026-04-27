@@ -46,13 +46,27 @@ export default async function SignupPage() {
           <span>New account</span>
         </div>
         <h1>Create your Signal Pass account.</h1>
-        <p>Start with a controlled profile, direct-link access, and token-first NFC / QR issuance.</p>
+        <p>
+          Start with a controlled profile, direct-link access, and token-first NFC / QR issuance.
+          If your email is already connected to SignalPass, log in instead of creating a second account.
+        </p>
       </section>
 
       <section className="auth-wrap">
         <div className="auth-card">
           <AuthForm mode="signup" />
-          <p className="auth-switch">Already have an account? <Link href="/login">Log in</Link></p>
+
+          <div className="card" style={{ marginTop: 18, padding: 16 }}>
+            <div className="dashboard-kicker">Account check</div>
+            <p className="editor-copy" style={{ margin: "6px 0 0" }}>
+              If you already signed up with this email, you will not receive another confirmation email.
+              Log in with that email, or reset your password if you need access.
+            </p>
+          </div>
+
+          <p className="auth-switch">
+            Already have an account? <Link href="/login">Log in</Link>
+          </p>
         </div>
       </section>
     </Shell>
