@@ -181,7 +181,7 @@ export default async function AccountPage() {
                   </form>
 
                   <p className="editor-copy" style={{ flexBasis: "100%", margin: "4px 0 0" }}>
-                    Cancellation is handled securely through Stripe. Your access remains active until Stripe processes the change.
+                    Plan changes, payment methods, invoices, and cancellations are handled securely through Stripe.
                   </p>
                 </>
               ) : (
