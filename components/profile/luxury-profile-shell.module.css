@@ -183,6 +183,11 @@
   padding:92px 34px 30px;
   text-align:center;
   overflow:hidden;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:520px;
 }
 
 .profileHero::before{
@@ -211,6 +216,7 @@
   position:relative;
   max-width:980px;
   margin:0 auto;
+  width:100%;
 }
 
 .profileName{
