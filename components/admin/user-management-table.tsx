@@ -157,6 +157,37 @@ export function UserManagementTable({ rows }: { rows: Row[] }) {
     }
   }
 
+  async function deleteUser(userId: string, email: string | null) {
+    const confirmed = window.confirm(
+      `Permanently delete ${email || "this user"}? This removes the profile and auth account. This cannot be undone.`
+    );
+    if (!confirmed) return;
+
+    const secondConfirm = window.confirm(
+      "Final confirmation: permanently delete this account?"
+    );
+    if (!secondConfirm) return;
+
+    setWorkingId(userId);
+
+    try {
+      const response = await fetch(`/api/admin/users/${userId}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        const payload = await response.json().catch(() => null);
+        throw new Error(payload?.error || "Delete request failed.");
+      }
+
+      setLocalRows((current) => current.filter((row) => row.user_id !== userId));
+    } catch (error) {
+      alert(error instanceof Error ? error.message : "Could not delete user.");
+    } finally {
+      setWorkingId(null);
+    }
+  }
+
   return (
     <div
       className="card"
@@ -337,6 +368,21 @@ export function UserManagementTable({ rows }: { rows: Row[] }) {
                           {workingId === r.user_id ? "Disabling…" : "Disable"}
                         </button>
                       ) : null}
+
+                      <button
+                        type="button"
+                        disabled={workingId === r.user_id}
+                        onClick={() => deleteUser(r.user_id, r.email)}
+                        style={{
+                          ...actionButtonStyle,
+                          borderColor: "#fecdd3",
+                          background: "#fff1f2",
+                          color: "#9f1239",
+                          opacity: workingId === r.user_id ? 0.55 : 1,
+                        }}
+                      >
+                        {workingId === r.user_id ? "Working…" : "Delete"}
+                      </button>
                     </div>
                   </td>
                 </tr>
