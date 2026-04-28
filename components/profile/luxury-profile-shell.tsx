@@ -212,14 +212,15 @@ export function LuxuryProfileShell({
               ))}
             </div>
 
-            <div className="cta-row profile-actions">
+            <div className={`${styles.ctaRow} ${styles.profileActions}`}>
               {profile.slug ? (
-                <a className="button primary" href={`/api/vcard/${profile.slug}`}>
+                <a className={`${styles.button} ${styles.profileGoldButton}`} href={`/api/vcard/${profile.slug}`}>
                   Add to Contacts
                 </a>
               ) : null}
+
               {profile.phone ? (
-                <a className="button secondary" href={`sms:${profile.phone.replace(/\D/g, "")}`}>
+                <a className={`${styles.button} ${styles.profileSubtleButton}`} href={textHref(profile.phone)}>
                   Text
                 </a>
               ) : null}
