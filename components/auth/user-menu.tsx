@@ -6,12 +6,14 @@ export function UserMenu({
   mobile = false,
   initialEmail = null,
   initialFullName = null,
-  initialSlug = null
+  initialSlug = null,
+  initialIsAdmin = false
 }: {
   mobile?: boolean;
   initialEmail?: string | null;
   initialFullName?: string | null;
   initialSlug?: string | null;
+  initialIsAdmin?: boolean;
 }) {
   const isLoggedIn = !!initialEmail;
 
@@ -49,18 +51,17 @@ export function UserMenu({
         <Link href="/account" className="user-link">
           Account
         </Link>
-        <Link href="/admin" className="user-link">
-          Admin
-        </Link>
+        {initialIsAdmin ? (
+          <Link href="/admin" className="user-link">
+            Admin
+          </Link>
+        ) : null}
 
         <form action="/auth/signout" method="post">
-  <button
-    className="user-link user-link-button"
-    type="submit"
-  >
-    Sign out
-  </button>
-</form>
+          <button className="user-link user-link-button" type="submit">
+            Sign out
+          </button>
+        </form>
       </div>
     </div>
   );

@@ -59,13 +59,10 @@ export function Shell({
     if (isSignedIn) {
       links.push({ href: "/dashboard", label: "Dashboard" });
       links.push({ href: "/account", label: "Account" });
-    } else {
-      links.push({ href: "/login", label: "Log in" });
-      links.push({ href: "/signup", label: "Sign up" });
-    }
 
-    if (isAdmin) {
-      links.push({ href: "/admin", label: "Admin" });
+      if (isAdmin) {
+        links.push({ href: "/admin", label: "Admin" });
+      }
     }
 
     return links;
@@ -114,6 +111,7 @@ export function Shell({
               initialEmail={initialAuth?.email || null}
               initialFullName={initialAuth?.fullName || null}
               initialSlug={initialAuth?.slug || null}
+              initialIsAdmin={isAdmin}
             />
           </div>
 
@@ -151,6 +149,7 @@ export function Shell({
                 initialEmail={initialAuth?.email || null}
                 initialFullName={initialAuth?.fullName || null}
                 initialSlug={initialAuth?.slug || null}
+                initialIsAdmin={isAdmin}
               />
             </div>
           </div>
