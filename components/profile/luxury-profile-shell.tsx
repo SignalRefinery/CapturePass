@@ -183,13 +183,14 @@ export function LuxuryProfileShell({
               ))}
             </div>
 
-            <div className={`${styles.ctaRow} ${styles.profileActions}`}>
-              <a className={`${styles.button} ${styles.profileGoldButton}`} href={contactHref(profile)}>
-                Add to Contacts
-              </a>
-
+            <div className="cta-row profile-actions">
+              {profile.slug ? (
+                <a className="button primary" href={`/api/vcard/${profile.slug}`}>
+                  Add to Contacts
+                </a>
+              ) : null}
               {profile.phone ? (
-                <a className={`${styles.button} ${styles.profileSubtleButton}`} href={textHref(profile.phone)}>
+                <a className="button secondary" href={`sms:${profile.phone.replace(/\D/g, "")}`}>
                   Text
                 </a>
               ) : null}

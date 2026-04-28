@@ -167,11 +167,23 @@ export default async function AccountPage() {
                   </Link>
                 </>
               ) : account?.customerId ? (
-                <form action="/api/portal" method="post">
-                  <button className="button primary" type="submit">
-                    Manage plan
-                  </button>
-                </form>
+                <>
+                  <form action="/api/portal" method="post">
+                    <button className="button primary" type="submit">
+                      Manage plan
+                    </button>
+                  </form>
+
+                  <form action="/api/portal" method="post">
+                    <button className="button secondary" type="submit">
+                      Cancel subscription
+                    </button>
+                  </form>
+
+                  <p className="editor-copy" style={{ flexBasis: "100%", margin: "4px 0 0" }}>
+                    Cancellation is handled securely through Stripe. Your access remains active until Stripe processes the change.
+                  </p>
+                </>
               ) : (
                 <Link href="/pricing" className="button primary">
                   Choose plan
