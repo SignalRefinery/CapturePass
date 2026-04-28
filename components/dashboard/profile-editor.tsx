@@ -18,23 +18,23 @@ const LINK_FIELD_CONFIG = [
     urlKey: "primary_link_1_url" as const,
     titleLabel: "Link 1 title",
     urlLabel: "Link 1 URL",
-    titlePlaceholder: "Call me",
-    urlPlaceholder: "tel:13125935309"
+    titlePlaceholder: "Call",
+    urlPlaceholder: "tel:15551234567"
   },
   {
     titleKey: "primary_link_2_title" as const,
     urlKey: "primary_link_2_url" as const,
     titleLabel: "Link 2 title",
     urlLabel: "Link 2 URL",
-    titlePlaceholder: "Text me",
-    urlPlaceholder: "sms:13125935309"
+    titlePlaceholder: "Email",
+    urlPlaceholder: "mailto:you@example.com"
   },
   {
     titleKey: "primary_link_3_title" as const,
     urlKey: "primary_link_3_url" as const,
     titleLabel: "Link 3 title",
     urlLabel: "Link 3 URL",
-    titlePlaceholder: "Website",
+    titlePlaceholder: "Website 1",
     urlPlaceholder: "https://example.com"
   },
   {
@@ -42,8 +42,8 @@ const LINK_FIELD_CONFIG = [
     urlKey: "primary_link_4_url" as const,
     titleLabel: "Link 4 title",
     urlLabel: "Link 4 URL",
-    titlePlaceholder: "Download contact card",
-    urlPlaceholder: "/john-keating.vcf"
+    titlePlaceholder: "Website",
+    urlPlaceholder: "https://example.com"
   }
 ];
 
@@ -208,7 +208,7 @@ export function ProfileEditor({ userId, initialProfile }: ProfileEditorProps) {
               <input
                 value={form.full_name || ""}
                 onChange={(event) => update("full_name", event.target.value)}
-                placeholder="John Keating"
+                placeholder="Full name"
               />
             </label>
 
@@ -254,7 +254,7 @@ export function ProfileEditor({ userId, initialProfile }: ProfileEditorProps) {
               <input
                 value={form.website_url || ""}
                 onChange={(event) => update("website_url", event.target.value)}
-                placeholder="signalrefinery.pro"
+                placeholder="https://example.com"
               />
             </label>
           </div>
@@ -265,7 +265,7 @@ export function ProfileEditor({ userId, initialProfile }: ProfileEditorProps) {
               value={form.intro || ""}
               onChange={(event) => update("intro", event.target.value)}
               rows={4}
-              placeholder="Turning complexity into clarity."
+              placeholder="A short introduction for your profile."
             />
           </label>
 
@@ -275,7 +275,7 @@ export function ProfileEditor({ userId, initialProfile }: ProfileEditorProps) {
               <input
                 value={form.email || ""}
                 onChange={(event) => update("email", event.target.value)}
-                placeholder="john@signalrefinery.pro"
+                placeholder="you@example.com"
               />
             </label>
 
@@ -284,7 +284,7 @@ export function ProfileEditor({ userId, initialProfile }: ProfileEditorProps) {
               <input
                 value={form.phone || ""}
                 onChange={(event) => update("phone", event.target.value)}
-                placeholder="3125935309"
+                placeholder="5551234567"
               />
             </label>
           </div>
@@ -334,7 +334,7 @@ export function ProfileEditor({ userId, initialProfile }: ProfileEditorProps) {
                 <input
                   value={form.promo_code_used || ""}
                   onChange={(event) => update("promo_code_used", event.target.value)}
-                  placeholder="FOUNDERS"
+                  placeholder="Optional promo code"
                 />
               </label>
 
