@@ -217,6 +217,7 @@
   max-width:980px;
   margin:0 auto;
   width:100%;
+  transform:translateY(-56px);
 }
 
 .profileName{
@@ -511,4 +512,7 @@
     width:100%;
   }
   .ctaRow{gap:10px}
+  .profileStack{
+    transform:translateY(-32px);
+  }
 }
