@@ -31,15 +31,13 @@ const PLAN_BY_PRICE_ID: Record<string, string> = {
 };
 
 function getPlanFromSubscription(subscription: Stripe.Subscription) {
-  const metadataPlan = subscription.metadata?.plan || subscription.metadata?.selected_plan || null;
-
-  if (metadataPlan) return metadataPlan;
-
   const priceId = subscription.items?.data?.[0]?.price?.id || null;
 
-  if (!priceId) return null;
+  if (priceId && PLAN_BY_PRICE_ID[priceId]) {
+    return PLAN_BY_PRICE_ID[priceId];
+  }
 
-  return PLAN_BY_PRICE_ID[priceId] || null;
+  return subscription.metadata?.plan || subscription.metadata?.selected_plan || null;
 }
 
 async function findUserIdByCustomer(customerId: string | null) {

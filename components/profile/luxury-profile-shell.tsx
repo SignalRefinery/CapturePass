@@ -26,6 +26,12 @@ type ProfileLike = {
   primary_link_4_url?: string | null;
 };
 
+type InitialAuth = {
+  email?: string | null;
+  fullName?: string | null;
+  slug?: string | null;
+} | null;
+
 function digitsOnly(value?: string | null) {
   return (value || "").replace(/\D/g, "");
 }
@@ -100,10 +106,12 @@ function primaryLinks(profile: ProfileLike) {
 
 export function LuxuryProfileShell({
   profile,
-  heroLabel = "Live profile"
+  heroLabel = "Live profile",
+  initialAuth = null
 }: {
   profile: ProfileLike;
   heroLabel?: string;
+  initialAuth?: InitialAuth;
 }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const readableUrl = getReadableProfileUrl(profile);
@@ -129,6 +137,7 @@ export function LuxuryProfileShell({
           <nav className={styles.nav}>
             <Link href="/">Home</Link>
             <Link href="/how-it-works">How it works</Link>
+            {initialAuth ? <Link href="/dashboard">Dashboard</Link> : <Link href="/login">Log in</Link>}
           </nav>
 
           <button
@@ -151,13 +160,33 @@ export function LuxuryProfileShell({
                 <Link href="/" onClick={() => setMobileOpen(false)}>
                   Home
                 </Link>
-                <Link href="/signup" onClick={() => setMobileOpen(false)}>
-                  Sign up
-                </Link>
+                {initialAuth ? (
+                  <>
+                    <Link href="/dashboard" onClick={() => setMobileOpen(false)}>
+                      Dashboard
+                    </Link>
+                    <Link href="/account" onClick={() => setMobileOpen(false)}>
+                      Account
+                    </Link>
+                  </>
+                ) : (
+                  <>
+                    <Link href="/login" onClick={() => setMobileOpen(false)}>
+                      Log in
+                    </Link>
+                    <Link href="/signup" onClick={() => setMobileOpen(false)}>
+                      Sign up
+                    </Link>
+                  </>
+                )}
               </nav>
 
-              <Link className={styles.profileUpgradeCta} href="/signup" onClick={() => setMobileOpen(false)}>
-                Want to upgrade how you connect?
+              <Link
+                className={styles.profileUpgradeCta}
+                href={initialAuth ? "/dashboard" : "/signup"}
+                onClick={() => setMobileOpen(false)}
+              >
+                {initialAuth ? "Go to your dashboard" : "Want to upgrade how you connect?"}
               </Link>
             </div>
           </div>
