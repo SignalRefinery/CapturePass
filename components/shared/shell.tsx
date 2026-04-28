@@ -107,12 +107,14 @@ export function Shell({
               ) : null}
             </nav>
 
-            <UserMenu
-              initialEmail={initialAuth?.email || null}
-              initialFullName={initialAuth?.fullName || null}
-              initialSlug={initialAuth?.slug || null}
-              initialIsAdmin={isAdmin}
-            />
+            <div style={{ marginLeft: "30px" }}>
+              <UserMenu
+                initialEmail={initialAuth?.email || null}
+                initialFullName={initialAuth?.fullName || null}
+                initialSlug={initialAuth?.slug || null}
+                initialIsAdmin={isAdmin}
+              />
+            </div>
           </div>
 
           <button
