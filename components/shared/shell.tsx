@@ -90,7 +90,24 @@ export function Shell({
 
               {profileHref && <Link href={profileHref}>My profile</Link>}
 
-              {isSignedIn ? <Link href="/auth/signout">Sign out</Link> : null}
+              {isSignedIn ? (
+                <form action="/auth/signout" method="post" style={{ display: "inline" }}>
+                  <button
+                    type="submit"
+                    style={{
+                      appearance: "none",
+                      background: "transparent",
+                      border: 0,
+                      color: "inherit",
+                      cursor: "pointer",
+                      font: "inherit",
+                      padding: 0,
+                    }}
+                  >
+                    Sign out
+                  </button>
+                </form>
+              ) : null}
             </nav>
 
             <UserMenu
