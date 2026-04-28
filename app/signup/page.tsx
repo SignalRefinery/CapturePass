@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { Shell } from "@/components/shared/shell";
 import { AuthForm } from "@/components/auth/auth-form";
-
 import { createClient } from "@/lib/supabase/server";
 
 async function getInitialAuth() {
@@ -24,7 +23,6 @@ async function getInitialAuth() {
     slug: profile?.slug || null
   };
 }
-
 
 export default async function SignupPage() {
   const initialAuth = await getInitialAuth();
