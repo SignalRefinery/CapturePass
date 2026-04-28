@@ -12,6 +12,36 @@ function subscriptionIsActive(status: string | null | undefined) {
   return status === "active" || status === "trialing";
 }
 
+const PLAN_BY_PRICE_ID: Record<string, string> = {
+  // Test mode prices
+  price_1TQXe5DZOWbZIzsXdW6KI0DM: "essential",
+  price_1TQXeQDZOWbZIzsXviMsCQli: "professional",
+  price_1TQXefDZOWbZIzsXhs6jxr8N: "premium",
+
+  // Live mode prices can be added through env vars without code changes
+  ...(process.env.STRIPE_PRICE_ESSENTIAL
+    ? { [process.env.STRIPE_PRICE_ESSENTIAL]: "essential" }
+    : {}),
+  ...(process.env.STRIPE_PRICE_PROFESSIONAL
+    ? { [process.env.STRIPE_PRICE_PROFESSIONAL]: "professional" }
+    : {}),
+  ...(process.env.STRIPE_PRICE_PREMIUM
+    ? { [process.env.STRIPE_PRICE_PREMIUM]: "premium" }
+    : {})
+};
+
+function getPlanFromSubscription(subscription: Stripe.Subscription) {
+  const metadataPlan = subscription.metadata?.plan || subscription.metadata?.selected_plan || null;
+
+  if (metadataPlan) return metadataPlan;
+
+  const priceId = subscription.items?.data?.[0]?.price?.id || null;
+
+  if (!priceId) return null;
+
+  return PLAN_BY_PRICE_ID[priceId] || null;
+}
+
 async function findUserIdByCustomer(customerId: string | null) {
   if (!customerId) return null;
 
@@ -108,10 +138,7 @@ async function updateProfileForSubscription(subscription: Stripe.Subscription) {
     subscription.metadata?.user_id ||
     (await findUserIdByCustomer(customerId));
 
-  const plan =
-    subscription.metadata?.plan ||
-    subscription.metadata?.selected_plan ||
-    null;
+  const plan = getPlanFromSubscription(subscription);
 
   if (!userId) return;
 
