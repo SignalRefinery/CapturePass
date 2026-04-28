@@ -2,26 +2,23 @@ import { site } from "@/lib/site";
 import type { Profile, ProfileRecord, PrimaryLink } from "@/lib/types";
 import { normalizeUrl } from "@/lib/utils";
 
-const johnKeating: Profile = {
-  slug: "john-keating",
-  name: "John Keating",
-  role: "Strategic Advisory · Public Affairs · Signal Refinery",
-  intro: "A cleaner way to connect, save contact details, and move the right information forward without clutter.",
-  email: "john@signalrefinery.pro",
-  profileUrl: `${site.url}/john-keating`,
-  phone: "(312) 593-5309",
-  metaPills: ["Illinois-based", "Direct follow-up", "Verified contact card"],
+const demoProfile: Profile = {
+  slug: "demo-profile",
+  name: "Demo Profile",
+  role: "Digital identity profile",
+  intro: "A clean way to share contact details, links, and next steps from one controlled profile.",
+  email: "hello@example.com",
+  profileUrl: `${site.url}/demo-profile`,
+  phone: "",
+  metaPills: ["Live profile", "Direct follow-up", "Verified contact card"],
   primaryLinks: [
-    { title: "Call John", subtitle: "(312) 593-5309 · Direct line", href: "tel:+13125935309" },
-    { title: "Signal Refinery", subtitle: "Strategic advisory, communications, and public-facing work", href: "https://signalrefinery.pro" },
-    { title: "Text John", subtitle: "Send a quick message directly", href: "sms:+13125935309" },
-    { title: "Download contact card", subtitle: "Save to iPhone, Android, Outlook, or desktop contacts", href: "/api/vcard/john-keating" }
+    { title: "Website", subtitle: "Primary website", href: "https://example.com" }
   ],
-  qrUrl: `https://api.qrserver.com/v1/create-qr-code/?size=440x440&data=${encodeURIComponent(`${site.url}/john-keating`)}`
+  qrUrl: `https://api.qrserver.com/v1/create-qr-code/?size=440x440&data=${encodeURIComponent(`${site.url}/demo-profile`)}`
 };
 
 export function getSeedProfileBySlug(slug: string): Profile | null {
-  if (slug === "john-keating") return johnKeating;
+  if (slug === "demo-profile") return demoProfile;
   return null;
 }
 export function seedProfileToRecord(profile: Profile): ProfileRecord {
@@ -32,24 +29,48 @@ export function seedProfileToRecord(profile: Profile): ProfileRecord {
     intro: profile.intro,
     email: profile.email,
     phone: profile.phone,
-    website_url: "https://signalrefinery.pro",
-    primary_link_1_title: profile.primaryLinks[0]?.title ?? "Call",
+    website_url: profile.primaryLinks[0]?.href ?? "",
+    primary_link_1_title: profile.primaryLinks[0]?.title ?? "",
     primary_link_1_url: profile.primaryLinks[0]?.href ?? "",
-    primary_link_2_title: profile.primaryLinks[1]?.title ?? "Website",
+    primary_link_2_title: profile.primaryLinks[1]?.title ?? "",
     primary_link_2_url: profile.primaryLinks[1]?.href ?? "",
-    primary_link_3_title: profile.primaryLinks[2]?.title ?? "Text",
+    primary_link_3_title: profile.primaryLinks[2]?.title ?? "",
     primary_link_3_url: profile.primaryLinks[2]?.href ?? "",
-    primary_link_4_title: profile.primaryLinks[3]?.title ?? "Download contact card",
+    primary_link_4_title: profile.primaryLinks[3]?.title ?? "",
     primary_link_4_url: profile.primaryLinks[3]?.href ?? ""
   };
 }
 export function profileRecordToPublicProfile(record: ProfileRecord): Profile {
   const primaryLinks: PrimaryLink[] = [
-    { title: record.primary_link_1_title || "Call", subtitle: record.phone ? `${record.phone} · Direct line` : "Direct line", href: normalizeUrl(record.primary_link_1_url || "#") },
-    { title: record.primary_link_2_title || "Website", subtitle: "Primary website", href: normalizeUrl(record.primary_link_2_url || record.website_url || "#") },
-    { title: record.primary_link_3_title || "Text", subtitle: "Start a direct text thread", href: record.primary_link_3_url || "#" },
-    { title: record.primary_link_4_title || "Download contact card", subtitle: "Save to contacts", href: record.primary_link_4_url || `/api/vcard/${record.slug}` }
-  ];
+    record.primary_link_1_url
+      ? {
+          title: record.primary_link_1_title || "Link",
+          subtitle: record.phone ? `${record.phone} · Direct line` : "Primary action",
+          href: normalizeUrl(record.primary_link_1_url)
+        }
+      : null,
+    record.primary_link_2_url
+      ? {
+          title: record.primary_link_2_title || "Link",
+          subtitle: "Primary website",
+          href: normalizeUrl(record.primary_link_2_url || record.website_url || "")
+        }
+      : null,
+    record.primary_link_3_url
+      ? {
+          title: record.primary_link_3_title || "Link",
+          subtitle: "Direct action",
+          href: record.primary_link_3_url
+        }
+      : null,
+    record.primary_link_4_url
+      ? {
+          title: record.primary_link_4_title || "Link",
+          subtitle: "Additional resource",
+          href: record.primary_link_4_url
+        }
+      : null
+  ].filter(Boolean) as PrimaryLink[];
   return {
     slug: record.slug,
     name: record.full_name,
@@ -58,7 +79,7 @@ export function profileRecordToPublicProfile(record: ProfileRecord): Profile {
     email: record.email,
     profileUrl: `${site.url}/${record.slug}`,
     phone: record.phone,
-    metaPills: ["Live profile", "Direct follow-up", "Verified contact card"],
+    metaPills: ["Live profile", "Direct follow-up"],
     primaryLinks,
     qrUrl: `https://api.qrserver.com/v1/create-qr-code/?size=440x440&data=${encodeURIComponent(`${site.url}/${record.slug}`)}`
   };
