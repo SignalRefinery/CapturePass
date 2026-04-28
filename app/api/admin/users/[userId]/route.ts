@@ -79,7 +79,22 @@ async function requireAdmin() {
     data: { user }
   } = await supabase.auth.getUser();
 
-  if (!user?.email || !ADMIN_EMAILS.includes(user.email.toLowerCase())) {
+  if (!user?.email) {
+    return null;
+  }
+
+  if (ADMIN_EMAILS.includes(user.email.toLowerCase())) {
+    return user;
+  }
+
+  const admin = createAdminClient();
+  const { data: profile, error } = await admin
+    .from("profiles")
+    .select("is_admin")
+    .or(`user_id.eq.${user.id},id.eq.${user.id}`)
+    .maybeSingle();
+
+  if (error || !profile?.is_admin) {
     return null;
   }
 
@@ -257,11 +272,6 @@ export async function DELETE(
   const { userId } = await params;
   const admin = createAdminClient();
 
-  const { error: authError } = await admin.auth.admin.deleteUser(userId);
-  if (authError) {
-    return NextResponse.json({ error: authError.message }, { status: 400 });
-  }
-
   const { error: profileError } = await admin
     .from("profiles")
     .delete()
@@ -269,6 +279,11 @@ export async function DELETE(
 
   if (profileError) {
     return NextResponse.json({ error: profileError.message }, { status: 400 });
+  }
+
+  const { error: authError } = await admin.auth.admin.deleteUser(userId);
+  if (authError) {
+    return NextResponse.json({ error: authError.message }, { status: 400 });
   }
 
   // --- Admin audit log for user deletion ---

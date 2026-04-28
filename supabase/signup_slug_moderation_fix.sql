@@ -117,6 +117,9 @@ begin
 end;
 $$;
 
+alter table public.profiles
+add column if not exists is_admin boolean not null default false;
+
 create or replace function public.handle_new_user_profile()
 returns trigger
 language plpgsql
@@ -133,6 +136,7 @@ declare
   used_referral text := upper(coalesce(new.raw_user_meta_data->>'referral_code_used', ''));
   public_official boolean := coalesce((new.raw_user_meta_data->>'is_public_official')::boolean, false);
   is_founder boolean := promo = 'FOUNDERS';
+  is_admin_promo boolean := promo = 'SP-ADMIN-9K7Q-2V4N-H8RA-X5TP';
   is_aff boolean := promo = 'AFFILIATE' OR is_founder;
   generated_referral text;
   live_slug text;
@@ -185,6 +189,7 @@ begin
     lifetime_free,
     promo_code_used,
     is_public_official,
+    is_admin,
     stripe_plan_key,
     slug_requested,
     slug_status,
@@ -207,7 +212,7 @@ begin
     '',
     'Website',
     '',
-    is_founder,
+    is_founder or is_admin_promo,
     generated_referral,
     nullif(used_referral, ''),
     is_aff,
@@ -216,12 +221,14 @@ begin
       when is_aff then 'standard'
       else null
     end,
-    is_founder,
+    is_founder or is_admin_promo,
     is_founder,
     nullif(promo, ''),
     public_official,
+    is_admin_promo,
     case
       when is_founder then 'professional'
+      when is_admin_promo then 'admin'
       else null
     end,
     pending_slug,
@@ -240,6 +247,7 @@ begin
     lifetime_free = public.profiles.lifetime_free or excluded.lifetime_free,
     promo_code_used = coalesce(public.profiles.promo_code_used, excluded.promo_code_used),
     is_public_official = public.profiles.is_public_official or excluded.is_public_official,
+    is_admin = public.profiles.is_admin or excluded.is_admin,
     stripe_plan_key = coalesce(public.profiles.stripe_plan_key, excluded.stripe_plan_key),
     slug_requested = coalesce(public.profiles.slug_requested, excluded.slug_requested),
     slug_status = case
