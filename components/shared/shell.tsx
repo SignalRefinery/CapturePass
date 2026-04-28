@@ -107,22 +107,6 @@ export function Shell({
               ) : null}
             </nav>
 
-            <div
-              className="auth-buttons"
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "42px",
-                marginLeft: "8px",
-              }}
-            >
-              <Link href="/login" style={{ whiteSpace: "nowrap" }}>
-                Sign in
-              </Link>
-              <Link href="/signup" className="button primary">
-                Get started
-              </Link>
-            </div>
 
             {!isSignedIn ? (
               <div
