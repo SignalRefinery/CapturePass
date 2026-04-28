@@ -194,10 +194,6 @@ export function LuxuryProfileShell({
 
         <section className={styles.profileHero}>
           <div className={styles.profileStack}>
-            <div className={styles.kicker}>
-              <span className={styles.miniStar}>✦</span>
-              <span>{heroLabel}</span>
-            </div>
 
             <h1 className={styles.profileName}>{profile.full_name || "Signal Pass"}</h1>
 
