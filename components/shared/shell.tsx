@@ -89,6 +89,8 @@ export function Shell({
               ))}
 
               {profileHref && <Link href={profileHref}>My profile</Link>}
+
+              {isSignedIn ? <Link href="/auth/signout">Sign out</Link> : null}
             </nav>
 
             <UserMenu
