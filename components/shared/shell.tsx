@@ -107,14 +107,41 @@ export function Shell({
               ) : null}
             </nav>
 
-            <div style={{ marginLeft: "30px" }}>
-              <UserMenu
-                initialEmail={initialAuth?.email || null}
-                initialFullName={initialAuth?.fullName || null}
-                initialSlug={initialAuth?.slug || null}
-                initialIsAdmin={isAdmin}
-              />
+            <div
+              className="auth-buttons"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "42px",
+                marginLeft: "8px",
+              }}
+            >
+              <Link href="/login" style={{ whiteSpace: "nowrap" }}>
+                Sign in
+              </Link>
+              <Link href="/signup" className="button primary">
+                Get started
+              </Link>
             </div>
+
+            {!isSignedIn ? (
+              <div
+                className="auth-buttons"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "42px",
+                  marginLeft: "34px",
+                }}
+              >
+                <Link href="/login" style={{ whiteSpace: "nowrap" }}>
+                  Sign in
+                </Link>
+                <Link href="/signup" className="button primary">
+                  Get started
+                </Link>
+              </div>
+            ) : null}
           </div>
 
           <button
