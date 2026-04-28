@@ -28,7 +28,7 @@ export function UserMenu({
         </Link>
       </div>
     ) : (
-      <div className="auth-buttons">
+      <div className="auth-buttons" style={{ gap: "28px" }}>
         <Link href="/login">Sign in</Link>
         <Link href="/signup" className="button primary">
           Get started
