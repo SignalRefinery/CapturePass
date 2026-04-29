@@ -47,11 +47,26 @@ const LINK_FIELD_CONFIG = [
   }
 ];
 
+function phoneToTel(value?: string | null) {
+  const digits = (value || "").replace(/\D/g, "");
+  if (!digits) return "";
+  return `tel:${digits.length === 10 ? "1" : ""}${digits}`;
+}
+
+function emailToMailto(value?: string | null) {
+  const email = (value || "").trim();
+  if (!email) return "";
+  return `mailto:${email}`;
+}
+
 export function ProfileEditor({ userId, initialProfile }: ProfileEditorProps) {
   const [form, setForm] = useState<ProfileRecord>(initialProfile);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+
+  const callLink = phoneToTel(form.phone);
+  const emailLink = emailToMailto(form.email);
 
   const slugModeration = useMemo(() => classifySlug(form.slug || ""), [form.slug]);
   const slugIsApproved = form.slug_status === "approved" && slugModeration.state !== "blocked";
@@ -124,14 +139,8 @@ export function ProfileEditor({ userId, initialProfile }: ProfileEditorProps) {
         slug: initialProfile.slug,
         promo_code_used: promo || null,
         website_url: normalizeUrl(form.website_url || ""),
-        primary_link_1_url:
-          form.primary_link_1_url?.startsWith("tel:") || form.primary_link_1_url?.startsWith("sms:")
-            ? form.primary_link_1_url
-            : normalizeUrl(form.primary_link_1_url || ""),
-        primary_link_2_url:
-          form.primary_link_2_url?.startsWith("tel:") || form.primary_link_2_url?.startsWith("sms:")
-            ? form.primary_link_2_url
-            : normalizeUrl(form.primary_link_2_url || ""),
+        primary_link_1_url: callLink,
+        primary_link_2_url: emailLink,
         primary_link_3_url:
           form.primary_link_3_url?.startsWith("tel:") || form.primary_link_3_url?.startsWith("sms:")
             ? form.primary_link_3_url
@@ -282,6 +291,8 @@ export function ProfileEditor({ userId, initialProfile }: ProfileEditorProps) {
             <label className="auth-field">
               <span>Phone</span>
               <input
+                required
+                type="tel"
                 value={form.phone || ""}
                 onChange={(event) => update("phone", event.target.value)}
                 placeholder="5551234567"
@@ -317,9 +328,16 @@ export function ProfileEditor({ userId, initialProfile }: ProfileEditorProps) {
                 <label className="auth-field">
                   <span>{field.urlLabel}</span>
                   <input
-                    value={(form[field.urlKey] as string) || ""}
+                    value={
+                      field.urlKey === "primary_link_1_url"
+                        ? callLink
+                        : field.urlKey === "primary_link_2_url"
+                          ? emailLink
+                          : ((form[field.urlKey] as string) || "")
+                    }
                     onChange={(event) => update(field.urlKey, event.target.value)}
                     placeholder={field.urlPlaceholder}
+                    readOnly={field.urlKey === "primary_link_1_url" || field.urlKey === "primary_link_2_url"}
                   />
                 </label>
               </div>
