@@ -72,10 +72,26 @@ async function sendCardNotification(userId: string, session?: Stripe.Checkout.Se
 
   if (!process.env.RESEND_API_KEY || !tokenUrl || !qrUrl) return;
 
-  const customerName = session?.customer_details?.name || profile.full_name || "—";
-  const customerEmail = session?.customer_details?.email || profile.email || "—";
-  const shippingName = session?.shipping_details?.name || customerName;
-  const shippingAddress = session?.shipping_details?.address || null;
+  const checkoutSession = session as
+    | (Stripe.Checkout.Session & {
+        shipping_details?: {
+          name?: string | null;
+          address?: {
+            line1?: string | null;
+            line2?: string | null;
+            city?: string | null;
+            state?: string | null;
+            postal_code?: string | null;
+            country?: string | null;
+          } | null;
+        } | null;
+      })
+    | undefined;
+
+  const customerName = checkoutSession?.customer_details?.name || profile.full_name || "—";
+  const customerEmail = checkoutSession?.customer_details?.email || profile.email || "—";
+  const shippingName = checkoutSession?.shipping_details?.name || customerName;
+  const shippingAddress = checkoutSession?.shipping_details?.address || null;
 
   const shippingHtml = shippingAddress
     ? `
