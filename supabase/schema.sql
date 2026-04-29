@@ -16,7 +16,7 @@ create table if not exists public.profiles (
   primary_link_2_url text not null default '',
   primary_link_3_title text not null default 'Website',
   primary_link_3_url text not null default '',
-  primary_link_4_title text not null default 'Website',
+  primary_link_4_title text not null default 'Add to contacts',
   primary_link_4_url text not null default '',
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
