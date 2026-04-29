@@ -289,7 +289,7 @@ export function ProfileEditor({ userId, initialProfile }: ProfileEditorProps) {
             </label>
 
             <label className="auth-field">
-              <span>Phone</span>
+              <span>Phone *</span>
               <input
                 required
                 type="tel"
@@ -297,6 +297,15 @@ export function ProfileEditor({ userId, initialProfile }: ProfileEditorProps) {
                 onChange={(event) => update("phone", event.target.value)}
                 placeholder="5551234567"
               />
+              {!form.phone ? (
+                <small className="auth-error">
+                  Phone is required to enable the Call action.
+                </small>
+              ) : (
+                <small className="auth-message">
+                  Used to automatically generate your Call button.
+                </small>
+              )}
             </label>
           </div>
 

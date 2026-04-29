@@ -127,6 +127,114 @@ export default async function AdminPage() {
             </div>
           </div>
 
+          {affiliates.length > 0 ? (
+            <div className="card" style={{ padding: 18 }}>
+              <div className="dashboard-kicker">Affiliates</div>
+              <h2 className="section-title" style={{ fontSize: 22 }}>
+                Affiliate overview
+              </h2>
+              <p className="editor-copy">
+                Track referral codes, signups, and reconciliation status for each affiliate.
+              </p>
+
+              <div style={{ overflowX: "auto" }}>
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Email</th>
+                      <th>Code</th>
+                      <th>Signups</th>
+                      <th>Reconciled</th>
+                      <th>Unpaid</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {affiliates.map((affiliate) => {
+                      const referred = rows.filter(
+                        (r) => r.referral_code_used && r.referral_code_used === affiliate.referral_code
+                      );
+
+                      const reconciled = referred.filter((r) => r.referral_reconciled);
+
+                      const unpaid = referred.length - reconciled.length;
+
+                      return (
+                        <tr key={`affiliate-${affiliate.user_id}`}>
+                          <td colSpan={6} style={{ padding: 0 }}>
+                            <details style={{ padding: "12px 14px" }}>
+                              <summary
+                                style={{
+                                  cursor: "pointer",
+                                  display: "grid",
+                                  gridTemplateColumns: "1.2fr 1.3fr .9fr .65fr .8fr .65fr",
+                                  gap: 12,
+                                  alignItems: "center"
+                                }}
+                              >
+                                <span>{affiliate.full_name || "—"}</span>
+                                <span>{affiliate.email || "—"}</span>
+                                <span>{affiliate.referral_code || "—"}</span>
+                                <span>{referred.length}</span>
+                                <span>{reconciled.length}</span>
+                                <span>{unpaid}</span>
+                              </summary>
+
+                              <div style={{ marginTop: 14, overflowX: "auto" }}>
+                                {referred.length > 0 ? (
+                                  <table className="admin-table">
+                                    <thead>
+                                      <tr>
+                                        <th>Referred user</th>
+                                        <th>Email</th>
+                                        <th>Plan</th>
+                                        <th>Status</th>
+                                        <th>Reconciliation</th>
+                                        <th>Manage</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      {referred.map((referredUser) => (
+                                        <tr key={`referred-${affiliate.user_id}-${referredUser.user_id}`}>
+                                          <td>{referredUser.full_name || "—"}</td>
+                                          <td>{referredUser.email || "—"}</td>
+                                          <td>{referredUser.stripe_plan_key || "—"}</td>
+                                          <td>{referredUser.is_active ? "Active" : "Inactive"}</td>
+                                          <td>
+                                            {referredUser.referral_reconciled ? "Reconciled" : "Unpaid"}
+                                            {referredUser.referral_reconciled_at
+                                              ? ` · ${new Date(referredUser.referral_reconciled_at).toLocaleDateString()}`
+                                              : ""}
+                                          </td>
+                                          <td>
+                                            <Link
+                                              className="button secondary"
+                                              href={`/admin/account/${referredUser.user_id}`}
+                                            >
+                                              Manage
+                                            </Link>
+                                          </td>
+                                        </tr>
+                                      ))}
+                                    </tbody>
+                                  </table>
+                                ) : (
+                                  <p className="editor-copy" style={{ margin: 0 }}>
+                                    No referred users yet.
+                                  </p>
+                                )}
+                              </div>
+                            </details>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          ) : null}
+
           {pendingSlugRows.length > 0 ? (
             <SlugReviewQueue rows={pendingSlugRows} />
           ) : null}
@@ -222,7 +330,10 @@ export default async function AdminPage() {
               is_affiliate: row.is_affiliate,
               affiliate_tier: row.affiliate_tier,
               is_public_official: row.is_public_official,
-              stripe_plan_key: row.stripe_plan_key
+              stripe_plan_key: row.stripe_plan_key,
+              referral_code_used: row.referral_code_used,
+              referral_reconciled: row.referral_reconciled,
+              referral_reconciled_at: row.referral_reconciled_at
             }))}
           />
         </div>

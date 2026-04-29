@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { slugify } from "@/lib/utils";
@@ -185,12 +186,12 @@ export function AuthForm({ mode }: AuthFormProps) {
       </label>
       {mode === "login" ? (
         <div style={{ marginTop: 6, marginBottom: 12 }}>
-          <a
+          <Link
             href="/forgot-password"
             style={{ fontSize: 13, color: "var(--muted)", textDecoration: "underline" }}
           >
             Forgot password?
-          </a>
+          </Link>
         </div>
       ) : null}
 

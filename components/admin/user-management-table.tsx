@@ -14,6 +14,9 @@ type Row = {
   affiliate_tier: string | null;
   is_public_official: boolean | null;
   stripe_plan_key: string | null;
+  referral_code_used?: string | null;
+  referral_reconciled?: boolean | null;
+  referral_reconciled_at?: string | null;
 };
 
 const cellStyle: React.CSSProperties = {
@@ -188,6 +191,43 @@ export function UserManagementTable({ rows }: { rows: Row[] }) {
     }
   }
 
+  async function toggleReferralReconciled(userId: string, currentValue: boolean | null | undefined) {
+    setWorkingId(userId);
+
+    try {
+      const response = await fetch(`/api/referrals/${userId}/reconcile`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ reconciled: !currentValue }),
+      });
+
+      if (!response.ok) {
+        const payload = await response.json().catch(() => null);
+        throw new Error(payload?.error || "Reconciliation update failed.");
+      }
+
+      const payload = await response.json().catch(() => null);
+
+      setLocalRows((current) =>
+        current.map((row) =>
+          row.user_id === userId
+            ? {
+                ...row,
+                referral_reconciled: !!payload?.referral_reconciled,
+                referral_reconciled_at: payload?.referral_reconciled_at || null,
+              }
+            : row,
+        ),
+      );
+    } catch (error) {
+      alert(error instanceof Error ? error.message : "Could not update reconciliation status.");
+    } finally {
+      setWorkingId(null);
+    }
+  }
+
   return (
     <div
       className="card"
@@ -246,6 +286,7 @@ export function UserManagementTable({ rows }: { rows: Row[] }) {
             <col style={{ width: 160 }} />
             <col style={{ width: 105 }} />
             <col style={{ width: 130 }} />
+            <col style={{ width: 160 }} />
             <col style={{ width: 240 }} />
             <col style={{ width: 260 }} />
           </colgroup>
@@ -270,6 +311,7 @@ export function UserManagementTable({ rows }: { rows: Row[] }) {
               >
                 Plan {sortKey === "stripe_plan_key" ? (asc ? "↑" : "↓") : ""}
               </th>
+              <th style={headerStyle}>Referral</th>
               <th style={headerStyle}>Flags</th>
               <th style={{ ...headerStyle, borderRight: 0 }}>Actions</th>
             </tr>
@@ -305,6 +347,19 @@ export function UserManagementTable({ rows }: { rows: Row[] }) {
 
                   <td style={cellStyle} title={r.stripe_plan_key || ""}>
                     {r.stripe_plan_key || "—"}
+                  </td>
+
+                  <td style={cellStyle} title={r.referral_code_used || ""}>
+                    {r.referral_code_used ? (
+                      <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}>
+                        <Badge tone={r.referral_reconciled ? "good" : "warn"}>
+                          {r.referral_reconciled ? "Reconciled" : "Unpaid"}
+                        </Badge>
+                        <span>{r.referral_code_used}</span>
+                      </div>
+                    ) : (
+                      "—"
+                    )}
                   </td>
 
                   <td style={cellStyle}>
@@ -354,6 +409,23 @@ export function UserManagementTable({ rows }: { rows: Row[] }) {
                         Copy email
                       </button>
 
+                      {r.referral_code_used ? (
+                        <button
+                          type="button"
+                          disabled={workingId === r.user_id}
+                          onClick={() => toggleReferralReconciled(r.user_id, r.referral_reconciled)}
+                          style={{
+                            ...actionButtonStyle,
+                            borderColor: r.referral_reconciled ? "#bbf7d0" : "#fde68a",
+                            background: r.referral_reconciled ? "#f0fdf4" : "#fffbeb",
+                            color: r.referral_reconciled ? "#14532d" : "#78350f",
+                            opacity: workingId === r.user_id ? 0.55 : 1,
+                          }}
+                        >
+                          {r.referral_reconciled ? "Mark unpaid" : "Mark reconciled"}
+                        </button>
+                      ) : null}
+
                       {r.is_active ? (
                         <button
                           type="button"
@@ -391,7 +463,7 @@ export function UserManagementTable({ rows }: { rows: Row[] }) {
 
             {filtered.length === 0 ? (
               <tr>
-                <td colSpan={7} style={{ ...cellStyle, textAlign: "center" }}>
+                <td colSpan={8} style={{ ...cellStyle, textAlign: "center" }}>
                   No users match your search.
                 </td>
               </tr>

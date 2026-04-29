@@ -11,11 +11,50 @@ async function requireAdmin() {
     data: { user }
   } = await supabase.auth.getUser();
 
-  if (!user?.email || !ADMIN_EMAILS.includes(user.email.toLowerCase())) {
+  if (!user?.email) {
+    return null;
+  }
+
+  if (ADMIN_EMAILS.includes(user.email.toLowerCase())) {
+    return user;
+  }
+
+  const admin = createAdminClient();
+  const { data: profile, error } = await admin
+    .from("profiles")
+    .select("is_admin")
+    .or(`user_id.eq.${user.id},id.eq.${user.id}`)
+    .maybeSingle();
+
+  if (error || !profile?.is_admin) {
     return null;
   }
 
   return user;
+}
+
+async function writeAdminAuditLog({
+  adminEmail,
+  targetUserId,
+  action,
+  details
+}: {
+  adminEmail: string;
+  targetUserId: string;
+  action: string;
+  details?: Record<string, unknown>;
+}) {
+  try {
+    const admin = createAdminClient();
+    await admin.from("admin_audit_log").insert({
+      admin_email: adminEmail,
+      target_user_id: targetUserId,
+      action,
+      details: details || {}
+    });
+  } catch (auditError) {
+    console.error("Admin audit log failed:", auditError);
+  }
 }
 
 export async function PATCH(
@@ -78,6 +117,21 @@ export async function PATCH(
     return NextResponse.json({ error: profileError.message }, { status: 400 });
   }
 
+  await writeAdminAuditLog({
+    adminEmail: adminUser.email || "unknown-admin",
+    targetUserId: userId,
+    action: "profile_updated",
+    details: {
+      slug: moderation.normalized,
+      is_active: !!body.is_active,
+      billing_exempt: !!body.billing_exempt,
+      is_affiliate: !!body.is_affiliate,
+      affiliate_tier: body.affiliate_tier || null,
+      is_public_official: !!body.is_public_official,
+      stripe_plan_key: body.stripe_plan_key || null
+    }
+  });
+
   if (body.email || body.full_name) {
     const { error: authError } = await admin.auth.admin.updateUserById(userId, {
       email: body.email || undefined,
@@ -106,11 +160,6 @@ export async function DELETE(
   const { userId } = await params;
   const admin = createAdminClient();
 
-  const { error: authError } = await admin.auth.admin.deleteUser(userId);
-  if (authError) {
-    return NextResponse.json({ error: authError.message }, { status: 400 });
-  }
-
   const { error: profileError } = await admin
     .from("profiles")
     .delete()
@@ -119,6 +168,18 @@ export async function DELETE(
   if (profileError) {
     return NextResponse.json({ error: profileError.message }, { status: 400 });
   }
+
+  const { error: authError } = await admin.auth.admin.deleteUser(userId);
+  if (authError) {
+    return NextResponse.json({ error: authError.message }, { status: 400 });
+  }
+
+  await writeAdminAuditLog({
+    adminEmail: adminUser.email || "unknown-admin",
+    targetUserId: userId,
+    action: "user_deleted",
+    details: {}
+  });
 
   return NextResponse.json({ ok: true });
 }
