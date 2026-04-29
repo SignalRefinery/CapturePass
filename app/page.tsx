@@ -66,8 +66,8 @@ export default async function HomePage() {
             fontWeight: 400
           }}
         >
-          Signal Pass is a premium profile system for professionals who need to
-          move information quickly, credibly, and without friction.
+          Signal Pass turns a physical card into a live, one-tap profile.
+          When someone taps or scans, they land on your contact info and key links instantly — no searching, no typing, no friction.
         </p>
 
         <div
