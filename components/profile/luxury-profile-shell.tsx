@@ -71,7 +71,7 @@ function subtitleForLink(item: { title?: string | null; href?: string | null }, 
   if (href.startsWith("sms:") || title.includes("text")) {
     return "Send a quick message directly";
   }
-  if (title.includes("download contact card") || href.includes("/api/vcard/")) {
+  if (title.includes("add to contacts") || href.includes("/api/vcard/")) {
     return "Save to iPhone, Android, Outlook, or desktop contacts";
   }
   if (href.includes("signalrefinery")) {
@@ -88,15 +88,12 @@ function primaryLinks(profile: ProfileLike) {
     { title: profile.primary_link_1_title, href: profile.primary_link_1_url },
     { title: profile.primary_link_2_title, href: profile.primary_link_2_url },
     { title: profile.primary_link_3_title, href: profile.primary_link_3_url },
-    {
-      title: profile.primary_link_4_title || "Download contact card",
-      href: profile.primary_link_4_url || contactHref(profile)
-    }
+    { title: profile.primary_link_4_title, href: profile.primary_link_4_url }
   ].filter((item) => item.title && item.href);
 
-  if (!items.some((item) => (item.href || "").includes("/api/vcard/"))) {
+  if (profile.slug && !items.some((item) => (item.href || "").includes("/api/vcard/"))) {
     items.push({
-      title: "Download contact card",
+      title: "Add to contacts",
       href: contactHref(profile)
     });
   }
