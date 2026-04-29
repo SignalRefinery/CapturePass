@@ -33,7 +33,7 @@ export default async function HomePage() {
       initialAuth={initialAuth}
       navLinks={[
         { href: "/how-it-works", label: "How it works" },
-        { href: "/john-keating", label: "Live profile" }
+        { href: "/pricing", label: "Pricing" }
       ]}
     >
       <section className="simple-hero" style={{ paddingBottom: 40 }}>
@@ -85,14 +85,14 @@ export default async function HomePage() {
 
           <Link
             className="button secondary"
-            href="/john-keating"
+            href="/pricing"
             style={{
               border: "1px solid rgba(255,255,255,.1)",
               background: "rgba(255,255,255,.025)",
               color: "var(--text)"
             }}
           >
-            View Live Profile
+            View Pricing
           </Link>
         </div>
 
