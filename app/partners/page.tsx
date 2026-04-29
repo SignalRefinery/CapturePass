@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { Shell } from "@/components/shared/shell";
 
 import { createClient } from "@/lib/supabase/server";
@@ -56,6 +58,33 @@ export default async function PartnersPage() {
           <div className="step"><div className="num">01</div><div><h2>Founder and early partner referrals</h2><p>Introduce Signal Pass to public-facing professionals, campaigns, organizations, and businesses that would benefit from controlled digital identity cards.</p></div></div>
           <div className="step"><div className="num">02</div><div><h2>Tracked access, clean attribution</h2><p>Approved partners can use referral codes so introductions are attributed clearly. Terms can be set by relationship, campaign, or project without putting public pricing on the page.</p></div></div>
           <div className="step"><div className="num">03</div><div><h2>Built for serious distribution</h2><p>This is not an open affiliate program. It is for people and organizations with real networks, trusted relationships, and a reason to put Signal Pass in front of the right users.</p></div></div>
+        </div>
+      </section>
+
+      <section className="section-wrap" style={{ paddingTop: 0 }}>
+        <div className="card" style={{ padding: 28, textAlign: "center" }}>
+          <div className="dashboard-kicker" style={{ justifyContent: "center" }}>
+            Partner requests
+          </div>
+          <h2
+            style={{
+              margin: "8px auto 12px",
+              maxWidth: 760,
+              fontFamily: '"Cormorant Garamond", Georgia, serif',
+              fontSize: "clamp(36px, 5vw, 64px)",
+              lineHeight: 0.95,
+              letterSpacing: "-0.035em"
+            }}
+          >
+            Want to introduce Signal Pass to your network?
+          </h2>
+          <p className="editor-copy" style={{ maxWidth: 720, margin: "0 auto 22px" }}>
+            Partner access is reviewed manually. Tell us who you work with, who you can reach,
+            and why Signal Pass fits your network.
+          </p>
+          <Link className="button primary" href="/partner-request">
+            Request partner access
+          </Link>
         </div>
       </section>
     </Shell>
