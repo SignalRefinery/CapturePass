@@ -9,7 +9,7 @@ export default function PricingPage() {
       navLinks={[
         { href: "/", label: "Home" },
         { href: "/how-it-works", label: "How it works" },
-        { href: "/john-keating", label: "Live profile" }
+        { href: "/custom", label: "Custom cards" }
       ]}
     >
       <section className="simple-hero" style={{ paddingBottom: 40 }}>
