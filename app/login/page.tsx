@@ -45,14 +45,24 @@ export default async function LoginPage() {
           <span className="mini-star">✦</span>
           <span>Account access</span>
         </div>
-        <h1>Log in to your dashboard.</h1>
-        <p>Access your profile controls, issued NFC / QR URL, and account settings.</p>
+        <h1>Log in to manage your Signal Pass.</h1>
+        <p>
+          Update your profile, manage your card link, review account settings, and keep your
+          contact actions current.
+        </p>
       </section>
 
       <section className="auth-wrap">
         <div className="auth-card">
           <AuthForm mode="login" />
-          <p className="auth-switch">Need an account? <Link href="/signup">Create one</Link></p>
+
+          <p style={{ marginTop: 10, fontSize: 13, color: "var(--muted)" }}>
+            Forgot your password? Use the reset link above.
+          </p>
+
+          <p className="auth-switch">
+            Need an account? <Link href="/signup">Create one</Link>
+          </p>
         </div>
       </section>
     </Shell>
