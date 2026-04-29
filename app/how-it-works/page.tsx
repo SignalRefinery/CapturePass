@@ -42,10 +42,11 @@ export default async function HowItWorksPage() {
           <span className="mini-star">✦</span>
           <span>How it works</span>
         </div>
-        <h1>Controlled identity, delivered by direct link.</h1>
+        <h1>A cleaner way to hand someone your next step.</h1>
         <p>
-          Signal Pass keeps the experience simple: one profile, one issued
-          destination, and minimal public surface area.
+          Signal Pass connects a physical card to a live profile. When someone taps
+          or scans, they land on a clean, controlled page with your contact info
+          and next steps — no searching, no typing, no friction.
         </p>
       </section>
 
@@ -53,10 +54,11 @@ export default async function HowItWorksPage() {
         <div className="step">
           <div className="num">01</div>
           <div>
-            <h2>Create the profile</h2>
+            <h2>Create your controlled profile</h2>
             <p>
-              Set up the public-facing details you want available to direct-link
-              visitors.
+              Set up your profile with your phone, email, and key links. This is
+              exactly what people will see when they tap your card or open your
+              link.
             </p>
           </div>
         </div>
@@ -64,10 +66,11 @@ export default async function HowItWorksPage() {
         <div className="step">
           <div className="num">02</div>
           <div>
-            <h2>Approve and issue</h2>
+            <h2>Issue the card link</h2>
             <p>
-              Profiles are reviewed as needed, then an issued NFC / QR
-              destination is generated from the private token route.
+              Your card points to a secure token link, not a fixed page. You can
+              update your profile anytime without reprinting cards or changing QR
+              codes.
             </p>
           </div>
         </div>
@@ -75,10 +78,10 @@ export default async function HowItWorksPage() {
         <div className="step">
           <div className="num">03</div>
           <div>
-            <h2>Share intentionally</h2>
+            <h2>Share without adding friction</h2>
             <p>
-              Your profile is designed for direct-link use, not public discovery,
-              indexing, or browse surfaces.
+              Hand someone your card or let them scan. They land instantly on your
+              profile and can call, email, or visit your links in one tap.
             </p>
           </div>
         </div>
