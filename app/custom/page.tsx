@@ -112,7 +112,7 @@ export default async function CustomPage() {
       <section className="dashboard-wrap" style={{ paddingTop: 0 }}>
         <div className="card" style={{ padding: 16, overflow: "hidden" }}>
           <img
-            src="/custom-card.jpg"
+            src="/custom-legislative-card.jpg"
             alt="Custom SignalPass card held outside the Illinois Capitol"
             style={{
               display: "block",
