@@ -183,6 +183,16 @@ export function AuthForm({ mode }: AuthFormProps) {
           required
         />
       </label>
+      {mode === "login" ? (
+        <div style={{ marginTop: 6, marginBottom: 12 }}>
+          <a
+            href="/forgot-password"
+            style={{ fontSize: 13, color: "var(--muted)", textDecoration: "underline" }}
+          >
+            Forgot password?
+          </a>
+        </div>
+      ) : null}
 
       {error ? <p className="auth-error">{error}</p> : null}
       {message ? <p className="auth-message">{message}</p> : null}
