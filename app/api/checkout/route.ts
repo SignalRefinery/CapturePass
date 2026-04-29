@@ -107,6 +107,10 @@ async function createCheckoutOrPortal(req: Request) {
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
       customer_email: user.email || undefined,
+      shipping_address_collection: {
+        allowed_countries: ["US"]
+      },
+      billing_address_collection: "required",
       line_items: [
         {
           price: SETUP_FEE_PRICE_ID,

@@ -53,7 +53,7 @@ async function findUserIdByCustomer(customerId: string | null) {
   return data?.user_id || null;
 }
 
-async function sendCardNotification(userId: string) {
+async function sendCardNotification(userId: string, session?: Stripe.Checkout.Session) {
   const admin = createAdminClient();
 
   const { data: profile, error } = await admin
@@ -72,6 +72,25 @@ async function sendCardNotification(userId: string) {
 
   if (!process.env.RESEND_API_KEY || !tokenUrl || !qrUrl) return;
 
+  const customerName = session?.customer_details?.name || profile.full_name || "—";
+  const customerEmail = session?.customer_details?.email || profile.email || "—";
+  const shippingName = session?.shipping_details?.name || customerName;
+  const shippingAddress = session?.shipping_details?.address || null;
+
+  const shippingHtml = shippingAddress
+    ? `
+        <p><strong>Shipping Address:</strong><br />
+          ${shippingName}<br />
+          ${shippingAddress.line1 || ""}<br />
+          ${shippingAddress.line2 ? `${shippingAddress.line2}<br />` : ""}
+          ${shippingAddress.city || ""}${shippingAddress.city || shippingAddress.state ? ", " : ""}${shippingAddress.state || ""} ${shippingAddress.postal_code || ""}<br />
+          ${shippingAddress.country || ""}
+        </p>
+      `
+    : `
+        <p><strong>Shipping Address:</strong><br />No shipping address provided.</p>
+      `;
+
   await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
@@ -81,11 +100,12 @@ async function sendCardNotification(userId: string) {
     body: JSON.stringify({
       from: "SignalPass <notifications@signalpass.app>",
       to: "john@signalpass.app",
-      subject: `New SignalPass card ready: ${profile.full_name || profile.email}`,
+      subject: `New SignalPass card ready: ${customerName || customerEmail}`,
       html: `
         <h2>New SignalPass card ready</h2>
-        <p><strong>Name:</strong> ${profile.full_name || "—"}</p>
-        <p><strong>Email:</strong> ${profile.email || "—"}</p>
+        <p><strong>Name:</strong> ${customerName}</p>
+        <p><strong>Email:</strong> ${customerEmail}</p>
+        ${shippingHtml}
         <p><strong>Slug:</strong> ${profile.slug || "—"}</p>
         <p><strong>Token URL:</strong> <a href="${tokenUrl}">${tokenUrl}</a></p>
         <p><strong>QR image URL:</strong> <a href="${qrUrl}">${qrUrl}</a></p>
@@ -125,7 +145,7 @@ async function updateProfileForCheckout(session: Stripe.Checkout.Session) {
 
   if (error) throw error;
 
-  await sendCardNotification(userId);
+  await sendCardNotification(userId, session);
 }
 
 async function updateProfileForSubscription(subscription: Stripe.Subscription) {
