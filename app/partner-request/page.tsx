@@ -24,10 +24,27 @@ export default function PartnerRequestPage() {
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => {
+
+    try {
+      const response = await fetch("/api/partner-request", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(form)
+      });
+
+      if (!response.ok) {
+        const payload = await response.json().catch(() => null);
+        throw new Error(payload?.error || "Could not submit partner request.");
+      }
+
       setSubmitted(true);
+    } catch (error) {
+      alert(error instanceof Error ? error.message : "Could not submit partner request.");
+    } finally {
       setLoading(false);
-    }, 800);
+    }
   }
 
   return (
