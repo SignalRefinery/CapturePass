@@ -48,7 +48,14 @@ export default async function AdminPage() {
     .order("created_at", { ascending: false })
     .limit(250);
 
+  const { data: partnerRequests } = await supabase
+    .from("partner_requests")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(50);
+
   const rows = profiles || [];
+  const requestRows = partnerRequests || [];
 
   const affiliates = rows.filter((row) => row.is_affiliate);
   const active = rows.filter((row) => row.is_active);
@@ -92,7 +99,7 @@ export default async function AdminPage() {
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(6, minmax(0, 1fr))",
+              gridTemplateColumns: "repeat(7, minmax(0, 1fr))",
               gap: 12
             }}
           >
@@ -125,7 +132,55 @@ export default async function AdminPage() {
               <div className="label">Risk flags</div>
               <strong style={{ fontSize: 28 }}>{riskCases.length}</strong>
             </div>
+            <div className="card" style={{ padding: 16 }}>
+              <div className="label">Partner requests</div>
+              <strong style={{ fontSize: 28 }}>{requestRows.length}</strong>
+            </div>
           </div>
+          {requestRows.length > 0 ? (
+            <div className="card" style={{ padding: 18 }}>
+              <div className="dashboard-kicker">Partner intake</div>
+              <h2 className="section-title" style={{ fontSize: 22 }}>
+                Partner requests
+              </h2>
+              <p className="editor-copy">
+                Review inbound partner requests, then approve qualified people from the user detail page by assigning affiliate status and a referral code.
+              </p>
+
+              <div style={{ overflowX: "auto" }}>
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Email</th>
+                      <th>Organization</th>
+                      <th>Role</th>
+                      <th>Network</th>
+                      <th>Status</th>
+                      <th>Created</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {requestRows.map((request) => (
+                      <tr key={request.id}>
+                        <td>{request.name || "—"}</td>
+                        <td>{request.email || "—"}</td>
+                        <td>{request.organization || "—"}</td>
+                        <td>{request.role || "—"}</td>
+                        <td>{request.network || "—"}</td>
+                        <td>{request.status || "new"}</td>
+                        <td>
+                          {request.created_at
+                            ? new Date(request.created_at).toLocaleDateString()
+                            : "—"}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          ) : null}
 
           {affiliates.length > 0 ? (
             <div className="card" style={{ padding: 18 }}>
