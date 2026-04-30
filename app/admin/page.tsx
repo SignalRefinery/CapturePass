@@ -63,8 +63,12 @@ export default async function AdminPage() {
     (row) => row.slug_status === "pending_review" && row.slug_requested
   );
   const blockedSlugCases = rows.filter((row) => {
-    const liveSlugState = classifySlug(row.slug || "").state;
-    const requestedSlugState = classifySlug(row.slug_requested || "").state;
+    const liveSlug = (row.slug || "").trim();
+    const requestedSlug = (row.slug_requested || "").trim();
+
+    const liveSlugState = liveSlug ? classifySlug(liveSlug).state : "ok";
+    const requestedSlugState = requestedSlug ? classifySlug(requestedSlug).state : "ok";
+
     return liveSlugState === "blocked" || requestedSlugState === "blocked";
   });
   const riskCases = rows.filter(
@@ -183,25 +187,72 @@ export default async function AdminPage() {
           ) : null}
 
           {affiliates.length > 0 ? (
-            <div className="card" style={{ padding: 18 }}>
-              <div className="dashboard-kicker">Affiliates</div>
-              <h2 className="section-title" style={{ fontSize: 22 }}>
-                Affiliate overview
-              </h2>
-              <p className="editor-copy">
-                Track referral codes, signups, and reconciliation status for each affiliate.
-              </p>
+            <div
+              className="card"
+              style={{
+                padding: 0,
+                overflow: "hidden",
+                background: "#f8fafc",
+                color: "#0f172a",
+                border: "1px solid #cbd5e1"
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  gap: 16,
+                  padding: "18px 20px",
+                  borderBottom: "1px solid #cbd5e1"
+                }}
+              >
+                <div>
+                  <div
+                    style={{
+                      fontSize: 12,
+                      textTransform: "uppercase",
+                      letterSpacing: ".12em",
+                      color: "#64748b",
+                      fontWeight: 800
+                    }}
+                  >
+                    Affiliates
+                  </div>
+                  <h2
+                    style={{
+                      margin: "6px 0 0",
+                      fontSize: 24,
+                      lineHeight: 1.1,
+                      color: "#0f172a"
+                    }}
+                  >
+                    Affiliate spreadsheet
+                  </h2>
+                </div>
+                <div style={{ color: "#475569", fontWeight: 700 }}>
+                  {affiliates.length} affiliate{affiliates.length === 1 ? "" : "s"}
+                </div>
+              </div>
 
               <div style={{ overflowX: "auto" }}>
-                <table className="admin-table">
+                <table
+                  style={{
+                    width: "100%",
+                    borderCollapse: "collapse",
+                    minWidth: 980,
+                    fontSize: 15
+                  }}
+                >
                   <thead>
-                    <tr>
-                      <th>Name</th>
-                      <th>Email</th>
-                      <th>Code</th>
-                      <th>Signups</th>
-                      <th>Reconciled</th>
-                      <th>Unpaid</th>
+                    <tr style={{ background: "#e2e8f0" }}>
+                      <th style={{ padding: "14px 16px", textAlign: "left", borderRight: "1px solid #cbd5e1" }}>Name</th>
+                      <th style={{ padding: "14px 16px", textAlign: "left", borderRight: "1px solid #cbd5e1" }}>Email</th>
+                      <th style={{ padding: "14px 16px", textAlign: "left", borderRight: "1px solid #cbd5e1" }}>Code</th>
+                      <th style={{ padding: "14px 16px", textAlign: "left", borderRight: "1px solid #cbd5e1" }}>Signups</th>
+                      <th style={{ padding: "14px 16px", textAlign: "left", borderRight: "1px solid #cbd5e1" }}>Reconciled</th>
+                      <th style={{ padding: "14px 16px", textAlign: "left", borderRight: "1px solid #cbd5e1" }}>Unpaid</th>
+                      <th style={{ padding: "14px 16px", textAlign: "left" }}>Details</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -211,60 +262,60 @@ export default async function AdminPage() {
                       );
 
                       const reconciled = referred.filter((r) => r.referral_reconciled);
-
                       const unpaid = referred.length - reconciled.length;
 
                       return (
-                        <tr key={`affiliate-${affiliate.user_id}`}>
-                          <td colSpan={6} style={{ padding: 0 }}>
-                            <details style={{ padding: "12px 14px" }}>
-                              <summary
-                                style={{
-                                  cursor: "pointer",
-                                  display: "grid",
-                                  gridTemplateColumns: "1.2fr 1.3fr .9fr .65fr .8fr .65fr",
-                                  gap: 12,
-                                  alignItems: "center"
-                                }}
-                              >
-                                <span>{affiliate.full_name || "—"}</span>
-                                <span>{affiliate.email || "—"}</span>
-                                <span>{affiliate.referral_code || "—"}</span>
-                                <span>{referred.length}</span>
-                                <span>{reconciled.length}</span>
-                                <span>{unpaid}</span>
+                        <tr key={`affiliate-${affiliate.user_id}`} style={{ borderTop: "1px solid #cbd5e1" }}>
+                          <td style={{ padding: "14px 16px", borderRight: "1px solid #cbd5e1" }}>{affiliate.full_name || "—"}</td>
+                          <td style={{ padding: "14px 16px", borderRight: "1px solid #cbd5e1" }}>{affiliate.email || "—"}</td>
+                          <td style={{ padding: "14px 16px", borderRight: "1px solid #cbd5e1", fontFamily: "monospace" }}>{affiliate.referral_code || "—"}</td>
+                          <td style={{ padding: "14px 16px", borderRight: "1px solid #cbd5e1" }}>{referred.length}</td>
+                          <td style={{ padding: "14px 16px", borderRight: "1px solid #cbd5e1" }}>{reconciled.length}</td>
+                          <td style={{ padding: "14px 16px", borderRight: "1px solid #cbd5e1", fontWeight: 800, color: unpaid > 0 ? "#92400e" : "#166534" }}>{unpaid}</td>
+                          <td style={{ padding: "14px 16px" }}>
+                            <details>
+                              <summary style={{ cursor: "pointer", fontWeight: 800, color: "#1d4ed8" }}>
+                                View users
                               </summary>
 
-                              <div style={{ marginTop: 14, overflowX: "auto" }}>
+                              <div style={{ marginTop: 12, overflowX: "auto" }}>
                                 {referred.length > 0 ? (
-                                  <table className="admin-table">
+                                  <table
+                                    style={{
+                                      width: "100%",
+                                      borderCollapse: "collapse",
+                                      minWidth: 760,
+                                      background: "#ffffff",
+                                      border: "1px solid #cbd5e1"
+                                    }}
+                                  >
                                     <thead>
-                                      <tr>
-                                        <th>Referred user</th>
-                                        <th>Email</th>
-                                        <th>Plan</th>
-                                        <th>Status</th>
-                                        <th>Reconciliation</th>
-                                        <th>Manage</th>
+                                      <tr style={{ background: "#f1f5f9" }}>
+                                        <th style={{ padding: 10, textAlign: "left", borderRight: "1px solid #cbd5e1" }}>User</th>
+                                        <th style={{ padding: 10, textAlign: "left", borderRight: "1px solid #cbd5e1" }}>Email</th>
+                                        <th style={{ padding: 10, textAlign: "left", borderRight: "1px solid #cbd5e1" }}>Plan</th>
+                                        <th style={{ padding: 10, textAlign: "left", borderRight: "1px solid #cbd5e1" }}>Status</th>
+                                        <th style={{ padding: 10, textAlign: "left", borderRight: "1px solid #cbd5e1" }}>Referral</th>
+                                        <th style={{ padding: 10, textAlign: "left" }}>Manage</th>
                                       </tr>
                                     </thead>
                                     <tbody>
                                       {referred.map((referredUser) => (
-                                        <tr key={`referred-${affiliate.user_id}-${referredUser.user_id}`}>
-                                          <td>{referredUser.full_name || "—"}</td>
-                                          <td>{referredUser.email || "—"}</td>
-                                          <td>{referredUser.stripe_plan_key || "—"}</td>
-                                          <td>{referredUser.is_active ? "Active" : "Inactive"}</td>
-                                          <td>
+                                        <tr key={`referred-${affiliate.user_id}-${referredUser.user_id}`} style={{ borderTop: "1px solid #e2e8f0" }}>
+                                          <td style={{ padding: 10, borderRight: "1px solid #e2e8f0" }}>{referredUser.full_name || "—"}</td>
+                                          <td style={{ padding: 10, borderRight: "1px solid #e2e8f0" }}>{referredUser.email || "—"}</td>
+                                          <td style={{ padding: 10, borderRight: "1px solid #e2e8f0" }}>{referredUser.stripe_plan_key || "—"}</td>
+                                          <td style={{ padding: 10, borderRight: "1px solid #e2e8f0" }}>{referredUser.is_active ? "Active" : "Inactive"}</td>
+                                          <td style={{ padding: 10, borderRight: "1px solid #e2e8f0" }}>
                                             {referredUser.referral_reconciled ? "Reconciled" : "Unpaid"}
                                             {referredUser.referral_reconciled_at
                                               ? ` · ${new Date(referredUser.referral_reconciled_at).toLocaleDateString()}`
                                               : ""}
                                           </td>
-                                          <td>
+                                          <td style={{ padding: 10 }}>
                                             <Link
-                                              className="button secondary"
                                               href={`/admin/account/${referredUser.user_id}`}
+                                              style={{ color: "#1d4ed8", fontWeight: 800 }}
                                             >
                                               Manage
                                             </Link>
@@ -274,9 +325,7 @@ export default async function AdminPage() {
                                     </tbody>
                                   </table>
                                 ) : (
-                                  <p className="editor-copy" style={{ margin: 0 }}>
-                                    No referred users yet.
-                                  </p>
+                                  <p style={{ margin: 0, color: "#64748b" }}>No referred users yet.</p>
                                 )}
                               </div>
                             </details>
