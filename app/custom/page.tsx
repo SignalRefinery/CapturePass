@@ -43,38 +43,45 @@ const lead = {
   margin: "0 auto",
   color: "var(--muted)",
   fontSize: "clamp(18px, 2vw, 24px)",
-  lineHeight: 1.55
+  lineHeight: 1.55,
+  textAlign: "center" as const
 };
 
 const sectionTitle = {
-  margin: "0 0 12px",
+  margin: "0 auto 12px",
   fontFamily: '"Cormorant Garamond", Georgia, serif',
   fontSize: "clamp(36px, 5vw, 62px)",
   lineHeight: 0.95,
   letterSpacing: "-0.03em",
-  color: "#f4efe3"
+  color: "#f4efe3",
+  textAlign: "center" as const
 };
 
 const copy = {
   color: "var(--muted)",
   fontSize: 17,
   lineHeight: 1.75,
-  margin: 0
+  margin: "0 auto",
+  maxWidth: 860,
+  textAlign: "center" as const
 };
 
 const list = {
   display: "grid",
   gap: 12,
-  margin: "18px 0 0",
+  margin: "18px auto 0",
   padding: 0,
   listStyle: "none",
   color: "var(--muted)",
   fontSize: 16,
-  lineHeight: 1.5
+  lineHeight: 1.5,
+  maxWidth: 720,
+  textAlign: "center" as const
 };
 
 const cardStyle = {
   padding: 28,
+  textAlign: "center" as const,
   background:
     "radial-gradient(520px 220px at 12% 0%, rgba(201,164,92,.12), transparent 62%), linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.014)), linear-gradient(180deg, rgba(11,20,35,.86), rgba(7,16,28,.94))"
 };
@@ -94,7 +101,7 @@ export default async function CustomPage() {
         { href: "/partners", label: "Partners" }
       ]}
     >
-      <section className="simple-hero" style={{ paddingBottom: 36 }}>
+      <section className="simple-hero" style={{ paddingBottom: 36, textAlign: "center" }}>
         <div className="kicker">
           <span className="mini-star">✦</span>
           <span>Custom cards</span>
@@ -110,7 +117,7 @@ export default async function CustomPage() {
       </section>
 
       <section className="dashboard-wrap" style={{ paddingTop: 0 }}>
-        <div className="card" style={{ padding: 16, overflow: "hidden" }}>
+        <div className="card" style={{ padding: 16, overflow: "hidden", textAlign: "center" }}>
           <img
             src="/custom-legislative-card.jpg"
             alt="Custom SignalPass card held outside the Illinois Capitol"
@@ -191,7 +198,8 @@ export default async function CustomPage() {
                   border: "1px solid rgba(201,164,92,.16)",
                   borderRadius: 22,
                   padding: 18,
-                  background: "rgba(255,255,255,.03)"
+                  background: "rgba(255,255,255,.03)",
+                  textAlign: "center"
                 }}
               >
                 <div className="dashboard-kicker" style={{ marginBottom: 8 }}>

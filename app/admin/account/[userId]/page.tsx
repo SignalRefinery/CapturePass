@@ -52,6 +52,10 @@ async function updateUserAction(formData: FormData) {
       updates.affiliate_tier = value.trim() || null;
       updates.is_affiliate = value.trim().length > 0;
       break;
+    case "referral_code":
+      updates.referral_code = value.trim().toUpperCase() || null;
+      updates.is_affiliate = value.trim().length > 0 || undefined;
+      break;
     case "stripe_plan_key":
       updates.stripe_plan_key = value.trim() || null;
       break;
@@ -237,6 +241,10 @@ export default async function AdminUserPage({ params }: PageProps) {
                 <div>{profile.affiliate_tier || "—"}</div>
               </div>
               <div>
+                <span className="label">Referral code</span>
+                <div>{profile.referral_code || "—"}</div>
+              </div>
+              <div>
                 <span className="label">Billing exempt</span>
                 <div>{profile.billing_exempt ? "Yes" : "No"}</div>
               </div>
@@ -367,6 +375,28 @@ export default async function AdminUserPage({ params }: PageProps) {
                   </select>
                   <button className="button primary" type="submit">
                     Save affiliate tier
+                  </button>
+                </form>
+
+                <form
+                  action={updateUserAction}
+                  className="card"
+                  style={{ padding: 14 }}
+                >
+                  <input type="hidden" name="userId" value={profile.user_id} />
+                  <input type="hidden" name="field" value="referral_code" />
+                  <label className="label" htmlFor="referral-code">
+                    Referral code
+                  </label>
+                  <input
+                    id="referral-code"
+                    name="value"
+                    defaultValue={profile.referral_code || ""}
+                    placeholder="PARTNER-CODE"
+                    style={{ width: "100%", padding: 10, margin: "8px 0" }}
+                  />
+                  <button className="button primary" type="submit">
+                    Save referral code
                   </button>
                 </form>
 
