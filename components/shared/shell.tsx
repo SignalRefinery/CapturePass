@@ -10,6 +10,7 @@ const PUBLIC_NAV_LINKS = [
   { href: "/", label: "Home" },
   { href: "/how-it-works", label: "How it works" },
   { href: "/pricing", label: "Pricing" },
+  { href: "/custom", label: "Custom" },
   { href: "/partners", label: "Partners" },
 ];
 
