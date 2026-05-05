@@ -129,14 +129,15 @@ export default function PricingPage() {
             className="card"
             style={{
               marginTop: 18,
-              padding: 28,
+              padding: "clamp(22px, 5vw, 34px)",
               display: "grid",
               gap: 18,
+              textAlign: "center",
               background:
                 "radial-gradient(520px 220px at 12% 0%, rgba(201,164,92,.12), transparent 62%), linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.014)), linear-gradient(180deg, rgba(11,20,35,.86), rgba(7,16,28,.94))"
             }}
           >
-            <div className="kicker" style={{ margin: 0 }}>
+            <div className="kicker" style={{ margin: "0 auto" }}>
               <span className="mini-star">✦</span>
               <span>Custom cards</span>
             </div>
@@ -144,21 +145,21 @@ export default function PricingPage() {
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "minmax(0, 1.1fr) minmax(260px, .9fr)",
+                gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 280px), 1fr))",
                 gap: 24,
                 alignItems: "center"
               }}
             >
-              <div>
+              <div style={{ display: "grid", justifyItems: "center" }}>
                 <h2 style={heading}>Legislative access cards</h2>
 
-                <p style={desc}>
+                <p style={{ ...desc, maxWidth: 760, textAlign: "center" }}>
                   Custom QR and NFC cards for lobbyists, advocacy organizations, campaigns,
                   companies, and firms that need fast access to legislative packets, policy
                   documents, briefing materials, and live resources.
                 </p>
 
-                <div style={features}>
+                <div style={{ ...features, maxWidth: 720, textAlign: "center", justifyItems: "center" }}>
                   <div>Direct access to legislative packets and supporting documents</div>
                   <div>Custom branding for organizations, coalitions, and campaigns</div>
                   <div>Static or dynamically routed destinations</div>
@@ -175,13 +176,14 @@ export default function PricingPage() {
                   border: "1px solid rgba(201,164,92,.18)",
                   borderRadius: 24,
                   padding: 22,
-                  background: "rgba(255,255,255,.035)"
+                  background: "rgba(255,255,255,.035)",
+                  textAlign: "center"
                 }}
               >
                 <h3 style={{ ...bandHeading, fontSize: 34, marginBottom: 12 }}>
                   Stop sending links. Start handing them over.
                 </h3>
-                <p style={{ ...bandText, fontSize: 16, textAlign: "left" }}>
+                <p style={{ ...bandText, fontSize: 16, textAlign: "center" }}>
                   Designed for controlled distribution where the right document needs to be one
                   tap away.
                 </p>
