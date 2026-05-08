@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 function cleanValue(value: unknown) {
   if (typeof value !== "string") return null;
@@ -15,6 +16,64 @@ function slugify(value: string) {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")
     .slice(0, 80);
+}
+
+async function sendFounderCardNotification(userId: string) {
+  const admin = createAdminClient();
+
+  const { data: profile, error } = await admin
+    .from("profiles")
+    .select("email, full_name, slug, private_token, card_notification_sent_at")
+    .or(`user_id.eq.${userId},id.eq.${userId}`)
+    .maybeSingle();
+
+  if (error || !profile || profile.card_notification_sent_at) return;
+
+  const siteUrl = (
+    process.env.NEXT_PUBLIC_APP_URL ||
+    "https://signal-pass.vercel.app"
+  ).replace(/\/$/, "");
+
+  const tokenUrl = profile.private_token
+    ? `${siteUrl}/u/${profile.private_token}`
+    : null;
+
+  const qrUrl = tokenUrl
+    ? `https://quickchart.io/qr?text=${encodeURIComponent(tokenUrl)}&size=600`
+    : null;
+
+  if (!process.env.RESEND_API_KEY || !tokenUrl || !qrUrl) return;
+
+  const customerName = profile.full_name || "—";
+  const customerEmail = profile.email || "—";
+
+  await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from: "SignalPass <notifications@signalpass.app>",
+      to: "john@signalpass.app",
+      subject: `New SignalPass founder card ready: ${customerName || customerEmail}`,
+      html: `
+        <h2>New SignalPass founder card ready</h2>
+        <p><strong>Name:</strong> ${customerName}</p>
+        <p><strong>Email:</strong> ${customerEmail}</p>
+        <p><strong>Promo:</strong> FOUNDERS</p>
+        <p><strong>Slug:</strong> ${profile.slug || "—"}</p>
+        <p><strong>Token URL:</strong> <a href="${tokenUrl}">${tokenUrl}</a></p>
+        <p><strong>QR image URL:</strong> <a href="${qrUrl}">${qrUrl}</a></p>
+        <p><img src="${qrUrl}" alt="QR code" width="300" height="300" /></p>
+      `,
+    }),
+  });
+
+  await admin
+    .from("profiles")
+    .update({ card_notification_sent_at: new Date().toISOString() })
+    .or(`user_id.eq.${userId},id.eq.${userId}`);
 }
 
 export async function GET(req: Request) {
@@ -75,6 +134,10 @@ export async function GET(req: Request) {
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     });
+
+    if (promoCode === "FOUNDERS") {
+      await sendFounderCardNotification(user.id);
+    }
   } else if (promoCode === "FOUNDERS") {
     await supabase
       .from("profiles")
@@ -86,6 +149,8 @@ export async function GET(req: Request) {
         updated_at: new Date().toISOString()
       })
       .eq("user_id", user.id);
+
+    await sendFounderCardNotification(user.id);
   }
 
   return NextResponse.redirect(new URL("/dashboard", req.url));
