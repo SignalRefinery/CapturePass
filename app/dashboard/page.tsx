@@ -49,7 +49,7 @@ async function submitFounderCardClaim(formData: FormData) {
     redirect("/dashboard?claim_founder_card=1&claim_error=email_not_configured");
   }
 
-  await fetch("https://api.resend.com/emails", {
+  const resendResponse = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
@@ -77,6 +77,10 @@ async function submitFounderCardClaim(formData: FormData) {
       `
     })
   });
+
+  if (!resendResponse.ok) {
+    redirect("/dashboard?claim_founder_card=1&claim_error=email_failed");
+  }
 
   redirect("/dashboard?founder_card_claimed=1");
 }
@@ -224,7 +228,11 @@ export default async function DashboardPage({
 
                 {claimError ? (
                   <p className="editor-copy">
-                    Please complete the required shipping fields before submitting.
+                    {claimError === "email_failed"
+                      ? "The claim was submitted, but the notification email failed to send. Check the Resend configuration and try again."
+                      : claimError === "email_not_configured"
+                        ? "The claim form is working, but the email service is not configured. Add RESEND_API_KEY and try again."
+                        : "Please complete the required shipping fields before submitting."}
                   </p>
                 ) : null}
 
