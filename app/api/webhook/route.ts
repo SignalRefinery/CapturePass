@@ -85,13 +85,48 @@ async function sendCardNotification(userId: string, session?: Stripe.Checkout.Se
             country?: string | null;
           } | null;
         } | null;
+        collected_information?: {
+          shipping_details?: {
+            name?: string | null;
+            address?: {
+              line1?: string | null;
+              line2?: string | null;
+              city?: string | null;
+              state?: string | null;
+              postal_code?: string | null;
+              country?: string | null;
+            } | null;
+          } | null;
+        } | null;
       })
     | undefined;
 
-  const customerName = checkoutSession?.customer_details?.name || profile.full_name || "—";
-  const customerEmail = checkoutSession?.customer_details?.email || profile.email || "—";
-  const shippingName = checkoutSession?.shipping_details?.name || customerName;
-  const shippingAddress = checkoutSession?.shipping_details?.address || null;
+  const collectedShippingDetails =
+    checkoutSession?.collected_information?.shipping_details || null;
+
+  const legacyShippingDetails =
+    checkoutSession?.shipping_details || null;
+
+  const shippingDetails =
+    collectedShippingDetails || legacyShippingDetails;
+
+  const customerName =
+    checkoutSession?.customer_details?.name ||
+    profile.full_name ||
+    "—";
+
+  const customerEmail =
+    checkoutSession?.customer_details?.email ||
+    profile.email ||
+    "—";
+
+  const shippingName =
+    shippingDetails?.name || customerName;
+
+  const shippingAddress =
+    shippingDetails?.address ||
+    checkoutSession?.customer_details?.address ||
+    null;
 
   const shippingHtml = shippingAddress
     ? `
