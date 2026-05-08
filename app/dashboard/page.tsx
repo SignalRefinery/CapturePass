@@ -6,6 +6,81 @@ import { getProfileForUserServer } from "@/lib/profile-service-server";
 import { createClient } from "@/lib/supabase/server";
 import { slugify } from "@/lib/utils";
 
+async function submitFounderCardClaim(formData: FormData) {
+  "use server";
+
+  const supabase = await createClient();
+  const {
+    data: { user }
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("full_name, email, slug, private_token, billing_exempt, lifetime_free, promo_code_used")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (!profile?.billing_exempt && !profile?.lifetime_free && profile?.promo_code_used !== "FOUNDERS") {
+    redirect("/dashboard");
+  }
+
+  const shippingName = String(formData.get("shipping_name") || "").trim();
+  const line1 = String(formData.get("line1") || "").trim();
+  const line2 = String(formData.get("line2") || "").trim();
+  const city = String(formData.get("city") || "").trim();
+  const state = String(formData.get("state") || "").trim();
+  const postalCode = String(formData.get("postal_code") || "").trim();
+
+  if (!shippingName || !line1 || !city || !state || !postalCode) {
+    redirect("/dashboard?claim_founder_card=1&claim_error=missing_fields");
+  }
+
+  const siteUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://signal-pass.vercel.app").replace(/\/$/, "");
+  const tokenUrl = profile?.private_token ? `${siteUrl}/u/${profile.private_token}` : null;
+  const qrUrl = tokenUrl
+    ? `https://quickchart.io/qr?text=${encodeURIComponent(tokenUrl)}&size=600`
+    : null;
+
+  if (!process.env.RESEND_API_KEY) {
+    redirect("/dashboard?claim_founder_card=1&claim_error=email_not_configured");
+  }
+
+  await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      from: "SignalPass <notifications@signalpass.app>",
+      to: "john@signalpass.app",
+      subject: `Founder card claimed: ${shippingName}`,
+      html: `
+        <h2>Founder card claimed</h2>
+        <p><strong>Name:</strong> ${profile?.full_name || shippingName}</p>
+        <p><strong>Email:</strong> ${profile?.email || user.email || "—"}</p>
+        <p><strong>Promo:</strong> ${profile?.promo_code_used || "FOUNDERS"}</p>
+        <p><strong>Shipping Address:</strong><br />
+          ${shippingName}<br />
+          ${line1}<br />
+          ${line2 ? `${line2}<br />` : ""}
+          ${city}, ${state} ${postalCode}<br />
+          US
+        </p>
+        <p><strong>Slug:</strong> ${profile?.slug || "—"}</p>
+        ${tokenUrl ? `<p><strong>Token URL:</strong> <a href="${tokenUrl}">${tokenUrl}</a></p>` : ""}
+        ${qrUrl ? `<p><strong>QR image URL:</strong> <a href="${qrUrl}">${qrUrl}</a></p><p><img src="${qrUrl}" alt="QR code" width="300" height="300" /></p>` : ""}
+      `
+    })
+  });
+
+  redirect("/dashboard?founder_card_claimed=1");
+}
+
 async function getInitialAuth() {
   const supabase = await createClient();
   const {
@@ -27,7 +102,15 @@ async function getInitialAuth() {
   };
 }
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams
+}: {
+  searchParams?: Promise<{
+    claim_founder_card?: string;
+    founder_card_claimed?: string;
+    claim_error?: string;
+  }>;
+}) {
   const supabase = await createClient();
   const {
     data: { user }
@@ -39,6 +122,8 @@ export default async function DashboardPage() {
 
   const initialAuth = await getInitialAuth();
   const existing = await getProfileForUserServer(user.id);
+
+  const params = searchParams ? await searchParams : {};
 
   const firstName = user.user_metadata?.first_name || "";
   const lastName = user.user_metadata?.last_name || "";
@@ -81,6 +166,13 @@ export default async function DashboardPage() {
   const fullAccess = !!initialProfile.is_active || !!initialProfile.billing_exempt;
   const myProfileHref = initialProfile.slug ? `/${initialProfile.slug}` : null;
 
+  const showFounderClaimForm =
+    params?.claim_founder_card === "1" &&
+    (!!initialProfile.billing_exempt || !!initialProfile.lifetime_free || initialProfile.promo_code_used === "FOUNDERS");
+
+  const founderClaimed = params?.founder_card_claimed === "1";
+  const claimError = params?.claim_error || null;
+
   return (
     <Shell
       footerLeft="Dashboard"
@@ -109,6 +201,79 @@ export default async function DashboardPage() {
 
       {fullAccess ? (
         <>
+          {founderClaimed ? (
+            <section className="dashboard-wrap">
+              <div className="dashboard-card">
+                <div className="dashboard-kicker">Founder card</div>
+                <h2>Founder card claim received.</h2>
+                <p className="editor-copy">
+                  Your shipping details were sent successfully. You can continue editing your profile below.
+                </p>
+              </div>
+            </section>
+          ) : null}
+
+          {showFounderClaimForm ? (
+            <section className="dashboard-wrap">
+              <div className="dashboard-card">
+                <div className="dashboard-kicker">Founder card</div>
+                <h2>Claim your founder card.</h2>
+                <p className="editor-copy">
+                  Founder access bypasses Stripe, so enter your shipping details here to have your physical SignalPass card prepared.
+                </p>
+
+                {claimError ? (
+                  <p className="editor-copy">
+                    Please complete the required shipping fields before submitting.
+                  </p>
+                ) : null}
+
+                <form action={submitFounderCardClaim} className="editor-form">
+                  <label className="editor-label">
+                    Shipping name
+                    <input
+                      className="editor-input"
+                      name="shipping_name"
+                      defaultValue={initialProfile.full_name || ""}
+                      required
+                    />
+                  </label>
+
+                  <label className="editor-label">
+                    Address line 1
+                    <input className="editor-input" name="line1" required />
+                  </label>
+
+                  <label className="editor-label">
+                    Address line 2
+                    <input className="editor-input" name="line2" />
+                  </label>
+
+                  <div className="editor-grid">
+                    <label className="editor-label">
+                      City
+                      <input className="editor-input" name="city" required />
+                    </label>
+
+                    <label className="editor-label">
+                      State
+                      <input className="editor-input" name="state" maxLength={2} required />
+                    </label>
+
+                    <label className="editor-label">
+                      ZIP
+                      <input className="editor-input" name="postal_code" inputMode="numeric" required />
+                    </label>
+                  </div>
+
+                  <button className="button button-primary" type="submit">
+                    Send founder card claim
+                  </button>
+                </form>
+              </div>
+            </section>
+          ) : null}
+
           <ProfileEditor userId={user.id} initialProfile={initialProfile} />
 
           <section className="dashboard-wrap status-bottom">
