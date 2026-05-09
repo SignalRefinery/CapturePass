@@ -77,52 +77,48 @@ export default function PricingPage() {
             <h2 style={heading}>Professional</h2>
 
             <p style={desc}>
-              Stronger positioning and a more refined presentation for
-              higher-trust environments.
+              Expanded profile options, enhanced branding, and stronger tools
+              for professional follow-up.
             </p>
 
-            <div style={price}>
-              $39<span style={sub}> / month</span>
-            </div>
+            <div style={soonPrice}>Available soon</div>
 
-            <div style={setup}>$99 one-time setup</div>
+            <div style={setup}>Professional features are in development.</div>
 
             <div style={features}>
               <div>Everything in Essential</div>
-              <div>Improved presentation flow</div>
-              <div>Cleaner follow-up experience</div>
-              <div>Priority handling</div>
+              <div>Expanded links and profile sections</div>
+              <div>Enhanced branding options</div>
+              <div>Priority support access</div>
             </div>
 
-            <Link className="button primary" href="/api/checkout?plan=professional">
-              Upgrade to Professional
-            </Link>
+            <button className="button primary" type="button" disabled style={disabledButton}>
+              Available soon
+            </button>
           </div>
 
           <div className="card" style={{ padding: 28 }}>
             <h2 style={heading}>Premium</h2>
 
             <p style={desc}>
-              Fully configured, positioned, and tuned for high-stakes
-              interactions and polished delivery.
+              Advanced profile configuration, managed onboarding, and deeper
+              customization for higher-touch use cases.
             </p>
 
-            <div style={price}>
-              $49<span style={sub}> / month</span>
-            </div>
+            <div style={soonPrice}>Available soon</div>
 
-            <div style={setup}>$99 one-time setup</div>
+            <div style={setup}>Premium features are in development.</div>
 
             <div style={features}>
-              <div>Full profile setup</div>
-              <div>Positioning optimization</div>
-              <div>Hands-on refinement</div>
-              <div>Ongoing adjustments</div>
+              <div>Everything in Professional</div>
+              <div>Advanced customization</div>
+              <div>Managed onboarding support</div>
+              <div>Future analytics access</div>
             </div>
 
-            <Link className="button primary" href="/api/checkout?plan=premium">
-              Start Premium
-            </Link>
+            <button className="button primary" type="button" disabled style={disabledButton}>
+              Available soon
+            </button>
           </div>
 
           <div
@@ -233,6 +229,18 @@ const price = {
   marginBottom: 6,
   fontFamily: '"Cormorant Garamond", Georgia, serif',
   fontSize: 42
+};
+
+const soonPrice = {
+  marginBottom: 6,
+  fontFamily: '"Cormorant Garamond", Georgia, serif',
+  fontSize: 36,
+  color: "#d8bf78"
+};
+
+const disabledButton = {
+  opacity: 0.62,
+  cursor: "not-allowed"
 };
 
 const sub = {

@@ -7,12 +7,10 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 });
 
 const PLAN_PRICE_MAP: Record<string, string> = {
-  essential: "price_1TQXe5DZOWbZIzsXdW6KI0DM",
-  professional: "price_1TQXeQDZOWbZIzsXviMsCQli",
-  premium: "price_1TQXefDZOWbZIzsXhs6jxr8N"
+  essential: process.env.STRIPE_ESSENTIAL_PRICE_ID || "price_1TJiBoDZOWbZIzsXmQCHNoe0"
 };
 
-const SETUP_FEE_PRICE_ID = "price_1TQXexDZOWbZIzsXqVwzapoI";
+const SETUP_FEE_PRICE_ID = process.env.STRIPE_SETUP_FEE_PRICE_ID || null;
 
 type CheckoutPayload = {
   plan?: string;
@@ -112,10 +110,14 @@ async function createCheckoutOrPortal(req: Request) {
       },
       billing_address_collection: "required",
       line_items: [
-        {
-          price: SETUP_FEE_PRICE_ID,
-          quantity: 1
-        },
+        ...(SETUP_FEE_PRICE_ID
+          ? [
+              {
+                price: SETUP_FEE_PRICE_ID,
+                quantity: 1
+              }
+            ]
+          : []),
         {
           price: PLAN_PRICE_MAP[plan],
           quantity: 1
