@@ -6,6 +6,59 @@ const siteUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://signal-pass.vercel.
 const customPageUrl = `${siteUrl}/custom`;
 const customPageQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=440x440&data=${encodeURIComponent(customPageUrl)}`;
 
+async function submitCustomProjectRequest(formData: FormData) {
+  "use server";
+
+  const name = String(formData.get("name") || "").trim();
+  const organization = String(formData.get("organization") || "").trim();
+  const email = String(formData.get("email") || "").trim();
+  const phone = String(formData.get("phone") || "").trim();
+  const quantity = String(formData.get("quantity") || "").trim();
+  const useCase = String(formData.get("use_case") || "").trim();
+  const destinationType = String(formData.get("destination_type") || "").trim();
+  const timeline = String(formData.get("timeline") || "").trim();
+  const notes = String(formData.get("notes") || "").trim();
+
+  if (!name || !email || !quantity || !useCase) {
+    return { ok: false, error: "missing_fields" };
+  }
+
+  if (!process.env.RESEND_API_KEY) {
+    return { ok: false, error: "email_not_configured" };
+  }
+
+  const resendResponse = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      from: "SignalPass <notifications@signalpass.app>",
+      to: "john@signalpass.app",
+      subject: `Custom SignalPass request: ${organization || name}`,
+      html: `
+        <h2>New custom SignalPass project request</h2>
+        <p><strong>Name:</strong> ${name}</p>
+        <p><strong>Organization:</strong> ${organization || "—"}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Phone:</strong> ${phone || "—"}</p>
+        <p><strong>Approximate card quantity:</strong> ${quantity}</p>
+        <p><strong>Use case:</strong> ${useCase}</p>
+        <p><strong>Destination type:</strong> ${destinationType || "—"}</p>
+        <p><strong>Timeline:</strong> ${timeline || "—"}</p>
+        <p><strong>Project notes:</strong><br />${notes ? notes.replace(/\n/g, "<br />") : "—"}</p>
+      `
+    })
+  });
+
+  if (!resendResponse.ok) {
+    return { ok: false, error: "email_failed" };
+  }
+
+  return { ok: true, error: null };
+}
+
 async function getInitialAuth() {
   const supabase = await createClient();
   const {
@@ -86,8 +139,33 @@ const cardStyle = {
     "radial-gradient(520px 220px at 12% 0%, rgba(201,164,92,.12), transparent 62%), linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.014)), linear-gradient(180deg, rgba(11,20,35,.86), rgba(7,16,28,.94))"
 };
 
-export default async function CustomPage() {
+async function submitCustomProjectRequestAndRedirect(formData: FormData) {
+  "use server";
+
+  const result = await submitCustomProjectRequest(formData);
+
+  if (!result.ok) {
+    const error = result.error || "unknown";
+    const { redirect } = await import("next/navigation");
+    redirect(`/custom?request_error=${encodeURIComponent(error)}`);
+  }
+
+  const { redirect } = await import("next/navigation");
+  redirect("/custom?request_sent=1");
+}
+
+export default async function CustomPage({
+  searchParams
+}: {
+  searchParams?: Promise<{
+    request_sent?: string;
+    request_error?: string;
+  }>;
+}) {
   const initialAuth = await getInitialAuth();
+  const params = searchParams ? await searchParams : {};
+  const requestSent = params?.request_sent === "1";
+  const requestError = params?.request_error || null;
 
   return (
     <Shell
@@ -275,15 +353,270 @@ export default async function CustomPage() {
           </p>
         </div>
 
-        <div className="card" style={{ ...cardStyle, textAlign: "center", padding: 34 }}>
-          <h2 style={sectionTitle}>Build your cards.</h2>
-          <p style={{ ...copy, maxWidth: 720, margin: "0 auto 24px" }}>
-            Tell us what your card needs to deliver. We will help turn it into a branded,
-            scannable, tappable asset your team can use in the field.
-          </p>
-          <Link className="button primary" href="mailto:john@signalrefinery.pro">
-            Request custom setup
-          </Link>
+        <div className="card" style={{ ...cardStyle, textAlign: "left", padding: 34 }}>
+          <div style={{ textAlign: "center" }}>
+            <h2 style={sectionTitle}>Request a custom project quote.</h2>
+            <p style={{ ...copy, maxWidth: 760, margin: "0 auto 24px" }}>
+              Tell us what your cards need to deliver. Custom projects are quoted individually
+              based on card count, destination setup, branding, hosting, and managed support.
+            </p>
+          </div>
+
+          {requestSent ? (
+            <div
+              style={{
+                maxWidth: 820,
+                margin: "0 auto 22px",
+                border: "1px solid rgba(201,164,92,.28)",
+                borderRadius: 18,
+                padding: 18,
+                background: "rgba(201,164,92,.08)",
+                color: "#f4efe3",
+                textAlign: "center"
+              }}
+            >
+              Request received. We will review the project details and follow up with a custom quote.
+            </div>
+          ) : null}
+
+          {requestError ? (
+            <div
+              style={{
+                maxWidth: 820,
+                margin: "0 auto 22px",
+                border: "1px solid rgba(255,130,130,.35)",
+                borderRadius: 18,
+                padding: 18,
+                background: "rgba(255,90,90,.08)",
+                color: "#f4efe3",
+                textAlign: "center"
+              }}
+            >
+              {requestError === "missing_fields"
+                ? "Please complete your name, email, approximate quantity, and use case."
+                : requestError === "email_not_configured"
+                  ? "The form is ready, but email is not configured yet."
+                  : "The request could not be sent. Please email john@signalrefinery.pro directly."}
+            </div>
+          ) : null}
+
+          <form
+            action={submitCustomProjectRequestAndRedirect}
+            style={{
+              maxWidth: 920,
+              margin: "0 auto",
+              display: "grid",
+              gap: 16
+            }}
+          >
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+                gap: 16
+              }}
+            >
+              <label style={{ display: "grid", gap: 8, color: "#f4efe3", fontSize: 14 }}>
+                Name
+                <input
+                  name="name"
+                  required
+                  style={{
+                    border: "1px solid rgba(255,255,255,.12)",
+                    borderRadius: 14,
+                    padding: "13px 14px",
+                    background: "rgba(255,255,255,.06)",
+                    color: "#f4efe3",
+                    fontSize: 16
+                  }}
+                />
+              </label>
+
+              <label style={{ display: "grid", gap: 8, color: "#f4efe3", fontSize: 14 }}>
+                Organization / campaign
+                <input
+                  name="organization"
+                  style={{
+                    border: "1px solid rgba(255,255,255,.12)",
+                    borderRadius: 14,
+                    padding: "13px 14px",
+                    background: "rgba(255,255,255,.06)",
+                    color: "#f4efe3",
+                    fontSize: 16
+                  }}
+                />
+              </label>
+            </div>
+
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+                gap: 16
+              }}
+            >
+              <label style={{ display: "grid", gap: 8, color: "#f4efe3", fontSize: 14 }}>
+                Email
+                <input
+                  name="email"
+                  type="email"
+                  required
+                  style={{
+                    border: "1px solid rgba(255,255,255,.12)",
+                    borderRadius: 14,
+                    padding: "13px 14px",
+                    background: "rgba(255,255,255,.06)",
+                    color: "#f4efe3",
+                    fontSize: 16
+                  }}
+                />
+              </label>
+
+              <label style={{ display: "grid", gap: 8, color: "#f4efe3", fontSize: 14 }}>
+                Phone
+                <input
+                  name="phone"
+                  type="tel"
+                  style={{
+                    border: "1px solid rgba(255,255,255,.12)",
+                    borderRadius: 14,
+                    padding: "13px 14px",
+                    background: "rgba(255,255,255,.06)",
+                    color: "#f4efe3",
+                    fontSize: 16
+                  }}
+                />
+              </label>
+            </div>
+
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+                gap: 16
+              }}
+            >
+              <label style={{ display: "grid", gap: 8, color: "#f4efe3", fontSize: 14 }}>
+                Approximate card quantity
+                <select
+                  name="quantity"
+                  required
+                  defaultValue=""
+                  style={{
+                    border: "1px solid rgba(255,255,255,.12)",
+                    borderRadius: 14,
+                    padding: "13px 14px",
+                    background: "rgba(255,255,255,.06)",
+                    color: "#f4efe3",
+                    fontSize: 16
+                  }}
+                >
+                  <option value="" disabled>Choose a range</option>
+                  <option value="1-25">1–25</option>
+                  <option value="26-100">26–100</option>
+                  <option value="101-250">101–250</option>
+                  <option value="251-500">251–500</option>
+                  <option value="500+">500+</option>
+                </select>
+              </label>
+
+              <label style={{ display: "grid", gap: 8, color: "#f4efe3", fontSize: 14 }}>
+                Timeline
+                <select
+                  name="timeline"
+                  defaultValue=""
+                  style={{
+                    border: "1px solid rgba(255,255,255,.12)",
+                    borderRadius: 14,
+                    padding: "13px 14px",
+                    background: "rgba(255,255,255,.06)",
+                    color: "#f4efe3",
+                    fontSize: 16
+                  }}
+                >
+                  <option value="">Not sure yet</option>
+                  <option value="ASAP">ASAP</option>
+                  <option value="1-2 weeks">1–2 weeks</option>
+                  <option value="3-4 weeks">3–4 weeks</option>
+                  <option value="1-2 months">1–2 months</option>
+                </select>
+              </label>
+            </div>
+
+            <label style={{ display: "grid", gap: 8, color: "#f4efe3", fontSize: 14 }}>
+              Use case
+              <select
+                name="use_case"
+                required
+                defaultValue=""
+                style={{
+                  border: "1px solid rgba(255,255,255,.12)",
+                  borderRadius: 14,
+                  padding: "13px 14px",
+                  background: "rgba(255,255,255,.06)",
+                  color: "#f4efe3",
+                  fontSize: 16
+                }}
+              >
+                <option value="" disabled>Choose a use case</option>
+                <option value="Legislative packets">Legislative packets</option>
+                <option value="Advocacy campaign">Advocacy campaign</option>
+                <option value="Lobby day or event">Lobby day or event</option>
+                <option value="Staff or member access">Staff or member access</option>
+                <option value="Campaign field use">Campaign field use</option>
+                <option value="Business or organization cards">Business or organization cards</option>
+                <option value="Other">Other</option>
+              </select>
+            </label>
+
+            <label style={{ display: "grid", gap: 8, color: "#f4efe3", fontSize: 14 }}>
+              What should the card connect to?
+              <select
+                name="destination_type"
+                defaultValue=""
+                style={{
+                  border: "1px solid rgba(255,255,255,.12)",
+                  borderRadius: 14,
+                  padding: "13px 14px",
+                  background: "rgba(255,255,255,.06)",
+                  color: "#f4efe3",
+                  fontSize: 16
+                }}
+              >
+                <option value="">Not sure yet</option>
+                <option value="PDF or legislative packet">PDF or legislative packet</option>
+                <option value="Document folder">Document folder</option>
+                <option value="Custom landing page">Custom landing page</option>
+                <option value="External website">External website</option>
+                <option value="Multiple destinations">Multiple destinations</option>
+                <option value="Updateable redirect">Updateable redirect</option>
+              </select>
+            </label>
+
+            <label style={{ display: "grid", gap: 8, color: "#f4efe3", fontSize: 14 }}>
+              Project notes
+              <textarea
+                name="notes"
+                rows={5}
+                placeholder="Tell us about the audience, materials, deadlines, branding needs, or any special requirements."
+                style={{
+                  border: "1px solid rgba(255,255,255,.12)",
+                  borderRadius: 14,
+                  padding: "13px 14px",
+                  background: "rgba(255,255,255,.06)",
+                  color: "#f4efe3",
+                  fontSize: 16,
+                  resize: "vertical"
+                }}
+              />
+            </label>
+
+            <div style={{ textAlign: "center", marginTop: 6 }}>
+              <button className="button primary" type="submit">
+                Request custom quote
+              </button>
+            </div>
+          </form>
         </div>
       </section>
     </Shell>
