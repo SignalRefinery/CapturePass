@@ -16,14 +16,6 @@ type CheckoutPayload = {
   plan?: string;
 };
 
-function getSiteUrl(req: Request) {
-  return (
-    process.env.NEXT_PUBLIC_APP_URL ||
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    new URL(req.url).origin
-  ).replace(/\/$/, "");
-}
-
 async function getPlanFromRequest(req: Request) {
   const url = new URL(req.url);
   const queryPlan = url.searchParams.get("plan");
@@ -160,4 +152,12 @@ export async function POST(req: Request) {
 
 export async function GET(req: Request) {
   return createCheckoutOrPortal(req);
+}
+
+function getSiteUrl(req: Request) {
+  return (
+    process.env.NEXT_PUBLIC_APP_URL ||
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    new URL(req.url).origin
+  ).replace(/\/$/, "");
 }
