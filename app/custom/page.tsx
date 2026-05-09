@@ -35,7 +35,7 @@ async function submitCustomProjectRequest(formData: FormData) {
     },
     body: JSON.stringify({
       from: "SignalPass <notifications@signalpass.app>",
-      to: ["john@signalpass.app", "john@signalrefinery.pro"],
+      to: "john@signalpass.app",
       reply_to: email,
       subject: `Custom SignalPass request: ${organization || name}`,
       html: `
