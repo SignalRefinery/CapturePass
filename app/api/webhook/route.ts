@@ -13,20 +13,14 @@ function subscriptionIsActive(status: string | null | undefined) {
 }
 
 const PLAN_BY_PRICE_ID: Record<string, string> = {
-  // Test mode prices
-  price_1TQXe5DZOWbZIzsXdW6KI0DM: "essential",
-  price_1TQXeQDZOWbZIzsXviMsCQli: "professional",
-  price_1TQXefDZOWbZIzsXhs6jxr8N: "premium",
-
-  // Live mode prices can be added through env vars without code changes
-  ...(process.env.STRIPE_PRICE_ESSENTIAL
-    ? { [process.env.STRIPE_PRICE_ESSENTIAL]: "essential" }
+  ...(process.env.STRIPE_ESSENTIAL_PRICE_ID
+    ? { [process.env.STRIPE_ESSENTIAL_PRICE_ID]: "essential" }
     : {}),
-  ...(process.env.STRIPE_PRICE_PROFESSIONAL
-    ? { [process.env.STRIPE_PRICE_PROFESSIONAL]: "professional" }
+  ...(process.env.STRIPE_PROFESSIONAL_PRICE_ID
+    ? { [process.env.STRIPE_PROFESSIONAL_PRICE_ID]: "professional" }
     : {}),
-  ...(process.env.STRIPE_PRICE_PREMIUM
-    ? { [process.env.STRIPE_PRICE_PREMIUM]: "premium" }
+  ...(process.env.STRIPE_PREMIUM_PRICE_ID
+    ? { [process.env.STRIPE_PREMIUM_PRICE_ID]: "premium" }
     : {})
 };
 
