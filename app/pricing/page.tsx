@@ -51,26 +51,54 @@ export default function PricingPage() {
             <h2 style={heading}>Essential</h2>
 
             <p style={desc}>
-              A clean, structured profile designed for straightforward sharing
-              and reliable follow-up.
+              A modern professional networking system with instant NFC sharing,
+              QR access, and a clean digital profile built for reliable follow-up.
             </p>
 
-            <div style={price}>
-              $25<span style={sub}> / month</span>
+            <div style={billingOptions}>
+              <div style={billingOption}>
+                <div style={billingLabel}>Monthly</div>
+                <div style={price}>
+                  $10<span style={sub}> / month</span>
+                </div>
+                <div style={smallText}>Flexible monthly billing.</div>
+                <Link className="button primary" href="/api/checkout?plan=essential-monthly">
+                  Activate monthly
+                </Link>
+              </div>
+
+              <div style={{ ...billingOption, ...recommendedOption }}>
+                <div style={badge}>Best value</div>
+                <div style={billingLabel}>Annual</div>
+                <div style={price}>
+                  $99<span style={sub}> / year</span>
+                </div>
+                <div style={smallText}>Save $21 compared to monthly.</div>
+                <Link className="button primary" href="/api/checkout?plan=essential-annual">
+                  Activate annual
+                </Link>
+              </div>
             </div>
 
-            <div style={setup}>$99 one-time setup</div>
+            <div style={setup}>$49 one-time setup and activation</div>
+
+            <div style={cardIncluded}>
+              Includes two programmed NFC business cards — your main card plus a backup,
+              so you are never without access.
+            </div>
+
+            <div style={earlyAdopter}>
+              Early adopter pricing — locked in for life.
+            </div>
 
             <div style={features}>
+              <div>Two programmed NFC cards included</div>
               <div>Direct profile access</div>
               <div>Readable public link</div>
-              <div>QR / NFC compatibility</div>
+              <div>QR sharing and NFC tap compatibility</div>
               <div>Four primary links</div>
             </div>
 
-            <Link className="button primary" href="/api/checkout?plan=essential">
-              Activate Essential
-            </Link>
           </div>
 
           <div className="card" style={{ padding: 28 }}>
@@ -225,8 +253,58 @@ const desc = {
   lineHeight: 1.7
 };
 
+const billingOptions = {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 240px), 1fr))",
+  gap: 14,
+  margin: "4px 0 18px"
+};
+
+const billingOption = {
+  position: "relative" as const,
+  display: "grid",
+  gap: 10,
+  padding: 18,
+  border: "1px solid rgba(255,255,255,.12)",
+  borderRadius: 18,
+  background: "rgba(255,255,255,.025)"
+};
+
+const recommendedOption = {
+  border: "1px solid rgba(216,191,120,.48)",
+  background:
+    "radial-gradient(280px 120px at 50% 0%, rgba(216,191,120,.14), transparent 70%), rgba(255,255,255,.03)"
+};
+
+const billingLabel = {
+  color: "#d8bf78",
+  fontSize: 14,
+  fontWeight: 700,
+  letterSpacing: "0.08em",
+  textTransform: "uppercase" as const
+};
+
+const badge = {
+  position: "absolute" as const,
+  top: 14,
+  right: 14,
+  padding: "5px 9px",
+  borderRadius: 999,
+  background: "rgba(216,191,120,.14)",
+  border: "1px solid rgba(216,191,120,.35)",
+  color: "#d8bf78",
+  fontSize: 12,
+  fontWeight: 700
+};
+
+const smallText = {
+  margin: "-4px 0 4px",
+  color: "var(--muted)",
+  fontSize: 14
+};
+
 const price = {
-  marginBottom: 6,
+  marginBottom: 0,
   fontFamily: '"Cormorant Garamond", Georgia, serif',
   fontSize: 42
 };
@@ -252,6 +330,21 @@ const setup = {
   marginBottom: 18,
   color: "var(--muted)",
   fontSize: 14
+};
+
+const cardIncluded = {
+  margin: "-8px 0 12px",
+  color: "var(--muted)",
+  fontSize: 14,
+  lineHeight: 1.55
+};
+
+const earlyAdopter = {
+  margin: "0 0 18px",
+  color: "#d8bf78",
+  fontSize: 14,
+  fontWeight: 600,
+  letterSpacing: "0.02em"
 };
 
 const features = {

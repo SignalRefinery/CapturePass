@@ -6,8 +6,9 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2024-06-20"
 });
 
-const PLAN_PRICE_MAP: Record<string, string> = {
-  essential: process.env.STRIPE_ESSENTIAL_PRICE_ID || "price_1TJiBoDZOWbZIzsXmQCHNoe0"
+const PLAN_PRICE_MAP: Record<string, string | undefined> = {
+  "essential-monthly": process.env.STRIPE_ESSENTIAL_MONTHLY_PRICE_ID,
+  "essential-annual": process.env.STRIPE_ESSENTIAL_ANNUAL_PRICE_ID
 };
 
 const SETUP_FEE_PRICE_ID = process.env.STRIPE_SETUP_FEE_PRICE_ID || null;
@@ -46,7 +47,9 @@ async function createCheckoutOrPortal(req: Request) {
 
     const plan = await getPlanFromRequest(req);
 
-    if (!plan || !PLAN_PRICE_MAP[plan]) {
+    const selectedPriceId = plan ? PLAN_PRICE_MAP[plan] : undefined;
+
+    if (!plan || !selectedPriceId) {
       return NextResponse.json(
         { error: "Missing or invalid checkout plan." },
         { status: 400 }
@@ -111,7 +114,7 @@ async function createCheckoutOrPortal(req: Request) {
             ]
           : []),
         {
-          price: PLAN_PRICE_MAP[plan],
+          price: selectedPriceId,
           quantity: 1
         }
       ],
