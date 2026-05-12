@@ -223,6 +223,18 @@ export default async function AccountPage() {
               </div>
             ) : null}
           </div>
+
+          <div className="card" style={{ padding: 26 }}>
+            <h2 className="section-title">Security</h2>
+
+            <p className="editor-copy" style={{ marginTop: 0 }}>
+              Update the password used to access your Signal Pass account.
+            </p>
+
+            <Link href="/update-password" className="button secondary">
+              Change password
+            </Link>
+          </div>
         </div>
       </section>
     </Shell>
