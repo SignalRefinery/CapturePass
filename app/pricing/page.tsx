@@ -62,7 +62,7 @@ export default function PricingPage() {
                   $10<span style={sub}> / month</span>
                 </div>
                 <div style={smallText}>Flexible monthly billing.</div>
-                <Link className="button primary" href="/signup?plan=essential-monthly">
+                <Link className="button primary" href="/api/checkout?plan=essential-monthly">
                   Activate monthly
                 </Link>
               </div>
@@ -74,7 +74,7 @@ export default function PricingPage() {
                   $99<span style={sub}> / year</span>
                 </div>
                 <div style={smallText}>Save $21 compared to monthly.</div>
-                <Link className="button primary" href="/signup?plan=essential-annual">
+                <Link className="button primary" href="/api/checkout?plan=essential-annual">
                   Activate annual
                 </Link>
               </div>
