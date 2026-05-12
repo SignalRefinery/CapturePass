@@ -10,7 +10,7 @@ const PUBLIC_NAV_LINKS = [
   { href: "/", label: "Home" },
   { href: "/how-it-works", label: "How it works" },
   { href: "/pricing", label: "Pricing" },
-  { href: "/custom", label: "Custom" },
+  { href: "/custom", label: "Custom Cards" },
   { href: "/partners", label: "Partners" },
 ];
 
@@ -55,19 +55,27 @@ export function Shell({
   }, [myProfileHref, initialAuth?.slug]);
 
   const effectiveNavLinks = useMemo(() => {
-    const links = [...PUBLIC_NAV_LINKS];
+    if (!isSignedIn) {
+      return PUBLIC_NAV_LINKS;
+    }
 
-    if (isSignedIn) {
-      links.push({ href: "/dashboard", label: "Dashboard" });
-      links.push({ href: "/account", label: "Account" });
+    const links = [
+      { href: "/", label: "Home" },
+      { href: "/custom", label: "Custom Cards" },
+      { href: "/partners", label: "Partners" },
+      { href: "/dashboard", label: "Dashboard" },
+    ];
 
-      if (isAdmin) {
-        links.push({ href: "/admin", label: "Admin" });
-      }
+    if (profileHref) {
+      links.push({ href: profileHref, label: "My profile" });
+    }
+
+    if (isAdmin) {
+      links.push({ href: "/admin", label: "Admin" });
     }
 
     return links;
-  }, [isSignedIn, isAdmin]);
+  }, [isSignedIn, isAdmin, profileHref]);
 
   return (
     <div className="page">
@@ -85,8 +93,6 @@ export function Shell({
                   {link.label}
                 </Link>
               ))}
-
-              {profileHref && <Link href={profileHref}>My profile</Link>}
 
               {isSignedIn ? (
                 <form action="/auth/signout" method="post" style={{ display: "inline" }}>
@@ -150,12 +156,6 @@ export function Shell({
                     {link.label}
                   </Link>
                 ))}
-
-                {profileHref && (
-                  <Link href={profileHref} onClick={() => setMobileOpen(false)}>
-                    My profile
-                  </Link>
-                )}
               </nav>
 
               <UserMenu
