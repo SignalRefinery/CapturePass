@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Shell } from "@/components/shared/shell";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { normalizeUrl } from "@/lib/utils";
 
 const ADMIN_EMAILS = ["john@signalrefinery.pro"];
 
@@ -59,6 +60,46 @@ async function updateUserAction(formData: FormData) {
       updates.slug = nextSlug || null;
       break;
     }
+    case "role_line":
+    case "intro":
+    case "phone":
+    case "primary_link_1_title":
+    case "primary_link_2_title":
+    case "primary_link_3_title":
+    case "primary_link_4_title":
+      updates[field] = value.trim() || null;
+      break;
+    case "website_url":
+      updates.website_url = normalizeUrl(value.trim() || "") || null;
+      break;
+    case "primary_link_1_url":
+    case "primary_link_2_url":
+    case "primary_link_3_url":
+    case "primary_link_4_url": {
+      const trimmed = value.trim();
+      updates[field] =
+        trimmed.startsWith("tel:") ||
+        trimmed.startsWith("sms:") ||
+        trimmed.startsWith("mailto:") ||
+        trimmed.startsWith("/")
+          ? trimmed
+          : normalizeUrl(trimmed || "") || null;
+      break;
+    }
+    case "promo_code_used": {
+      const promo = value.trim().toUpperCase();
+      updates.promo_code_used = promo || null;
+
+      if (promo === "FOUNDERS") {
+        updates.lifetime_free = true;
+        updates.billing_exempt = true;
+        updates.stripe_plan_key = "founder";
+      }
+      break;
+    }
+    case "consent_public_visibility":
+      updates.consent_public_visibility = value === "true";
+      break;
     case "is_active":
     case "billing_exempt":
     case "is_affiliate":
@@ -300,6 +341,171 @@ export default async function AdminUserPage({ params }: PageProps) {
                     Save slug
                   </button>
                 </form>
+              </div>
+
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+                  gap: 12,
+                  marginTop: 12,
+                }}
+              >
+                <form action={updateUserAction} className="card" style={{ padding: 14 }}>
+                  <input type="hidden" name="userId" value={profile.user_id} />
+                  <input type="hidden" name="field" value="role_line" />
+                  <label className="label" htmlFor="profile-role-line">
+                    Role line
+                  </label>
+                  <input
+                    id="profile-role-line"
+                    name="value"
+                    defaultValue={profile.role_line || ""}
+                    placeholder="Founder & Principal"
+                    style={{ width: "100%", padding: 10, margin: "8px 0" }}
+                  />
+                  <button className="button primary" type="submit">
+                    Save role line
+                  </button>
+                </form>
+
+                <form action={updateUserAction} className="card" style={{ padding: 14 }}>
+                  <input type="hidden" name="userId" value={profile.user_id} />
+                  <input type="hidden" name="field" value="website_url" />
+                  <label className="label" htmlFor="profile-website-url">
+                    Website URL
+                  </label>
+                  <input
+                    id="profile-website-url"
+                    name="value"
+                    defaultValue={profile.website_url || ""}
+                    placeholder="https://example.com"
+                    style={{ width: "100%", padding: 10, margin: "8px 0" }}
+                  />
+                  <button className="button primary" type="submit">
+                    Save website
+                  </button>
+                </form>
+
+                <form action={updateUserAction} className="card" style={{ padding: 14 }}>
+                  <input type="hidden" name="userId" value={profile.user_id} />
+                  <input type="hidden" name="field" value="phone" />
+                  <label className="label" htmlFor="profile-phone">
+                    Phone
+                  </label>
+                  <input
+                    id="profile-phone"
+                    name="value"
+                    defaultValue={profile.phone || ""}
+                    placeholder="5551234567"
+                    style={{ width: "100%", padding: 10, margin: "8px 0" }}
+                  />
+                  <button className="button primary" type="submit">
+                    Save phone
+                  </button>
+                </form>
+
+                <form action={updateUserAction} className="card" style={{ padding: 14 }}>
+                  <input type="hidden" name="userId" value={profile.user_id} />
+                  <input type="hidden" name="field" value="promo_code_used" />
+                  <label className="label" htmlFor="profile-promo-code">
+                    Promo code
+                  </label>
+                  <input
+                    id="profile-promo-code"
+                    name="value"
+                    defaultValue={profile.promo_code_used || ""}
+                    placeholder="Optional promo code"
+                    style={{ width: "100%", padding: 10, margin: "8px 0" }}
+                  />
+                  <button className="button primary" type="submit">
+                    Save promo
+                  </button>
+                </form>
+              </div>
+
+              <form action={updateUserAction} className="card" style={{ padding: 14, marginTop: 12 }}>
+                <input type="hidden" name="userId" value={profile.user_id} />
+                <input type="hidden" name="field" value="intro" />
+                <label className="label" htmlFor="profile-intro">
+                  Intro
+                </label>
+                <textarea
+                  id="profile-intro"
+                  name="value"
+                  defaultValue={profile.intro || ""}
+                  rows={4}
+                  placeholder="A short introduction for the profile."
+                  style={{ width: "100%", padding: 10, margin: "8px 0" }}
+                />
+                <button className="button primary" type="submit">
+                  Save intro
+                </button>
+              </form>
+
+              <form action={updateUserAction} className="card" style={{ padding: 14, marginTop: 12 }}>
+                <input type="hidden" name="userId" value={profile.user_id} />
+                <input type="hidden" name="field" value="consent_public_visibility" />
+                <label className="label" htmlFor="profile-consent-public-visibility">
+                  Public visibility consent
+                </label>
+                <select
+                  id="profile-consent-public-visibility"
+                  name="value"
+                  defaultValue={profile.consent_public_visibility ? "true" : "false"}
+                  style={{ width: "100%", padding: 10, margin: "8px 0" }}
+                >
+                  <option value="true">Visible / consent granted</option>
+                  <option value="false">Discreet / consent not granted</option>
+                </select>
+                <button className="button primary" type="submit">
+                  Save visibility
+                </button>
+              </form>
+
+              <div className="card" style={{ padding: 14, marginTop: 12 }}>
+                <h4 className="section-title" style={{ fontSize: 16 }}>
+                  Primary links
+                </h4>
+
+                {[
+                  ["primary_link_1_title", "Link 1 title", profile.primary_link_1_title || "", "Call"],
+                  ["primary_link_1_url", "Link 1 URL", profile.primary_link_1_url || "", "tel:15551234567"],
+                  ["primary_link_2_title", "Link 2 title", profile.primary_link_2_title || "", "Email"],
+                  ["primary_link_2_url", "Link 2 URL", profile.primary_link_2_url || "", "mailto:you@example.com"],
+                  ["primary_link_3_title", "Link 3 title", profile.primary_link_3_title || "", "Website 1"],
+                  ["primary_link_3_url", "Link 3 URL", profile.primary_link_3_url || "", "https://example.com"],
+                  ["primary_link_4_title", "Link 4 title", profile.primary_link_4_title || "", "Website"],
+                  ["primary_link_4_url", "Link 4 URL", profile.primary_link_4_url || "", "https://example.com"],
+                ].map(([fieldName, label, defaultValue, placeholder]) => (
+                  <form
+                    key={fieldName}
+                    action={updateUserAction}
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "minmax(150px, 220px) 1fr auto",
+                      gap: 10,
+                      alignItems: "end",
+                      marginTop: 10,
+                    }}
+                  >
+                    <input type="hidden" name="userId" value={profile.user_id} />
+                    <input type="hidden" name="field" value={fieldName} />
+                    <label className="label" htmlFor={`profile-${fieldName}`}>
+                      {label}
+                    </label>
+                    <input
+                      id={`profile-${fieldName}`}
+                      name="value"
+                      defaultValue={defaultValue}
+                      placeholder={placeholder}
+                      style={{ width: "100%", padding: 10 }}
+                    />
+                    <button className="button secondary" type="submit">
+                      Save
+                    </button>
+                  </form>
+                ))}
               </div>
             </div>
           </div>
