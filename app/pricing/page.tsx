@@ -62,7 +62,7 @@ export default function PricingPage() {
                   $10<span style={sub}> / month</span>
                 </div>
                 <div style={smallText}>Flexible monthly billing.</div>
-                <Link className="button primary" href="/api/checkout?plan=essential-monthly">
+                <Link className="button primary" href="/signup?plan=essential-monthly">
                   Activate monthly
                 </Link>
               </div>
@@ -74,17 +74,19 @@ export default function PricingPage() {
                   $99<span style={sub}> / year</span>
                 </div>
                 <div style={smallText}>Save $21 compared to monthly.</div>
-                <Link className="button primary" href="/api/checkout?plan=essential-annual">
+                <Link className="button primary" href="/signup?plan=essential-annual">
                   Activate annual
                 </Link>
               </div>
             </div>
 
-            <div style={setup}>$49 one-time setup and activation</div>
-
-            <div style={cardIncluded}>
-              Includes two programmed NFC business cards — your main card plus a backup,
-              so you are never without access.
+            <div style={setupBox}>
+              <div style={setupLabel}>One-time setup package</div>
+              <div style={setupPrice}>$49 setup and activation</div>
+              <div style={setupText}>
+                Includes two programmed NFC business cards — your main card plus a backup,
+                so you are never without access.
+              </div>
             </div>
 
             <div style={earlyAdopter}>
@@ -332,8 +334,32 @@ const setup = {
   fontSize: 14
 };
 
-const cardIncluded = {
-  margin: "-8px 0 12px",
+const setupBox = {
+  margin: "0 0 16px",
+  padding: 18,
+  borderRadius: 18,
+  border: "1px solid rgba(216,191,120,.38)",
+  background:
+    "linear-gradient(135deg, rgba(216,191,120,.12), rgba(255,255,255,.025))"
+};
+
+const setupLabel = {
+  marginBottom: 6,
+  color: "#d8bf78",
+  fontSize: 13,
+  fontWeight: 700,
+  letterSpacing: "0.08em",
+  textTransform: "uppercase" as const
+};
+
+const setupPrice = {
+  marginBottom: 8,
+  fontFamily: '\"Cormorant Garamond\", Georgia, serif',
+  fontSize: 30,
+  lineHeight: 1.1
+};
+
+const setupText = {
   color: "var(--muted)",
   fontSize: 14,
   lineHeight: 1.55

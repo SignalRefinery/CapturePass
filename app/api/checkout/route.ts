@@ -7,6 +7,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 });
 
 const PLAN_PRICE_MAP: Record<string, string | undefined> = {
+  essential: process.env.STRIPE_ESSENTIAL_MONTHLY_PRICE_ID,
   "essential-monthly": process.env.STRIPE_ESSENTIAL_MONTHLY_PRICE_ID,
   "essential-annual": process.env.STRIPE_ESSENTIAL_ANNUAL_PRICE_ID
 };
@@ -72,7 +73,10 @@ async function createCheckoutOrPortal(req: Request) {
     }
 
     if (!user) {
-      return NextResponse.json({ error: "You must be logged in before checkout." }, { status: 401 });
+      const signupUrl = new URL("/signup", siteUrl);
+      signupUrl.searchParams.set("plan", plan);
+      signupUrl.searchParams.set("next", `/api/checkout?plan=${encodeURIComponent(plan)}`);
+      return NextResponse.redirect(signupUrl.toString(), { status: 303 });
     }
 
     const { data: profile, error: profileError } = await supabase
