@@ -42,6 +42,23 @@ async function updateUserAction(formData: FormData) {
   const updates: Record<string, unknown> = {};
 
   switch (field) {
+    case "full_name":
+      updates.full_name = value.trim() || null;
+      break;
+    case "email":
+      updates.email = value.trim() || null;
+      break;
+    case "slug": {
+      const nextSlug = value
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9-]/g, "-")
+        .replace(/-+/g, "-")
+        .replace(/^-|-$/g, "");
+
+      updates.slug = nextSlug || null;
+      break;
+    }
     case "is_active":
     case "billing_exempt":
     case "is_affiliate":
@@ -70,6 +87,19 @@ async function updateUserAction(formData: FormData) {
   }
 
   const admin = createAdminClient();
+  if (field === "slug" && updates.slug) {
+    const { data: existingSlug } = await admin
+      .from("profiles")
+      .select("user_id")
+      .eq("slug", updates.slug)
+      .neq("user_id", userId)
+      .maybeSingle();
+
+    if (existingSlug) {
+      throw new Error("That slug is already in use.");
+    }
+  }
+
   const { error } = await admin
     .from("profiles")
     .update(updates)
@@ -185,6 +215,91 @@ export default async function AdminUserPage({ params }: PageProps) {
                     ? new Date(profile.created_at).toLocaleDateString()
                     : "—"}
                 </div>
+              </div>
+            </div>
+            <div
+              style={{
+                borderTop: "1px solid rgba(255,255,255,0.1)",
+                marginTop: 18,
+                paddingTop: 18,
+              }}
+            >
+              <h3 className="section-title" style={{ fontSize: 18 }}>
+                Edit profile basics
+              </h3>
+
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+                  gap: 12,
+                }}
+              >
+                <form
+                  action={updateUserAction}
+                  className="card"
+                  style={{ padding: 14 }}
+                >
+                  <input type="hidden" name="userId" value={profile.user_id} />
+                  <input type="hidden" name="field" value="full_name" />
+                  <label className="label" htmlFor="full-name">
+                    Full name
+                  </label>
+                  <input
+                    id="full-name"
+                    name="value"
+                    defaultValue={profile.full_name || ""}
+                    placeholder="Full name"
+                    style={{ width: "100%", padding: 10, margin: "8px 0" }}
+                  />
+                  <button className="button primary" type="submit">
+                    Save name
+                  </button>
+                </form>
+
+                <form
+                  action={updateUserAction}
+                  className="card"
+                  style={{ padding: 14 }}
+                >
+                  <input type="hidden" name="userId" value={profile.user_id} />
+                  <input type="hidden" name="field" value="email" />
+                  <label className="label" htmlFor="profile-email">
+                    Email
+                  </label>
+                  <input
+                    id="profile-email"
+                    name="value"
+                    defaultValue={profile.email || ""}
+                    placeholder="name@example.com"
+                    style={{ width: "100%", padding: 10, margin: "8px 0" }}
+                  />
+                  <button className="button primary" type="submit">
+                    Save email
+                  </button>
+                </form>
+
+                <form
+                  action={updateUserAction}
+                  className="card"
+                  style={{ padding: 14 }}
+                >
+                  <input type="hidden" name="userId" value={profile.user_id} />
+                  <input type="hidden" name="field" value="slug" />
+                  <label className="label" htmlFor="profile-slug">
+                    Profile slug
+                  </label>
+                  <input
+                    id="profile-slug"
+                    name="value"
+                    defaultValue={profile.slug || ""}
+                    placeholder="profile-slug"
+                    style={{ width: "100%", padding: 10, margin: "8px 0" }}
+                  />
+                  <button className="button primary" type="submit">
+                    Save slug
+                  </button>
+                </form>
               </div>
             </div>
           </div>
