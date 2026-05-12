@@ -65,7 +65,7 @@ async function createCheckoutOrPortal(req: Request) {
       error: userError
     } = await supabase.auth.getUser();
 
-    if (userError) {
+    if (userError && userError.message !== "Auth session missing!") {
       return NextResponse.json(
         { error: "Supabase getUser failed", details: userError.message },
         { status: 500 }
