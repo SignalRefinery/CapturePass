@@ -94,29 +94,18 @@ export function Shell({
                   {link.label}
                 </Link>
               ))}
-
-              {isSignedIn ? (
-                <form action="/auth/signout" method="post" style={{ display: "inline" }}>
-                  <button
-                    type="submit"
-                    style={{
-                      appearance: "none",
-                      background: "transparent",
-                      border: 0,
-                      color: "inherit",
-                      cursor: "pointer",
-                      font: "inherit",
-                      padding: 0,
-                    }}
-                  >
-                    Sign out
-                  </button>
-                </form>
-              ) : null}
             </nav>
 
-
-            {!isSignedIn ? (
+            {isSignedIn ? (
+              <div style={{ marginLeft: "34px" }}>
+                <UserMenu
+                  initialEmail={initialAuth?.email || null}
+                  initialFullName={initialAuth?.fullName || null}
+                  initialSlug={initialAuth?.slug || null}
+                  initialIsAdmin={isAdmin}
+                />
+              </div>
+            ) : (
               <div
                 className="auth-buttons"
                 style={{
@@ -133,7 +122,7 @@ export function Shell({
                   Get started
                 </Link>
               </div>
-            ) : null}
+            )}
           </div>
 
           <button
@@ -159,7 +148,7 @@ export function Shell({
                 ))}
               </nav>
 
-              {!isSignedIn ? (
+              {isSignedIn ? (
                 <UserMenu
                   mobile
                   initialEmail={initialAuth?.email || null}
