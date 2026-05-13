@@ -61,6 +61,7 @@ export function Shell({
 
     const links = [
       { href: "/", label: "Home" },
+      { href: "/pricing", label: "Pricing" },
       { href: "/custom", label: "Custom Cards" },
       { href: "/partners", label: "Partners" },
       { href: "/dashboard", label: "Dashboard" },
@@ -158,13 +159,15 @@ export function Shell({
                 ))}
               </nav>
 
-              <UserMenu
-                mobile
-                initialEmail={initialAuth?.email || null}
-                initialFullName={initialAuth?.fullName || null}
-                initialSlug={initialAuth?.slug || null}
-                initialIsAdmin={isAdmin}
-              />
+              {!isSignedIn ? (
+                <UserMenu
+                  mobile
+                  initialEmail={initialAuth?.email || null}
+                  initialFullName={initialAuth?.fullName || null}
+                  initialSlug={initialAuth?.slug || null}
+                  initialIsAdmin={isAdmin}
+                />
+              ) : null}
             </div>
           </div>
         )}
