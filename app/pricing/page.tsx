@@ -112,7 +112,7 @@ export default function PricingPage() {
             </p>
 
             <div style={price}>
-              $15<span style={sub}> / card</span>
+              $25<span style={sub}> / card</span>
             </div>
 
             <div style={setup}>
@@ -127,7 +127,7 @@ export default function PricingPage() {
             </div>
 
             <Link className="button primary" href="/api/checkout?plan=additional-cards">
-              Order additional card
+              Order additional cards
             </Link>
           </div>
 
