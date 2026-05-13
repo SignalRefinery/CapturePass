@@ -104,6 +104,34 @@ export default function PricingPage() {
           </div>
 
           <div className="card" style={{ padding: 28 }}>
+            <h2 style={heading}>Additional SignalPass Card</h2>
+
+            <p style={desc}>
+              Add another programmed NFC business card to your existing Signal Pass profile
+              for replacements, staff, events, or backup use.
+            </p>
+
+            <div style={price}>
+              $15<span style={sub}> / card</span>
+            </div>
+
+            <div style={setup}>
+              Linked to your existing Signal Pass profile. No additional setup package required.
+            </div>
+
+            <div style={features}>
+              <div>Professionally programmed NFC card</div>
+              <div>Connected to your existing profile</div>
+              <div>Useful for replacements, teams, and events</div>
+              <div>Ships ready to use</div>
+            </div>
+
+            <Link className="button primary" href="/api/checkout?plan=additional-cards">
+              Order additional card
+            </Link>
+          </div>
+
+          <div className="card" style={{ padding: 28 }}>
             <h2 style={heading}>Professional</h2>
 
             <p style={desc}>

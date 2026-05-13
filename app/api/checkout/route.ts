@@ -9,10 +9,12 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 const PLAN_PRICE_MAP: Record<string, string | undefined> = {
   essential: process.env.STRIPE_ESSENTIAL_MONTHLY_PRICE_ID,
   "essential-monthly": process.env.STRIPE_ESSENTIAL_MONTHLY_PRICE_ID,
-  "essential-annual": process.env.STRIPE_ESSENTIAL_ANNUAL_PRICE_ID
+  "essential-annual": process.env.STRIPE_ESSENTIAL_ANNUAL_PRICE_ID,
+  "additional-cards": process.env.STRIPE_ADDITIONAL_SIGNALPASS_CARD_PRICE_ID
 };
 
 const SETUP_FEE_PRICE_ID = process.env.STRIPE_SETUP_FEE_PRICE_ID || null;
+const SETUP_FEE_INCLUDED_PLANS = ["essential", "essential-monthly", "essential-annual"];
 
 type CheckoutPayload = {
   plan?: string;
@@ -109,7 +111,7 @@ async function createCheckoutOrPortal(req: Request) {
       },
       billing_address_collection: "required",
       line_items: [
-        ...(SETUP_FEE_PRICE_ID
+        ...(SETUP_FEE_PRICE_ID && SETUP_FEE_INCLUDED_PLANS.includes(plan)
           ? [
               {
                 price: SETUP_FEE_PRICE_ID,
