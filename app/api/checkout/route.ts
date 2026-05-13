@@ -94,7 +94,11 @@ async function createCheckoutOrPortal(req: Request) {
       );
     }
 
-    if (profile?.stripe_customer_id) {
+    const isAdditionalCardsCheckout =
+      plan === "additional-cards" ||
+      selectedPriceId === process.env.STRIPE_ADDITIONAL_SIGNALPASS_CARD_PRICE_ID;
+
+    if (profile?.stripe_customer_id && !isAdditionalCardsCheckout) {
       const portal = await stripe.billingPortal.sessions.create({
         customer: profile.stripe_customer_id,
         return_url: `${siteUrl}/account`
@@ -104,8 +108,10 @@ async function createCheckoutOrPortal(req: Request) {
     }
 
     const session = await stripe.checkout.sessions.create({
-      mode: "subscription",
-      customer_email: user.email || undefined,
+      mode: isAdditionalCardsCheckout ? "payment" : "subscription",
+      ...(profile?.stripe_customer_id
+        ? { customer: profile.stripe_customer_id }
+        : { customer_email: user.email || undefined }),
       shipping_address_collection: {
         allowed_countries: ["US"]
       },
@@ -121,7 +127,16 @@ async function createCheckoutOrPortal(req: Request) {
           : []),
         {
           price: selectedPriceId,
-          quantity: 1
+          quantity: 1,
+          ...(isAdditionalCardsCheckout
+            ? {
+                adjustable_quantity: {
+                  enabled: true,
+                  minimum: 1,
+                  maximum: 50
+                }
+              }
+            : {})
         }
       ],
       allow_promotion_codes: true,
@@ -132,13 +147,17 @@ async function createCheckoutOrPortal(req: Request) {
         plan,
         selected_plan: plan
       },
-      subscription_data: {
-        metadata: {
-          user_id: user.id,
-          plan,
-          selected_plan: plan
-        }
-      }
+      ...(isAdditionalCardsCheckout
+        ? {}
+        : {
+            subscription_data: {
+              metadata: {
+                user_id: user.id,
+                plan,
+                selected_plan: plan
+              }
+            }
+          })
     });
 
     if (!session.url) {
