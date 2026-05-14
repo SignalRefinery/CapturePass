@@ -27,6 +27,9 @@ export type ProfileRecord = {
   user_id?: string;
   slug: string;
   private_token?: string | null;
+  page_mode?: "single" | "multi";
+  multi_view_display_mode?: "landing" | "favorite";
+  default_view_id?: string | null;
   full_name: string;
   role_line: string;
   intro: string;
@@ -57,6 +60,33 @@ export type ProfileRecord = {
   slug_requested?: string | null;
   slug_review_reason?: string | null;
   consent_public_visibility?: boolean;
+  created_at?: string;
+  updated_at?: string;
+};
+
+export type ProfileViewRecord = {
+  id?: string;
+  profile_id: string;
+  name: string;
+  view_key: string;
+  sort_order: number;
+  full_name: string;
+  role_line: string;
+  intro: string;
+  email: string;
+  phone: string;
+  website_url: string;
+  show_email: boolean;
+  show_phone: boolean;
+  show_text: boolean;
+  primary_link_1_title: string;
+  primary_link_1_url: string;
+  primary_link_2_title: string;
+  primary_link_2_url: string;
+  primary_link_3_title: string;
+  primary_link_3_url: string;
+  primary_link_4_title: string;
+  primary_link_4_url: string;
   created_at?: string;
   updated_at?: string;
 };
