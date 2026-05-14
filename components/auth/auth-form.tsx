@@ -108,7 +108,7 @@ export function AuthForm({ mode }: AuthFormProps) {
         <>
           <div className="editor-grid">
             <label className="auth-field">
-              <span>First name</span>
+              <span>First name or title</span>
               <input
                 type="text"
                 autoComplete="given-name"
