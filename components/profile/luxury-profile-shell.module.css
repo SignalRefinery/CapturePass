@@ -162,6 +162,92 @@
   filter:brightness(1.02);
 }
 
+.viewTabs{
+  display:flex;
+  justify-content:center;
+  gap:10px;
+  flex-wrap:wrap;
+  padding:22px 34px 0;
+}
+
+.viewTab{
+  min-height:42px;
+  padding:10px 15px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.08);
+  background:rgba(255,255,255,.02);
+  color:var(--muted);
+  font:inherit;
+  font-size:13px;
+  font-weight:600;
+  cursor:pointer;
+}
+
+.viewTabActive{
+  border-color:rgba(201,164,92,.38);
+  background:linear-gradient(180deg, rgba(201,164,92,.16), rgba(201,164,92,.06));
+  color:var(--text);
+}
+
+.viewLanding{
+  display:grid;
+  justify-items:center;
+  gap:18px;
+  padding:72px 34px 76px;
+  text-align:center;
+}
+
+.viewLandingTitle{
+  max-width:860px;
+  margin:6px auto 0;
+  font-family:"Cormorant Garamond", Georgia, serif;
+  font-size:clamp(58px, 8vw, 104px);
+  font-weight:600;
+  line-height:.9;
+  letter-spacing:-.045em;
+}
+
+.viewLandingCopy{
+  max-width:680px;
+  margin:0 auto;
+  color:var(--muted);
+  font-size:17px;
+  line-height:1.7;
+}
+
+.viewSelectorGrid{
+  width:min(760px, 100%);
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap:12px;
+  margin-top:8px;
+}
+
+.viewSelectorCard{
+  display:grid;
+  gap:8px;
+  min-height:92px;
+  padding:18px;
+  border-radius:20px;
+  border:1px solid rgba(255,255,255,.08);
+  background:rgba(255,255,255,.025);
+  color:var(--text);
+  font:inherit;
+  text-align:left;
+  cursor:pointer;
+}
+
+.viewSelectorCard span{
+  font-size:16px;
+  font-weight:700;
+}
+
+.viewSelectorCard small{
+  color:var(--muted-2);
+  font-size:13px;
+  line-height:1.5;
+}
+
 .kicker{
   display:inline-flex;
   align-items:center;
@@ -501,7 +587,9 @@
   .profileHero,
   .profileGrid,
   .reportSection,
-  .footer{
+  .footer,
+  .viewTabs,
+  .viewLanding{
     padding-left:18px;
     padding-right:18px;
   }

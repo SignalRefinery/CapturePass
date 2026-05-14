@@ -10,12 +10,18 @@ type ProfileLike = {
   id?: string | null;
   slug?: string | null;
   private_token?: string | null;
+  view_id?: string | null;
+  view_key?: string | null;
+  view_name?: string | null;
   full_name?: string | null;
   role_line?: string | null;
   intro?: string | null;
   email?: string | null;
   phone?: string | null;
   website_url?: string | null;
+  show_email?: boolean | null;
+  show_phone?: boolean | null;
+  show_text?: boolean | null;
   primary_link_1_title?: string | null;
   primary_link_1_url?: string | null;
   primary_link_2_title?: string | null;
@@ -84,14 +90,30 @@ function subtitleForLink(item: { title?: string | null; href?: string | null }, 
 }
 
 function primaryLinks(profile: ProfileLike) {
+  const showEmail = profile.show_email !== false;
+  const showPhone = profile.show_phone !== false;
+  const showText = profile.show_text === true;
   const items = [
     { title: profile.primary_link_1_title, href: profile.primary_link_1_url },
     { title: profile.primary_link_2_title, href: profile.primary_link_2_url },
     { title: profile.primary_link_3_title, href: profile.primary_link_3_url },
     { title: profile.primary_link_4_title, href: profile.primary_link_4_url }
-  ].filter((item) => item.title && item.href);
+  ].filter((item) => {
+    const href = item.href || "";
 
-  if (profile.slug && !items.some((item) => (item.href || "").includes("/api/vcard/"))) {
+    if (!item.title || !href) return false;
+    if (!showEmail && href.startsWith("mailto:")) return false;
+    if (!showPhone && href.startsWith("tel:")) return false;
+    if (!showText && href.startsWith("sms:")) return false;
+
+    return true;
+  });
+
+  if (
+    profile.slug &&
+    (showEmail || showPhone) &&
+    !items.some((item) => (item.href || "").includes("/api/vcard/"))
+  ) {
     items.push({
       title: "Add to contacts",
       href: contactHref(profile)
@@ -103,24 +125,45 @@ function primaryLinks(profile: ProfileLike) {
 
 export function LuxuryProfileShell({
   profile,
+  views = [profile],
+  pageMode = "single",
+  multiViewDisplayMode = "favorite",
   heroLabel = "Live profile",
   initialAuth = null
 }: {
   profile: ProfileLike;
+  views?: ProfileLike[];
+  pageMode?: "single" | "multi";
+  multiViewDisplayMode?: "landing" | "favorite";
   heroLabel?: string;
   initialAuth?: InitialAuth;
 }) {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const readableUrl = getReadableProfileUrl(profile);
-  const issuedUrl = getIssuedProfileUrl(profile);
+  const viewOptions = views.length ? views : [profile];
+  const [activeViewId, setActiveViewId] = useState(profile.view_id || profile.view_key || "profile");
+  const [landingSelected, setLandingSelected] = useState(multiViewDisplayMode !== "landing");
+  const activeProfile =
+    viewOptions.find((view) => (view.view_id || view.view_key || "profile") === activeViewId) ||
+    profile;
+  const readableUrl = getReadableProfileUrl(activeProfile);
+  const issuedUrl = getIssuedProfileUrl(activeProfile);
   const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=420x420&data=${encodeURIComponent(
     issuedUrl
   )}`;
-  const links = primaryLinks(profile);
+  const links = primaryLinks(activeProfile);
   const pills = getPills();
+  const showEmail = activeProfile.show_email !== false;
+  const showPhone = activeProfile.show_phone !== false;
+  const showText = activeProfile.show_text === true;
   const intro =
-    profile.intro ||
+    activeProfile.intro ||
     "A cleaner way to connect, save contact details, and move the right information forward without clutter.";
+  const showViewSwitcher = pageMode === "multi" && viewOptions.length > 1;
+
+  function selectView(view: ProfileLike) {
+    setActiveViewId(view.view_id || view.view_key || "profile");
+    setLandingSelected(true);
+  }
 
   return (
     <div className={styles.page}>
@@ -189,12 +232,61 @@ export function LuxuryProfileShell({
           </div>
         ) : null}
 
+        {showViewSwitcher && multiViewDisplayMode === "landing" && !landingSelected ? (
+          <section className={styles.viewLanding}>
+            <div className={styles.kicker}>
+              <span className={styles.miniStar}>✦</span>
+              <span>{heroLabel}</span>
+            </div>
+            <h1 className={styles.viewLandingTitle}>{activeProfile.full_name || "Signal Pass"}</h1>
+            {activeProfile.role_line ? (
+              <p className={styles.viewLandingCopy}>{activeProfile.role_line}</p>
+            ) : null}
+            <div className={styles.viewSelectorGrid}>
+              {viewOptions.map((view) => (
+                <button
+                  className={styles.viewSelectorCard}
+                  type="button"
+                  key={view.view_id || view.view_key || view.view_name || view.full_name}
+                  onClick={() => selectView(view)}
+                >
+                  <span>{view.view_name || view.full_name || "Profile view"}</span>
+                  {view.role_line ? <small>{view.role_line}</small> : null}
+                </button>
+              ))}
+            </div>
+          </section>
+        ) : null}
+
+        {showViewSwitcher && landingSelected ? (
+          <div className={styles.viewTabs} aria-label="Profile views">
+            {viewOptions.map((view) => {
+              const viewId = view.view_id || view.view_key || "profile";
+              const active = viewId === activeViewId;
+
+              return (
+                <button
+                  className={`${styles.viewTab} ${active ? styles.viewTabActive : ""}`}
+                  type="button"
+                  key={viewId}
+                  onClick={() => selectView(view)}
+                  aria-pressed={active}
+                >
+                  {view.view_name || view.full_name || "Profile view"}
+                </button>
+              );
+            })}
+          </div>
+        ) : null}
+
+        {landingSelected ? (
+          <>
         <section className={styles.profileHero}>
           <div className={styles.profileStack}>
 
-            <h1 className={styles.profileName}>{profile.full_name || "Signal Pass"}</h1>
+            <h1 className={styles.profileName}>{activeProfile.full_name || "Signal Pass"}</h1>
 
-            {profile.role_line ? <p className={styles.profileRole}>{profile.role_line}</p> : null}
+            {activeProfile.role_line ? <p className={styles.profileRole}>{activeProfile.role_line}</p> : null}
 
             <div className={styles.profileMeta}>
               {pills.map((pill) => (
@@ -206,14 +298,14 @@ export function LuxuryProfileShell({
             </div>
 
             <div className={`${styles.ctaRow} ${styles.profileActions}`}>
-              {profile.slug ? (
-                <a className={`${styles.button} ${styles.profileGoldButton}`} href={`/api/vcard/${profile.slug}`}>
+              {activeProfile.slug && (showEmail || showPhone) ? (
+                <a className={`${styles.button} ${styles.profileGoldButton}`} href={`/api/vcard/${activeProfile.slug}`}>
                   Add to Contacts
                 </a>
               ) : null}
 
-              {profile.phone ? (
-                <a className={`${styles.button} ${styles.profileSubtleButton}`} href={textHref(profile.phone)}>
+              {showText && activeProfile.phone ? (
+                <a className={`${styles.button} ${styles.profileSubtleButton}`} href={textHref(activeProfile.phone)}>
                   Text
                 </a>
               ) : null}
@@ -228,10 +320,10 @@ export function LuxuryProfileShell({
             <h2>Primary links</h2>
             <div className={styles.links}>
               {links.map((item) => (
-                <a className={styles.linkCard} href={item.href || "#"} key={`${item.title}-${item.href}`}>
+                <a className={styles.linkCard} href={item.href || "#"} key={`${activeProfile.view_id || activeProfile.view_key || "profile"}-${item.title}-${item.href}`}>
                   <div>
                     <div className={styles.linkTitle}>{item.title}</div>
-                    <div className={styles.linkSub}>{subtitleForLink(item, profile)}</div>
+                    <div className={styles.linkSub}>{subtitleForLink(item, activeProfile)}</div>
                   </div>
                   <div className={styles.arrow}>↗</div>
                 </a>
@@ -239,11 +331,11 @@ export function LuxuryProfileShell({
             </div>
 
             <div className={styles.contactStrip}>
-              {profile.email ? (
+              {showEmail && activeProfile.email ? (
                 <div className={styles.contactLine}>
                   <div>
                     <div className={styles.contactLabel}>Email</div>
-                    <div className={styles.contactValue}>{profile.email}</div>
+                    <div className={styles.contactValue}>{activeProfile.email}</div>
                   </div>
                 </div>
               ) : null}
@@ -261,7 +353,7 @@ export function LuxuryProfileShell({
             <h2>Scan to open</h2>
             <div className={styles.qrFrame}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img className={styles.qrImage} src={qrImageUrl} alt={`QR code for ${profile.full_name || "Signal Pass"} profile`} />
+              <img className={styles.qrImage} src={qrImageUrl} alt={`QR code for ${activeProfile.full_name || "Signal Pass"} profile`} />
             </div>
             <div className={styles.qrCaption}>
               Use on printed cards, event materials, leave-behinds, or person-to-person introductions.
@@ -270,11 +362,13 @@ export function LuxuryProfileShell({
         </section>
 
         <section className={styles.reportSection}>
-          <ReportIssueForm profileId={profile.id || undefined} slug={profile.slug || ""} />
+          <ReportIssueForm profileId={activeProfile.id || undefined} slug={activeProfile.slug || ""} />
         </section>
+          </>
+        ) : null}
 
         <footer className={styles.footer}>
-          <span>{profile.full_name || "Signal Pass"}</span>
+          <span>{activeProfile.full_name || "Signal Pass"}</span>
           <span>Signal Pass profile</span>
         </footer>
       </div>
