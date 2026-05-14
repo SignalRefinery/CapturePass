@@ -148,15 +148,13 @@ export function Shell({
                 ))}
               </nav>
 
-              {isSignedIn ? (
-                <UserMenu
-                  mobile
-                  initialEmail={initialAuth?.email || null}
-                  initialFullName={initialAuth?.fullName || null}
-                  initialSlug={initialAuth?.slug || null}
-                  initialIsAdmin={isAdmin}
-                />
-              ) : null}
+              <UserMenu
+                mobile
+                initialEmail={initialAuth?.email || null}
+                initialFullName={initialAuth?.fullName || null}
+                initialSlug={initialAuth?.slug || null}
+                initialIsAdmin={isAdmin}
+              />
             </div>
           </div>
         )}
