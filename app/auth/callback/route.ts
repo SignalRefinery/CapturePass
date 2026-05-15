@@ -2,21 +2,12 @@ import { NextResponse } from "next/server";
 import { safeInternalRedirect } from "@/lib/auth/redirect";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { classifySlug } from "@/lib/slug-moderation";
 
 function cleanValue(value: unknown) {
   if (typeof value !== "string") return null;
   const trimmed = value.trim();
   return trimmed.length ? trimmed : null;
-}
-
-function slugify(value: string) {
-  return value
-    .toLowerCase()
-    .trim()
-    .replace(/['"]/g, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 80);
 }
 
 async function sendFounderCardNotification(userId: string) {
@@ -94,6 +85,69 @@ function setupRecoveryRedirect(req: Request, nextPath: string, requestedPlan: st
   return NextResponse.redirect(recoveryUrl);
 }
 
+function safeFallbackSlugForUser(userId: string) {
+  return `profile-${userId.replace(/-/g, "").slice(0, 12)}`;
+}
+
+async function slugIsAvailable(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  slug: string,
+  userId: string
+) {
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("user_id")
+    .eq("slug", slug)
+    .neq("user_id", userId)
+    .maybeSingle();
+
+  if (error) return false;
+  return !data;
+}
+
+async function getBootstrapSlugFields(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  userId: string,
+  rawSuggestedSlug: string | null
+) {
+  const fallbackSlug = safeFallbackSlugForUser(userId);
+  const fallbackModeration = classifySlug(fallbackSlug);
+  const safeFallbackSlug =
+    fallbackModeration.state === "allowed" ? fallbackModeration.normalized : `profile-${Date.now()}`;
+  const suggestedModeration = classifySlug(rawSuggestedSlug || safeFallbackSlug);
+
+  if (
+    suggestedModeration.state === "allowed" &&
+    (await slugIsAvailable(supabase, suggestedModeration.normalized, userId))
+  ) {
+    return {
+      slug: suggestedModeration.normalized,
+      slug_requested: null,
+      slug_status: "approved",
+      slug_review_reason: null
+    };
+  }
+
+  // Signup bootstrap must never publish restricted or impersonation-prone
+  // slugs. Reviewable suggestions are held for admin approval behind a safe URL.
+  if (suggestedModeration.state === "review") {
+    return {
+      slug: safeFallbackSlug,
+      slug_requested: suggestedModeration.normalized,
+      slug_status: "pending_review",
+      slug_review_reason: suggestedModeration.reason
+    };
+  }
+
+  return {
+    slug: safeFallbackSlug,
+    slug_requested: null,
+    slug_status: "approved",
+    slug_review_reason:
+      suggestedModeration.state === "blocked" ? "blocked_name_based_slug_fallback" : null
+  };
+}
+
 export async function GET(req: Request) {
   const url = new URL(req.url);
   const code = url.searchParams.get("code");
@@ -128,9 +182,9 @@ export async function GET(req: Request) {
   const fullName =
     cleanValue(meta.full_name) ||
     cleanValue([firstName, lastName].filter(Boolean).join(" "));
-  const suggestedSlug =
+  const rawSuggestedSlug =
     cleanValue(meta.suggested_slug) ||
-    (fullName ? slugify(fullName) : user.email ? slugify(user.email.split("@")[0]) : null);
+    (fullName || (user.email ? user.email.split("@")[0] : null));
 
   const promoCode = cleanValue(meta.promo_code)?.toUpperCase() || null;
   const referralCode = cleanValue(meta.referral_code_used);
@@ -151,11 +205,13 @@ export async function GET(req: Request) {
   }
 
   if (!existingProfile) {
+    const bootstrapSlugFields = await getBootstrapSlugFields(supabase, user.id, rawSuggestedSlug);
+
     const { error: insertError } = await supabase.from("profiles").insert({
       user_id: user.id,
       email: user.email || null,
       full_name: fullName,
-      slug: suggestedSlug,
+      ...bootstrapSlugFields,
       promo_code_used: promoCode,
       referral_code_used: referralCode,
       is_public_official: isPublicOfficial,

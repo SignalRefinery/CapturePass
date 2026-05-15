@@ -7,6 +7,7 @@ import {
   getProfileViewsForProfileServer
 } from "@/lib/profile-service-server";
 import { profileMetadata } from "@/lib/privacy/profile-privacy";
+import { isSlugPubliclyAllowed } from "@/lib/slug-moderation";
 import { LuxuryProfileShell } from "@/components/profile/luxury-profile-shell";
 import type { ProfileRecord, ProfileViewRecord } from "@/lib/types";
 
@@ -90,7 +91,7 @@ export default async function PublicProfilePage({ params }: PageProps) {
     !profile ||
     profile.is_active === false ||
     profile.consent_public_visibility !== true ||
-    (profile.slug_status && profile.slug_status !== "approved")
+    !isSlugPubliclyAllowed(profile.slug, profile.slug_status)
   ) {
     notFound();
   }

@@ -4,6 +4,7 @@ import {
   getProfileViewsForProfileServer
 } from "@/lib/profile-service-server";
 import { PROFILE_CACHE_HEADERS } from "@/lib/privacy/profile-privacy";
+import { isSlugPubliclyAllowed } from "@/lib/slug-moderation";
 import type { ProfileRecord, ProfileViewRecord } from "@/lib/types";
 
 type RouteContext = {
@@ -62,7 +63,7 @@ export async function GET(request: Request, context: RouteContext) {
     !profile ||
     profile.is_active === false ||
     profile.consent_public_visibility !== true ||
-    (profile.slug_status && profile.slug_status !== "approved")
+    !isSlugPubliclyAllowed(profile.slug, profile.slug_status)
   ) {
     return new NextResponse("Not found", { status: 404, headers: PROFILE_CACHE_HEADERS });
   }

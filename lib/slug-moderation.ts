@@ -626,3 +626,16 @@ export function classifySlug(input: string): SlugModerationResult {
     reason: null
   };
 }
+
+export function isSlugPubliclyAllowed(slug?: string | null, status?: string | null) {
+  if (!slug) return false;
+
+  const moderation = classifySlug(slug);
+
+  if (moderation.state === "blocked") return false;
+
+  // Review-required slugs may only be exposed after an explicit admin approval.
+  if (moderation.state === "review") return status === "approved";
+
+  return !status || status === "approved";
+}

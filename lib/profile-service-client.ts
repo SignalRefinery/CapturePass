@@ -2,6 +2,10 @@ import type { ProfileRecord, ProfileViewRecord } from "@/lib/types";
 import { createClient as createBrowserClient } from "@/lib/supabase/client";
 import { classifySlug } from "@/lib/slug-moderation";
 
+function safeFallbackSlugForUser(userId: string) {
+  return `profile-${userId.replace(/-/g, "").slice(0, 12)}`;
+}
+
 export async function saveProfileClient(record: ProfileRecord, userId: string) {
   const supabase = createBrowserClient();
 
@@ -19,11 +23,26 @@ export async function saveProfileClient(record: ProfileRecord, userId: string) {
     .select("slug")
     .eq("user_id", userId)
     .maybeSingle();
+  const currentSlugModeration = classifySlug(currentProfile?.slug || "");
+  const safeCurrentSlug =
+    currentProfile?.slug && currentSlugModeration.state !== "blocked"
+      ? currentSlugModeration.normalized
+      : safeFallbackSlugForUser(userId);
+
+  if (moderation.normalized !== currentSlugModeration.normalized) {
+    const slugTaken = await isSlugTakenClient(moderation.normalized, userId);
+
+    if (slugTaken) {
+      throw new Error("This slug is restricted or unavailable. Choose another slug.");
+    }
+  }
 
   const moderatedSlugFields =
     moderation.state === "review"
       ? {
-          slug: currentProfile?.slug || record.slug,
+          // A review-required slug is stored as a request only. The existing
+          // approved URL stays live so restricted slugs cannot bypass review.
+          slug: safeCurrentSlug,
           slug_requested: moderation.normalized,
           slug_status: "pending_review",
           slug_review_reason: moderation.reason

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Shell } from "@/components/shared/shell";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { classifySlug } from "@/lib/slug-moderation";
 import { normalizeUrl } from "@/lib/utils";
 
 const ADMIN_EMAILS = ["john@signalrefinery.pro"];
@@ -40,6 +41,7 @@ async function updateUserAction(formData: FormData) {
 
   if (!userId || !field) return;
 
+  const admin = createAdminClient();
   const updates: Record<string, unknown> = {};
 
   switch (field) {
@@ -50,14 +52,25 @@ async function updateUserAction(formData: FormData) {
       updates.email = value.trim() || null;
       break;
     case "slug": {
-      const nextSlug = value
-        .trim()
-        .toLowerCase()
-        .replace(/[^a-z0-9-]/g, "-")
-        .replace(/-+/g, "-")
-        .replace(/^-|-$/g, "");
+      const moderation = classifySlug(value);
 
-      updates.slug = nextSlug || null;
+      if (moderation.state === "blocked") {
+        throw new Error(moderation.reason || "That slug is blocked.");
+      }
+
+      if (moderation.state === "review") {
+        throw new Error(
+          moderation.reason ||
+            "That slug requires the slug review workflow before it can become public."
+        );
+      }
+
+      // Direct admin detail edits may only publish allowed slugs. Restricted
+      // slugs must go through the moderation queue or explicit override route.
+      updates.slug = moderation.normalized;
+      updates.slug_requested = null;
+      updates.slug_status = "approved";
+      updates.slug_review_reason = null;
       break;
     }
     case "role_line":
@@ -120,14 +133,42 @@ async function updateUserAction(formData: FormData) {
     case "subscription_status":
       updates.subscription_status = value.trim() || null;
       break;
-    case "slug_status":
-      updates.slug_status = value.trim() || null;
+    case "slug_status": {
+      const nextStatus = value.trim() || null;
+
+      if (nextStatus && !["approved", "pending_review", "rejected"].includes(nextStatus)) {
+        throw new Error("Invalid slug status.");
+      }
+
+      if (nextStatus === "approved") {
+        const { data: currentProfile, error: currentProfileError } = await admin
+          .from("profiles")
+          .select("slug")
+          .eq("user_id", userId)
+          .maybeSingle();
+
+        if (currentProfileError || !currentProfile?.slug) {
+          throw new Error("Unable to verify the current slug before approval.");
+        }
+
+        const moderation = classifySlug(currentProfile.slug);
+
+        if (moderation.state === "blocked") {
+          throw new Error("Blocked slugs cannot be approved.");
+        }
+
+        if (moderation.state === "review") {
+          throw new Error("Review-required slugs must be approved through the slug review workflow.");
+        }
+      }
+
+      updates.slug_status = nextStatus;
       break;
+    }
     default:
       return;
   }
 
-  const admin = createAdminClient();
   if (field === "slug" && updates.slug) {
     const { data: existingSlug } = await admin
       .from("profiles")
