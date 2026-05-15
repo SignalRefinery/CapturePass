@@ -3,16 +3,20 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { safeInternalRedirect } from "@/lib/auth/redirect";
 import { createClient } from "@/lib/supabase/client";
 import { slugify } from "@/lib/utils";
 
 type AuthFormProps = {
   mode: "login" | "signup";
+  nextPath?: string | null;
+  plan?: string | null;
 };
 
-export function AuthForm({ mode }: AuthFormProps) {
+export function AuthForm({ mode, nextPath, plan }: AuthFormProps) {
   const router = useRouter();
   const supabase = useMemo(() => createClient(), []);
+  const redirectTo = safeInternalRedirect(nextPath);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -45,7 +49,7 @@ export function AuthForm({ mode }: AuthFormProps) {
           return;
         }
 
-        router.push("/dashboard");
+        router.push(redirectTo);
         router.refresh();
         return;
       }
@@ -60,7 +64,7 @@ export function AuthForm({ mode }: AuthFormProps) {
         email: email.trim(),
         password,
         options: {
-          emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL || window.location.origin}/auth/callback`,
+          emailRedirectTo: getEmailRedirectUrl(redirectTo, plan),
           data: {
             first_name: trimmedFirst,
             last_name: trimmedLast,
@@ -68,7 +72,8 @@ export function AuthForm({ mode }: AuthFormProps) {
             suggested_slug: suggestedSlug,
             referral_code_used: referral.trim() || null,
             promo_code: promoCode.trim().toUpperCase() || null,
-            is_public_official: publicOfficial
+            is_public_official: publicOfficial,
+            selected_plan: plan || null
           }
         }
       });
@@ -94,7 +99,11 @@ export function AuthForm({ mode }: AuthFormProps) {
         return;
       }
 
-      setMessage("Check your email to verify your account.");
+      setMessage(
+        plan
+          ? "Check your email to verify your account. After verification, you will continue to checkout."
+          : "Check your email to verify your account."
+      );
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
@@ -209,4 +218,19 @@ export function AuthForm({ mode }: AuthFormProps) {
       </button>
     </form>
   );
+}
+
+function getEmailRedirectUrl(nextPath: string, plan?: string | null) {
+  const callbackUrl = new URL(
+    "/auth/callback",
+    process.env.NEXT_PUBLIC_APP_URL || window.location.origin
+  );
+
+  callbackUrl.searchParams.set("next", safeInternalRedirect(nextPath));
+
+  if (plan) {
+    callbackUrl.searchParams.set("plan", plan);
+  }
+
+  return callbackUrl.toString();
 }

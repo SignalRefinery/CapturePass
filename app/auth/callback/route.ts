@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { safeInternalRedirect } from "@/lib/auth/redirect";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -79,6 +80,11 @@ async function sendFounderCardNotification(userId: string) {
 export async function GET(req: Request) {
   const url = new URL(req.url);
   const code = url.searchParams.get("code");
+  const requestedPlan = cleanValue(url.searchParams.get("plan"));
+  const fallbackNext = requestedPlan
+    ? `/api/checkout?plan=${encodeURIComponent(requestedPlan)}`
+    : "/dashboard";
+  const nextPath = safeInternalRedirect(url.searchParams.get("next"), fallbackNext);
 
   const supabase = await createClient();
 
@@ -153,5 +159,5 @@ export async function GET(req: Request) {
     await sendFounderCardNotification(user.id);
   }
 
-  return NextResponse.redirect(new URL("/dashboard", req.url));
+  return NextResponse.redirect(new URL(nextPath, req.url));
 }

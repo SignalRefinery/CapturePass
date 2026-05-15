@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Shell } from "@/components/shared/shell";
 import { AuthForm } from "@/components/auth/auth-form";
+import { safeInternalRedirect } from "@/lib/auth/redirect";
 import { createClient } from "@/lib/supabase/server";
 
 async function getInitialAuth() {
@@ -24,8 +25,22 @@ async function getInitialAuth() {
   };
 }
 
-export default async function SignupPage() {
+export default async function SignupPage({
+  searchParams
+}: {
+  searchParams?: Promise<{
+    plan?: string;
+    next?: string;
+  }>;
+}) {
   const initialAuth = await getInitialAuth();
+  const params = searchParams ? await searchParams : {};
+  const plan = params?.plan || null;
+  const nextPath = safeInternalRedirect(params?.next);
+  const loginHref = new URLSearchParams();
+
+  if (plan) loginHref.set("plan", plan);
+  if (nextPath !== "/dashboard") loginHref.set("next", nextPath);
 
   return (
     <Shell
@@ -52,7 +67,7 @@ export default async function SignupPage() {
 
       <section className="auth-wrap">
         <div className="auth-card">
-          <AuthForm mode="signup" />
+          <AuthForm mode="signup" nextPath={nextPath} plan={plan} />
 
           <div className="card" style={{ marginTop: 18, padding: 16 }}>
             <div className="dashboard-kicker">Already signed up?</div>
@@ -63,7 +78,7 @@ export default async function SignupPage() {
           </div>
 
           <p className="auth-switch">
-            Already have an account? <Link href="/login">Log in</Link>
+            Already have an account? <Link href={`/login${loginHref.size ? `?${loginHref}` : ""}`}>Log in</Link>
           </p>
         </div>
       </section>

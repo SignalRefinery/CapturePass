@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Shell } from "@/components/shared/shell";
 import { AuthForm } from "@/components/auth/auth-form";
 
+import { safeInternalRedirect } from "@/lib/auth/redirect";
 import { createClient } from "@/lib/supabase/server";
 
 async function getInitialAuth() {
@@ -26,8 +27,22 @@ async function getInitialAuth() {
 }
 
 
-export default async function LoginPage() {
+export default async function LoginPage({
+  searchParams
+}: {
+  searchParams?: Promise<{
+    plan?: string;
+    next?: string;
+  }>;
+}) {
   const initialAuth = await getInitialAuth();
+  const params = searchParams ? await searchParams : {};
+  const plan = params?.plan || null;
+  const nextPath = safeInternalRedirect(params?.next);
+  const signupHref = new URLSearchParams();
+
+  if (plan) signupHref.set("plan", plan);
+  if (nextPath !== "/dashboard") signupHref.set("next", nextPath);
 
   return (
     <Shell
@@ -54,14 +69,14 @@ export default async function LoginPage() {
 
       <section className="auth-wrap">
         <div className="auth-card">
-          <AuthForm mode="login" />
+          <AuthForm mode="login" nextPath={nextPath} plan={plan} />
 
           <p style={{ marginTop: 10, fontSize: 13, color: "var(--muted)" }}>
             Forgot your password? Use the reset link above.
           </p>
 
           <p className="auth-switch">
-            Need an account? <Link href="/signup">Create one</Link>
+            Need an account? <Link href={`/signup${signupHref.size ? `?${signupHref}` : ""}`}>Create one</Link>
           </p>
         </div>
       </section>

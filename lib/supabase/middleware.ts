@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import type { User } from "@supabase/supabase-js";
+import { safeInternalRedirect } from "@/lib/auth/redirect";
 
 const AUTH_LOOKUP_TIMEOUT_MS = 2000;
 
@@ -117,11 +118,14 @@ export async function updateSession(request: NextRequest) {
   }
 
   if (user && isAuthPage(request.nextUrl.pathname)) {
-    const redirectUrl = request.nextUrl.clone();
-    redirectUrl.pathname = "/dashboard";
-    redirectUrl.search = "";
+    const plan = request.nextUrl.searchParams.get("plan");
+    const fallbackNext = plan ? `/api/checkout?plan=${encodeURIComponent(plan)}` : "/dashboard";
+    const nextPath = safeInternalRedirect(request.nextUrl.searchParams.get("next"), fallbackNext);
+
+    // Auth pages may carry a checkout continuation. Only internal app paths
+    // survive this redirect, so signed-in users cannot be bounced off-site.
     return {
-      response: NextResponse.redirect(redirectUrl),
+      response: NextResponse.redirect(new URL(nextPath, request.url)),
       user,
       supabase,
       authError,
