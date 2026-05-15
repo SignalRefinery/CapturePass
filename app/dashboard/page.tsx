@@ -2,7 +2,10 @@ import { redirect } from "next/navigation";
 import { Shell } from "@/components/shared/shell";
 import { ProfileEditor } from "@/components/dashboard/profile-editor";
 import { InactiveState } from "@/components/dashboard/inactive-state";
-import { getProfileForUserServer } from "@/lib/profile-service-server";
+import {
+  getProfileForUserServer,
+  getProfileViewsForProfileServer
+} from "@/lib/profile-service-server";
 import { createClient } from "@/lib/supabase/server";
 import { slugify } from "@/lib/utils";
 
@@ -156,6 +159,9 @@ export default async function DashboardPage({
       primary_link_3_url: "",
       primary_link_4_title: "Website",
       primary_link_4_url: "",
+      page_mode: "single",
+      multi_view_display_mode: "favorite",
+      default_view_id: null,
       is_active: false,
       referral_code: null,
       referred_by: user.user_metadata?.referral_code_used || null,
@@ -166,6 +172,9 @@ export default async function DashboardPage({
       promo_code_used: user.user_metadata?.promo_code || null,
       is_public_official: !!user.user_metadata?.is_public_official
     };
+  const initialProfileViews = initialProfile.id
+    ? await getProfileViewsForProfileServer(initialProfile.id)
+    : [];
 
   const fullAccess = !!initialProfile.is_active || !!initialProfile.billing_exempt;
   const myProfileHref = initialProfile.slug ? `/${initialProfile.slug}` : null;
@@ -282,7 +291,11 @@ export default async function DashboardPage({
             </section>
           ) : null}
 
-          <ProfileEditor userId={user.id} initialProfile={initialProfile} />
+          <ProfileEditor
+            userId={user.id}
+            initialProfile={initialProfile}
+            initialProfileViews={initialProfileViews}
+          />
 
           <section className="dashboard-wrap status-bottom">
             <div className="dashboard-grid">

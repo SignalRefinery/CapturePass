@@ -1,4 +1,4 @@
-import type { ProfileRecord } from "@/lib/types";
+import type { ProfileRecord, ProfileViewRecord } from "@/lib/types";
 import { createClient as createBrowserClient } from "@/lib/supabase/client";
 import { classifySlug } from "@/lib/slug-moderation";
 
@@ -90,4 +90,100 @@ export async function isSlugTakenClient(slug: string, userId: string) {
   if (requestedError || !requestedData || requestedData.length === 0) return false;
 
   return requestedData[0].user_id !== userId;
+}
+
+export async function saveProfileViewClient(record: ProfileViewRecord) {
+  const supabase = createBrowserClient();
+  const now = new Date().toISOString();
+
+  if (record.id) {
+    return supabase
+      .from("profile_views")
+      .update({
+        name: record.name,
+        view_key: record.view_key,
+        sort_order: record.sort_order,
+        full_name: record.full_name,
+        role_line: record.role_line,
+        intro: record.intro,
+        email: record.email,
+        phone: record.phone,
+        website_url: record.website_url,
+        show_email: record.show_email,
+        show_phone: record.show_phone,
+        show_text: record.show_text,
+        primary_link_1_title: record.primary_link_1_title,
+        primary_link_1_url: record.primary_link_1_url,
+        primary_link_2_title: record.primary_link_2_title,
+        primary_link_2_url: record.primary_link_2_url,
+        primary_link_3_title: record.primary_link_3_title,
+        primary_link_3_url: record.primary_link_3_url,
+        primary_link_4_title: record.primary_link_4_title,
+        primary_link_4_url: record.primary_link_4_url,
+        updated_at: now
+      })
+      .eq("id", record.id)
+      .select()
+      .single();
+  }
+
+  return supabase
+    .from("profile_views")
+    .insert({
+      profile_id: record.profile_id,
+      name: record.name,
+      view_key: record.view_key,
+      sort_order: record.sort_order,
+      full_name: record.full_name,
+      role_line: record.role_line,
+      intro: record.intro,
+      email: record.email,
+      phone: record.phone,
+      website_url: record.website_url,
+      show_email: record.show_email,
+      show_phone: record.show_phone,
+      show_text: record.show_text,
+      primary_link_1_title: record.primary_link_1_title,
+      primary_link_1_url: record.primary_link_1_url,
+      primary_link_2_title: record.primary_link_2_title,
+      primary_link_2_url: record.primary_link_2_url,
+      primary_link_3_title: record.primary_link_3_title,
+      primary_link_3_url: record.primary_link_3_url,
+      primary_link_4_title: record.primary_link_4_title,
+      primary_link_4_url: record.primary_link_4_url,
+      created_at: now,
+      updated_at: now
+    })
+    .select()
+    .single();
+}
+
+export async function getProfileIdForUserClient(userId: string) {
+  const supabase = createBrowserClient();
+
+  return supabase
+    .from("profiles")
+    .select("id")
+    .eq("user_id", userId)
+    .maybeSingle();
+}
+
+export async function deleteProfileViewClient(viewId: string) {
+  const supabase = createBrowserClient();
+
+  return supabase.from("profile_views").delete().eq("id", viewId);
+}
+
+export async function setDefaultProfileViewClient(userId: string, viewId: string | null) {
+  const supabase = createBrowserClient();
+
+  return supabase
+    .from("profiles")
+    .update({
+      default_view_id: viewId,
+      updated_at: new Date().toISOString()
+    })
+    .eq("user_id", userId)
+    .select()
+    .single();
 }
