@@ -13,6 +13,13 @@ function subscriptionIsActive(status: string | null | undefined) {
 }
 
 const PLAN_BY_PRICE_ID: Record<string, string> = {
+  ...(process.env.STRIPE_ESSENTIAL_MONTHLY_PRICE_ID
+    ? { [process.env.STRIPE_ESSENTIAL_MONTHLY_PRICE_ID]: "essential-monthly" }
+    : {}),
+  ...(process.env.STRIPE_ESSENTIAL_ANNUAL_PRICE_ID
+    ? { [process.env.STRIPE_ESSENTIAL_ANNUAL_PRICE_ID]: "essential-annual" }
+    : {}),
+  // Legacy fallbacks kept for existing Stripe products that may still emit events.
   ...(process.env.STRIPE_ESSENTIAL_PRICE_ID
     ? { [process.env.STRIPE_ESSENTIAL_PRICE_ID]: "essential" }
     : {}),
@@ -32,6 +39,28 @@ function getPlanFromSubscription(subscription: Stripe.Subscription) {
   }
 
   return subscription.metadata?.plan || subscription.metadata?.selected_plan || null;
+}
+
+function getPlanFromCheckoutSession(session: Stripe.Checkout.Session) {
+  return session.metadata?.plan || session.metadata?.selected_plan || null;
+}
+
+function isSubscriptionCheckoutSession(session: Stripe.Checkout.Session) {
+  const plan = getPlanFromCheckoutSession(session);
+
+  return (
+    session.mode === "subscription" &&
+    !!session.subscription &&
+    plan !== "additional-cards"
+  );
+}
+
+function getInvoiceSubscriptionId(invoice: Stripe.Invoice) {
+  const invoiceWithSubscription = invoice as Stripe.Invoice & {
+    subscription?: string | { id?: string } | null;
+  };
+
+  return getStringId(invoiceWithSubscription.subscription);
 }
 
 async function findUserIdByCustomer(customerId: string | null) {
@@ -166,11 +195,22 @@ async function sendCardNotification(userId: string, session?: Stripe.Checkout.Se
 }
 
 async function updateProfileForCheckout(session: Stripe.Checkout.Session) {
+  if (!isSubscriptionCheckoutSession(session)) {
+    const userId = session.metadata?.user_id || null;
+
+    // Additional-card checkout is a one-time payment. Preserve fulfillment
+    // notification behavior without mutating subscription access fields.
+    if (userId) {
+      await sendCardNotification(userId, session);
+    }
+
+    return;
+  }
+
   const admin = createAdminClient();
 
   const userId = session.metadata?.user_id || null;
-  const plan =
-    session.metadata?.plan || session.metadata?.selected_plan || null;
+  const plan = getPlanFromCheckoutSession(session);
 
   const customerId = getStringId(session.customer);
   const subscriptionId = getStringId(session.subscription);
@@ -223,6 +263,10 @@ async function updateProfileForInvoice(
   invoice: Stripe.Invoice,
   status: "active" | "past_due"
 ) {
+  // Invoice events can be emitted for one-time payments too; only subscription
+  // invoices are allowed to affect subscription access state.
+  if (!getInvoiceSubscriptionId(invoice)) return;
+
   const admin = createAdminClient();
 
   const customerId = getStringId(invoice.customer);
