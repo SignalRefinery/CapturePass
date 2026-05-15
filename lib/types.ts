@@ -36,6 +36,9 @@ export type ProfileRecord = {
   email: string;
   phone: string;
   website_url: string;
+  profile_badge_1?: string | null;
+  profile_badge_2?: string | null;
+  profile_badge_3?: string | null;
   primary_link_1_title: string;
   primary_link_1_url: string;
   primary_link_2_title: string;
@@ -76,6 +79,9 @@ export type ProfileViewRecord = {
   email: string;
   phone: string;
   website_url: string;
+  profile_badge_1?: string | null;
+  profile_badge_2?: string | null;
+  profile_badge_3?: string | null;
   show_email: boolean;
   show_phone: boolean;
   show_text: boolean;

@@ -19,6 +19,9 @@ type ProfileLike = {
   email?: string | null;
   phone?: string | null;
   website_url?: string | null;
+  profile_badge_1?: string | null;
+  profile_badge_2?: string | null;
+  profile_badge_3?: string | null;
   show_email?: boolean | null;
   show_phone?: boolean | null;
   show_text?: boolean | null;
@@ -63,8 +66,12 @@ function contactHref(profile: ProfileLike) {
   return profile.slug ? `/api/vcard/${profile.slug}` : "#";
 }
 
-function getPills() {
-  return ["Direct profile", "Direct follow-up", "Verified contact card"];
+function getPills(profile: ProfileLike) {
+  return [
+    profile.profile_badge_1,
+    profile.profile_badge_2,
+    profile.profile_badge_3
+  ].filter((pill): pill is string => !!pill?.trim());
 }
 
 function subtitleForLink(item: { title?: string | null; href?: string | null }, profile: ProfileLike) {
@@ -151,7 +158,7 @@ export function LuxuryProfileShell({
   const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=420x420&data=${encodeURIComponent(
     issuedUrl
   )}`;
-  const pills = getPills();
+  const pills = getPills(activeProfile);
   const showEmail = activeProfile.show_email !== false;
   const showPhone = activeProfile.show_phone !== false;
   const showText = activeProfile.show_text === true;
@@ -295,14 +302,16 @@ export function LuxuryProfileShell({
 
             {activeProfile.role_line ? <p className={styles.profileRole}>{activeProfile.role_line}</p> : null}
 
-            <div className={styles.profileMeta}>
-              {pills.map((pill) => (
-                <div className={styles.metaPill} key={pill}>
-                  <span className={styles.miniDot}></span>
-                  <span>{pill}</span>
-                </div>
-              ))}
-            </div>
+            {pills.length ? (
+              <div className={styles.profileMeta}>
+                {pills.map((pill) => (
+                  <div className={styles.metaPill} key={pill}>
+                    <span className={styles.miniDot}></span>
+                    <span>{pill}</span>
+                  </div>
+                ))}
+              </div>
+            ) : null}
 
             <div className={`${styles.ctaRow} ${styles.profileActions}`}>
               {activeProfile.slug && (showEmail || showPhone) ? (
@@ -370,6 +379,21 @@ export function LuxuryProfileShell({
 
         <section className={styles.reportSection}>
           <ReportIssueForm profileId={activeProfile.id || undefined} slug={activeProfile.slug || ""} />
+        </section>
+
+        <section className={styles.signupCtaSection}>
+          <div className={styles.signupCta}>
+            <div>
+              <div className={styles.signupCtaKicker}>Signal Pass</div>
+              <h2>Level up how you network.</h2>
+              <p>
+                Build a polished profile, share the right links, and make every follow-up easier.
+              </p>
+            </div>
+            <Link className={`${styles.button} ${styles.profileGoldButton}`} href="/signup">
+              Create your profile
+            </Link>
+          </div>
         </section>
           </>
         ) : null}

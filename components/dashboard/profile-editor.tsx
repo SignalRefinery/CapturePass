@@ -136,6 +136,9 @@ function createViewFromProfile(profile: ProfileRecord, profileId: string, index:
     email: profile.email || "",
     phone: profile.phone || "",
     website_url: profile.website_url || "",
+    profile_badge_1: profile.profile_badge_1 || "",
+    profile_badge_2: profile.profile_badge_2 || "",
+    profile_badge_3: profile.profile_badge_3 || "",
     show_email: true,
     show_phone: true,
     show_text: false,
@@ -160,6 +163,9 @@ function normalizeViewForSave(view: ProfileViewRecord): ProfileViewRecord {
     email: view.email.trim(),
     phone: view.phone.trim(),
     website_url: normalizeUrl(view.website_url || ""),
+    profile_badge_1: (view.profile_badge_1 || "").trim(),
+    profile_badge_2: (view.profile_badge_2 || "").trim(),
+    profile_badge_3: (view.profile_badge_3 || "").trim(),
     primary_link_1_url: normalizeActionUrl(view.primary_link_1_url),
     primary_link_2_url: normalizeActionUrl(view.primary_link_2_url),
     primary_link_3_url: normalizeActionUrl(view.primary_link_3_url),
@@ -284,6 +290,9 @@ export function ProfileEditor({
         multi_view_display_mode: form.multi_view_display_mode || "favorite",
         promo_code_used: promo || null,
         website_url: normalizeUrl(form.website_url || ""),
+        profile_badge_1: (form.profile_badge_1 || "").trim(),
+        profile_badge_2: (form.profile_badge_2 || "").trim(),
+        profile_badge_3: (form.profile_badge_3 || "").trim(),
         primary_link_1_url: callLink,
         primary_link_2_url: emailLink,
         primary_link_3_url:
@@ -561,6 +570,38 @@ export function ProfileEditor({
             />
           </label>
 
+          <div className="card view-subsection" style={{ marginTop: 18 }}>
+            <div className="dashboard-kicker">Profile badges</div>
+            <div className="editor-grid" style={{ marginTop: 14 }}>
+              <label className="auth-field">
+                <span>Badge 1</span>
+                <input
+                  value={form.profile_badge_1 || ""}
+                  onChange={(event) => update("profile_badge_1", event.target.value)}
+                  placeholder="Direct profile"
+                />
+              </label>
+
+              <label className="auth-field">
+                <span>Badge 2</span>
+                <input
+                  value={form.profile_badge_2 || ""}
+                  onChange={(event) => update("profile_badge_2", event.target.value)}
+                  placeholder="Direct follow-up"
+                />
+              </label>
+
+              <label className="auth-field">
+                <span>Badge 3</span>
+                <input
+                  value={form.profile_badge_3 || ""}
+                  onChange={(event) => update("profile_badge_3", event.target.value)}
+                  placeholder="Verified contact card"
+                />
+              </label>
+            </div>
+          </div>
+
           <div className="editor-grid" style={{ marginTop: 18 }}>
             <label className="auth-field">
               <span>Email</span>
@@ -799,6 +840,38 @@ export function ProfileEditor({
                     placeholder={INTRO_PLACEHOLDER}
                   />
                 </label>
+
+                <div className="card view-subsection" style={{ marginTop: 18 }}>
+                  <div className="dashboard-kicker">Profile badges</div>
+                  <div className="editor-grid" style={{ marginTop: 14 }}>
+                    <label className="auth-field">
+                      <span>Badge 1</span>
+                      <input
+                        value={activeView.profile_badge_1 || ""}
+                        onChange={(event) => updateView("profile_badge_1", event.target.value)}
+                        placeholder="Direct profile"
+                      />
+                    </label>
+
+                    <label className="auth-field">
+                      <span>Badge 2</span>
+                      <input
+                        value={activeView.profile_badge_2 || ""}
+                        onChange={(event) => updateView("profile_badge_2", event.target.value)}
+                        placeholder="Direct follow-up"
+                      />
+                    </label>
+
+                    <label className="auth-field">
+                      <span>Badge 3</span>
+                      <input
+                        value={activeView.profile_badge_3 || ""}
+                        onChange={(event) => updateView("profile_badge_3", event.target.value)}
+                        placeholder="Verified contact card"
+                      />
+                    </label>
+                  </div>
+                </div>
 
                 <div className="editor-grid" style={{ marginTop: 14 }}>
                   <label className="auth-field">
