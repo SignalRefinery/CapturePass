@@ -68,13 +68,49 @@ async function getAccountData() {
   };
 }
 
-export default async function AccountPage() {
+function billingNoticeFor(value?: string | null) {
+  switch (value) {
+    case "manual":
+      return {
+        text: "Billing is managed manually for this account, so there is no Stripe portal action needed."
+      };
+    default:
+      return null;
+  }
+}
+
+function billingErrorFor(value?: string | null) {
+  switch (value) {
+    case "missing_customer":
+      return "No Stripe customer is connected to this account yet. If you have not activated, choose a plan. If you already paid, contact support so we can reconcile the account.";
+    case "profile_lookup":
+      return "We could not load your billing profile just now. Please refresh and try again.";
+    case "portal_unavailable":
+      return "Stripe billing management is temporarily unavailable. Please try again in a few minutes.";
+    default:
+      return null;
+  }
+}
+
+export default async function AccountPage({
+  searchParams
+}: {
+  searchParams?: Promise<{
+    billing?: string;
+    billing_error?: string;
+  }>;
+}) {
   const account = await getAccountData();
+  const params = searchParams ? await searchParams : {};
+  const billingNotice = billingNoticeFor(params?.billing);
+  const billingError = billingErrorFor(params?.billing_error);
 
   const hasAccess =
     !!account?.lifetimeFree ||
     !!account?.billingExempt ||
     account?.status === "active";
+  const manualBilling = !!account?.lifetimeFree || !!account?.billingExempt;
+  const hasActiveSubscription = account?.status === "active" || account?.status === "trialing";
 
   const currentPlan = account?.lifetimeFree
     ? "Founder lifetime access"
@@ -131,6 +167,18 @@ export default async function AccountPage() {
           <div className="card" style={{ padding: 26 }}>
             <h2 className="section-title">Plan</h2>
 
+            {billingError ? (
+              <p className="auth-error" style={{ marginBottom: 16 }}>
+                {billingError}
+              </p>
+            ) : null}
+
+            {billingNotice ? (
+              <p className="auth-message" style={{ marginBottom: 16 }}>
+                {billingNotice.text}
+              </p>
+            ) : null}
+
             <div className="account-grid">
               <div>
                 <span className="label">Current plan</span>
@@ -139,7 +187,7 @@ export default async function AccountPage() {
 
               <div>
                 <span className="label">Status</span>
-                <div>{account?.status || (hasAccess ? "active" : "—")}</div>
+                <div>{account?.status || (hasAccess ? "active" : "inactive")}</div>
               </div>
 
               <div>
@@ -156,27 +204,25 @@ export default async function AccountPage() {
                 flexWrap: "wrap",
               }}
             >
-              {hasAccess && !account?.customerId ? (
+              {manualBilling ? (
                 <>
-                  <button className="button primary" type="button" disabled>
-                    Access included
+                  <button className="button primary" type="button" disabled aria-disabled="true">
+                    Manual billing
                   </button>
 
                   <Link href="/dashboard" className="button secondary">
                     Manage profile
                   </Link>
+
+                  <p className="editor-copy" style={{ flexBasis: "100%", margin: "4px 0 0" }}>
+                    Billing is managed manually for this account. You can continue using Signal Pass without opening Stripe billing.
+                  </p>
                 </>
               ) : account?.customerId ? (
                 <>
                   <form action="/api/portal" method="post">
                     <button className="button primary" type="submit">
-                      Manage plan
-                    </button>
-                  </form>
-
-                  <form action="/api/portal" method="post">
-                    <button className="button secondary" type="submit">
-                      Cancel subscription
+                      Manage billing in Stripe
                     </button>
                   </form>
 
@@ -184,10 +230,26 @@ export default async function AccountPage() {
                     Plan changes, payment methods, invoices, and cancellations are handled securely through Stripe.
                   </p>
                 </>
+              ) : hasActiveSubscription ? (
+                <>
+                  <button className="button primary" type="button" disabled aria-disabled="true">
+                    Billing unavailable
+                  </button>
+
+                  <p className="editor-copy" style={{ flexBasis: "100%", margin: "4px 0 0" }}>
+                    This account appears active, but no Stripe customer is connected. Contact support before making billing changes.
+                  </p>
+                </>
               ) : (
-                <Link href="/pricing" className="button primary">
-                  Choose plan
-                </Link>
+                <>
+                  <Link href="/pricing" className="button primary">
+                    Activate account
+                  </Link>
+
+                  <p className="editor-copy" style={{ flexBasis: "100%", margin: "4px 0 0" }}>
+                    Choose an Essential plan to activate billing and unlock the full dashboard.
+                  </p>
+                </>
               )}
             </div>
           </div>
