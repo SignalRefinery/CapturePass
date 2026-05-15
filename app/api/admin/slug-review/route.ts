@@ -6,6 +6,32 @@ import { sendSlugApprovedEmail } from "@/lib/notifications/send-slug-approved-em
 
 const ADMIN_EMAILS = ["john@signalrefinery.pro"];
 
+async function writeAdminAuditLog({
+  adminEmail,
+  targetUserId,
+  action,
+  details
+}: {
+  adminEmail: string;
+  targetUserId: string;
+  action: string;
+  details?: Record<string, unknown>;
+}) {
+  try {
+    const admin = createAdminClient();
+    await admin.from("admin_audit_log").insert({
+      admin_email: adminEmail,
+      target_user_id: targetUserId,
+      action,
+      details: details || {}
+    });
+  } catch (auditError) {
+    // Moderation should not fail after the profile mutation solely because
+    // audit persistence is temporarily unavailable, but operators need logs.
+    console.error("Admin slug review audit log failed:", auditError);
+  }
+}
+
 export async function POST(request: Request) {
   const supabase = await createClient();
   const {
@@ -22,6 +48,10 @@ export async function POST(request: Request) {
 
   if (!userId || !action) {
     return NextResponse.json({ error: "Missing review payload." }, { status: 400 });
+  }
+
+  if (action !== "approve" && action !== "deny") {
+    return NextResponse.json({ error: "Invalid slug review action." }, { status: 400 });
   }
 
   const admin = createAdminClient();
@@ -41,13 +71,14 @@ export async function POST(request: Request) {
   }
 
   if (action === "deny") {
+    const reviewedAt = new Date().toISOString();
     const { error } = await admin
       .from("profiles")
       .update({
         slug_requested: null,
         slug_status: "rejected",
         slug_review_reason: "denied_by_admin",
-        updated_at: new Date().toISOString()
+        updated_at: reviewedAt
       })
       .eq("user_id", userId);
 
@@ -55,7 +86,20 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: error.message }, { status: 400 });
     }
 
-    return NextResponse.json({ ok: true });
+    await writeAdminAuditLog({
+      adminEmail: user.email || "unknown-admin",
+      targetUserId: userId,
+      action: "slug_denied",
+      details: {
+        previous_slug: profile.slug || null,
+        requested_slug: profile.slug_requested,
+        profile_email: profile.email || null,
+        profile_name: profile.full_name || null,
+        reviewed_at: reviewedAt
+      }
+    });
+
+    return NextResponse.json({ ok: true, message: "Slug request denied." });
   }
 
   const moderation = classifySlug(profile.slug_requested);
@@ -75,13 +119,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "That slug is already in use." }, { status: 400 });
   }
 
+  const approvedAt = new Date().toISOString();
   const updatedProfile = {
     ...profile,
     slug: moderation.normalized,
     slug_requested: null,
     slug_status: "approved",
     slug_review_reason: "approved_by_admin",
-    updated_at: new Date().toISOString()
+    updated_at: approvedAt
   };
 
   const { error } = await admin
@@ -105,5 +150,19 @@ export async function POST(request: Request) {
     console.error(emailError);
   }
 
-  return NextResponse.json({ ok: true });
+  await writeAdminAuditLog({
+    adminEmail: user.email || "unknown-admin",
+    targetUserId: userId,
+    action: "slug_approved",
+    details: {
+      previous_slug: profile.slug || null,
+      requested_slug: profile.slug_requested,
+      approved_slug: updatedProfile.slug,
+      profile_email: profile.email || null,
+      profile_name: profile.full_name || null,
+      reviewed_at: approvedAt
+    }
+  });
+
+  return NextResponse.json({ ok: true, message: "Slug request approved." });
 }

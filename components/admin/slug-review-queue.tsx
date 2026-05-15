@@ -15,9 +15,32 @@ type PendingSlugRow = {
 export function SlugReviewQueue({ rows }: { rows: PendingSlugRow[] }) {
   const router = useRouter();
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
 
-  async function submit(userId: string, action: "approve" | "deny") {
+  async function submit(row: PendingSlugRow, action: "approve" | "deny") {
+    const profileLabel = row.full_name || row.email || row.user_id;
+    const confirmed = window.confirm(
+      [
+        action === "approve" ? "Approve this slug request?" : "Deny this slug request?",
+        "",
+        `Profile: ${profileLabel}`,
+        `Current slug: ${row.slug || "not issued"}`,
+        `Requested slug: ${row.slug_requested || "none"}`,
+        `Review reason: ${row.slug_review_reason || "title review"}`,
+        "",
+        action === "approve"
+          ? "Approving will replace the current public slug."
+          : "Denying will clear the pending request and mark it rejected."
+      ].join("\n")
+    );
+
+    if (!confirmed) return;
+
+    const userId = row.user_id;
     setBusyId(userId + action);
+    setMessage("");
+    setError("");
 
     try {
       const res = await fetch("/api/admin/slug-review", {
@@ -31,11 +54,14 @@ export function SlugReviewQueue({ rows }: { rows: PendingSlugRow[] }) {
       const data = await res.json();
 
       if (!res.ok) {
-        alert(data.error || "Unable to process slug review.");
+        setError(data.error || "Unable to process slug review.");
         return;
       }
 
+      setMessage(data.message || `Slug request ${action === "approve" ? "approved" : "denied"}.`);
       router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unable to process slug review.");
     } finally {
       setBusyId(null);
     }
@@ -45,6 +71,8 @@ export function SlugReviewQueue({ rows }: { rows: PendingSlugRow[] }) {
     <div className="dashboard-card">
       <div className="dashboard-kicker">Slug moderation</div>
       <h2>Pending slug review queue</h2>
+      {error ? <p className="auth-error" style={{ marginTop: 10 }}>{error}</p> : null}
+      {message ? <p className="auth-message" style={{ marginTop: 10 }}>{message}</p> : null}
       {rows.length === 0 ? (
         <p className="editor-copy">No slug requests are waiting for review.</p>
       ) : (
@@ -64,16 +92,16 @@ export function SlugReviewQueue({ rows }: { rows: PendingSlugRow[] }) {
                 <button
                   className="button primary"
                   type="button"
-                  onClick={() => submit(row.user_id, "approve")}
-                  disabled={busyId === row.user_id + "approve"}
+                  onClick={() => submit(row, "approve")}
+                  disabled={!!busyId}
                 >
                   {busyId === row.user_id + "approve" ? "Approving..." : "Approve"}
                 </button>
                 <button
                   className="button secondary"
                   type="button"
-                  onClick={() => submit(row.user_id, "deny")}
-                  disabled={busyId === row.user_id + "deny"}
+                  onClick={() => submit(row, "deny")}
+                  disabled={!!busyId}
                 >
                   {busyId === row.user_id + "deny" ? "Denying..." : "Deny"}
                 </button>
