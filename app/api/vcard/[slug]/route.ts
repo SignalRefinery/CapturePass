@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
-import { getProfileBySlugServer } from "@/lib/profile-service-server";
+import {
+  getProfileBySlugServer,
+  getProfileViewsForProfileServer
+} from "@/lib/profile-service-server";
 import { PROFILE_CACHE_HEADERS } from "@/lib/privacy/profile-privacy";
+import type { ProfileRecord, ProfileViewRecord } from "@/lib/types";
 
 type RouteContext = {
   params: Promise<{ slug: string }>;
@@ -18,9 +22,41 @@ function escapeVcf(value?: string | null) {
     .replace(/;/g, "\\;");
 }
 
-export async function GET(_request: Request, context: RouteContext) {
+function viewToVcardContact(profile: ProfileRecord, view?: ProfileViewRecord | null) {
+  if (!view) {
+    return {
+      full_name: profile.full_name,
+      role_line: profile.role_line,
+      intro: profile.intro,
+      email: profile.email,
+      phone: profile.phone,
+      website_url: profile.website_url,
+      show_email: true,
+      show_phone: true
+    };
+  }
+
+  return {
+    full_name: view.full_name || profile.full_name,
+    role_line: view.role_line || profile.role_line,
+    intro: view.intro || profile.intro,
+    email: view.email || profile.email,
+    phone: view.phone || profile.phone,
+    website_url: view.website_url || profile.website_url,
+    show_email: view.show_email,
+    show_phone: view.show_phone
+  };
+}
+
+function getProfileUrl(request: Request, slug: string) {
+  const configuredOrigin = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL;
+  const origin = configuredOrigin || new URL(request.url).origin;
+  return new URL(`/${slug}`, origin).toString();
+}
+
+export async function GET(request: Request, context: RouteContext) {
   const { slug } = await context.params;
-  const profile = await getProfileBySlugServer(slug);
+  const profile = (await getProfileBySlugServer(slug)) as ProfileRecord | null;
 
   if (
     !profile ||
@@ -31,15 +67,31 @@ export async function GET(_request: Request, context: RouteContext) {
     return new NextResponse("Not found", { status: 404, headers: PROFILE_CACHE_HEADERS });
   }
 
+  const requestedViewKey = new URL(request.url).searchParams.get("view");
+  const profileViews = profile.id ? await getProfileViewsForProfileServer(profile.id) : [];
+  const selectedView = requestedViewKey
+    ? profileViews.find((view) => view.view_key === requestedViewKey)
+    : profileViews.find((view) => view.id === profile.default_view_id) || profileViews[0] || null;
+
+  if (requestedViewKey && !selectedView) {
+    return new NextResponse("Not found", { status: 404, headers: PROFILE_CACHE_HEADERS });
+  }
+
+  const contact = viewToVcardContact(profile, selectedView);
+  const publicProfileUrl = getProfileUrl(request, slug);
+  const websiteUrl = contact.website_url || "";
+  const profileUrlLine = websiteUrl === publicProfileUrl ? "" : `URL:${escapeVcf(publicProfileUrl)}`;
+
   const vcard = [
     "BEGIN:VCARD",
     "VERSION:3.0",
-    `FN:${escapeVcf(profile.full_name)}`,
-    profile.role_line ? `TITLE:${escapeVcf(profile.role_line)}` : "",
-    profile.email ? `EMAIL;TYPE=INTERNET:${escapeVcf(profile.email)}` : "",
-    profile.phone ? `TEL;TYPE=CELL:${escapeVcf(cleanPhone(profile.phone))}` : "",
-    profile.website_url ? `URL:${escapeVcf(profile.website_url)}` : "",
-    profile.intro ? `NOTE:${escapeVcf(profile.intro)}` : "",
+    `FN:${escapeVcf(contact.full_name)}`,
+    contact.role_line ? `TITLE:${escapeVcf(contact.role_line)}` : "",
+    contact.show_email && contact.email ? `EMAIL;TYPE=INTERNET:${escapeVcf(contact.email)}` : "",
+    contact.show_phone && contact.phone ? `TEL;TYPE=CELL:${escapeVcf(cleanPhone(contact.phone))}` : "",
+    websiteUrl ? `URL:${escapeVcf(websiteUrl)}` : "",
+    profileUrlLine,
+    contact.intro ? `NOTE:${escapeVcf(contact.intro)}` : "",
     "END:VCARD"
   ]
     .filter(Boolean)
