@@ -774,9 +774,9 @@ export function ProfileEditor({
                   </label>
                 </div>
 
-                <div className="card" style={{ marginTop: 18, padding: 18 }}>
+                <div className="card view-subsection" style={{ marginTop: 18 }}>
                   <div className="dashboard-kicker">Contact visibility</div>
-                  <div style={{ display: "grid", gap: 12, marginTop: 12 }}>
+                  <div className="visibility-list">
                     <label className="toggle-row" style={{ margin: 0 }}>
                       <input
                         type="checkbox"
@@ -806,11 +806,11 @@ export function ProfileEditor({
                   </div>
                 </div>
 
-                <div className="card" style={{ marginTop: 18, padding: 18 }}>
+                <div className="card view-subsection link-fields-card" style={{ marginTop: 18 }}>
                   <div className="dashboard-kicker">View primary links</div>
                   {LINK_FIELD_CONFIG.map((field, index) => (
                     <div
-                      className="editor-grid"
+                      className="editor-grid link-field-row"
                       style={{ marginTop: index === 0 ? 14 : 14 }}
                       key={`view-${field.titleKey}`}
                     >
@@ -887,39 +887,39 @@ export function ProfileEditor({
             </div>
           </div>
 
-          <div className="card" style={{ marginTop: 24, padding: 22 }}>
+          <div className="card metadata-card" style={{ marginTop: 24 }}>
             <div className="dashboard-kicker">Technical details</div>
-            <h3 style={{ margin: "6px 0 12px", fontSize: "1.1rem" }}>
+            <h3 className="metadata-title">
               Profile access and distribution
             </h3>
 
-            <div className="status-list">
-              <div className="status-row">
-                <span>Public profile</span>
-                <strong>
+            <div className="metadata-list">
+              <div className="metadata-row">
+                <span className="metadata-label">Public profile</span>
+                <strong className="metadata-value">
                   {safeReadableUrl
                     ? safeReadableUrl.replace(/^https?:\/\//, "")
                     : "Pending approval"}
                 </strong>
               </div>
 
-              <div className="status-row">
-                <span>Issued card / QR</span>
-                <strong>
+              <div className="metadata-row">
+                <span className="metadata-label">Issued card / QR</span>
+                <strong className="metadata-value">
                   {safeIssuedUrl
                     ? safeIssuedUrl.replace(/^https?:\/\//, "")
                     : "Not issued"}
                 </strong>
               </div>
 
-              <div className="status-row">
-                <span>Status</span>
-                <strong>{profileStatusLabel}</strong>
+              <div className="metadata-row">
+                <span className="metadata-label">Status</span>
+                <strong className="metadata-value">{profileStatusLabel}</strong>
               </div>
 
-              <div className="status-row">
-                <span>Slug status</span>
-                <strong>{slugStatusLabel}</strong>
+              <div className="metadata-row">
+                <span className="metadata-label">Slug status</span>
+                <strong className="metadata-value">{slugStatusLabel}</strong>
               </div>
             </div>
           </div>
