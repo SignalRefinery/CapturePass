@@ -1,33 +1,41 @@
 import type { NextRequest } from "next/server";
-import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 import { isLikelyProfilePath, PROFILE_CACHE_HEADERS } from "@/lib/privacy/profile-privacy";
 import { updateSession } from "@/lib/supabase/middleware";
 
 export async function middleware(request: NextRequest) {
-  const response = await updateSession(request);
+  const session = await updateSession(request);
+  const { response, supabase, user, authError } = session;
   const { pathname } = request.nextUrl;
 
-  const supabase = await createClient();
+  if (response.headers.get("location")) {
+    return response;
+  }
 
-  const {
-    data: { user }
-  } = await supabase.auth.getUser();
-
-  // Protect dashboard + admin
-  if (pathname.startsWith("/dashboard") || pathname.startsWith("/admin")) {
-    if (!user) {
-      return NextResponse.redirect(new URL("/login", request.url));
-    }
-
-    const { data: profile } = await supabase
+  // Auth lookup failures should not break public profile or token routes.
+  // Protected pages still enforce auth server-side; middleware only adds a fast path.
+  if (!authError && user && supabase && pathname.startsWith("/dashboard")) {
+    const { data: profile, error } = await supabase
       .from("profiles")
-      .select("is_active")
+      .select("is_active, billing_exempt, lifetime_free, promo_code_used, is_admin")
       .or(`user_id.eq.${user.id},id.eq.${user.id}`)
       .maybeSingle();
 
-    if (!profile?.is_active) {
-      return NextResponse.redirect(new URL("/pricing", request.url));
+    if (!error) {
+      const hasDashboardAccess =
+        !!profile?.is_active ||
+        !!profile?.billing_exempt ||
+        !!profile?.lifetime_free ||
+        profile?.promo_code_used === "FOUNDERS" ||
+        !!profile?.is_admin;
+
+      if (!hasDashboardAccess) {
+        return NextResponse.redirect(new URL("/pricing", request.url));
+      }
+    } else {
+      // Let the page render its own guarded state instead of risking a lockout
+      // from a transient profile lookup problem in middleware.
+      console.error(error);
     }
   }
 

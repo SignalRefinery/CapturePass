@@ -8,7 +8,7 @@ Profiles are:
 - Accessible via direct link, NFC, or QR
 - Backed by Supabase (auth + database)
 - Monetized via Stripe subscriptions
-- Designed to minimize public surface area
+- Designed for controlled public visibility and intentional sharing
 
 ---
 
@@ -25,7 +25,25 @@ Recently completed:
 - Billing + profile visibility in admin
 - Core Supabase + Stripe wiring functional
 
+- Multi-view profile architecture
+- Landing-page vs favorite-view profile modes
+- View-aware vCard generation
+- Dashboard multi-view management
+- Per-view contact visibility controls (email / phone / text)
+
 The system has moved from prototype → **early production backend**.
+
+---
+
+Primary Use Cases
+
+SignalPass is optimized for:
+- Legislative offices
+- Lobbyists and government affairs professionals
+- Consultants and operators
+- Executive and relationship-based networking
+- Premium NFC/contact workflows
+- Multi-office or multi-role public-facing profiles
 
 ---
 
@@ -58,6 +76,22 @@ Profiles:
 - Route: `/[slug]`
 - Dynamic rendering
 - Includes contact info, vCard, QR code
+
+Profile Views System:
+- Profiles may operate in:
+  - Single View mode
+  - Multi View mode
+- Multi View mode supports:
+  - multiple office/contact variants
+  - landing-page selector mode
+  - default/favorite view mode
+  - per-view contact visibility
+  - view-aware vCards
+- Example use cases:
+  - Capitol Office
+  - District Office
+  - Press Contact
+  - Constituent Services
 
 Token Routing:
 - Route: `/u/[token]`
@@ -124,6 +158,7 @@ Apply SQL files in order:
 - phase5_randomized_slug.sql
 - phase8_token_issuance.sql
 - phase55_billing.sql
+- phase60_profile_views.sql
 
 ---
 
@@ -232,6 +267,10 @@ Ensure flexibility for:
 - file-based print workflows
 - admin approval pipelines
 
+- multi-view public identity management
+- office/department-specific contact routing
+- future multi-profile ownership support
+
 ---
 
 Deployment
@@ -252,9 +291,10 @@ System is now:
 - Functionally usable
 - Internally controllable via admin tools
 - Structurally ready for production hardening
+- Architecturally prepared for multi-view identity workflows
 
 Remaining work focuses on:
-- slug security + UX
+- slug security + UX refinement
 - billing completion
 - system reliability
 
