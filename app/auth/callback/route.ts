@@ -77,6 +77,23 @@ async function sendFounderCardNotification(userId: string) {
     .or(`user_id.eq.${userId},id.eq.${userId}`);
 }
 
+function isDuplicateProfileError(error: { code?: string; message?: string } | null) {
+  const message = error?.message?.toLowerCase() || "";
+  return error?.code === "23505" || message.includes("duplicate");
+}
+
+function setupRecoveryRedirect(req: Request, nextPath: string, requestedPlan: string | null) {
+  const recoveryUrl = new URL("/auth/setup-error", req.url);
+  recoveryUrl.searchParams.set("reason", "profile_bootstrap");
+  recoveryUrl.searchParams.set("next", nextPath);
+
+  if (requestedPlan) {
+    recoveryUrl.searchParams.set("plan", requestedPlan);
+  }
+
+  return NextResponse.redirect(recoveryUrl);
+}
+
 export async function GET(req: Request) {
   const url = new URL(req.url);
   const code = url.searchParams.get("code");
@@ -119,14 +136,22 @@ export async function GET(req: Request) {
   const referralCode = cleanValue(meta.referral_code_used);
   const isPublicOfficial = Boolean(meta.is_public_official);
 
-  const { data: existingProfile } = await supabase
+  const { data: existingProfile, error: lookupError } = await supabase
     .from("profiles")
-    .select("user_id")
+    .select("id, user_id")
     .eq("user_id", user.id)
     .maybeSingle();
 
+  if (lookupError) {
+    console.error("Profile bootstrap lookup failed", {
+      userId: user.id,
+      error: lookupError.message
+    });
+    return setupRecoveryRedirect(req, nextPath, requestedPlan);
+  }
+
   if (!existingProfile) {
-    await supabase.from("profiles").insert({
+    const { error: insertError } = await supabase.from("profiles").insert({
       user_id: user.id,
       email: user.email || null,
       full_name: fullName,
@@ -141,11 +166,41 @@ export async function GET(req: Request) {
       updated_at: new Date().toISOString()
     });
 
+    if (insertError) {
+      // A duplicate can happen if the callback is retried in two tabs; recover by fetching the profile.
+      if (isDuplicateProfileError(insertError)) {
+        const { data: duplicateProfile, error: duplicateLookupError } = await supabase
+          .from("profiles")
+          .select("id, user_id")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        if (duplicateLookupError || !duplicateProfile) {
+          console.error("Profile bootstrap duplicate recovery failed", {
+            userId: user.id,
+            error: duplicateLookupError?.message || insertError.message
+          });
+          return setupRecoveryRedirect(req, nextPath, requestedPlan);
+        }
+      } else {
+        console.error("Profile bootstrap insert failed", {
+          userId: user.id,
+          error: insertError.message
+        });
+        return setupRecoveryRedirect(req, nextPath, requestedPlan);
+      }
+    }
+
     if (promoCode === "FOUNDERS") {
-      await sendFounderCardNotification(user.id);
+      await sendFounderCardNotification(user.id).catch((error) => {
+        console.error("Founder card notification failed after profile bootstrap", {
+          userId: user.id,
+          error: error instanceof Error ? error.message : "Unknown notification error"
+        });
+      });
     }
   } else if (promoCode === "FOUNDERS") {
-    await supabase
+    const { error: updateError } = await supabase
       .from("profiles")
       .update({
         promo_code_used: promoCode,
@@ -156,7 +211,20 @@ export async function GET(req: Request) {
       })
       .eq("user_id", user.id);
 
-    await sendFounderCardNotification(user.id);
+    if (updateError) {
+      console.error("Profile bootstrap founder update failed", {
+        userId: user.id,
+        error: updateError.message
+      });
+      return setupRecoveryRedirect(req, nextPath, requestedPlan);
+    }
+
+    await sendFounderCardNotification(user.id).catch((error) => {
+      console.error("Founder card notification failed after founder profile update", {
+        userId: user.id,
+        error: error instanceof Error ? error.message : "Unknown notification error"
+      });
+    });
   }
 
   return NextResponse.redirect(new URL(nextPath, req.url));
