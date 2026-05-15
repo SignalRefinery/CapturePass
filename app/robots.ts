@@ -4,11 +4,15 @@ export default function robots(): MetadataRoute.Robots {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://signalpass.app";
 
   return {
-    rules: {
-      userAgent: "*",
-      allow: ["/", "/pricing", "/how-it-works", "/partners", "/login", "/signup", "/privacy", "/terms"],
-      disallow: ["/admin", "/dashboard", "/api/"]
-    },
+    rules: [
+      {
+        userAgent: "*",
+        allow: ["/", "/pricing", "/how-it-works", "/partners", "/login", "/signup", "/privacy", "/terms"],
+        // SignalPass profiles are direct-share destinations, not discovery
+        // inventory. Disallow token/vCard/admin surfaces from crawler traversal.
+        disallow: ["/admin", "/account", "/dashboard", "/api/", "/u/", "/auth/"]
+      }
+    ],
     sitemap: `${appUrl}/sitemap.xml`
   };
 }

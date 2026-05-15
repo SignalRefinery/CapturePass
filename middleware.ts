@@ -1,6 +1,6 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import { isLikelyProfilePath, PROFILE_CACHE_HEADERS } from "@/lib/privacy/profile-privacy";
+import { isLikelyProfilePath, isTokenProfilePath, PROFILE_CACHE_HEADERS } from "@/lib/privacy/profile-privacy";
 import { updateSession } from "@/lib/supabase/middleware";
 
 export async function middleware(request: NextRequest) {
@@ -39,9 +39,11 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  const isProfileLike = isLikelyProfilePath(pathname) || pathname === "/live-demo";
+  const isProfileLike = isLikelyProfilePath(pathname) || isTokenProfilePath(pathname) || pathname === "/live-demo";
 
   if (isProfileLike) {
+    // Public profiles and private token redirects are intentionally shareable,
+    // but they should not become crawlable discovery surfaces.
     for (const [key, value] of Object.entries(PROFILE_CACHE_HEADERS)) {
       response.headers.set(key, value);
     }

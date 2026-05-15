@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 
 export const PROFILE_NOINDEX_VALUE =
-  "noindex, nofollow, nosnippet, noarchive, notranslate";
+  "noindex, nofollow, noarchive, nosnippet, noimageindex, notranslate";
 
 export const PROFILE_CACHE_HEADERS = {
-  "X-Robots-Tag": "noindex, nofollow, nosnippet, noarchive",
+  "X-Robots-Tag": PROFILE_NOINDEX_VALUE,
   "Cache-Control": "private, no-store, no-cache, must-revalidate",
   Pragma: "no-cache",
   Expires: "0"
@@ -20,11 +20,21 @@ export const SITE_ROUTES = new Set([
   "live-demo",
   "login",
   "partners",
+  "partner-request",
   "pricing",
   "privacy",
   "signup",
-  "terms"
+  "terms",
+  "account",
+  "auth",
+  "custom",
+  "forgot-password",
+  "update-password"
 ]);
+
+export function isTokenProfilePath(pathname: string) {
+  return /^\/u\/[^/]+\/?$/.test(pathname);
+}
 
 export function isLikelyProfilePath(pathname: string) {
   const clean = pathname.split("?")[0].replace(/^\//, "").replace(/\/$/, "");
@@ -56,7 +66,8 @@ export function profileMetadata(): Metadata {
     },
     other: {
       robots: PROFILE_NOINDEX_VALUE,
-      googlebot: PROFILE_NOINDEX_VALUE
+      googlebot: PROFILE_NOINDEX_VALUE,
+      bingbot: PROFILE_NOINDEX_VALUE
     }
   };
 }
