@@ -1,12 +1,13 @@
 "use client";
 
-import { useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { ProfileRecord, ProfileViewRecord } from "@/lib/types";
 import { normalizeUrl } from "@/lib/utils";
 import { classifySlug } from "@/lib/slug-moderation";
 import {
   deleteProfileViewClient,
   getProfileIdForUserClient,
+  isSlugTakenClient,
   saveProfileClient,
   saveProfileViewClient,
   setDefaultProfileViewClient
@@ -124,6 +125,28 @@ function normalizeActionUrl(value?: string | null) {
   return normalizeUrl(trimmed);
 }
 
+function friendlySlugReviewReason(reason?: string | null) {
+  if (!reason) return null;
+
+  if (reason === "denied_by_admin") {
+    return "That slug was rejected after review. Choose another slug and save to request it.";
+  }
+
+  if (reason === "approved_by_admin" || reason === "approved_by_admin_override") {
+    return "This slug was approved by Signal Pass review.";
+  }
+
+  if (reason === "blocked_name_based_slug_fallback") {
+    return "Your original signup slug was restricted, so Signal Pass issued a safe fallback.";
+  }
+
+  if (reason === "public_office_title") {
+    return "This slug requires manual review because it may reference a public office or official title.";
+  }
+
+  return reason;
+}
+
 function createViewFromProfile(profile: ProfileRecord, profileId: string, index: number): ProfileViewRecord {
   return {
     profile_id: profileId,
@@ -198,12 +221,22 @@ export function ProfileEditor({
   const [error, setError] = useState("");
   const [viewMessage, setViewMessage] = useState("");
   const [viewError, setViewError] = useState("");
+  const [slugInput, setSlugInput] = useState(initialProfile.slug_requested || initialProfile.slug || "");
+  const [slugChecking, setSlugChecking] = useState(false);
+  const [slugTaken, setSlugTaken] = useState(false);
+  const [slugCheckError, setSlugCheckError] = useState("");
+  const slugCheckRequestRef = useRef(0);
 
   const callLink = phoneToTel(form.phone);
   const emailLink = emailToMailto(form.email);
 
-  const slugModeration = useMemo(() => classifySlug(form.slug || ""), [form.slug]);
-  const slugIsApproved = form.slug_status === "approved" && slugModeration.state !== "blocked";
+  const slugModeration = useMemo(() => classifySlug(slugInput || ""), [slugInput]);
+  const activeSlugModeration = useMemo(() => classifySlug(form.slug || ""), [form.slug]);
+  const normalizedSlugInput = slugModeration.normalized;
+  const slugMatchesActive = normalizedSlugInput === (form.slug || "");
+  const slugMatchesPending = normalizedSlugInput === (form.slug_requested || "");
+  const slugHasChanged = !!normalizedSlugInput && !slugMatchesActive;
+  const slugIsApproved = form.slug_status === "approved" && activeSlugModeration.state !== "blocked";
   const readableUrl = useMemo(() => getReadableProfileUrl(form), [form]);
   const issuedUrl = useMemo(() => getIssuedProfileUrl(form), [form]);
   const safeReadableUrl = slugIsApproved ? readableUrl : null;
@@ -214,31 +247,85 @@ export function ProfileEditor({
       : "Pending token"
     : form.slug_status === "pending_review"
       ? "Pending slug approval"
-      : slugModeration.state === "blocked"
+      : activeSlugModeration.state === "blocked"
         ? "Slug blocked"
         : "Not ready";
 
   const slugStatusLabel =
     slugModeration.state === "blocked"
-      ? "Blocked"
-      : form.slug_status === "pending_review"
-        ? "In review"
-        : slugIsApproved
-          ? "Approved"
-          : "Not ready";
+      ? "Restricted"
+      : slugChecking
+        ? "Checking"
+        : slugTaken
+          ? "Unavailable"
+          : form.slug_status === "rejected" && !slugHasChanged
+            ? "Rejected"
+            : form.slug_status === "pending_review" && slugMatchesPending
+              ? "Pending review"
+              : slugModeration.state === "review"
+                ? "Manual review"
+                : slugHasChanged
+                  ? "Available"
+                  : slugIsApproved
+                    ? "Approved"
+                    : "Not ready";
 
   const slugStatusMessage =
     slugModeration.state === "blocked"
-      ? slugModeration.reason || "This slug is blocked and cannot be used."
-      : form.slug_status === "pending_review"
-        ? form.slug_review_reason ||
-          "This slug needs admin approval before it can go live. Your current public profile URL will stay hidden until approval."
-        : slugIsApproved
-          ? "This slug is approved and can be used publicly."
-          : "This slug is not ready yet.";
+      ? slugModeration.reason || "This slug is restricted or unavailable."
+      : slugChecking
+        ? "Checking whether this slug is available."
+        : slugCheckError
+          ? slugCheckError
+          : slugTaken
+            ? "This slug is restricted or unavailable. Choose another slug."
+            : form.slug_status === "rejected" && !slugHasChanged
+              ? friendlySlugReviewReason(form.slug_review_reason) ||
+                "That slug was rejected after review. Choose another slug and save to request it."
+              : form.slug_status === "pending_review" && slugMatchesPending
+                ? `${friendlySlugReviewReason(form.slug_review_reason) || "This slug requires manual review."} Your current public URL remains active until review is completed.`
+                : slugModeration.state === "review"
+                  ? `${slugModeration.reason || "This slug requires manual review."} Your current public URL remains active until review is completed.`
+                  : slugHasChanged
+                    ? "This slug looks available. Save your profile to request it."
+                    : slugIsApproved
+                      ? "This slug is approved and can be used publicly."
+                      : "This slug is not ready yet.";
   const activeView =
     views.find((view) => (view.id || view.view_key) === activeViewKey) || views[0] || null;
   const defaultViewId = form.default_view_id || views[0]?.id || null;
+
+  useEffect(() => {
+    setSlugTaken(false);
+    setSlugCheckError("");
+
+    if (!normalizedSlugInput || slugModeration.state === "blocked" || slugMatchesActive || slugMatchesPending) {
+      setSlugChecking(false);
+      return;
+    }
+
+    const requestId = slugCheckRequestRef.current + 1;
+    slugCheckRequestRef.current = requestId;
+    setSlugChecking(true);
+
+    const timeoutId = window.setTimeout(async () => {
+      try {
+        const taken = await isSlugTakenClient(normalizedSlugInput, userId);
+
+        if (slugCheckRequestRef.current !== requestId) return;
+        setSlugTaken(taken);
+      } catch {
+        if (slugCheckRequestRef.current !== requestId) return;
+        setSlugCheckError("Unable to check slug availability right now. Try saving again in a moment.");
+      } finally {
+        if (slugCheckRequestRef.current === requestId) {
+          setSlugChecking(false);
+        }
+      }
+    }, 350);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [normalizedSlugInput, slugMatchesActive, slugMatchesPending, slugModeration.state, userId]);
 
   function update<K extends keyof ProfileRecord>(key: K, value: ProfileRecord[K]) {
     setForm((current) => ({ ...current, [key]: value }));
@@ -280,12 +367,24 @@ export function ProfileEditor({
     setMessage("");
 
     try {
+      if (slugModeration.state === "blocked") {
+        throw new Error(slugModeration.reason || "This slug is restricted or unavailable.");
+      }
+
+      if (slugChecking) {
+        throw new Error("Slug availability is still being checked. Try again in a moment.");
+      }
+
+      if (slugTaken) {
+        throw new Error("This slug is restricted or unavailable. Choose another slug.");
+      }
+
       const promo = (form.promo_code_used || "").trim().toUpperCase();
       const isFounder = promo === "FOUNDERS";
 
       const payload: ProfileRecord = {
         ...form,
-        slug: initialProfile.slug,
+        slug: normalizedSlugInput || form.slug,
         page_mode: form.page_mode || "single",
         multi_view_display_mode: form.multi_view_display_mode || "favorite",
         promo_code_used: promo || null,
@@ -326,13 +425,16 @@ export function ProfileEditor({
       }
 
       if (result.data) {
-        setForm(result.data as ProfileRecord);
+        const savedProfile = result.data as ProfileRecord;
+        setForm(savedProfile);
+        setSlugInput(savedProfile.slug_requested || savedProfile.slug || "");
       }
 
       const savedSlugStatus = (result.data as ProfileRecord | null)?.slug_status;
+      const savedRequestedSlug = (result.data as ProfileRecord | null)?.slug_requested;
       setMessage(
         savedSlugStatus === "pending_review"
-          ? "Profile saved. Your requested slug is in review and will not go live until approved."
+          ? `Profile saved. ${savedRequestedSlug ? `/${savedRequestedSlug}` : "Your requested slug"} requires manual review. Your current public URL remains active until review is completed.`
           : "Profile saved."
       );
     } catch (err) {
@@ -515,11 +617,37 @@ export function ProfileEditor({
             </label>
 
             <div className="auth-field">
-              <span>Public URL</span>
+              <span>Current public URL</span>
               <input value={`signalpass.app/${form.slug || ""}`} readOnly disabled />
-              <small className={slugModeration.state === "blocked" ? "auth-error" : "auth-message"}>
+              <small className="auth-message">
+                This remains active while any slug request is reviewed.
+              </small>
+            </div>
+
+            <div className="auth-field">
+              <span>Requested slug</span>
+              <input
+                value={slugInput}
+                onChange={(event) => setSlugInput(event.target.value)}
+                placeholder="your-name"
+                aria-invalid={slugModeration.state === "blocked" || slugTaken}
+              />
+              <small
+                className={
+                  slugModeration.state === "blocked" ||
+                  slugTaken ||
+                  (form.slug_status === "rejected" && !slugHasChanged)
+                    ? "auth-error"
+                    : "auth-message"
+                }
+              >
                 Slug status: {slugStatusLabel}. {slugStatusMessage}
               </small>
+              {normalizedSlugInput && normalizedSlugInput !== slugInput ? (
+                <small className="auth-message">
+                  It will be saved as <strong>{normalizedSlugInput}</strong>.
+                </small>
+              ) : null}
             </div>
           </div>
 
