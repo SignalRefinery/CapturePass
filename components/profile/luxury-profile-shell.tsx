@@ -89,7 +89,7 @@ function subtitleForLink(item: { title?: string | null; href?: string | null }, 
   return "Direct access";
 }
 
-function primaryLinks(profile: ProfileLike) {
+function primaryLinks(profile: ProfileLike, options: { hideEmailLink?: boolean } = {}) {
   const showEmail = profile.show_email !== false;
   const showPhone = profile.show_phone !== false;
   const showText = profile.show_text === true;
@@ -103,6 +103,7 @@ function primaryLinks(profile: ProfileLike) {
 
     if (!item.title || !href) return false;
     if (!showEmail && href.startsWith("mailto:")) return false;
+    if (options.hideEmailLink && href.startsWith("mailto:")) return false;
     if (!showPhone && href.startsWith("tel:")) return false;
     if (!showText && href.startsWith("sms:")) return false;
 
@@ -150,15 +151,21 @@ export function LuxuryProfileShell({
   const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=420x420&data=${encodeURIComponent(
     issuedUrl
   )}`;
-  const links = primaryLinks(activeProfile);
   const pills = getPills();
   const showEmail = activeProfile.show_email !== false;
   const showPhone = activeProfile.show_phone !== false;
   const showText = activeProfile.show_text === true;
+  const secondaryAction =
+    showText && activeProfile.phone
+      ? { label: "Text", href: textHref(activeProfile.phone) }
+      : showEmail && activeProfile.email
+        ? { label: "Email", href: `mailto:${activeProfile.email}` }
+        : null;
   const intro =
     activeProfile.intro ||
     "A cleaner way to connect, save contact details, and move the right information forward without clutter.";
   const showViewSwitcher = pageMode === "multi" && viewOptions.length > 1;
+  const links = primaryLinks(activeProfile, { hideEmailLink: secondaryAction?.label === "Email" });
 
   function selectView(view: ProfileLike) {
     setActiveViewId(view.view_id || view.view_key || "profile");
@@ -304,9 +311,9 @@ export function LuxuryProfileShell({
                 </a>
               ) : null}
 
-              {showText && activeProfile.phone ? (
-                <a className={`${styles.button} ${styles.profileSubtleButton}`} href={textHref(activeProfile.phone)}>
-                  Text
+              {secondaryAction ? (
+                <a className={`${styles.button} ${styles.profileSubtleButton}`} href={secondaryAction.href}>
+                  {secondaryAction.label}
                 </a>
               ) : null}
             </div>

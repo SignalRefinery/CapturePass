@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { ProfileRecord, ProfileViewRecord } from "@/lib/types";
 import { normalizeUrl } from "@/lib/utils";
 import { classifySlug } from "@/lib/slug-moderation";
@@ -55,6 +55,47 @@ const LINK_FIELD_CONFIG = [
 ];
 
 const MAX_PROFILE_VIEWS = 3;
+const MAX_INTRO_TEXTAREA_HEIGHT = 220;
+const LEGACY_INTRO_PROMPT = "Turning complexity into clarity.";
+const INTRO_PLACEHOLDER =
+  "Write a short line in your own words: what you do, who you help, or the best next step.";
+
+function cleanIntroValue(value?: string | null) {
+  return (value || "").trim() === LEGACY_INTRO_PROMPT ? "" : value || "";
+}
+
+function AutoResizeTextarea({
+  value,
+  onChange,
+  placeholder
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  placeholder: string;
+}) {
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+
+  useLayoutEffect(() => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    textarea.style.height = "auto";
+    textarea.style.height = `${Math.min(textarea.scrollHeight, MAX_INTRO_TEXTAREA_HEIGHT)}px`;
+    textarea.style.overflowY =
+      textarea.scrollHeight > MAX_INTRO_TEXTAREA_HEIGHT ? "auto" : "hidden";
+  }, [value]);
+
+  return (
+    <textarea
+      ref={textareaRef}
+      className="intro-textarea"
+      value={value}
+      onChange={(event) => onChange(event.target.value)}
+      placeholder={placeholder}
+      rows={2}
+    />
+  );
+}
 
 function phoneToTel(value?: string | null) {
   const digits = (value || "").replace(/\D/g, "");
@@ -91,7 +132,7 @@ function createViewFromProfile(profile: ProfileRecord, profileId: string, index:
     sort_order: index,
     full_name: profile.full_name || "",
     role_line: profile.role_line || "",
-    intro: profile.intro || "",
+    intro: cleanIntroValue(profile.intro),
     email: profile.email || "",
     phone: profile.phone || "",
     website_url: profile.website_url || "",
@@ -132,8 +173,16 @@ export function ProfileEditor({
   initialProfile,
   initialProfileViews
 }: ProfileEditorProps) {
-  const [form, setForm] = useState<ProfileRecord>(initialProfile);
-  const [views, setViews] = useState<ProfileViewRecord[]>(initialProfileViews);
+  const [form, setForm] = useState<ProfileRecord>({
+    ...initialProfile,
+    intro: cleanIntroValue(initialProfile.intro)
+  });
+  const [views, setViews] = useState<ProfileViewRecord[]>(
+    initialProfileViews.map((view) => ({
+      ...view,
+      intro: cleanIntroValue(view.intro)
+    }))
+  );
   const [activeViewKey, setActiveViewKey] = useState(
     initialProfile.default_view_id || initialProfileViews[0]?.id || initialProfileViews[0]?.view_key || ""
   );
@@ -458,7 +507,7 @@ export function ProfileEditor({
 
             <div className="auth-field">
               <span>Public URL</span>
-              <input value={form.slug || ""} readOnly disabled />
+              <input value={`signalpass.app/${form.slug || ""}`} readOnly disabled />
               <small className={slugModeration.state === "blocked" ? "auth-error" : "auth-message"}>
                 Slug status: {slugStatusLabel}. {slugStatusMessage}
               </small>
@@ -485,7 +534,7 @@ export function ProfileEditor({
 
           <div className="editor-grid" style={{ marginTop: 18 }}>
             <label className="auth-field">
-              <span>Role line</span>
+              <span>Role/Title</span>
               <input
                 value={form.role_line || ""}
                 onChange={(event) => update("role_line", event.target.value)}
@@ -505,11 +554,10 @@ export function ProfileEditor({
 
           <label className="auth-field" style={{ marginTop: 18 }}>
             <span>Intro</span>
-            <textarea
+            <AutoResizeTextarea
               value={form.intro || ""}
-              onChange={(event) => update("intro", event.target.value)}
-              rows={4}
-              placeholder="A short introduction for your profile."
+              onChange={(value) => update("intro", value)}
+              placeholder={INTRO_PLACEHOLDER}
             />
           </label>
 
@@ -725,7 +773,7 @@ export function ProfileEditor({
 
                 <div className="editor-grid" style={{ marginTop: 14 }}>
                   <label className="auth-field">
-                    <span>Role line</span>
+                    <span>Role/Title</span>
                     <input
                       value={activeView.role_line || ""}
                       onChange={(event) => updateView("role_line", event.target.value)}
@@ -745,11 +793,10 @@ export function ProfileEditor({
 
                 <label className="auth-field" style={{ marginTop: 14 }}>
                   <span>Intro</span>
-                  <textarea
+                  <AutoResizeTextarea
                     value={activeView.intro || ""}
-                    onChange={(event) => updateView("intro", event.target.value)}
-                    rows={4}
-                    placeholder="A short introduction for this view."
+                    onChange={(value) => updateView("intro", value)}
+                    placeholder={INTRO_PLACEHOLDER}
                   />
                 </label>
 
@@ -783,7 +830,7 @@ export function ProfileEditor({
                         checked={!!activeView.show_email}
                         onChange={(event) => updateView("show_email", event.target.checked)}
                       />
-                      <span>Show email contact details in this view.</span>
+                      <span>Display email address on this view.</span>
                     </label>
 
                     <label className="toggle-row" style={{ margin: 0 }}>
@@ -792,17 +839,29 @@ export function ProfileEditor({
                         checked={!!activeView.show_phone}
                         onChange={(event) => updateView("show_phone", event.target.checked)}
                       />
-                      <span>Show phone contact details in this view.</span>
+                      <span>Display phone number on this view.</span>
                     </label>
 
-                    <label className="toggle-row" style={{ margin: 0 }}>
-                      <input
-                        type="checkbox"
-                        checked={!!activeView.show_text}
-                        onChange={(event) => updateView("show_text", event.target.checked)}
-                      />
-                      <span>Show the Text button in this view.</span>
-                    </label>
+                    <div className="action-choice-row">
+                      <span className="action-choice-label">Secondary button</span>
+                      <div className="action-choice-options" aria-label="Secondary profile button">
+                        <button
+                          className={!activeView.show_text ? "action-choice is-active" : "action-choice"}
+                          type="button"
+                          onClick={() => updateView("show_text", false)}
+                        >
+                          Email
+                        </button>
+
+                        <button
+                          className={activeView.show_text ? "action-choice is-active" : "action-choice"}
+                          type="button"
+                          onClick={() => updateView("show_text", true)}
+                        >
+                          Text
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
 

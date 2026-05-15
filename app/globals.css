@@ -332,6 +332,13 @@ textarea{font:inherit}
   outline:none;
 }
 .auth-field textarea{min-height:auto; resize:vertical}
+.auth-field textarea.intro-textarea{
+  min-height:62px;
+  max-height:220px;
+  resize:none;
+  overflow:hidden;
+  line-height:1.55;
+}
 .auth-field input::placeholder,
 .auth-field textarea::placeholder{color:var(--muted-2)}
 .auth-error,.auth-message{margin:0; font-size:14px; line-height:1.65}
@@ -604,6 +611,46 @@ textarea{font:inherit}
   flex:0 0 auto;
   margin:0 10px 0 0;
 }
+.action-choice-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+  min-height:58px;
+  padding:14px 0;
+  border-top:1px solid rgba(255,255,255,.065);
+}
+.action-choice-label{
+  color:rgba(246,242,233,.78);
+  font-size:14px;
+  line-height:1.55;
+}
+.action-choice-options{
+  display:inline-flex;
+  flex:0 0 auto;
+  gap:6px;
+  padding:4px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.07);
+  background:rgba(255,255,255,.025);
+}
+.action-choice{
+  min-height:34px;
+  padding:7px 14px;
+  border:0;
+  border-radius:999px;
+  background:transparent;
+  color:var(--muted);
+  font:inherit;
+  font-size:13px;
+  font-weight:700;
+  cursor:pointer;
+}
+.action-choice.is-active{
+  color:#111722;
+  background:linear-gradient(180deg, #e2ca94 0%, #c9a45c 100%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.35);
+}
 .link-fields-card{
   display:grid;
   gap:0;
@@ -733,6 +780,20 @@ textarea{font:inherit}
     min-height:auto;
     padding:10px 0;
     font-size:13px;
+  }
+  .action-choice-row{
+    display:grid;
+    gap:10px;
+    min-height:auto;
+    padding:12px 0 2px;
+  }
+  .action-choice-options{
+    width:100%;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+  }
+  .action-choice{
+    min-height:38px;
   }
   .link-field-row{
     gap:12px;
