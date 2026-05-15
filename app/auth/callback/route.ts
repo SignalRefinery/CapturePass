@@ -90,7 +90,7 @@ function safeFallbackSlugForUser(userId: string) {
 }
 
 async function slugIsAvailable(
-  supabase: Awaited<ReturnType<typeof createClient>>,
+  supabase: ReturnType<typeof createAdminClient>,
   slug: string,
   userId: string
 ) {
@@ -106,7 +106,7 @@ async function slugIsAvailable(
 }
 
 async function getBootstrapSlugFields(
-  supabase: Awaited<ReturnType<typeof createClient>>,
+  supabase: ReturnType<typeof createAdminClient>,
   userId: string,
   rawSuggestedSlug: string | null
 ) {
@@ -158,6 +158,7 @@ export async function GET(req: Request) {
   const nextPath = safeInternalRedirect(url.searchParams.get("next"), fallbackNext);
 
   const supabase = await createClient();
+  const profileAdmin = createAdminClient();
 
   if (code) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
@@ -190,7 +191,7 @@ export async function GET(req: Request) {
   const referralCode = cleanValue(meta.referral_code_used);
   const isPublicOfficial = Boolean(meta.is_public_official);
 
-  const { data: existingProfile, error: lookupError } = await supabase
+  const { data: existingProfile, error: lookupError } = await profileAdmin
     .from("profiles")
     .select("id, user_id")
     .eq("user_id", user.id)
@@ -205,9 +206,9 @@ export async function GET(req: Request) {
   }
 
   if (!existingProfile) {
-    const bootstrapSlugFields = await getBootstrapSlugFields(supabase, user.id, rawSuggestedSlug);
+    const bootstrapSlugFields = await getBootstrapSlugFields(profileAdmin, user.id, rawSuggestedSlug);
 
-    const { error: insertError } = await supabase.from("profiles").insert({
+    const { error: insertError } = await profileAdmin.from("profiles").insert({
       user_id: user.id,
       email: user.email || null,
       full_name: fullName,
@@ -225,7 +226,7 @@ export async function GET(req: Request) {
     if (insertError) {
       // A duplicate can happen if the callback is retried in two tabs; recover by fetching the profile.
       if (isDuplicateProfileError(insertError)) {
-        const { data: duplicateProfile, error: duplicateLookupError } = await supabase
+        const { data: duplicateProfile, error: duplicateLookupError } = await profileAdmin
           .from("profiles")
           .select("id, user_id")
           .eq("user_id", user.id)
@@ -256,7 +257,7 @@ export async function GET(req: Request) {
       });
     }
   } else if (promoCode === "FOUNDERS") {
-    const { error: updateError } = await supabase
+    const { error: updateError } = await profileAdmin
       .from("profiles")
       .update({
         promo_code_used: promoCode,

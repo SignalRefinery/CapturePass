@@ -9,9 +9,6 @@ function safeFallbackSlugForUser(userId: string) {
 export async function saveProfileClient(record: ProfileRecord, userId: string) {
   const supabase = createBrowserClient();
 
-  const promo = (record.promo_code_used || "").trim().toUpperCase();
-  const isFounder = promo === "FOUNDERS";
-
   const moderation = classifySlug(record.slug || "");
 
   if (moderation.state === "blocked") {
@@ -20,7 +17,7 @@ export async function saveProfileClient(record: ProfileRecord, userId: string) {
 
   const { data: currentProfile } = await supabase
     .from("profiles")
-    .select("slug")
+    .select("slug, slug_status")
     .eq("user_id", userId)
     .maybeSingle();
   const currentSlugModeration = classifySlug(currentProfile?.slug || "");
@@ -37,8 +34,13 @@ export async function saveProfileClient(record: ProfileRecord, userId: string) {
     }
   }
 
+  const approvedReviewSlugUnchanged =
+    moderation.state === "review" &&
+    moderation.normalized === currentSlugModeration.normalized &&
+    currentProfile?.slug_status === "approved";
+
   const moderatedSlugFields =
-    moderation.state === "review"
+    moderation.state === "review" && !approvedReviewSlugUnchanged
       ? {
           // A review-required slug is stored as a request only. The existing
           // approved URL stays live so restricted slugs cannot bypass review.
@@ -54,25 +56,36 @@ export async function saveProfileClient(record: ProfileRecord, userId: string) {
           slug_review_reason: null
         };
 
+  const profilePayload = {
+    user_id: userId,
+    full_name: record.full_name,
+    role_line: record.role_line,
+    intro: record.intro,
+    email: record.email,
+    phone: record.phone,
+    website_url: record.website_url,
+    profile_badge_1: record.profile_badge_1 || "",
+    profile_badge_2: record.profile_badge_2 || "",
+    profile_badge_3: record.profile_badge_3 || "",
+    primary_link_1_title: record.primary_link_1_title,
+    primary_link_1_url: record.primary_link_1_url,
+    primary_link_2_title: record.primary_link_2_title,
+    primary_link_2_url: record.primary_link_2_url,
+    primary_link_3_title: record.primary_link_3_title,
+    primary_link_3_url: record.primary_link_3_url,
+    primary_link_4_title: record.primary_link_4_title,
+    primary_link_4_url: record.primary_link_4_url,
+    consent_public_visibility: !!record.consent_public_visibility,
+    page_mode: record.page_mode || "single",
+    multi_view_display_mode: record.multi_view_display_mode || "favorite",
+    default_view_id: record.default_view_id || null,
+    ...moderatedSlugFields,
+    updated_at: new Date().toISOString()
+  };
+
   return supabase
     .from("profiles")
-    .upsert(
-      {
-        ...record,
-        user_id: userId,
-        ...moderatedSlugFields,
-        promo_code_used: promo || null,
-        updated_at: new Date().toISOString(),
-        ...(isFounder
-          ? {
-              lifetime_free: true,
-              billing_exempt: true,
-              stripe_plan_key: "founder"
-            }
-          : {})
-      },
-      { onConflict: "user_id" }
-    )
+    .upsert(profilePayload, { onConflict: "user_id" })
     .select()
     .single();
 }
