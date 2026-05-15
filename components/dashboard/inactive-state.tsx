@@ -7,7 +7,7 @@ type InactiveStateProps = {
 };
 
 export function InactiveState({ email }: InactiveStateProps) {
-  function handleCheckout(plan: "essential" | "professional" | "premium") {
+  function handleCheckout(plan: "essential") {
     const form = document.createElement("form");
     form.method = "POST";
     form.action = "/api/checkout";
@@ -29,8 +29,8 @@ export function InactiveState({ email }: InactiveStateProps) {
         <div className="dashboard-kicker">Activation required</div>
         <h2>Complete activation to unlock the full dashboard.</h2>
         <p className="editor-copy">
-          Your account for <strong>{email}</strong> is set up. Choose the plan that fits how you
-          intend to use your profile and continue from there.
+          Your account for <strong>{email}</strong> is set up. Activate with Essential now to
+          unlock your dashboard. Professional and Premium options are coming soon.
         </p>
 
         <div className="pricing-grid" style={{ marginTop: 20 }}>
@@ -49,27 +49,27 @@ export function InactiveState({ email }: InactiveStateProps) {
 
           <div className="card pricing-card featured">
             <div className="plan-label">Professional</div>
-            <h2>Most active accounts live here.</h2>
+            <h2>Expanded tools are coming soon.</h2>
             <div className="plan-price">
               <span className="setup">$99 setup</span>
               <span className="monthly">$39/mo</span>
             </div>
-            <p className="muted">More flexibility, more control, more surface area.</p>
-            <button className="button primary" type="button" onClick={() => handleCheckout("professional")}>
-              Choose Professional
+            <p className="muted">More flexibility and control are planned for a future release.</p>
+            <button className="button primary" type="button" disabled aria-disabled="true">
+              Coming soon
             </button>
           </div>
 
           <div className="card pricing-card">
             <div className="plan-label">Premium</div>
-            <h2>Concierge-level management.</h2>
+            <h2>Concierge options are coming soon.</h2>
             <div className="plan-price">
               <span className="setup">$99 setup</span>
               <span className="monthly">$49/mo</span>
             </div>
-            <p className="muted">Handled end-to-end with priority support.</p>
-            <button className="button primary" type="button" onClick={() => handleCheckout("premium")}>
-              Go Premium
+            <p className="muted">Managed onboarding and priority support are planned.</p>
+            <button className="button primary" type="button" disabled aria-disabled="true">
+              Coming soon
             </button>
           </div>
         </div>
