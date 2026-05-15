@@ -63,7 +63,12 @@ function textHref(phone?: string | null) {
 }
 
 function contactHref(profile: ProfileLike) {
-  return profile.slug ? `/api/vcard/${profile.slug}` : "#";
+  if (!profile.slug) return "#";
+
+  const viewParam = profile.view_key || profile.view_id || null;
+  const viewQuery = viewParam ? `?view=${encodeURIComponent(viewParam)}` : "";
+
+  return `/api/vcard/${profile.slug}${viewQuery}`;
 }
 
 function getPills(profile: ProfileLike) {
@@ -315,7 +320,7 @@ export function LuxuryProfileShell({
 
             <div className={`${styles.ctaRow} ${styles.profileActions}`}>
               {activeProfile.slug && (showEmail || showPhone) ? (
-                <a className={`${styles.button} ${styles.profileGoldButton}`} href={`/api/vcard/${activeProfile.slug}`}>
+                <a className={`${styles.button} ${styles.profileGoldButton}`} href={contactHref(activeProfile)}>
                   Add to Contacts
                 </a>
               ) : null}

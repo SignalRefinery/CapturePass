@@ -67,13 +67,13 @@ export async function GET(request: Request, context: RouteContext) {
     return new NextResponse("Not found", { status: 404, headers: PROFILE_CACHE_HEADERS });
   }
 
-  const requestedViewKey = new URL(request.url).searchParams.get("view");
+  const requestedView = new URL(request.url).searchParams.get("view");
   const profileViews = profile.id ? await getProfileViewsForProfileServer(profile.id) : [];
-  const selectedView = requestedViewKey
-    ? profileViews.find((view) => view.view_key === requestedViewKey)
+  const selectedView = requestedView
+    ? profileViews.find((view) => view.view_key === requestedView || view.id === requestedView)
     : profileViews.find((view) => view.id === profile.default_view_id) || profileViews[0] || null;
 
-  if (requestedViewKey && !selectedView) {
+  if (requestedView && !selectedView) {
     return new NextResponse("Not found", { status: 404, headers: PROFILE_CACHE_HEADERS });
   }
 

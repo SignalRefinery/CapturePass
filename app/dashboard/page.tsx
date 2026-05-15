@@ -179,7 +179,12 @@ export default async function DashboardPage({
     ? await getProfileViewsForProfileServer(initialProfile.id)
     : [];
 
-  const fullAccess = !!initialProfile.is_active || !!initialProfile.billing_exempt;
+  const fullAccess =
+    !!initialProfile.is_active ||
+    !!initialProfile.billing_exempt ||
+    !!initialProfile.lifetime_free ||
+    initialProfile.promo_code_used === "FOUNDERS" ||
+    !!initialProfile.is_admin;
   const myProfileHref = initialProfile.slug ? `/${initialProfile.slug}` : null;
 
   const showFounderClaimForm =
