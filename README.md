@@ -23,13 +23,20 @@ Recently completed:
 - Admin user detail page (fully actionable)
 - Token-based routing (`/u/[token]` → redirects to slug)
 - Billing + profile visibility in admin
-- Core Supabase + Stripe wiring functional
-
 - Multi-view profile architecture
 - Landing-page vs favorite-view profile modes
 - View-aware vCard generation
 - Dashboard multi-view management
 - Per-view contact visibility controls (email / phone / text)
+- Stripe checkout, webhook subscription handling, and Customer Portal flow
+- Checkout/signup continuation through auth and email verification
+- Middleware/auth reliability hardening
+- Auth callback profile bootstrap recovery
+- Dashboard slug request UX with pending/rejected/approved feedback
+- Slug moderation enforcement across dashboard, admin, public profile, token, and vCard paths
+- Admin slug review confirmations and audit logging
+- Public profile anti-indexing and crawl-hardening
+- Database-level slug/profile enforcement migration
 
 The system has moved from prototype → **early production backend**.
 
@@ -113,16 +120,18 @@ Admin System:
 
 Slug System:
 - User-selected slugs
-- Restricted slug detection (partial)
+- Restricted slug detection
 - Randomized fallback
 - SQL-backed moderation fields
-- Admin approval pipeline (partially implemented)
+- Admin approval / denial pipeline
+- Database trigger backstop for direct profile updates
 
 Stripe:
 - Checkout flow working
 - Webhooks connected
 - Subscription data stored
-- Portal not fully implemented
+- Customer Portal wired from account page
+- Signup/login checkout continuation preserved
 
 ---
 
@@ -159,6 +168,42 @@ Apply SQL files in order:
 - phase8_token_issuance.sql
 - phase55_billing.sql
 - phase60_profile_views.sql
+- phase_slug_db_enforcement.sql
+
+Important:
+- `phase_slug_db_enforcement.sql` should be applied in Supabase before production onboarding.
+- Test dashboard profile saves, admin slug review, Stripe webhook updates, and auth signup bootstrap after applying it.
+
+---
+
+Recent Hardening Pass
+
+Completed production-hardening work:
+- Stripe webhook consistency: subscription events update subscription fields; one-time additional-card purchases do not overwrite subscription state.
+- Stripe Customer Portal: authenticated users with Stripe customer IDs can manage billing; founder/billing-exempt accounts get manual-billing messaging.
+- Checkout continuation: selected checkout plan survives signup/login/email verification and returns users to checkout safely.
+- Middleware/auth reliability: reduced duplicate auth calls, added timeout/failure tolerance, preserved public/token route reliability.
+- Auth profile bootstrap: profile creation/update failures now route to a clear recovery state instead of silently landing users in broken dashboard states.
+- Slug request UX: dashboard slug field is editable, explains pending review, rejected, restricted, approved, and available states.
+- Slug moderation enforcement: app routes prevent restricted/review slugs from bypassing moderation through dashboard, admin, public profile, token, or vCard paths.
+- Admin slug safety: approve/deny actions require confirmation and write audit records.
+- Public profile privacy: profile and token routes use noindex/nofollow/noarchive metadata and `X-Robots-Tag`; sitemap remains marketing-only.
+- DB slug/profile security: new migration adds database-level trigger protection for slug moderation and sensitive profile fields.
+
+---
+
+Operational Checklist Before Onboarding
+
+- Apply all Supabase migrations in order, including `phase_slug_db_enforcement.sql`.
+- Run a dashboard profile save as a normal user.
+- Request a restricted slug from the dashboard and verify the current public URL remains active.
+- Approve and deny slug requests from admin; confirm audit records are written.
+- Test checkout as a logged-out user and verify signup/login continuation returns to checkout.
+- Trigger Stripe checkout/webhook activation and confirm subscription fields, `is_active`, and card notification behavior.
+- Open Stripe Customer Portal from `/account` for a paid user.
+- Verify founder/billing-exempt account messaging does not push users into Stripe billing.
+- Verify public profile, token route, and vCard route all respect active/consent/approved slug rules.
+- Verify public profile responses include noindex headers and profiles are absent from `sitemap.xml`.
 
 ---
 
@@ -174,34 +219,32 @@ stripe trigger checkout.session.completed
 
 ---
 
-Known Issues (Must Fix)
+Known Issues / Remaining Risks
 
-1. Slug restriction feedback missing (user does not know why slug fails)
-2. Slug moderation logic not fully enforced in UI/API
-3. Middleware instability if Supabase is unavailable
-4. Stripe customer portal not wired
-5. Admin actions lack confirmation + audit trail
+1. `phase_slug_db_enforcement.sql` must be applied and verified in Supabase before production onboarding.
+2. API routes still need a consistency pass for user-safe error messages and operational logging.
+3. Subscription/account UI can be clearer about renewal/cancel states, Stripe mismatch states, and plan history.
+4. Public profiles are intentionally shareable; noindex headers discourage compliant crawlers but do not stop malicious scraping.
+5. Lightweight monitoring/logging is still needed for auth, webhook, admin, and profile-save failures.
 
 ---
 
 Priority Tasks
 
 High:
-- Implement full slug moderation flow (block / restrict / approve)
-- Add user-facing slug feedback (no silent failures)
-- Complete Stripe customer portal
-- Stabilize middleware + auth edge cases
+- Apply and verify Supabase migrations in a staging/production-like environment.
+- Run full production-style QA after DB enforcement is applied.
+- Verify Stripe webhook activation, checkout continuation, and portal behavior end-to-end.
 
 Medium:
-- Improve subscription UI + plan management
-- Add admin action confirmations
-- Add audit logging for admin changes
-- Improve error handling across API routes
+- Improve API error handling across checkout, portal, admin, profile-report, and profile-save routes.
+- Improve subscription UI + plan management clarity.
+- Add lightweight operational logging/monitoring.
 
 Low:
-- Monitoring / logging
 - UI polish
 - Performance tuning
+- Phase 2 planning for custom card projects and uploaded assets
 
 ---
 
