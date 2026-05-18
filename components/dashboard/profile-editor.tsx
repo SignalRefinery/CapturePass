@@ -357,14 +357,39 @@ export function ProfileEditor({
     }
   }
 
+  async function saveActiveViewChanges() {
+    if (!activeView) return null;
+
+    const result = await saveProfileViewClient(normalizeViewForSave(activeView));
+
+    if (result.error) {
+      throw new Error(result.error.message || "Failed to save view.");
+    }
+
+    const savedView = result.data as ProfileViewRecord;
+    setViews((current) =>
+      current.map((view) =>
+        (view.id || view.view_key) === (activeView.id || activeView.view_key)
+          ? savedView
+          : view
+      )
+    );
+    setActiveViewKey(savedView.id || savedView.view_key);
+
+    return savedView;
+  }
+
   async function handleSave(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    if (saving) return;
+    if (saving || viewSaving) return;
 
     setSaving(true);
+    setViewSaving(!!activeView);
     setError("");
     setMessage("");
+    setViewError("");
+    setViewMessage("");
 
     try {
       if (slugModeration.state === "blocked") {
@@ -432,16 +457,31 @@ export function ProfileEditor({
 
       const savedSlugStatus = (result.data as ProfileRecord | null)?.slug_status;
       const savedRequestedSlug = (result.data as ProfileRecord | null)?.slug_requested;
+
+      try {
+        await saveActiveViewChanges();
+      } catch (viewErr) {
+        console.error("Profile view save failed:", viewErr);
+        setViewError(
+          viewErr instanceof Error
+            ? `Profile saved, but the active view was not saved: ${viewErr.message}`
+            : "Profile saved, but the active view was not saved."
+        );
+        setMessage("Profile saved. The active view still needs attention.");
+        return;
+      }
+
       setMessage(
         savedSlugStatus === "pending_review"
-          ? `Profile saved. ${savedRequestedSlug ? `/${savedRequestedSlug}` : "Your requested slug"} requires manual review. Your current public URL remains active until review is completed.`
-          : "Profile saved."
+          ? `Changes saved. ${savedRequestedSlug ? `/${savedRequestedSlug}` : "Your requested slug"} requires manual review. Your current public URL remains active until review is completed.`
+          : "Changes saved."
       );
     } catch (err) {
       console.error("Profile save failed:", err);
-      setError(err instanceof Error ? err.message : "Unexpected error while saving.");
+      setError(err instanceof Error ? err.message : "Error saving profile.");
     } finally {
       setSaving(false);
+      setViewSaving(false);
     }
   }
 
@@ -491,37 +531,6 @@ export function ProfileEditor({
       setViewMessage("Profile view created.");
     } catch (err) {
       setViewError(err instanceof Error ? err.message : "Unexpected error while creating the view.");
-    } finally {
-      setViewSaving(false);
-    }
-  }
-
-  async function handleSaveView() {
-    if (!activeView || viewSaving) return;
-
-    setViewSaving(true);
-    setViewError("");
-    setViewMessage("");
-
-    try {
-      const result = await saveProfileViewClient(normalizeViewForSave(activeView));
-
-      if (result.error) {
-        throw new Error(result.error.message || "Failed to save profile view.");
-      }
-
-      const savedView = result.data as ProfileViewRecord;
-      setViews((current) =>
-        current.map((view) =>
-          (view.id || view.view_key) === (activeView.id || activeView.view_key)
-            ? savedView
-            : view
-        )
-      );
-      setActiveViewKey(savedView.id || savedView.view_key);
-      setViewMessage("Profile view saved.");
-    } catch (err) {
-      setViewError(err instanceof Error ? err.message : "Unexpected error while saving the view.");
     } finally {
       setViewSaving(false);
     }
@@ -1097,18 +1106,9 @@ export function ProfileEditor({
 
                 <div className="editor-actions" style={{ marginTop: 18 }}>
                   <button
-                    className="button primary"
-                    type="button"
-                    disabled={viewSaving}
-                    onClick={handleSaveView}
-                  >
-                    {viewSaving ? "Saving view..." : "Save profile view"}
-                  </button>
-
-                  <button
                     className="button secondary"
                     type="button"
-                    disabled={!activeView.id || activeView.id === defaultViewId || viewSaving}
+                    disabled={!activeView.id || activeView.id === defaultViewId || saving || viewSaving}
                     onClick={() => handleSetDefaultView(activeView)}
                   >
                     {activeView.id === defaultViewId ? "Default view" : "Set as default"}
@@ -1188,8 +1188,8 @@ export function ProfileEditor({
           {message ? <p className="auth-message" style={{ marginTop: 18 }}>{message}</p> : null}
 
           <div className="editor-actions" style={{ marginTop: 24 }}>
-            <button className="button primary" type="submit" disabled={saving}>
-              {saving ? "Saving..." : "Save profile"}
+            <button className="button primary" type="submit" disabled={saving || viewSaving}>
+              {saving || viewSaving ? "Saving..." : "Save changes"}
             </button>
 
             <button
