@@ -164,7 +164,7 @@ function createViewFromProfile(profile: ProfileRecord, profileId: string, index:
     profile_badge_3: profile.profile_badge_3 || "",
     show_email: true,
     show_phone: true,
-    show_text: false,
+    show_text: true,
     primary_link_1_title: profile.primary_link_1_title || "Call",
     primary_link_1_url: profile.primary_link_1_url || phoneToTel(profile.phone),
     primary_link_2_title: profile.primary_link_2_title || "Email",
@@ -294,6 +294,7 @@ export function ProfileEditor({
   const activeView =
     views.find((view) => (view.id || view.view_key) === activeViewKey) || views[0] || null;
   const defaultViewId = form.default_view_id || views[0]?.id || null;
+  const isMultiViewMode = (form.page_mode || "single") === "multi";
 
   useEffect(() => {
     setSlugTaken(false);
@@ -615,6 +616,12 @@ export function ProfileEditor({
         </p>
 
         <form className="editor-form" onSubmit={handleSave} style={{ marginTop: 24 }}>
+          <div className="editor-actions" style={{ marginBottom: 22 }}>
+            <button className="button primary" type="submit" disabled={saving || viewSaving}>
+              {saving || viewSaving ? "Saving..." : "Save changes"}
+            </button>
+          </div>
+
           <div className="editor-grid">
             <label className="auth-field">
               <span>Full name</span>
@@ -882,14 +889,16 @@ export function ProfileEditor({
                             {isActive ? "Editing" : "Edit"}
                           </button>
 
-                          <button
-                            className="button secondary"
-                            type="button"
-                            disabled={!view.id || isDefault || viewSaving}
-                            onClick={() => handleSetDefaultView(view)}
-                          >
-                            {isDefault ? "Default" : "Set default"}
-                          </button>
+                          {isMultiViewMode ? (
+                            <button
+                              className="button secondary"
+                              type="button"
+                              disabled={!view.id || isDefault || viewSaving}
+                              onClick={() => handleSetDefaultView(view)}
+                            >
+                              {isDefault ? "Default" : "Set default"}
+                            </button>
+                          ) : null}
 
                           <button
                             className="button secondary"
@@ -1056,7 +1065,15 @@ export function ProfileEditor({
                       <span className="action-choice-label">Secondary button</span>
                       <div className="action-choice-options" aria-label="Secondary profile button">
                         <button
-                          className={!activeView.show_text ? "action-choice is-active" : "action-choice"}
+                          className={activeView.show_text === true ? "action-choice is-active" : "action-choice"}
+                          type="button"
+                          onClick={() => updateView("show_text", true)}
+                        >
+                          Text
+                        </button>
+
+                        <button
+                          className={activeView.show_text === false ? "action-choice is-active" : "action-choice"}
                           type="button"
                           onClick={() => updateView("show_text", false)}
                         >
@@ -1064,11 +1081,11 @@ export function ProfileEditor({
                         </button>
 
                         <button
-                          className={activeView.show_text ? "action-choice is-active" : "action-choice"}
+                          className={activeView.show_text === null ? "action-choice is-active" : "action-choice"}
                           type="button"
-                          onClick={() => updateView("show_text", true)}
+                          onClick={() => updateView("show_text", null)}
                         >
-                          Text
+                          None
                         </button>
                       </div>
                     </div>
@@ -1104,16 +1121,18 @@ export function ProfileEditor({
                   ))}
                 </div>
 
-                <div className="editor-actions" style={{ marginTop: 18 }}>
-                  <button
-                    className="button secondary"
-                    type="button"
-                    disabled={!activeView.id || activeView.id === defaultViewId || saving || viewSaving}
-                    onClick={() => handleSetDefaultView(activeView)}
-                  >
-                    {activeView.id === defaultViewId ? "Default view" : "Set as default"}
-                  </button>
-                </div>
+                {isMultiViewMode ? (
+                  <div className="editor-actions" style={{ marginTop: 18 }}>
+                    <button
+                      className="button secondary"
+                      type="button"
+                      disabled={!activeView.id || activeView.id === defaultViewId || saving || viewSaving}
+                      onClick={() => handleSetDefaultView(activeView)}
+                    >
+                      {activeView.id === defaultViewId ? "Default view" : "Set as default"}
+                    </button>
+                  </div>
+                ) : null}
               </div>
             ) : null}
           </div>

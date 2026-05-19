@@ -235,6 +235,13 @@
   font:inherit;
   text-align:left;
   cursor:pointer;
+  transition:border-color .14s ease, background .14s ease, transform .14s ease;
+}
+
+.viewSelectorCard:hover{
+  border-color:rgba(201,164,92,.34);
+  background:rgba(201,164,92,.055);
+  transform:translateY(-1px);
 }
 
 .viewSelectorCard span{
@@ -246,6 +253,16 @@
   color:var(--muted-2);
   font-size:13px;
   line-height:1.5;
+}
+
+.viewSelectorCard strong{
+  justify-self:start;
+  margin-top:8px;
+  color:var(--gold-soft);
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:.14em;
+  text-transform:uppercase;
 }
 
 .kicker{

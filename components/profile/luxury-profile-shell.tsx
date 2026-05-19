@@ -166,11 +166,11 @@ export function LuxuryProfileShell({
   const pills = getPills(activeProfile);
   const showEmail = activeProfile.show_email !== false;
   const showPhone = activeProfile.show_phone !== false;
-  const showText = activeProfile.show_text === true;
+  const secondaryActionMode = activeProfile.show_text;
   const secondaryAction =
-    showText && activeProfile.phone
+    secondaryActionMode === true && activeProfile.phone
       ? { label: "Text", href: textHref(activeProfile.phone) }
-      : showEmail && activeProfile.email
+      : secondaryActionMode === false && showEmail && activeProfile.email
         ? { label: "Email", href: `mailto:${activeProfile.email}` }
         : null;
   const intro =
@@ -271,6 +271,7 @@ export function LuxuryProfileShell({
                 >
                   <span>{view.view_name || view.full_name || "Profile view"}</span>
                   {view.role_line ? <small>{view.role_line}</small> : null}
+                  <strong>Open view</strong>
                 </button>
               ))}
             </div>
