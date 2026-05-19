@@ -14,6 +14,7 @@ type ProfileLike = {
   view_key?: string | null;
   view_name?: string | null;
   full_name?: string | null;
+  organization_name?: string | null;
   role_line?: string | null;
   intro?: string | null;
   email?: string | null;

@@ -154,6 +154,7 @@ function createViewFromProfile(profile: ProfileRecord, profileId: string, index:
     view_key: `view-${Date.now()}`,
     sort_order: index,
     full_name: profile.full_name || "",
+    organization_name: profile.organization_name || "",
     role_line: profile.role_line || "",
     intro: cleanIntroValue(profile.intro),
     email: profile.email || "",
@@ -181,6 +182,7 @@ function normalizeViewForSave(view: ProfileViewRecord): ProfileViewRecord {
     ...view,
     name: view.name.trim() || "Profile view",
     full_name: view.full_name.trim(),
+    organization_name: (view.organization_name || "").trim(),
     role_line: view.role_line.trim(),
     intro: view.intro.trim(),
     email: view.email.trim(),
@@ -419,6 +421,7 @@ export function ProfileEditor({
       const payload: ProfileRecord = {
         ...form,
         slug: normalizedSlugInput || form.slug,
+        organization_name: (form.organization_name || "").trim(),
         page_mode: form.page_mode || "single",
         multi_view_display_mode: form.multi_view_display_mode || "favorite",
         promo_code_used: promo || null,
@@ -707,6 +710,18 @@ export function ProfileEditor({
 
           <div className="editor-grid" style={{ marginTop: 18 }}>
             <label className="auth-field">
+              <span>Organization or business name</span>
+              <input
+                value={form.organization_name || ""}
+                onChange={(event) => update("organization_name", event.target.value)}
+                placeholder="Optional"
+              />
+              <small className="auth-message">
+                Included in your contact card when someone adds you to contacts.
+              </small>
+            </label>
+
+            <label className="auth-field">
               <span>Role/Title</span>
               <input
                 value={form.role_line || ""}
@@ -977,6 +992,18 @@ export function ProfileEditor({
                 </div>
 
                 <div className="editor-grid" style={{ marginTop: 14 }}>
+                  <label className="auth-field">
+                    <span>Organization or business name</span>
+                    <input
+                      value={activeView.organization_name || ""}
+                      onChange={(event) => updateView("organization_name", event.target.value)}
+                      placeholder="Optional"
+                    />
+                    <small className="auth-message">
+                      Included in this view contact card.
+                    </small>
+                  </label>
+
                   <label className="auth-field">
                     <span>Role/Title</span>
                     <input

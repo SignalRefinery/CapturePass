@@ -141,6 +141,7 @@ export default async function DashboardPage({
     existing ?? {
       user_id: user.id,
       full_name: fullName,
+      organization_name: "",
       slug:
         user.user_metadata?.suggested_slug ||
         slugify(fullName) ||

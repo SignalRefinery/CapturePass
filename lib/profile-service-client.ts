@@ -63,6 +63,7 @@ export async function saveProfileClient(record: ProfileRecord, userId: string) {
   const profilePayload = {
     user_id: userId,
     full_name: record.full_name,
+    organization_name: record.organization_name || "",
     role_line: record.role_line,
     intro: record.intro,
     email: record.email,
@@ -146,6 +147,7 @@ export async function saveProfileViewClient(record: ProfileViewRecord) {
         view_key: record.view_key,
         sort_order: record.sort_order,
         full_name: record.full_name,
+        organization_name: record.organization_name || "",
         role_line: record.role_line,
         intro: record.intro,
         email: record.email,
@@ -180,6 +182,7 @@ export async function saveProfileViewClient(record: ProfileViewRecord) {
       view_key: record.view_key,
       sort_order: record.sort_order,
       full_name: record.full_name,
+      organization_name: record.organization_name || "",
       role_line: record.role_line,
       intro: record.intro,
       email: record.email,

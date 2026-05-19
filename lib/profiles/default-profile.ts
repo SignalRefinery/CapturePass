@@ -31,6 +31,7 @@ export function buildDashboardProfile(user: User, existing: ProfileRecord | null
     slug: fallbackSlug(user, fullName, email),
     private_token: null,
     full_name: fullName,
+    organization_name: "",
     role_line: "",
     intro: "",
     email,

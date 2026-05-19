@@ -31,6 +31,7 @@ export type ProfileRecord = {
   multi_view_display_mode?: "landing" | "favorite";
   default_view_id?: string | null;
   full_name: string;
+  organization_name?: string | null;
   role_line: string;
   intro: string;
   email: string;
@@ -74,6 +75,7 @@ export type ProfileViewRecord = {
   view_key: string;
   sort_order: number;
   full_name: string;
+  organization_name?: string | null;
   role_line: string;
   intro: string;
   email: string;

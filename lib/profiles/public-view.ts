@@ -11,6 +11,7 @@ export function profileViewToPublicProfile(profile: ProfileRecord, view: Profile
     // Multi-view profiles are intentionally isolated. Blank view fields should
     // stay blank instead of leaking the main profile's contact or link details.
     full_name: view.full_name,
+    organization_name: view.organization_name,
     role_line: view.role_line,
     intro: view.intro,
     email: view.email,
@@ -42,6 +43,7 @@ export function profileRecordToPublicProfile(profile: ProfileRecord) {
     view_key: "profile",
     view_name: "Profile",
     full_name: profile.full_name,
+    organization_name: profile.organization_name,
     role_line: profile.role_line,
     intro: profile.intro,
     email: profile.email,

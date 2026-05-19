@@ -32,6 +32,7 @@ function viewToVcardContact(profile: ProfileRecord, view?: ProfileViewRecord | n
   if (!view) {
     return {
       full_name: profile.full_name,
+      organization_name: profile.organization_name,
       role_line: profile.role_line,
       intro: profile.intro,
       email: profile.email,
@@ -43,12 +44,13 @@ function viewToVcardContact(profile: ProfileRecord, view?: ProfileViewRecord | n
   }
 
   return {
-    full_name: view.full_name || profile.full_name,
-    role_line: view.role_line || profile.role_line,
-    intro: view.intro || profile.intro,
-    email: view.email || profile.email,
-    phone: view.phone || profile.phone,
-    website_url: view.website_url || profile.website_url,
+    full_name: view.full_name,
+    organization_name: view.organization_name,
+    role_line: view.role_line,
+    intro: view.intro,
+    email: view.email,
+    phone: view.phone,
+    website_url: view.website_url,
     show_email: view.show_email,
     show_phone: view.show_phone
   };
@@ -96,6 +98,7 @@ export async function GET(request: Request, context: RouteContext) {
     "BEGIN:VCARD",
     "VERSION:3.0",
     `FN:${escapeVcf(contact.full_name)}`,
+    contact.organization_name ? `ORG:${escapeVcf(contact.organization_name)}` : "",
     contact.role_line ? `TITLE:${escapeVcf(contact.role_line)}` : "",
     contact.show_email && contact.email ? `EMAIL;TYPE=INTERNET:${escapeVcf(contact.email)}` : "",
     contact.show_phone && contact.phone ? `TEL;TYPE=CELL:${escapeVcf(cleanPhone(contact.phone))}` : "",
