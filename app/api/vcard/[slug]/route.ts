@@ -23,6 +23,11 @@ function escapeVcf(value?: string | null) {
     .replace(/;/g, "\\;");
 }
 
+function safeVcardFilename(slug: string) {
+  const safeSlug = slug.toLowerCase().replace(/[^a-z0-9-]/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "");
+  return `${safeSlug || "signalpass-contact"}.vcf`;
+}
+
 function viewToVcardContact(profile: ProfileRecord, view?: ProfileViewRecord | null) {
   if (!view) {
     return {
@@ -96,14 +101,18 @@ export async function GET(request: Request, context: RouteContext) {
     "END:VCARD"
   ]
     .filter(Boolean)
-    .join("\n");
+    .join("\r\n");
+  const filename = safeVcardFilename(slug);
 
   return new NextResponse(vcard, {
     status: 200,
     headers: {
       ...PROFILE_CACHE_HEADERS,
-      "Content-Type": "text/vcard; charset=utf-8",
-      "Content-Disposition": `attachment; filename="${slug}.vcf"`
+      // Many mobile browsers and desktop clients rely on these exact headers
+      // to treat the response as a contact card instead of a plain text file.
+      "Content-Type": "text/x-vcard; charset=utf-8",
+      "Content-Disposition": `attachment; filename="${filename}"; filename*=UTF-8''${encodeURIComponent(filename)}`,
+      "X-Content-Type-Options": "nosniff"
     }
   });
 }
