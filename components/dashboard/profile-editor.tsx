@@ -332,6 +332,14 @@ export function ProfileEditor({
     setForm((current) => ({ ...current, [key]: value }));
   }
 
+  function updateMultiViewDisplayMode(value: ProfileRecord["multi_view_display_mode"]) {
+    setForm((current) => ({
+      ...current,
+      page_mode: "multi",
+      multi_view_display_mode: value
+    }));
+  }
+
   function updateView<K extends keyof ProfileViewRecord>(key: K, value: ProfileViewRecord[K]) {
     if (!activeView) return;
 
@@ -525,7 +533,13 @@ export function ProfileEditor({
         const defaultResult = await setDefaultProfileViewClient(userId, savedView.id);
 
         if (!defaultResult.error && defaultResult.data) {
-          setForm(defaultResult.data as ProfileRecord);
+          const savedProfile = defaultResult.data as ProfileRecord;
+          setForm((current) => ({
+            ...savedProfile,
+            page_mode: current.page_mode,
+            multi_view_display_mode: current.multi_view_display_mode,
+            default_view_id: savedProfile.default_view_id
+          }));
         }
       }
 
@@ -552,7 +566,13 @@ export function ProfileEditor({
       }
 
       if (result.data) {
-        setForm(result.data as ProfileRecord);
+        const savedProfile = result.data as ProfileRecord;
+        setForm((current) => ({
+          ...savedProfile,
+          page_mode: current.page_mode,
+          multi_view_display_mode: current.multi_view_display_mode,
+          default_view_id: savedProfile.default_view_id
+        }));
       } else {
         update("default_view_id", view.id);
       }
@@ -850,12 +870,10 @@ export function ProfileEditor({
                 <select
                   value={form.multi_view_display_mode || "favorite"}
                   onChange={(event) =>
-                    update(
-                      "multi_view_display_mode",
+                    updateMultiViewDisplayMode(
                       event.target.value as ProfileRecord["multi_view_display_mode"]
                     )
                   }
-                  disabled={(form.page_mode || "single") === "single"}
                 >
                   <option value="favorite">favorite</option>
                   <option value="landing">landing</option>
