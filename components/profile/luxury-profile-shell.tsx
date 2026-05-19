@@ -65,17 +65,27 @@ function textHref(phone?: string | null) {
 function contactHref(profile: ProfileLike) {
   if (!profile.slug) return "#";
 
-  const viewParam = profile.view_key || profile.view_id || null;
+  const viewParam = viewShareParam(profile);
   const viewQuery = viewParam ? `?view=${encodeURIComponent(viewParam)}` : "";
 
   return `/api/vcard/${profile.slug}${viewQuery}`;
 }
 
-function publicShareUrl(profile: ProfileLike, pageMode: "single" | "multi") {
-  const url = getReadableProfileUrl(profile);
-  const viewParam = profile.view_key || profile.view_id || null;
+function viewShareParam(profile: ProfileLike) {
+  const viewKey = profile.view_key?.trim();
 
-  if (pageMode !== "multi" || !viewParam || viewParam === "profile") {
+  if (viewKey && viewKey !== "profile") {
+    return viewKey;
+  }
+
+  return profile.view_id || null;
+}
+
+function publicShareUrl(profile: ProfileLike) {
+  const url = getReadableProfileUrl(profile);
+  const viewParam = viewShareParam(profile);
+
+  if (!viewParam) {
     return url;
   }
 
@@ -187,7 +197,7 @@ export function LuxuryProfileShell({
   const activeProfile =
     viewOptions.find((view) => (view.view_id || view.view_key || "profile") === activeViewId) ||
     profile;
-  const readableUrl = publicShareUrl(activeProfile, pageMode);
+  const readableUrl = publicShareUrl(activeProfile);
   const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=420x420&data=${encodeURIComponent(
     readableUrl
   )}`;
@@ -402,7 +412,12 @@ export function LuxuryProfileShell({
             <h2>Scan to open</h2>
             <div className={styles.qrFrame}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img className={styles.qrImage} src={qrImageUrl} alt={`QR code for ${activeProfile.full_name || "Signal Pass"} profile`} />
+              <img
+                className={styles.qrImage}
+                key={readableUrl}
+                src={qrImageUrl}
+                alt={`QR code for ${activeProfile.full_name || "Signal Pass"} profile`}
+              />
             </div>
             <div className={styles.qrCaption}>
               Use on printed cards, event materials, leave-behinds, or person-to-person introductions.
