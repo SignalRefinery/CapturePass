@@ -269,7 +269,7 @@ export function UserManagementTable({ rows }: { rows: Row[] }) {
         </div>
       </div>
 
-      <div style={{ overflowX: "auto", maxHeight: 620 }}>
+      <div className="admin-scroll" style={{ maxHeight: 620 }}>
         <table
           style={{
             width: "100%",

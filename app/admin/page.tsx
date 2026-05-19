@@ -155,7 +155,7 @@ export default async function AdminPage() {
                 Review inbound partner requests, then approve qualified people from the user detail page by assigning affiliate status and a referral code.
               </p>
 
-              <div style={{ overflowX: "auto" }}>
+              <div className="admin-scroll">
                 <table className="admin-table">
                   <thead>
                     <tr>
@@ -239,7 +239,7 @@ export default async function AdminPage() {
                 </div>
               </div>
 
-              <div style={{ overflowX: "auto" }}>
+              <div className="admin-scroll">
                 <table
                   style={{
                     width: "100%",
@@ -282,7 +282,7 @@ export default async function AdminPage() {
                                 View users
                               </summary>
 
-                              <div style={{ marginTop: 12, overflowX: "auto" }}>
+                              <div className="admin-scroll" style={{ marginTop: 12 }}>
                                 {referred.length > 0 ? (
                                   <table
                                     style={{
@@ -358,7 +358,7 @@ export default async function AdminPage() {
                 disable, or replace the slug before allowing the account to remain active.
               </p>
 
-              <div style={{ overflowX: "auto" }}>
+              <div className="admin-scroll">
                 <table className="admin-table">
                   <thead>
                     <tr>
@@ -396,7 +396,7 @@ export default async function AdminPage() {
                 Public-official risk cases
               </h2>
 
-              <div style={{ overflowX: "auto" }}>
+              <div className="admin-scroll">
                 <table className="admin-table">
                   <thead>
                     <tr>

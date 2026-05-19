@@ -513,6 +513,34 @@ textarea{font:inherit}
   line-height:.95;
   letter-spacing:0;
 }
+.admin-scroll{
+  width:100%;
+  max-width:100%;
+  overflow:auto;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior-x:contain;
+}
+.admin-scroll table{
+  min-width:max-content;
+}
+.admin-table{
+  width:max-content;
+  min-width:100%;
+  border-collapse:collapse;
+}
+.admin-table th,
+.admin-table td{
+  padding:12px 14px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+  text-align:left;
+  white-space:nowrap;
+}
+.admin-table th{
+  color:var(--gold-soft);
+  font-size:11px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+}
 .editor-copy{
   margin:0;
   max-width:68ch;
@@ -782,6 +810,15 @@ textarea{font:inherit}
   .dashboard-card{
     padding:22px 18px;
     border-radius:22px;
+  }
+  .admin-scroll{
+    margin-left:-18px;
+    margin-right:-18px;
+    padding:0 18px 10px;
+    scrollbar-width:thin;
+  }
+  .admin-scroll table{
+    min-width:760px;
   }
   .view-subsection{
     padding:16px 0 0;
