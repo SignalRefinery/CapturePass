@@ -111,7 +111,18 @@ export async function PATCH(
   }
 
   const { userId } = await params;
-  const body = await request.json();
+  let body: Record<string, any>;
+  try {
+    body = await request.json();
+  } catch (error) {
+    console.error("Admin user update payload parse failed", {
+      route: "/api/admin/users/[userId]",
+      adminUserId: adminUser.id,
+      targetUserId: userId,
+      error: error instanceof Error ? error.message : "Invalid JSON"
+    });
+    return NextResponse.json({ error: "Invalid user update request." }, { status: 400 });
+  }
   const admin = createAdminClient();
 
   const { data: currentProfile, error: currentError } = await admin
@@ -121,6 +132,12 @@ export async function PATCH(
     .single();
 
   if (currentError || !currentProfile) {
+    console.error("Admin user profile lookup failed", {
+      route: "/api/admin/users/[userId]",
+      adminUserId: adminUser.id,
+      targetUserId: userId,
+      error: currentError?.message || "Profile not found"
+    });
     return NextResponse.json({ error: "Profile not found." }, { status: 404 });
   }
 
@@ -188,7 +205,13 @@ export async function PATCH(
     .eq("user_id", userId);
 
   if (profileError) {
-    return NextResponse.json({ error: profileError.message }, { status: 400 });
+    console.error("Admin user profile update failed", {
+      route: "/api/admin/users/[userId]",
+      adminUserId: adminUser.id,
+      targetUserId: userId,
+      error: profileError.message
+    });
+    return NextResponse.json({ error: "Unable to update this profile. Please try again." }, { status: 400 });
   }
 
   // --- Admin audit log after profile update ---
@@ -229,7 +252,13 @@ export async function PATCH(
     });
 
     if (authError) {
-      return NextResponse.json({ error: authError.message }, { status: 400 });
+      console.error("Admin auth user update failed", {
+        route: "/api/admin/users/[userId]",
+        adminUserId: adminUser.id,
+        targetUserId: userId,
+        error: authError.message
+      });
+      return NextResponse.json({ error: "Profile updated, but the auth account could not be updated." }, { status: 400 });
     }
   }
 
@@ -240,7 +269,12 @@ export async function PATCH(
     try {
       await sendSlugApprovedEmail(updatedProfile);
     } catch (emailError) {
-      console.error(emailError);
+      console.error("Admin slug approval notification failed", {
+        route: "/api/admin/users/[userId]",
+        targetUserId: userId,
+        approvedSlug: updatedProfile.slug,
+        error: emailError instanceof Error ? emailError.message : "Unknown email error"
+      });
     }
   }
 
@@ -278,12 +312,24 @@ export async function DELETE(
     .eq("user_id", userId);
 
   if (profileError) {
-    return NextResponse.json({ error: profileError.message }, { status: 400 });
+    console.error("Admin user profile delete failed", {
+      route: "/api/admin/users/[userId]",
+      adminUserId: adminUser.id,
+      targetUserId: userId,
+      error: profileError.message
+    });
+    return NextResponse.json({ error: "Unable to delete this profile. Please try again." }, { status: 400 });
   }
 
   const { error: authError } = await admin.auth.admin.deleteUser(userId);
   if (authError) {
-    return NextResponse.json({ error: authError.message }, { status: 400 });
+    console.error("Admin auth user delete failed", {
+      route: "/api/admin/users/[userId]",
+      adminUserId: adminUser.id,
+      targetUserId: userId,
+      error: authError.message
+    });
+    return NextResponse.json({ error: "Profile deleted, but the auth account could not be deleted." }, { status: 400 });
   }
 
   // --- Admin audit log for user deletion ---

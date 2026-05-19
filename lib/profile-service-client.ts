@@ -15,11 +15,15 @@ export async function saveProfileClient(record: ProfileRecord, userId: string) {
     throw new Error(moderation.reason || "That slug is not allowed.");
   }
 
-  const { data: currentProfile } = await supabase
+  const { data: currentProfile, error: currentProfileError } = await supabase
     .from("profiles")
     .select("slug, slug_status")
     .eq("user_id", userId)
     .maybeSingle();
+
+  if (currentProfileError) {
+    throw new Error("Unable to check slug availability. Please try again.");
+  }
   const currentSlugModeration = classifySlug(currentProfile?.slug || "");
   const safeCurrentSlug =
     currentProfile?.slug && currentSlugModeration.state !== "blocked"
@@ -107,7 +111,9 @@ export async function isSlugTakenClient(slug: string, userId: string) {
     .eq("slug", normalizedSlug)
     .limit(1);
 
-  if (error) return false;
+  if (error) {
+    throw new Error("Unable to check slug availability. Please try again.");
+  }
 
   if (data && data.length > 0 && data[0].user_id !== userId) {
     return true;
@@ -119,7 +125,11 @@ export async function isSlugTakenClient(slug: string, userId: string) {
     .eq("slug_requested", normalizedSlug)
     .limit(1);
 
-  if (requestedError || !requestedData || requestedData.length === 0) return false;
+  if (requestedError) {
+    throw new Error("Unable to check slug availability. Please try again.");
+  }
+
+  if (!requestedData || requestedData.length === 0) return false;
 
   return requestedData[0].user_id !== userId;
 }

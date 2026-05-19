@@ -45,7 +45,8 @@ async function getPlanFromRequest(req: Request) {
 async function createCheckoutOrPortal(req: Request) {
   try {
     if (!process.env.STRIPE_SECRET_KEY) {
-      return NextResponse.json({ error: "Missing STRIPE_SECRET_KEY" }, { status: 500 });
+      console.error("Checkout configuration missing", { route: "/api/checkout" });
+      return NextResponse.json({ error: "Checkout is temporarily unavailable." }, { status: 500 });
     }
 
     const plan = await getPlanFromRequest(req);
@@ -68,8 +69,12 @@ async function createCheckoutOrPortal(req: Request) {
     } = await supabase.auth.getUser();
 
     if (userError && userError.message !== "Auth session missing!") {
+      console.error("Checkout auth lookup failed", {
+        route: "/api/checkout",
+        error: userError.message
+      });
       return NextResponse.json(
-        { error: "Supabase getUser failed", details: userError.message },
+        { error: "Unable to verify your session. Please sign in and try again." },
         { status: 500 }
       );
     }
@@ -88,8 +93,14 @@ async function createCheckoutOrPortal(req: Request) {
       .maybeSingle();
 
     if (profileError) {
+      console.error("Checkout profile lookup failed", {
+        route: "/api/checkout",
+        userId: user.id,
+        plan,
+        error: profileError.message
+      });
       return NextResponse.json(
-        { error: "Profile lookup failed", details: profileError.message },
+        { error: "Unable to load your account for checkout. Please try again." },
         { status: 500 }
       );
     }
@@ -99,70 +110,101 @@ async function createCheckoutOrPortal(req: Request) {
       selectedPriceId === process.env.STRIPE_ADDITIONAL_SIGNALPASS_CARD_PRICE_ID;
 
     if (profile?.stripe_customer_id && !isAdditionalCardsCheckout) {
-      const portal = await stripe.billingPortal.sessions.create({
-        customer: profile.stripe_customer_id,
-        return_url: `${siteUrl}/account`
-      });
+      let portal: Stripe.BillingPortal.Session;
+      try {
+        portal = await stripe.billingPortal.sessions.create({
+          customer: profile.stripe_customer_id,
+          return_url: `${siteUrl}/account`
+        });
+      } catch (error) {
+        console.error("Checkout portal redirect failed", {
+          route: "/api/checkout",
+          userId: user.id,
+          plan,
+          hasCustomerId: true,
+          error: error instanceof Error ? error.message : "Unknown Stripe portal error"
+        });
+        return NextResponse.json({ error: "Unable to open billing management. Please try again." }, { status: 500 });
+      }
 
       return NextResponse.redirect(portal.url, { status: 303 });
     }
 
-    const session = await stripe.checkout.sessions.create({
-      mode: isAdditionalCardsCheckout ? "payment" : "subscription",
-      ...(profile?.stripe_customer_id
-        ? { customer: profile.stripe_customer_id }
-        : { customer_email: user.email || undefined }),
-      shipping_address_collection: {
-        allowed_countries: ["US"]
-      },
-      billing_address_collection: "required",
-      line_items: [
-        ...(SETUP_FEE_PRICE_ID && SETUP_FEE_INCLUDED_PLANS.includes(plan)
-          ? [
-              {
-                price: SETUP_FEE_PRICE_ID,
-                quantity: 1
-              }
-            ]
-          : []),
-        {
-          price: selectedPriceId,
-          quantity: 1,
-          ...(isAdditionalCardsCheckout
-            ? {
-                adjustable_quantity: {
-                  enabled: true,
-                  minimum: 1,
-                  maximum: 50
+    let session: Stripe.Checkout.Session;
+    try {
+      session = await stripe.checkout.sessions.create({
+        mode: isAdditionalCardsCheckout ? "payment" : "subscription",
+        ...(profile?.stripe_customer_id
+          ? { customer: profile.stripe_customer_id }
+          : { customer_email: user.email || undefined }),
+        shipping_address_collection: {
+          allowed_countries: ["US"]
+        },
+        billing_address_collection: "required",
+        line_items: [
+          ...(SETUP_FEE_PRICE_ID && SETUP_FEE_INCLUDED_PLANS.includes(plan)
+            ? [
+                {
+                  price: SETUP_FEE_PRICE_ID,
+                  quantity: 1
+                }
+              ]
+            : []),
+          {
+            price: selectedPriceId,
+            quantity: 1,
+            ...(isAdditionalCardsCheckout
+              ? {
+                  adjustable_quantity: {
+                    enabled: true,
+                    minimum: 1,
+                    maximum: 50
+                  }
+                }
+              : {})
+          }
+        ],
+        allow_promotion_codes: true,
+        success_url: `${siteUrl}/dashboard`,
+        cancel_url: `${siteUrl}/pricing`,
+        metadata: {
+          user_id: user.id,
+          plan,
+          selected_plan: plan
+        },
+        ...(isAdditionalCardsCheckout
+          ? {}
+          : {
+              subscription_data: {
+                metadata: {
+                  user_id: user.id,
+                  plan,
+                  selected_plan: plan
                 }
               }
-            : {})
-        }
-      ],
-      allow_promotion_codes: true,
-      success_url: `${siteUrl}/dashboard`,
-      cancel_url: `${siteUrl}/pricing`,
-      metadata: {
-        user_id: user.id,
+            })
+      });
+    } catch (error) {
+      console.error("Checkout session creation failed", {
+        route: "/api/checkout",
+        userId: user.id,
         plan,
-        selected_plan: plan
-      },
-      ...(isAdditionalCardsCheckout
-        ? {}
-        : {
-            subscription_data: {
-              metadata: {
-                user_id: user.id,
-                plan,
-                selected_plan: plan
-              }
-            }
-          })
-    });
+        mode: isAdditionalCardsCheckout ? "payment" : "subscription",
+        hasCustomerId: !!profile?.stripe_customer_id,
+        error: error instanceof Error ? error.message : "Unknown Stripe checkout error"
+      });
+      return NextResponse.json({ error: "Unable to start checkout. Please try again." }, { status: 500 });
+    }
 
     if (!session.url) {
+      console.error("Checkout session missing redirect URL", {
+        route: "/api/checkout",
+        userId: user.id,
+        plan,
+        sessionId: session.id
+      });
       return NextResponse.json(
-        { error: "Stripe checkout session did not return a URL." },
+        { error: "Unable to start checkout. Please try again." },
         { status: 500 }
       );
     }
@@ -170,7 +212,11 @@ async function createCheckoutOrPortal(req: Request) {
     return NextResponse.redirect(session.url, { status: 303 });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown checkout error";
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error("Checkout request failed", {
+      route: "/api/checkout",
+      error: message
+    });
+    return NextResponse.json({ error: "Unable to start checkout. Please try again." }, { status: 500 });
   }
 }
 

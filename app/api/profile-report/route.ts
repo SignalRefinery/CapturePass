@@ -42,7 +42,12 @@ export async function POST(request: Request) {
 
     const resendApiKey = process.env.RESEND_API_KEY;
     if (!resendApiKey) {
-      return NextResponse.json({ error: "Email service is not configured." }, { status: 500 });
+      console.error("Profile report email service missing", {
+        route: "/api/profile-report",
+        slug,
+        profileId: profileId || null
+      });
+      return NextResponse.json({ error: "Unable to submit report right now." }, { status: 500 });
     }
 
     const to = process.env.INTERNAL_ORDER_EMAIL || "hello@signalpass.app";
@@ -76,11 +81,22 @@ export async function POST(request: Request) {
 
     if (!response.ok) {
       const errorText = await response.text();
-      return NextResponse.json({ error: errorText || "Unable to send report email." }, { status: 500 });
+      console.error("Profile report email provider failed", {
+        route: "/api/profile-report",
+        slug,
+        profileId: profileId || null,
+        status: response.status,
+        error: errorText || "No provider response body"
+      });
+      return NextResponse.json({ error: "Unable to submit report right now." }, { status: 500 });
     }
 
     return NextResponse.json({ ok: true });
-  } catch {
+  } catch (error) {
+    console.error("Profile report submission failed", {
+      route: "/api/profile-report",
+      error: error instanceof Error ? error.message : "Unknown profile report error"
+    });
     return NextResponse.json({ error: "Unable to submit report." }, { status: 500 });
   }
 }
