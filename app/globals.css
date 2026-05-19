@@ -514,11 +514,15 @@ textarea{font:inherit}
   letter-spacing:0;
 }
 .admin-scroll{
+  display:block;
   width:100%;
   max-width:100%;
-  overflow:auto;
+  min-width:0;
+  overflow-x:auto;
+  overflow-y:auto;
   -webkit-overflow-scrolling:touch;
   overscroll-behavior-x:contain;
+  contain:layout paint;
 }
 .admin-scroll table{
   min-width:max-content;
@@ -807,6 +811,16 @@ textarea{font:inherit}
   }
   .admin-console-page .shell{
     overflow:visible;
+  }
+  .admin-console-page .section-wrap,
+  .admin-console-page .card,
+  .admin-console-page .dashboard-card{
+    min-width:0;
+    max-width:100%;
+  }
+  .admin-console-page .card,
+  .admin-console-page .dashboard-card{
+    overflow:hidden;
   }
   .topbar,.simple-hero,.auth-wrap,.section-wrap,.steps,.footer,.dashboard-wrap{
     padding-left:18px;
