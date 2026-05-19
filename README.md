@@ -28,8 +28,13 @@ Recently completed:
 - View-aware vCard generation
 - Dashboard multi-view management
 - Per-view contact visibility controls (email / phone / text)
+- Unified dashboard save flow for profile and active profile view edits
+- Public profile view deep links (`/[slug]?view=VIEW_KEY`) with safe fallback when multi-view is off
+- Public QR codes generated from readable slug URLs, including active view query params when applicable
+- vCard download headers hardened for `.vcf` handling across mobile browsers
 - Stripe checkout, webhook subscription handling, and Customer Portal flow
 - Checkout/signup continuation through auth and email verification
+- Signup confirm-password field, password visibility toggles, and improved signup code-field placement
 - Middleware/auth reliability hardening
 - Auth callback profile bootstrap recovery
 - Dashboard slug request UX with pending/rejected/approved feedback
@@ -37,6 +42,7 @@ Recently completed:
 - Admin slug review confirmations and audit logging
 - Public profile anti-indexing and crawl-hardening
 - Database-level slug/profile enforcement migration
+- API error response sanitization and contextual server-side diagnostics
 
 The system has moved from prototype → **early production backend**.
 
@@ -83,6 +89,7 @@ Profiles:
 - Route: `/[slug]`
 - Dynamic rendering
 - Includes contact info, vCard, QR code
+- Public QR code targets readable slug URL, not private token URL
 
 Profile Views System:
 - Profiles may operate in:
@@ -94,6 +101,8 @@ Profile Views System:
   - default/favorite view mode
   - per-view contact visibility
   - view-aware vCards
+  - public view deep links via `?view=VIEW_KEY`
+  - slug-based per-view QR targets when a view is active
 - Example use cases:
   - Capitol Office
   - District Office
@@ -105,6 +114,7 @@ Token Routing:
 - Resolves profile securely
 - Redirects to approved slug
 - Enforces privacy + approval rules
+- Remains the durable NFC/issued-card identity route; public QR display uses slug URLs
 
 Supabase:
 - Auth
@@ -132,6 +142,11 @@ Stripe:
 - Subscription data stored
 - Customer Portal wired from account page
 - Signup/login checkout continuation preserved
+
+Auth / Onboarding:
+- Signup supports password confirmation
+- Signup and login support password visibility toggles
+- Referral and promo code fields are optional and visually secondary
 
 ---
 
@@ -169,10 +184,12 @@ Apply SQL files in order:
 - phase55_billing.sql
 - phase60_profile_views.sql
 - phase_slug_db_enforcement.sql
+- phase62_profile_view_secondary_action.sql
 
 Important:
 - `phase_slug_db_enforcement.sql` should be applied in Supabase before production onboarding.
-- Test dashboard profile saves, admin slug review, Stripe webhook updates, and auth signup bootstrap after applying it.
+- `phase62_profile_view_secondary_action.sql` should be applied before using the "None" secondary action option on profile views.
+- Test dashboard profile saves, profile view saves, admin slug review, Stripe webhook updates, and auth signup bootstrap after applying migrations.
 
 ---
 
@@ -189,13 +206,21 @@ Completed production-hardening work:
 - Admin slug safety: approve/deny actions require confirmation and write audit records.
 - Public profile privacy: profile and token routes use noindex/nofollow/noarchive metadata and `X-Robots-Tag`; sitemap remains marketing-only.
 - DB slug/profile security: new migration adds database-level trigger protection for slug moderation and sensitive profile fields.
+- API error handling: checkout, admin slug review, admin user mutations, profile report, and slug availability now avoid raw provider/database messages in user-facing responses and log contextual diagnostics server-side.
+- Dashboard save UX: one "Save changes" action saves profile settings and the active view together, with partial-save warnings.
+- Multi-view UX: selecting favorite/landing display activates multi-view mode; default-view controls are hidden in single mode.
+- Public sharing: view deep links are honored only when multi-view is active and fall back safely otherwise.
+- Auth polish: signup password confirmation, show/hide password controls, and optional referral/promo code placement below submit.
+- vCard reliability: `.vcf` download headers and fallback `?view=profile` handling are hardened.
 
 ---
 
 Operational Checklist Before Onboarding
 
-- Apply all Supabase migrations in order, including `phase_slug_db_enforcement.sql`.
+- Apply all Supabase migrations in order, including `phase_slug_db_enforcement.sql` and `phase62_profile_view_secondary_action.sql`.
 - Run a dashboard profile save as a normal user.
+- Run dashboard active-view save in single, favorite, and landing modes.
+- Test `Text`, `Email`, and `None` secondary button options on a public profile view.
 - Request a restricted slug from the dashboard and verify the current public URL remains active.
 - Approve and deny slug requests from admin; confirm audit records are written.
 - Test checkout as a logged-out user and verify signup/login continuation returns to checkout.
@@ -203,6 +228,9 @@ Operational Checklist Before Onboarding
 - Open Stripe Customer Portal from `/account` for a paid user.
 - Verify founder/billing-exempt account messaging does not push users into Stripe billing.
 - Verify public profile, token route, and vCard route all respect active/consent/approved slug rules.
+- Verify public view links (`/[slug]?view=VIEW_KEY`) open the requested view in multi-view mode and fall back in single mode.
+- Verify public QR code targets slug URL / view URL, while issued/NFC token route still redirects correctly.
+- Verify Add to Contacts downloads a `.vcf` file on iOS Safari, Chrome, and desktop.
 - Verify public profile responses include noindex headers and profiles are absent from `sitemap.xml`.
 
 ---
@@ -221,29 +249,33 @@ stripe trigger checkout.session.completed
 
 Known Issues / Remaining Risks
 
-1. `phase_slug_db_enforcement.sql` must be applied and verified in Supabase before production onboarding.
-2. API routes still need a consistency pass for user-safe error messages and operational logging.
-3. Subscription/account UI can be clearer about renewal/cancel states, Stripe mismatch states, and plan history.
-4. Public profiles are intentionally shareable; noindex headers discourage compliant crawlers but do not stop malicious scraping.
-5. Lightweight monitoring/logging is still needed for auth, webhook, admin, and profile-save failures.
+1. Supabase migrations must be verified in production/staging after deploy, especially `phase_slug_db_enforcement.sql` and `phase62_profile_view_secondary_action.sql`.
+2. Subscription/account UI can be clearer about renewal/cancel states, Stripe mismatch states, and plan history.
+3. Public profiles are intentionally shareable; noindex headers discourage compliant crawlers but do not stop malicious scraping.
+4. Lightweight monitoring/logging is still needed for auth, webhook, admin, checkout, and profile-save failures.
+5. Add-to-Home-Screen / QR onboarding page is not implemented yet.
+6. Remaining image optimization warnings exist in `app/custom/page.tsx` and legacy `components/profile/profile-shell.tsx`.
 
 ---
 
 Priority Tasks
 
 High:
-- Apply and verify Supabase migrations in a staging/production-like environment.
-- Run full production-style QA after DB enforcement is applied.
+- Verify Supabase migrations in a staging/production-like environment.
+- Run full production-style QA after the latest auth, QR, vCard, and multi-view changes deploy.
 - Verify Stripe webhook activation, checkout continuation, and portal behavior end-to-end.
+- Build an Add-to-Home-Screen / QR helper page for users to save their SignalPass to a phone home screen and access/share QR codes.
 
 Medium:
-- Improve API error handling across checkout, portal, admin, profile-report, and profile-save routes.
 - Improve subscription UI + plan management clarity.
 - Add lightweight operational logging/monitoring.
+- Add "Copy/share this view" controls in dashboard now that public view deep links exist.
+- Add a dedicated QR/share panel for base profile URL, active view URL, and issued/NFC token URL.
 
 Low:
 - UI polish
 - Performance tuning
+- Resolve remaining Next `<img>` optimization warnings
 - Phase 2 planning for custom card projects and uploaded assets
 
 ---
