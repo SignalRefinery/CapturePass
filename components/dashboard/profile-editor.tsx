@@ -695,12 +695,12 @@ export function ProfileEditor({
                 onChange={(event) => update("consent_public_visibility", event.target.checked)}
               />
               <span>
-                I understand that the information I publish may be visible to anyone who opens my
-                profile link.
+                Use my personalized public profile link.
                 <br />
                 <br />
-                If I prefer a more discreet public presence, I can leave this unchecked and Signal
-                Pass will issue an anonymized URL for cards, QR codes, and direct sharing.
+                Leave this checked so your approved slug can open your profile. Uncheck it for added
+                privacy; your personalized slug will not be publicly findable, and sharing should
+                use the exact issued link from your QR code.
               </span>
             </label>
           </div>

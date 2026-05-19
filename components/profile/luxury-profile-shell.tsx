@@ -112,10 +112,17 @@ function subtitleForLink(item: { title?: string | null; href?: string | null }, 
   return "Direct access";
 }
 
+function isMeaningfulHref(href?: string | null) {
+  const normalized = (href || "").trim().toLowerCase().replace(/\/+$/, "");
+
+  return !!normalized && normalized !== "www." && normalized !== "https://www." && normalized !== "http://www.";
+}
+
 function primaryLinks(profile: ProfileLike, options: { hideEmailLink?: boolean } = {}) {
   const showEmail = profile.show_email !== false;
   const showPhone = profile.show_phone !== false;
   const showText = profile.show_text === true;
+  const hasVisibleContact = (showEmail && !!profile.email) || (showPhone && !!profile.phone);
   const items = [
     { title: profile.primary_link_1_title, href: profile.primary_link_1_url },
     { title: profile.primary_link_2_title, href: profile.primary_link_2_url },
@@ -124,7 +131,7 @@ function primaryLinks(profile: ProfileLike, options: { hideEmailLink?: boolean }
   ].filter((item) => {
     const href = item.href || "";
 
-    if (!item.title || !href) return false;
+    if (!item.title || !isMeaningfulHref(href)) return false;
     if (!showEmail && href.startsWith("mailto:")) return false;
     if (options.hideEmailLink && href.startsWith("mailto:")) return false;
     if (!showPhone && href.startsWith("tel:")) return false;
@@ -135,7 +142,7 @@ function primaryLinks(profile: ProfileLike, options: { hideEmailLink?: boolean }
 
   if (
     profile.slug &&
-    (showEmail || showPhone) &&
+    hasVisibleContact &&
     !items.some((item) => (item.href || "").includes("/api/vcard/"))
   ) {
     items.push({

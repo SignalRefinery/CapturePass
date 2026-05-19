@@ -17,7 +17,7 @@ export function buildDashboardProfile(user: User, existing: ProfileRecord | null
       ...existing,
       full_name: existing.full_name || `${user.user_metadata?.first_name || ""} ${user.user_metadata?.last_name || ""}`.trim(),
       email: existing.email || user.email || "",
-      consent_public_visibility: !!existing.consent_public_visibility
+      consent_public_visibility: existing.consent_public_visibility !== false
     };
   }
 
@@ -59,6 +59,6 @@ export function buildDashboardProfile(user: User, existing: ProfileRecord | null
     slug_status: "approved",
     slug_requested: null,
     slug_review_reason: null,
-    consent_public_visibility: false
+    consent_public_visibility: true
   };
 }
