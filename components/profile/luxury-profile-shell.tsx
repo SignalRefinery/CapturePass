@@ -73,13 +73,17 @@ function contactHref(profile: ProfileLike) {
 }
 
 function viewShareParam(profile: ProfileLike) {
+  if (profile.view_id) {
+    return profile.view_id;
+  }
+
   const viewKey = profile.view_key?.trim();
 
   if (viewKey && viewKey !== "profile") {
     return viewKey;
   }
 
-  return profile.view_id || null;
+  return null;
 }
 
 function publicShareUrl(profile: ProfileLike) {
@@ -199,9 +203,10 @@ export function LuxuryProfileShell({
     viewOptions.find((view) => (view.view_id || view.view_key || "profile") === activeViewId) ||
     profile;
   const readableUrl = publicShareUrl(activeProfile);
+  const qrViewParam = viewShareParam(activeProfile) || "profile";
   const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=420x420&data=${encodeURIComponent(
     readableUrl
-  )}`;
+  )}&view=${encodeURIComponent(qrViewParam)}`;
   const pills = getPills(activeProfile);
   const showEmail = activeProfile.show_email !== false;
   const showPhone = activeProfile.show_phone !== false;
