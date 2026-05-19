@@ -73,7 +73,11 @@ export async function GET(request: Request, context: RouteContext) {
     return new NextResponse("Not found", { status: 404, headers: PROFILE_CACHE_HEADERS });
   }
 
-  const requestedView = new URL(request.url).searchParams.get("view");
+  const rawRequestedView = new URL(request.url).searchParams.get("view");
+  // "profile" is the public shell's synthetic fallback key when no saved
+  // profile_view exists. Treat it like the default vCard instead of a missing
+  // database view.
+  const requestedView = rawRequestedView === "profile" ? null : rawRequestedView;
   const profileViews = profile.id ? await getProfileViewsForProfileServer(profile.id) : [];
   const selectedView = requestedView
     ? profileViews.find((view) => view.view_key === requestedView || view.id === requestedView)
