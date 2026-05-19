@@ -62,6 +62,8 @@ export function AuthForm({ mode, nextPath, plan }: AuthFormProps) {
       const fullName = `${trimmedFirst} ${trimmedLast}`.trim();
       const suggestedSlug =
         slugify(fullName) || slugify(email.split("@")[0] || "");
+      const normalizedPromoCode = promoCode.trim().toUpperCase();
+      const isFounderSignup = normalizedPromoCode === "FOUNDERS";
 
       if (password !== confirmPassword) {
         setError("Passwords do not match.");
@@ -73,16 +75,19 @@ export function AuthForm({ mode, nextPath, plan }: AuthFormProps) {
         email: email.trim(),
         password,
         options: {
-          emailRedirectTo: getEmailRedirectUrl(redirectTo, plan),
+          emailRedirectTo: getEmailRedirectUrl(
+            isFounderSignup ? "/dashboard" : redirectTo,
+            isFounderSignup ? null : plan
+          ),
           data: {
             first_name: trimmedFirst,
             last_name: trimmedLast,
             full_name: fullName,
             suggested_slug: suggestedSlug,
             referral_code_used: referral.trim() || null,
-            promo_code: promoCode.trim().toUpperCase() || null,
+            promo_code: normalizedPromoCode || null,
             is_public_official: publicOfficial,
-            selected_plan: plan || null
+            selected_plan: isFounderSignup ? null : plan || null
           }
         }
       });
@@ -109,7 +114,7 @@ export function AuthForm({ mode, nextPath, plan }: AuthFormProps) {
       }
 
       setMessage(
-        plan
+        plan && promoCode.trim().toUpperCase() !== "FOUNDERS"
           ? "Check your email to verify your account. After verification, you will continue to checkout."
           : "Check your email to verify your account."
       );
@@ -271,9 +276,13 @@ export function AuthForm({ mode, nextPath, plan }: AuthFormProps) {
 }
 
 function getEmailRedirectUrl(nextPath: string, plan?: string | null) {
+  const appOrigin =
+    typeof window !== "undefined"
+      ? window.location.origin
+      : process.env.NEXT_PUBLIC_APP_URL || "https://signalpass.app";
   const callbackUrl = new URL(
     "/auth/callback",
-    process.env.NEXT_PUBLIC_APP_URL || window.location.origin
+    appOrigin
   );
 
   callbackUrl.searchParams.set("next", safeInternalRedirect(nextPath));

@@ -23,7 +23,8 @@ async function sendFounderCardNotification(userId: string) {
 
   const siteUrl = (
     process.env.NEXT_PUBLIC_APP_URL ||
-    "https://signal-pass.vercel.app"
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    "https://signalpass.app"
   ).replace(/\/$/, "");
 
   const tokenUrl = profile.private_token
@@ -190,6 +191,7 @@ export async function GET(req: Request) {
   const promoCode = cleanValue(meta.promo_code)?.toUpperCase() || null;
   const referralCode = cleanValue(meta.referral_code_used);
   const isPublicOfficial = Boolean(meta.is_public_official);
+  const finalNextPath = promoCode === "FOUNDERS" ? "/dashboard" : nextPath;
 
   const { data: existingProfile, error: lookupError } = await profileAdmin
     .from("profiles")
@@ -202,7 +204,7 @@ export async function GET(req: Request) {
       userId: user.id,
       error: lookupError.message
     });
-    return setupRecoveryRedirect(req, nextPath, requestedPlan);
+    return setupRecoveryRedirect(req, finalNextPath, requestedPlan);
   }
 
   if (!existingProfile) {
@@ -237,14 +239,14 @@ export async function GET(req: Request) {
             userId: user.id,
             error: duplicateLookupError?.message || insertError.message
           });
-          return setupRecoveryRedirect(req, nextPath, requestedPlan);
+          return setupRecoveryRedirect(req, finalNextPath, requestedPlan);
         }
       } else {
         console.error("Profile bootstrap insert failed", {
           userId: user.id,
           error: insertError.message
         });
-        return setupRecoveryRedirect(req, nextPath, requestedPlan);
+        return setupRecoveryRedirect(req, finalNextPath, requestedPlan);
       }
     }
 
@@ -273,7 +275,7 @@ export async function GET(req: Request) {
         userId: user.id,
         error: updateError.message
       });
-      return setupRecoveryRedirect(req, nextPath, requestedPlan);
+      return setupRecoveryRedirect(req, finalNextPath, requestedPlan);
     }
 
     await sendFounderCardNotification(user.id).catch((error) => {
@@ -284,5 +286,5 @@ export async function GET(req: Request) {
     });
   }
 
-  return NextResponse.redirect(new URL(nextPath, req.url));
+  return NextResponse.redirect(new URL(finalNextPath, req.url));
 }

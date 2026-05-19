@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Shell } from "@/components/shared/shell";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { SlugReviewQueue } from "@/components/admin/slug-review-queue";
 import { UserManagementTable } from "@/components/admin/user-management-table";
 import { classifySlug } from "@/lib/slug-moderation";
@@ -41,14 +42,17 @@ export default async function AdminPage() {
 
   const initialAuth = await getInitialAuth();
   const myProfileHref = initialAuth?.slug ? `/${initialAuth.slug}` : null;
+  const admin = createAdminClient();
 
-  const { data: profiles } = await supabase
+  // Admin operational tables include inactive and pending-review profiles that
+  // normal user RLS intentionally hides from browser/session clients.
+  const { data: profiles } = await admin
     .from("profiles")
     .select("*")
     .order("created_at", { ascending: false })
     .limit(250);
 
-  const { data: partnerRequests } = await supabase
+  const { data: partnerRequests } = await admin
     .from("partner_requests")
     .select("*")
     .order("created_at", { ascending: false })
