@@ -800,6 +800,14 @@ textarea{font:inherit}
 }
 @media (max-width: 700px){
   .page{width:min(100% - 14px, 1240px); margin:14px auto 18px}
+  .page.admin-console-page{
+    width:max-content;
+    min-width:1180px;
+    margin:14px;
+  }
+  .admin-console-page .shell{
+    overflow:visible;
+  }
   .topbar,.simple-hero,.auth-wrap,.section-wrap,.steps,.footer,.dashboard-wrap{
     padding-left:18px;
     padding-right:18px;

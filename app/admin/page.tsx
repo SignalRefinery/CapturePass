@@ -85,6 +85,7 @@ export default async function AdminPage() {
       footerRight="Signal Pass"
       myProfileHref={myProfileHref}
       initialAuth={initialAuth}
+      pageClassName="admin-console-page"
       navLinks={[
         { href: "/", label: "Home" },
         { href: "/dashboard", label: "Dashboard" },
