@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { getIssuedProfileUrl, getReadableProfileUrl } from "@/lib/urls/profile-url";
+import { getReadableProfileUrl } from "@/lib/urls/profile-url";
 import { ReportIssueForm } from "@/components/profile/report-issue-form";
 import styles from "./luxury-profile-shell.module.css";
 
@@ -69,6 +69,17 @@ function contactHref(profile: ProfileLike) {
   const viewQuery = viewParam ? `?view=${encodeURIComponent(viewParam)}` : "";
 
   return `/api/vcard/${profile.slug}${viewQuery}`;
+}
+
+function publicShareUrl(profile: ProfileLike, pageMode: "single" | "multi") {
+  const url = getReadableProfileUrl(profile);
+  const viewParam = profile.view_key || profile.view_id || null;
+
+  if (pageMode !== "multi" || !viewParam || viewParam === "profile") {
+    return url;
+  }
+
+  return `${url}?view=${encodeURIComponent(viewParam)}`;
 }
 
 function getPills(profile: ProfileLike) {
@@ -168,10 +179,9 @@ export function LuxuryProfileShell({
   const activeProfile =
     viewOptions.find((view) => (view.view_id || view.view_key || "profile") === activeViewId) ||
     profile;
-  const readableUrl = getReadableProfileUrl(activeProfile);
-  const issuedUrl = getIssuedProfileUrl(activeProfile);
+  const readableUrl = publicShareUrl(activeProfile, pageMode);
   const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=420x420&data=${encodeURIComponent(
-    issuedUrl
+    readableUrl
   )}`;
   const pills = getPills(activeProfile);
   const showEmail = activeProfile.show_email !== false;
