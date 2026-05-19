@@ -341,6 +341,26 @@ textarea{font:inherit}
 }
 .auth-field input::placeholder,
 .auth-field textarea::placeholder{color:var(--muted-2)}
+.password-field{position:relative}
+.password-field input{padding-right:82px}
+.password-toggle{
+  position:absolute;
+  top:50%;
+  right:10px;
+  transform:translateY(-50%);
+  min-height:36px;
+  padding:0 12px;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,.08);
+  background:rgba(255,255,255,.045);
+  color:var(--gold-soft);
+  font:inherit;
+  font-size:12px;
+  font-weight:700;
+  cursor:pointer;
+}
+.password-toggle:hover{background:rgba(255,255,255,.075)}
+.optional-auth-fields{padding:18px; margin-top:4px}
 .auth-error,.auth-message{margin:0; font-size:14px; line-height:1.65}
 .auth-error{color:#f3b2b2}
 .auth-message{color:var(--gold-soft)}

@@ -20,6 +20,9 @@ export function AuthForm({ mode, nextPath, plan }: AuthFormProps) {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [referral, setReferral] = useState("");
@@ -59,6 +62,12 @@ export function AuthForm({ mode, nextPath, plan }: AuthFormProps) {
       const fullName = `${trimmedFirst} ${trimmedLast}`.trim();
       const suggestedSlug =
         slugify(fullName) || slugify(email.split("@")[0] || "");
+
+      if (password !== confirmPassword) {
+        setError("Passwords do not match.");
+        setLoading(false);
+        return;
+      }
 
       const { error: signUpError } = await supabase.auth.signUp({
         email: email.trim(),
@@ -139,26 +148,6 @@ export function AuthForm({ mode, nextPath, plan }: AuthFormProps) {
             </label>
           </div>
 
-          <div className="editor-grid">
-            <label className="auth-field">
-              <span>Referral code</span>
-              <input
-                type="text"
-                value={referral}
-                onChange={(event) => setReferral(event.target.value)}
-              />
-            </label>
-
-            <label className="auth-field">
-              <span>Promo code</span>
-              <input
-                type="text"
-                value={promoCode}
-                onChange={(event) => setPromoCode(event.target.value)}
-              />
-            </label>
-          </div>
-
           <div className="dashboard-card subtle" style={{ padding: 18 }}>
             <label className="toggle-row" style={{ margin: 0 }}>
               <input
@@ -185,14 +174,50 @@ export function AuthForm({ mode, nextPath, plan }: AuthFormProps) {
 
       <label className="auth-field">
         <span>Password</span>
-        <input
-          type="password"
-          autoComplete={mode === "login" ? "current-password" : "new-password"}
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
-          required
-        />
+        <div className="password-field">
+          <input
+            type={passwordVisible ? "text" : "password"}
+            autoComplete={mode === "login" ? "current-password" : "new-password"}
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            required
+          />
+          <button
+            className="password-toggle"
+            type="button"
+            aria-label={passwordVisible ? "Hide password" : "Show password"}
+            aria-pressed={passwordVisible}
+            onClick={() => setPasswordVisible((current) => !current)}
+          >
+            {passwordVisible ? "Hide" : "Show"}
+          </button>
+        </div>
       </label>
+
+      {mode === "signup" ? (
+        <label className="auth-field">
+          <span>Confirm password</span>
+          <div className="password-field">
+            <input
+              type={confirmPasswordVisible ? "text" : "password"}
+              autoComplete="new-password"
+              value={confirmPassword}
+              onChange={(event) => setConfirmPassword(event.target.value)}
+              required
+            />
+            <button
+              className="password-toggle"
+              type="button"
+              aria-label={confirmPasswordVisible ? "Hide confirm password" : "Show confirm password"}
+              aria-pressed={confirmPasswordVisible}
+              onClick={() => setConfirmPasswordVisible((current) => !current)}
+            >
+              {confirmPasswordVisible ? "Hide" : "Show"}
+            </button>
+          </div>
+        </label>
+      ) : null}
+
       {mode === "login" ? (
         <div style={{ marginTop: 6, marginBottom: 12 }}>
           <Link
@@ -216,6 +241,31 @@ export function AuthForm({ mode, nextPath, plan }: AuthFormProps) {
             ? "Sign in"
             : "Create account"}
       </button>
+
+      {mode === "signup" ? (
+        <div className="dashboard-card subtle optional-auth-fields">
+          <div className="dashboard-kicker">Optional access codes</div>
+          <div className="editor-grid" style={{ marginTop: 14 }}>
+            <label className="auth-field">
+              <span>Referral code</span>
+              <input
+                type="text"
+                value={referral}
+                onChange={(event) => setReferral(event.target.value)}
+              />
+            </label>
+
+            <label className="auth-field">
+              <span>Promo code</span>
+              <input
+                type="text"
+                value={promoCode}
+                onChange={(event) => setPromoCode(event.target.value)}
+              />
+            </label>
+          </div>
+        </div>
+      ) : null}
     </form>
   );
 }
