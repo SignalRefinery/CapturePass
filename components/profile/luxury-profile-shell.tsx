@@ -141,6 +141,7 @@ export function LuxuryProfileShell({
   views = [profile],
   pageMode = "single",
   multiViewDisplayMode = "favorite",
+  initialView = null,
   heroLabel = "Live profile",
   initialAuth = null
 }: {
@@ -148,13 +149,22 @@ export function LuxuryProfileShell({
   views?: ProfileLike[];
   pageMode?: "single" | "multi";
   multiViewDisplayMode?: "landing" | "favorite";
+  initialView?: string | null;
   heroLabel?: string;
   initialAuth?: InitialAuth;
 }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const viewOptions = views.length ? views : [profile];
-  const [activeViewId, setActiveViewId] = useState(profile.view_id || profile.view_key || "profile");
-  const [landingSelected, setLandingSelected] = useState(multiViewDisplayMode !== "landing");
+  const requestedInitialView =
+    pageMode === "multi" && initialView
+      ? viewOptions.find((view) => view.view_key === initialView || view.view_id === initialView)
+      : null;
+  const [activeViewId, setActiveViewId] = useState(
+    requestedInitialView?.view_id || requestedInitialView?.view_key || profile.view_id || profile.view_key || "profile"
+  );
+  const [landingSelected, setLandingSelected] = useState(
+    multiViewDisplayMode !== "landing" || !!requestedInitialView
+  );
   const activeProfile =
     viewOptions.find((view) => (view.view_id || view.view_key || "profile") === activeViewId) ||
     profile;

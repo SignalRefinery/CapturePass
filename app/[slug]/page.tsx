@@ -13,6 +13,7 @@ import type { ProfileRecord, ProfileViewRecord } from "@/lib/types";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
+  searchParams?: Promise<{ view?: string }>;
 };
 
 export async function generateMetadata() {
@@ -81,10 +82,11 @@ function profileRecordToPublicProfile(profile: ProfileRecord) {
   };
 }
 
-export default async function PublicProfilePage({ params }: PageProps) {
+export default async function PublicProfilePage({ params, searchParams }: PageProps) {
   noStore();
 
   const { slug } = await params;
+  const requestedView = (await searchParams)?.view || null;
   const profile = (await getProfileBySlugServer(slug)) as ProfileRecord | null;
 
   if (
@@ -134,6 +136,7 @@ export default async function PublicProfilePage({ params }: PageProps) {
       views={orderedPublicViews}
       pageMode={profile.page_mode || "single"}
       multiViewDisplayMode={profile.multi_view_display_mode || "favorite"}
+      initialView={requestedView}
       heroLabel="Live profile"
       initialAuth={initialAuth}
     />
