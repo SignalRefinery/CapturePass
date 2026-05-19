@@ -166,6 +166,7 @@ export function LuxuryProfileShell({
 }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const viewOptions = views.length ? views : [profile];
+  const showViewSwitcher = pageMode === "multi" && viewOptions.length > 1;
   const requestedInitialView =
     pageMode === "multi" && initialView
       ? viewOptions.find((view) => view.view_key === initialView || view.view_id === initialView)
@@ -174,7 +175,7 @@ export function LuxuryProfileShell({
     requestedInitialView?.view_id || requestedInitialView?.view_key || profile.view_id || profile.view_key || "profile"
   );
   const [landingSelected, setLandingSelected] = useState(
-    multiViewDisplayMode !== "landing" || !!requestedInitialView
+    !showViewSwitcher || multiViewDisplayMode !== "landing" || !!requestedInitialView
   );
   const activeProfile =
     viewOptions.find((view) => (view.view_id || view.view_key || "profile") === activeViewId) ||
@@ -196,7 +197,6 @@ export function LuxuryProfileShell({
   const intro =
     activeProfile.intro ||
     "A cleaner way to connect, save contact details, and move the right information forward without clutter.";
-  const showViewSwitcher = pageMode === "multi" && viewOptions.length > 1;
   const links = primaryLinks(activeProfile, { hideEmailLink: secondaryAction?.label === "Email" });
 
   function selectView(view: ProfileLike) {
