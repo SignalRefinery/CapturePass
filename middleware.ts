@@ -1,6 +1,11 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import { isLikelyProfilePath, isTokenProfilePath, PROFILE_CACHE_HEADERS } from "@/lib/privacy/profile-privacy";
+import {
+  isLikelyProfilePath,
+  isPublicPassPath,
+  isTokenProfilePath,
+  PROFILE_CACHE_HEADERS
+} from "@/lib/privacy/profile-privacy";
 import { updateSession } from "@/lib/supabase/middleware";
 
 export async function middleware(request: NextRequest) {
@@ -39,7 +44,11 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  const isProfileLike = isLikelyProfilePath(pathname) || isTokenProfilePath(pathname) || pathname === "/live-demo";
+  const isProfileLike =
+    isLikelyProfilePath(pathname) ||
+    isTokenProfilePath(pathname) ||
+    isPublicPassPath(pathname) ||
+    pathname === "/live-demo";
 
   if (isProfileLike) {
     // Public profiles and private token redirects are intentionally shareable,

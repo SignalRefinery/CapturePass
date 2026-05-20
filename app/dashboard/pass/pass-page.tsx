@@ -29,6 +29,17 @@ function passPathFor(view: ProfileViewRecord | null) {
   return view ? `/dashboard/pass/${view.view_key || view.id}` : "/dashboard/pass/main";
 }
 
+function publicPassPathFor(profile: ProfileRecord, view: ProfileViewRecord | null) {
+  if (!profile.private_token) {
+    return passPathFor(view);
+  }
+
+  const viewParam = view ? viewParamFor(view) : "main";
+  return viewParam
+    ? `/pass/${profile.private_token}?view=${encodeURIComponent(viewParam)}`
+    : `/pass/${profile.private_token}`;
+}
+
 function matchesRequestedView(view: ProfileViewRecord, requestedView: string) {
   return view.view_key === requestedView || view.id === requestedView;
 }
@@ -73,7 +84,7 @@ export async function DashboardPassPageContent({
     id: view.id || view.view_key,
     label: view.name || view.view_key,
     url: getPreferredProfileShareUrl(profile, viewParamFor(view)),
-    passUrl: passPathFor(view)
+    passUrl: publicPassPathFor(profile, view)
   }));
   const passViews =
     profile.page_mode === "multi" && profileViews.length
@@ -82,7 +93,7 @@ export async function DashboardPassPageContent({
             id: "main",
             label: "Main profile",
             url: getPreferredProfileShareUrl(profile),
-            passUrl: "/dashboard/pass/main"
+            passUrl: publicPassPathFor(profile, null)
           },
           ...viewPasses
         ]
@@ -91,7 +102,7 @@ export async function DashboardPassPageContent({
             id: "main",
             label: "Main profile",
             url: getPreferredProfileShareUrl(profile),
-            passUrl: "/dashboard/pass/main"
+            passUrl: publicPassPathFor(profile, null)
           }
         ];
   if (

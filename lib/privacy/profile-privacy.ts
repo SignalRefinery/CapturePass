@@ -36,6 +36,10 @@ export function isTokenProfilePath(pathname: string) {
   return /^\/u\/[^/]+\/?$/.test(pathname);
 }
 
+export function isPublicPassPath(pathname: string) {
+  return /^\/pass\/[^/]+\/?$/.test(pathname);
+}
+
 export function isLikelyProfilePath(pathname: string) {
   const clean = pathname.split("?")[0].replace(/^\//, "").replace(/\/$/, "");
   if (!clean) return false;

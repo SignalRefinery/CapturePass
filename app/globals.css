@@ -684,6 +684,10 @@ textarea{font:inherit}
   display:grid;
   gap:18px;
 }
+.public-pass-page{
+  min-height:100vh;
+  padding:1px 0;
+}
 .pass-card{
   border:1px solid rgba(255,255,255,.09);
   border-radius:34px;
