@@ -59,6 +59,12 @@ const actionButtonStyle: React.CSSProperties = {
   color: "#020617",
 };
 
+const actionCellStyle: React.CSSProperties = {
+  ...cellStyle,
+  borderRight: 0,
+  overflow: "visible",
+};
+
 function Badge({
   children,
   tone = "neutral",
@@ -274,7 +280,7 @@ export function UserManagementTable({ rows }: { rows: Row[] }) {
         <table
           style={{
             width: "100%",
-            minWidth: 1120,
+            minWidth: 1540,
             borderCollapse: "separate",
             borderSpacing: 0,
             tableLayout: "fixed",
@@ -289,7 +295,7 @@ export function UserManagementTable({ rows }: { rows: Row[] }) {
             <col style={{ width: 130 }} />
             <col style={{ width: 160 }} />
             <col style={{ width: 240 }} />
-            <col style={{ width: 260 }} />
+            <col style={{ width: 420 }} />
           </colgroup>
 
           <thead>
@@ -385,9 +391,9 @@ export function UserManagementTable({ rows }: { rows: Row[] }) {
                     </div>
                   </td>
 
-                  <td style={{ ...cellStyle, borderRight: 0 }}>
+                  <td style={actionCellStyle}>
                     <div
-                      style={{ display: "flex", gap: 6, alignItems: "center" }}
+                      style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "nowrap" }}
                     >
                       {r.slug ? (
                         <Link href={`/${r.slug}`} style={actionButtonStyle}>
