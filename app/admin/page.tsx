@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { SlugReviewQueue } from "@/components/admin/slug-review-queue";
 import { UserManagementTable } from "@/components/admin/user-management-table";
+import { AdminTableFrame } from "@/components/admin/admin-table-frame";
 import { classifySlug } from "@/lib/slug-moderation";
 
 const ADMIN_EMAILS = ["john@signalrefinery.pro"];
@@ -85,7 +86,6 @@ export default async function AdminPage() {
       footerRight="Signal Pass"
       myProfileHref={myProfileHref}
       initialAuth={initialAuth}
-      pageClassName="admin-console-page"
       navLinks={[
         { href: "/", label: "Home" },
         { href: "/dashboard", label: "Dashboard" },
@@ -156,7 +156,7 @@ export default async function AdminPage() {
                 Review inbound partner requests, then approve qualified people from the user detail page by assigning affiliate status and a referral code.
               </p>
 
-              <div className="admin-scroll">
+              <AdminTableFrame>
                 <table className="admin-table">
                   <thead>
                     <tr>
@@ -187,7 +187,7 @@ export default async function AdminPage() {
                     ))}
                   </tbody>
                 </table>
-              </div>
+              </AdminTableFrame>
             </div>
           ) : null}
 
@@ -240,7 +240,7 @@ export default async function AdminPage() {
                 </div>
               </div>
 
-              <div className="admin-scroll">
+              <AdminTableFrame>
                 <table
                   style={{
                     width: "100%",
@@ -283,7 +283,7 @@ export default async function AdminPage() {
                                 View users
                               </summary>
 
-                              <div className="admin-scroll" style={{ marginTop: 12 }}>
+                              <AdminTableFrame style={{ marginTop: 12 }}>
                                 {referred.length > 0 ? (
                                   <table
                                     style={{
@@ -332,7 +332,7 @@ export default async function AdminPage() {
                                 ) : (
                                   <p style={{ margin: 0, color: "#64748b" }}>No referred users yet.</p>
                                 )}
-                              </div>
+                              </AdminTableFrame>
                             </details>
                           </td>
                         </tr>
@@ -340,7 +340,7 @@ export default async function AdminPage() {
                     })}
                   </tbody>
                 </table>
-              </div>
+              </AdminTableFrame>
             </div>
           ) : null}
 
@@ -359,7 +359,7 @@ export default async function AdminPage() {
                 disable, or replace the slug before allowing the account to remain active.
               </p>
 
-              <div className="admin-scroll">
+              <AdminTableFrame>
                 <table className="admin-table">
                   <thead>
                     <tr>
@@ -386,7 +386,7 @@ export default async function AdminPage() {
                     ))}
                   </tbody>
                 </table>
-              </div>
+              </AdminTableFrame>
             </div>
           ) : null}
 
@@ -397,7 +397,7 @@ export default async function AdminPage() {
                 Public-official risk cases
               </h2>
 
-              <div className="admin-scroll">
+              <AdminTableFrame>
                 <table className="admin-table">
                   <thead>
                     <tr>
@@ -424,7 +424,7 @@ export default async function AdminPage() {
                     ))}
                   </tbody>
                 </table>
-              </div>
+              </AdminTableFrame>
             </div>
           ) : null}
 

@@ -513,8 +513,14 @@ textarea{font:inherit}
   line-height:.95;
   letter-spacing:0;
 }
-.admin-scroll{
+.admin-table-frame{
   display:block;
+  width:100%;
+  max-width:100%;
+  min-width:0;
+  overflow:hidden;
+}
+.admin-table-scroll{
   width:100%;
   max-width:100%;
   min-width:0;
@@ -522,9 +528,8 @@ textarea{font:inherit}
   overflow-y:auto;
   -webkit-overflow-scrolling:touch;
   overscroll-behavior-x:contain;
-  contain:layout paint;
 }
-.admin-scroll table{
+.admin-table-scroll table{
   min-width:max-content;
 }
 .admin-table{
@@ -804,24 +809,6 @@ textarea{font:inherit}
 }
 @media (max-width: 700px){
   .page{width:min(100% - 14px, 1240px); margin:14px auto 18px}
-  .page.admin-console-page{
-    width:max-content;
-    min-width:1180px;
-    margin:14px;
-  }
-  .admin-console-page .shell{
-    overflow:visible;
-  }
-  .admin-console-page .section-wrap,
-  .admin-console-page .card,
-  .admin-console-page .dashboard-card{
-    min-width:0;
-    max-width:100%;
-  }
-  .admin-console-page .card,
-  .admin-console-page .dashboard-card{
-    overflow:hidden;
-  }
   .topbar,.simple-hero,.auth-wrap,.section-wrap,.steps,.footer,.dashboard-wrap{
     padding-left:18px;
     padding-right:18px;
@@ -833,13 +820,15 @@ textarea{font:inherit}
     padding:22px 18px;
     border-radius:22px;
   }
-  .admin-scroll{
-    margin-left:-18px;
-    margin-right:-18px;
-    padding:0 18px 10px;
+  .admin-table-frame{
+    margin-top:14px;
+    border-radius:14px;
+  }
+  .admin-table-scroll{
+    padding-bottom:10px;
     scrollbar-width:thin;
   }
-  .admin-scroll table{
+  .admin-table-scroll table{
     min-width:760px;
   }
   .view-subsection{

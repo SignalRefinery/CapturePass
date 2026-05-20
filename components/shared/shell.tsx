@@ -21,14 +21,12 @@ export function Shell({
   footerRight,
   myProfileHref = null,
   initialAuth,
-  pageClassName = "",
 }: {
   children: React.ReactNode;
   navLinks?: { href: string; label: string }[];
   footerLeft?: string;
   footerRight?: string;
   myProfileHref?: string | null;
-  pageClassName?: string;
   initialAuth?: {
     email?: string | null;
     fullName?: string | null;
@@ -81,7 +79,7 @@ export function Shell({
   }, [isSignedIn, isAdmin, profileHref]);
 
   return (
-    <div className={pageClassName ? `page ${pageClassName}` : "page"}>
+    <div className="page">
       <div className={`shell ${mobileOpen ? "shell-menu-open" : ""}`}>
         <header className="topbar">
           <Link className="brand" href="/">

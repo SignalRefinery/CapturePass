@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { AdminTableFrame } from "@/components/admin/admin-table-frame";
 
 type Row = {
   user_id: string;
@@ -269,7 +270,7 @@ export function UserManagementTable({ rows }: { rows: Row[] }) {
         </div>
       </div>
 
-      <div className="admin-scroll" style={{ maxHeight: 620 }}>
+      <AdminTableFrame maxHeight={620}>
         <table
           style={{
             width: "100%",
@@ -470,7 +471,7 @@ export function UserManagementTable({ rows }: { rows: Row[] }) {
             ) : null}
           </tbody>
         </table>
-      </div>
+      </AdminTableFrame>
     </div>
   );
 }
