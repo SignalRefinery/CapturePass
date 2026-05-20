@@ -419,7 +419,7 @@ export function ProfileEditor({
     if (saving || viewSaving) return;
 
     setSaving(true);
-    setViewSaving(!!activeView);
+    setViewSaving(isMultiViewMode && !!activeView);
     setError("");
     setMessage("");
     setViewError("");
@@ -493,17 +493,19 @@ export function ProfileEditor({
       const savedSlugStatus = (result.data as ProfileRecord | null)?.slug_status;
       const savedRequestedSlug = (result.data as ProfileRecord | null)?.slug_requested;
 
-      try {
-        await saveActiveViewChanges();
-      } catch (viewErr) {
-        console.error("Profile view save failed:", viewErr);
-        setViewError(
-          viewErr instanceof Error
-            ? `Profile saved, but the active view was not saved: ${viewErr.message}`
-            : "Profile saved, but the active view was not saved."
-        );
-        setMessage("Profile saved. The active view still needs attention.");
-        return;
+      if (isMultiViewMode) {
+        try {
+          await saveActiveViewChanges();
+        } catch (viewErr) {
+          console.error("Profile view save failed:", viewErr);
+          setViewError(
+            viewErr instanceof Error
+              ? `Profile saved, but the active view was not saved: ${viewErr.message}`
+              : "Profile saved, but the active view was not saved."
+          );
+          setMessage("Profile saved. The active view still needs attention.");
+          return;
+        }
       }
 
       setMessage(
@@ -908,23 +910,26 @@ export function ProfileEditor({
                 </select>
               </label>
 
-              <label className="auth-field">
-                <span>Multi-view display</span>
-                <select
-                  value={form.multi_view_display_mode || "favorite"}
-                  onChange={(event) =>
-                    updateMultiViewDisplayMode(
-                      event.target.value as ProfileRecord["multi_view_display_mode"]
-                    )
-                  }
-                >
-                  <option value="favorite">favorite</option>
-                  <option value="landing">landing</option>
-                </select>
-              </label>
+              {isMultiViewMode ? (
+                <label className="auth-field">
+                  <span>Multi-view display</span>
+                  <select
+                    value={form.multi_view_display_mode || "favorite"}
+                    onChange={(event) =>
+                      updateMultiViewDisplayMode(
+                        event.target.value as ProfileRecord["multi_view_display_mode"]
+                      )
+                    }
+                  >
+                    <option value="favorite">favorite</option>
+                    <option value="landing">landing</option>
+                  </select>
+                </label>
+              ) : null}
             </div>
 
-            <div style={{ marginTop: 18, display: "grid", gap: 14 }}>
+            {isMultiViewMode ? (
+              <div style={{ marginTop: 18, display: "grid", gap: 14 }}>
               <div className="status-list">
                 {views.length > 0 ? (
                   views.map((view) => {
@@ -994,8 +999,13 @@ export function ProfileEditor({
                 </button>
               </div>
             </div>
+            ) : (
+              <p className="editor-copy" style={{ marginTop: 18 }}>
+                Single mode uses your main profile information. Switch to multi to manage separate views.
+              </p>
+            )}
 
-            {activeView ? (
+            {isMultiViewMode && activeView ? (
               <div className="card" style={{ marginTop: 20, padding: 18 }}>
                 <div className="dashboard-kicker">Editing view</div>
 

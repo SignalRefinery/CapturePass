@@ -1,7 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { unstable_noStore as noStore } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { buildPublicProfileViews } from "@/lib/profiles/public-view";
+import { buildPublicProfileViews, profileRecordToPublicProfile } from "@/lib/profiles/public-view";
 import { profileMetadata } from "@/lib/privacy/profile-privacy";
 import { isSlugPubliclyAllowed } from "@/lib/slug-moderation";
 import { LuxuryProfileShell } from "@/components/profile/luxury-profile-shell";
@@ -40,23 +40,29 @@ export default async function PrivateTokenProfilePage({ params, searchParams }: 
     redirect(`/${profile.slug}`);
   }
 
-  const { data: profileViews } = await admin
-    .from("profile_views")
-    .select("*")
-    .eq("profile_id", profile.id)
-    .order("sort_order", { ascending: true })
-    .returns<ProfileViewRecord[]>();
+  const isMultiViewProfile = profile.page_mode === "multi";
+  const { data: profileViews } = isMultiViewProfile
+    ? await admin
+        .from("profile_views")
+        .select("*")
+        .eq("profile_id", profile.id)
+        .order("sort_order", { ascending: true })
+        .returns<ProfileViewRecord[]>()
+    : { data: [] };
   const defaultProfileView =
-    (profile.default_view_id
-      ? (profileViews || []).find((view) => view.id === profile.default_view_id)
-      : null) ||
-    (profileViews || [])[0] ||
-    null;
-  const { defaultPublicView, orderedPublicViews } = buildPublicProfileViews(
-    profile,
-    profileViews || [],
-    defaultProfileView
-  );
+    isMultiViewProfile
+      ? (profile.default_view_id
+          ? (profileViews || []).find((view) => view.id === profile.default_view_id)
+          : null) ||
+        (profileViews || [])[0] ||
+        null
+      : null;
+  const { defaultPublicView, orderedPublicViews } = isMultiViewProfile
+    ? buildPublicProfileViews(profile, profileViews || [], defaultProfileView)
+    : {
+        defaultPublicView: profileRecordToPublicProfile(profile),
+        orderedPublicViews: [profileRecordToPublicProfile(profile)]
+      };
 
   // Privacy-mode profiles render only through this unguessable issued URL.
   // The personalized slug remains non-resolving while the QR/private link works.

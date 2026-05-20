@@ -6,7 +6,7 @@ import {
   getProfileBySlugServer,
   getProfileViewsForProfileServer
 } from "@/lib/profile-service-server";
-import { buildPublicProfileViews } from "@/lib/profiles/public-view";
+import { buildPublicProfileViews, profileRecordToPublicProfile } from "@/lib/profiles/public-view";
 import { profileMetadata } from "@/lib/privacy/profile-privacy";
 import { isSlugPubliclyAllowed } from "@/lib/slug-moderation";
 import { LuxuryProfileShell } from "@/components/profile/luxury-profile-shell";
@@ -37,13 +37,15 @@ export default async function PublicProfilePage({ params, searchParams }: PagePr
     notFound();
   }
 
-  const profileViews = profile.id ? await getProfileViewsForProfileServer(profile.id) : [];
-  const defaultProfileView = await getDefaultProfileViewServer(profile);
-  const { defaultPublicView, orderedPublicViews } = buildPublicProfileViews(
-    profile,
-    profileViews,
-    defaultProfileView
-  );
+  const isMultiViewProfile = profile.page_mode === "multi";
+  const profileViews = isMultiViewProfile && profile.id ? await getProfileViewsForProfileServer(profile.id) : [];
+  const defaultProfileView = isMultiViewProfile ? await getDefaultProfileViewServer(profile) : null;
+  const { defaultPublicView, orderedPublicViews } = isMultiViewProfile
+    ? buildPublicProfileViews(profile, profileViews, defaultProfileView)
+    : {
+        defaultPublicView: profileRecordToPublicProfile(profile),
+        orderedPublicViews: [profileRecordToPublicProfile(profile)]
+      };
 
   const supabase = await createClient();
 
