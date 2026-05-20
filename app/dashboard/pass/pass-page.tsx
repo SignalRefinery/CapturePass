@@ -121,15 +121,6 @@ export async function DashboardPassPageContent({
       myProfileHref={myProfileHref}
       initialAuth={initialAuth}
     >
-      <section className="simple-hero pass-hero">
-        <div className="kicker">
-          <span className="mini-star">✦</span>
-          <span>Digital pass</span>
-        </div>
-        <h1>Your QR, ready when your card is not.</h1>
-        <p>Save this page to your phone home screen for quick in-person sharing.</p>
-      </section>
-
       {passError === "missing-view" ? (
         <section className="dashboard-wrap">
           <div className="dashboard-card pass-alert">

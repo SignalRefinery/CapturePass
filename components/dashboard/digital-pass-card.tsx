@@ -50,13 +50,7 @@ export function DigitalPassCard({
   return (
     <section className="pass-wrap">
       <div className="pass-card">
-        <div className="pass-kicker">Signal Pass</div>
-        <div className="pass-heading">
-          <h2>{name}</h2>
-          {roleLine ? <p>{roleLine}</p> : null}
-          {organizationName ? <span>{organizationName}</span> : null}
-        </div>
-
+        <div className="pass-kicker">Digital pass</div>
         {views.length > 1 ? (
           <div className="pass-selected-view">
             <span>Pass view</span>
@@ -66,6 +60,12 @@ export function DigitalPassCard({
 
         <div className="pass-qr-frame">
           <img src={qrUrl} alt={`QR code for ${selectedView.label}`} />
+        </div>
+
+        <div className="pass-heading">
+          <h2>{name}</h2>
+          {roleLine ? <p>{roleLine}</p> : null}
+          {organizationName ? <span>{organizationName}</span> : null}
         </div>
 
         <div className="pass-url">{readableUrl}</div>
