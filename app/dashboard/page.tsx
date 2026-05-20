@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { Shell } from "@/components/shared/shell";
 import { ProfileEditor } from "@/components/dashboard/profile-editor";
 import { InactiveState } from "@/components/dashboard/inactive-state";
@@ -299,6 +300,21 @@ export default async function DashboardPage({
               </div>
             </section>
           ) : null}
+
+          <section className="dashboard-wrap">
+            <div className="dashboard-card">
+              <div className="dashboard-kicker">Digital pass</div>
+              <h2>Open your QR pass.</h2>
+              <p className="editor-copy">
+                Show your QR when you do not have your physical card, or save view-specific passes to your phone home screen.
+              </p>
+              <div className="editor-actions" style={{ marginTop: 20 }}>
+                <Link href="/dashboard/pass" className="button primary">
+                  Open Digital Pass
+                </Link>
+              </div>
+            </div>
+          </section>
 
           <ProfileEditor
             userId={user.id}

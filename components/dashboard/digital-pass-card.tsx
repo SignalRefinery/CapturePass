@@ -1,11 +1,13 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 
 type PassViewOption = {
   id: string;
   label: string;
   url: string;
+  passUrl: string;
 };
 
 export function DigitalPassCard({
@@ -13,17 +15,19 @@ export function DigitalPassCard({
   roleLine,
   organizationName,
   defaultViewId,
-  views
+  views,
+  selectedViewId: initialSelectedViewId
 }: {
   name: string;
   roleLine: string;
   organizationName?: string | null;
   defaultViewId: string;
   views: PassViewOption[];
+  selectedViewId?: string;
 }) {
-  const [selectedViewId, setSelectedViewId] = useState(defaultViewId);
   const [copyStatus, setCopyStatus] = useState<"idle" | "copied" | "error">("idle");
-  const selectedView = views.find((view) => view.id === selectedViewId) || views[0];
+  const selectedView =
+    views.find((view) => view.id === (initialSelectedViewId || defaultViewId)) || views[0];
   const qrUrl = useMemo(
     () =>
       `https://api.qrserver.com/v1/create-qr-code/?size=640x640&data=${encodeURIComponent(
@@ -54,16 +58,10 @@ export function DigitalPassCard({
         </div>
 
         {views.length > 1 ? (
-          <label className="pass-view-select">
-            QR destination
-            <select value={selectedViewId} onChange={(event) => setSelectedViewId(event.target.value)}>
-              {views.map((view) => (
-                <option key={view.id} value={view.id}>
-                  {view.label}
-                </option>
-              ))}
-            </select>
-          </label>
+          <div className="pass-selected-view">
+            <span>Pass view</span>
+            <strong>{selectedView.label}</strong>
+          </div>
         ) : null}
 
         <div className="pass-qr-frame">
@@ -95,6 +93,26 @@ export function DigitalPassCard({
           <p>Open this page in Chrome, tap the menu, then choose Add to Home screen or Install app.</p>
         </div>
       </div>
+
+      {views.length > 1 ? (
+        <div className="pass-view-grid">
+          {views.map((view) => (
+            <div
+              className={view.id === selectedView.id ? "pass-view-card is-active" : "pass-view-card"}
+              key={view.id}
+            >
+              <div>
+                <span>{view.id === defaultViewId ? "Default pass" : "Profile view"}</span>
+                <strong>{view.label}</strong>
+              </div>
+              <Link href={view.passUrl} className="button secondary">
+                Open this pass
+              </Link>
+              <p>Open this page, then save it to your phone home screen for a dedicated QR icon.</p>
+            </div>
+          ))}
+        </div>
+      ) : null}
     </section>
   );
 }
