@@ -9,16 +9,18 @@ import type { ProfileRecord, ProfileViewRecord } from "@/lib/types";
 
 type PageProps = {
   params: Promise<{ token: string }>;
+  searchParams?: Promise<{ view?: string }>;
 };
 
 export async function generateMetadata() {
   return profileMetadata();
 }
 
-export default async function PrivateTokenProfilePage({ params }: PageProps) {
+export default async function PrivateTokenProfilePage({ params, searchParams }: PageProps) {
   noStore();
 
   const { token } = await params;
+  const requestedView = (await searchParams)?.view || null;
   const admin = createAdminClient();
   const { data: profile } = await admin
     .from("profiles")
@@ -64,6 +66,7 @@ export default async function PrivateTokenProfilePage({ params }: PageProps) {
       views={orderedPublicViews}
       pageMode={profile.page_mode || "single"}
       multiViewDisplayMode={profile.multi_view_display_mode || "favorite"}
+      initialView={requestedView}
       heroLabel="Live profile"
     />
   );

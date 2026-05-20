@@ -49,6 +49,7 @@ export type ProfileRecord = {
   primary_link_4_title: string;
   primary_link_4_url: string;
   is_active?: boolean;
+  is_admin?: boolean;
   stripe_customer_id?: string | null;
   stripe_subscription_id?: string | null;
   stripe_plan_key?: string | null;

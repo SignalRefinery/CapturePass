@@ -1,6 +1,7 @@
 type ProfileUrlLike = {
   slug?: string | null;
   private_token?: string | null;
+  consent_public_visibility?: boolean | null;
 };
 
 function normalizedAppUrl() {
@@ -20,4 +21,22 @@ export function getIssuedProfileUrl(profile: ProfileUrlLike) {
   }
 
   return `${appUrl}/u/${profile.private_token}`;
+}
+
+export function appendProfileViewParam(url: string, view?: string | null) {
+  if (!view || view === "profile") {
+    return url;
+  }
+
+  const separator = url.includes("?") ? "&" : "?";
+  return `${url}${separator}view=${encodeURIComponent(view)}`;
+}
+
+export function getPreferredProfileShareUrl(profile: ProfileUrlLike, view?: string | null) {
+  const baseUrl =
+    profile.consent_public_visibility === false && profile.private_token
+      ? getIssuedProfileUrl(profile)
+      : getReadableProfileUrl(profile);
+
+  return appendProfileViewParam(baseUrl, view);
 }

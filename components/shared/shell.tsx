@@ -65,6 +65,7 @@ export function Shell({
       { href: "/custom", label: "Custom Cards" },
       { href: "/partners", label: "Partners" },
       { href: "/dashboard", label: "Dashboard" },
+      { href: "/dashboard/pass", label: "Digital pass" },
     ];
 
     if (profileHref) {
