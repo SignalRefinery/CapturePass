@@ -37,8 +37,23 @@ export function UserMenu({
     );
   }
 
+  if (!mobile) {
+    return (
+      <div className="desktop-user-menu">
+        <Link href="/account" className="desktop-account-link">
+          Account
+        </Link>
+        <form action="/auth/signout" method="post">
+          <button className="desktop-signout-button" type="submit">
+            Sign out
+          </button>
+        </form>
+      </div>
+    );
+  }
+
   return (
-    <div className={mobile ? "user-popover-mobile" : "user-popover"}>
+    <div className="user-popover-mobile">
       <div className="user-meta">
         <div className="user-meta-label">Signed in as</div>
         <div className="user-meta-email">{initialEmail}</div>
