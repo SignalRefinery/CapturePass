@@ -42,16 +42,16 @@ const LINK_FIELD_CONFIG = [
     urlKey: "primary_link_3_url" as const,
     titleLabel: "Link 3 title",
     urlLabel: "Link 3 URL",
-    titlePlaceholder: "Website 1",
-    urlPlaceholder: "https://example.com"
+    titlePlaceholder: "Optional link",
+    urlPlaceholder: "https://your-link.com"
   },
   {
     titleKey: "primary_link_4_title" as const,
     urlKey: "primary_link_4_url" as const,
     titleLabel: "Link 4 title",
     urlLabel: "Link 4 URL",
-    titlePlaceholder: "Website",
-    urlPlaceholder: "https://example.com"
+    titlePlaceholder: "Optional link",
+    urlPlaceholder: "https://your-link.com"
   }
 ];
 
@@ -169,7 +169,7 @@ function createViewFromProfile(profile: ProfileRecord, profileId: string, index:
     intro: cleanIntroValue(profile.intro),
     email: profile.email || "",
     phone: profile.phone || "",
-    website_url: profile.website_url || "",
+    website_url: "",
     profile_badge_1: profile.profile_badge_1 || "",
     profile_badge_2: profile.profile_badge_2 || "",
     profile_badge_3: profile.profile_badge_3 || "",
@@ -180,10 +180,10 @@ function createViewFromProfile(profile: ProfileRecord, profileId: string, index:
     primary_link_1_url: profile.primary_link_1_url || phoneToTel(profile.phone),
     primary_link_2_title: profile.primary_link_2_title || "Email",
     primary_link_2_url: profile.primary_link_2_url || emailToMailto(profile.email),
-    primary_link_3_title: profile.primary_link_3_title || "Website 1",
-    primary_link_3_url: profile.primary_link_3_url || "",
-    primary_link_4_title: profile.primary_link_4_title || "Website",
-    primary_link_4_url: profile.primary_link_4_url || ""
+    primary_link_3_title: "",
+    primary_link_3_url: "",
+    primary_link_4_title: "",
+    primary_link_4_url: ""
   };
 }
 
@@ -1038,15 +1038,6 @@ export function ProfileEditor({
                       value={activeView.role_line || ""}
                       onChange={(event) => updateView("role_line", event.target.value)}
                       placeholder="Founder & Principal"
-                    />
-                  </label>
-
-                  <label className="auth-field">
-                    <span>Website URL</span>
-                    <input
-                      value={activeView.website_url || ""}
-                      onChange={(event) => updateView("website_url", event.target.value)}
-                      placeholder="https://example.com"
                     />
                   </label>
                 </div>

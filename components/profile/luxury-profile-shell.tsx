@@ -130,7 +130,18 @@ function subtitleForLink(item: { title?: string | null; href?: string | null }, 
 function isMeaningfulHref(href?: string | null) {
   const normalized = (href || "").trim().toLowerCase().replace(/\/+$/, "");
 
-  return !!normalized && normalized !== "www." && normalized !== "https://www." && normalized !== "http://www.";
+  return (
+    !!normalized &&
+    normalized !== "www." &&
+    normalized !== "https://www." &&
+    normalized !== "http://www." &&
+    normalized !== "example.com" &&
+    normalized !== "http://example.com" &&
+    normalized !== "https://example.com" &&
+    normalized !== "www.example.com" &&
+    normalized !== "http://www.example.com" &&
+    normalized !== "https://www.example.com"
+  );
 }
 
 function primaryLinks(profile: ProfileLike, options: { hideEmailLink?: boolean } = {}) {
@@ -143,10 +154,13 @@ function primaryLinks(profile: ProfileLike, options: { hideEmailLink?: boolean }
     { title: profile.primary_link_2_title, href: profile.primary_link_2_url },
     { title: profile.primary_link_3_title, href: profile.primary_link_3_url },
     { title: profile.primary_link_4_title, href: profile.primary_link_4_url }
-  ].filter((item) => {
-    const href = item.href || "";
+  ].map((item) => ({
+    title: (item.title || "").trim(),
+    href: (item.href || "").trim()
+  })).filter((item) => {
+    const href = item.href;
 
-    if (!item.title || !isMeaningfulHref(href)) return false;
+    if (!item.title || !href || !isMeaningfulHref(href)) return false;
     if (!showEmail && href.startsWith("mailto:")) return false;
     if (options.hideEmailLink && href.startsWith("mailto:")) return false;
     if (!showPhone && href.startsWith("tel:")) return false;
