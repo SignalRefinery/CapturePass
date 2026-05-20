@@ -401,6 +401,15 @@ textarea{font:inherit}
 .auth-error,.auth-message{margin:0; font-size:14px; line-height:1.65}
 .auth-error{color:#f3b2b2}
 .auth-message{color:var(--gold-soft)}
+.slug-status-helper{
+  display:inline-block;
+  max-width:54ch;
+  line-height:1.45;
+  color:rgba(226,202,148,.86);
+}
+.auth-error.slug-status-helper{
+  color:#f1b7b7;
+}
 .auth-submit{width:100%; margin-top:6px}
 .auth-switch{
   margin:18px 0 0;
