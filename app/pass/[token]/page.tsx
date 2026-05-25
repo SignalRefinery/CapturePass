@@ -124,6 +124,7 @@ export default async function PublicDigitalPassPage({ params, searchParams }: Pa
         defaultViewId={defaultViewId}
         selectedViewId={selectedViewId}
         views={passViews}
+        showViewSwitcher={false}
       />
     </main>
   );

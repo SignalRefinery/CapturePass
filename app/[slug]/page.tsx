@@ -46,6 +46,7 @@ export default async function PublicProfilePage({ params, searchParams }: PagePr
         defaultPublicView: profileRecordToPublicProfile(profile),
         orderedPublicViews: [profileRecordToPublicProfile(profile)]
       };
+  const publicNavViews = orderedPublicViews.filter((view) => view.show_in_public_nav !== false);
 
   const supabase = await createClient();
 
@@ -67,6 +68,7 @@ export default async function PublicProfilePage({ params, searchParams }: PagePr
     <LuxuryProfileShell
       profile={defaultPublicView}
       views={orderedPublicViews}
+      navViews={publicNavViews}
       pageMode={profile.page_mode || "single"}
       multiViewDisplayMode={profile.multi_view_display_mode || "favorite"}
       initialView={requestedView}

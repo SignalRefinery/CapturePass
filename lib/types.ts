@@ -88,6 +88,7 @@ export type ProfileViewRecord = {
   show_email: boolean;
   show_phone: boolean;
   show_text: boolean | null;
+  show_in_public_nav?: boolean;
   primary_link_1_title: string;
   primary_link_1_url: string;
   primary_link_2_title: string;

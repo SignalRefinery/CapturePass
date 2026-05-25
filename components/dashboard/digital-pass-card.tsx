@@ -16,6 +16,7 @@ export function DigitalPassCard({
   organizationName,
   defaultViewId,
   views,
+  showViewSwitcher = true,
   selectedViewId: initialSelectedViewId
 }: {
   name: string;
@@ -23,6 +24,7 @@ export function DigitalPassCard({
   organizationName?: string | null;
   defaultViewId: string;
   views: PassViewOption[];
+  showViewSwitcher?: boolean;
   selectedViewId?: string;
 }) {
   const [copyStatus, setCopyStatus] = useState<"idle" | "copied" | "error">("idle");
@@ -94,7 +96,7 @@ export function DigitalPassCard({
         </div>
       </div>
 
-      {views.length > 1 ? (
+      {showViewSwitcher && views.length > 1 ? (
         <div className="pass-view-grid">
           {views.map((view) => (
             <div

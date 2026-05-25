@@ -9,6 +9,23 @@ import {
 } from "@/lib/profile-service-server";
 import { createClient } from "@/lib/supabase/server";
 import { slugify } from "@/lib/utils";
+import type { ProfileRecord, ProfileViewRecord } from "@/lib/types";
+
+function viewParamFor(view: ProfileViewRecord) {
+  return view.view_key || view.id || "main";
+}
+
+function passHrefFor(profile: ProfileRecord, view?: ProfileViewRecord) {
+  if (!profile.private_token) {
+    return view ? `/dashboard/pass/${viewParamFor(view)}` : "/dashboard/pass";
+  }
+
+  if (!view) {
+    return `/pass/${profile.private_token}`;
+  }
+
+  return `/pass/${profile.private_token}?view=${encodeURIComponent(viewParamFor(view))}`;
+}
 
 async function submitFounderCardClaim(formData: FormData) {
   "use server";
@@ -188,6 +205,18 @@ export default async function DashboardPage({
     initialProfile.promo_code_used === "FOUNDERS" ||
     !!initialProfile.is_admin;
   const myProfileHref = initialProfile.slug ? `/${initialProfile.slug}` : null;
+  const passOptions = [
+    {
+      href: passHrefFor(initialProfile),
+      label: "Default / general pass",
+      description: "Uses your default pass view"
+    },
+    ...initialProfileViews.map((view) => ({
+      href: passHrefFor(initialProfile, view),
+      label: view.name || view.view_key || "Profile view",
+      description: view.show_in_public_nav === false ? "Hidden from public profile buttons" : "Public profile button visible"
+    }))
+  ];
 
   const showFounderClaimForm =
     params?.claim_founder_card === "1" &&
@@ -308,11 +337,17 @@ export default async function DashboardPage({
               <p className="editor-copy">
                 Show your QR when you do not have your physical card, or save view-specific passes to your phone home screen.
               </p>
-              <div className="editor-actions" style={{ marginTop: 20 }}>
-                <Link href="/dashboard/pass" className="button primary">
-                  Open Digital Pass
-                </Link>
-              </div>
+              <details className="dashboard-pass-menu">
+                <summary className="button primary">Open Digital Pass</summary>
+                <div className="dashboard-pass-menu-panel">
+                  {passOptions.map((option) => (
+                    <Link href={option.href} className="dashboard-pass-menu-item" key={option.href}>
+                      <strong>{option.label}</strong>
+                      <span>{option.description}</span>
+                    </Link>
+                  ))}
+                </div>
+              </details>
             </div>
           </section>
 

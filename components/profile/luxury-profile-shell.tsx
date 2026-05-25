@@ -26,6 +26,7 @@ type ProfileLike = {
   show_email?: boolean | null;
   show_phone?: boolean | null;
   show_text?: boolean | null;
+  show_in_public_nav?: boolean | null;
   primary_link_1_title?: string | null;
   primary_link_1_url?: string | null;
   primary_link_2_title?: string | null;
@@ -186,6 +187,7 @@ function primaryLinks(profile: ProfileLike, options: { hideEmailLink?: boolean }
 export function LuxuryProfileShell({
   profile,
   views = [profile],
+  navViews,
   pageMode = "single",
   multiViewDisplayMode = "favorite",
   initialView = null,
@@ -194,6 +196,7 @@ export function LuxuryProfileShell({
 }: {
   profile: ProfileLike;
   views?: ProfileLike[];
+  navViews?: ProfileLike[];
   pageMode?: "single" | "multi";
   multiViewDisplayMode?: "landing" | "favorite";
   initialView?: string | null;
@@ -202,7 +205,11 @@ export function LuxuryProfileShell({
 }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const viewOptions = views.length ? views : [profile];
-  const showViewSwitcher = pageMode === "multi" && viewOptions.length > 1;
+  const publicNavOptions = navViews?.length
+    ? navViews
+    : viewOptions.filter((view) => view.show_in_public_nav !== false);
+  const viewNavOptions = publicNavOptions.length ? publicNavOptions : [profile];
+  const showViewSwitcher = pageMode === "multi" && viewNavOptions.length > 1;
   const requestedInitialView =
     pageMode === "multi" && initialView
       ? viewOptions.find((view) => view.view_key === initialView || view.view_id === initialView)
@@ -319,7 +326,7 @@ export function LuxuryProfileShell({
               <p className={styles.viewLandingCopy}>{activeProfile.role_line}</p>
             ) : null}
             <div className={styles.viewSelectorGrid}>
-              {viewOptions.map((view) => (
+              {viewNavOptions.map((view) => (
                 <button
                   className={styles.viewSelectorCard}
                   type="button"
@@ -337,7 +344,7 @@ export function LuxuryProfileShell({
 
         {showViewSwitcher && landingSelected ? (
           <div className={styles.viewTabs} aria-label="Profile views">
-            {viewOptions.map((view) => {
+            {viewNavOptions.map((view) => {
               const viewId = view.view_id || view.view_key || "profile";
               const active = viewId === activeViewId;
 

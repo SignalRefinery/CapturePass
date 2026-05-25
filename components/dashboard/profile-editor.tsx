@@ -176,6 +176,7 @@ function createViewFromProfile(profile: ProfileRecord, profileId: string, index:
     show_email: true,
     show_phone: true,
     show_text: true,
+    show_in_public_nav: true,
     primary_link_1_title: profile.primary_link_1_title || "Call",
     primary_link_1_url: profile.primary_link_1_url || phoneToTel(profile.phone),
     primary_link_2_title: profile.primary_link_2_title || "Email",
@@ -221,6 +222,7 @@ export function ProfileEditor({
   const [views, setViews] = useState<ProfileViewRecord[]>(
     initialProfileViews.map((view) => ({
       ...view,
+      show_in_public_nav: view.show_in_public_nav !== false,
       intro: cleanIntroValue(view.intro)
     }))
   );
@@ -1133,6 +1135,21 @@ export function ProfileEditor({
                         onChange={(event) => updateView("show_phone", event.target.checked)}
                       />
                       <span>Display phone number on this view.</span>
+                    </label>
+
+                    <label className="toggle-row" style={{ margin: 0 }}>
+                      <input
+                        type="checkbox"
+                        checked={activeView.show_in_public_nav !== false}
+                        onChange={(event) => updateView("show_in_public_nav", event.target.checked)}
+                      />
+                      <span>
+                        Show this view as a public profile button.
+                        <br />
+                        <small className="auth-message">
+                          Turn this off for views you only want opened by card tap, QR scan, or digital pass.
+                        </small>
+                      </span>
                     </label>
 
                     <div className="action-choice-row">
