@@ -44,13 +44,13 @@ export default async function SignupPage({
 
   return (
     <Shell
-      footerLeft="Signal Pass"
+      footerLeft="TapTagg"
       footerRight="Create account"
       initialAuth={initialAuth}
       navLinks={[
         { href: "/", label: "Home" },
         { href: "/pricing", label: "Pricing" },
-        { href: "/partners", label: "Referral access" }
+        { href: "/partners", label: "Partners" }
       ]}
     >
       <section className="simple-hero">
@@ -58,10 +58,10 @@ export default async function SignupPage({
           <span className="mini-star">✦</span>
           <span>New account</span>
         </div>
-        <h1>Create your Signal Pass account.</h1>
+        <h1>Start your TapTagg.</h1>
         <p>
-          Start with a controlled profile built for cards, QR codes, and direct follow-up.
-          Your account gives you one place to manage the information people see when they tap or scan.
+          Make one fast page for your links, socials, bookings, music, business,
+          and contact info. Share it with a tap.
         </p>
       </section>
 
@@ -72,8 +72,8 @@ export default async function SignupPage({
           <div className="card" style={{ marginTop: 18, padding: 16 }}>
             <div className="dashboard-kicker">Already signed up?</div>
             <p className="editor-copy" style={{ margin: "6px 0 0" }}>
-              If your email is already connected to a Signal Pass account, use the login page instead.
-              You can reset your password there if you need access.
+              If your email is already connected to a TapTagg account, use the login page instead.
+              You can reset your password there if you need to get back in.
             </p>
           </div>
 

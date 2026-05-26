@@ -119,13 +119,10 @@ function subtitleForLink(item: { title?: string | null; href?: string | null }, 
   if (title.includes("add to contacts") || href.includes("/api/vcard/")) {
     return "Save to iPhone, Android, Outlook, or desktop contacts";
   }
-  if (href.includes("signalrefinery")) {
-    return "Strategic advisory, communications, and public-facing work";
+  if (href.includes("taptagg")) {
+    return "TapTagg profile destination";
   }
-  if (href.includes("signalpass")) {
-    return "Signal Pass profile destination";
-  }
-  return "Direct access";
+  return "Open instantly";
 }
 
 function isMeaningfulHref(href?: string | null) {
@@ -254,7 +251,7 @@ export function LuxuryProfileShell({
         <header className={styles.topbar}>
           <Link className={styles.brand} href="/">
             <span className={styles.brandStar}>✦</span>
-            <span>Signal Pass</span>
+            <span>TapTagg</span>
           </Link>
 
           <nav className={styles.nav}>
@@ -321,7 +318,7 @@ export function LuxuryProfileShell({
               <span className={styles.miniStar}>✦</span>
               <span>{heroLabel}</span>
             </div>
-            <h1 className={styles.viewLandingTitle}>{activeProfile.full_name || "Signal Pass"}</h1>
+            <h1 className={styles.viewLandingTitle}>{activeProfile.full_name || "TapTagg"}</h1>
             {activeProfile.role_line ? (
               <p className={styles.viewLandingCopy}>{activeProfile.role_line}</p>
             ) : null}
@@ -368,7 +365,7 @@ export function LuxuryProfileShell({
         <section className={styles.profileHero}>
           <div className={styles.profileStack}>
 
-            <h1 className={styles.profileName}>{activeProfile.full_name || "Signal Pass"}</h1>
+            <h1 className={styles.profileName}>{activeProfile.full_name || "TapTagg"}</h1>
 
             {activeProfile.role_line ? <p className={styles.profileRole}>{activeProfile.role_line}</p> : null}
 
@@ -443,7 +440,7 @@ export function LuxuryProfileShell({
                 className={styles.qrImage}
                 key={readableUrl}
                 src={qrImageUrl}
-                alt={`QR code for ${activeProfile.full_name || "Signal Pass"} profile`}
+                alt={`QR code for ${activeProfile.full_name || "TapTagg"} profile`}
               />
             </div>
             <div className={styles.qrCaption}>
@@ -459,7 +456,7 @@ export function LuxuryProfileShell({
         <section className={styles.signupCtaSection}>
           <div className={styles.signupCta}>
             <div>
-              <div className={styles.signupCtaKicker}>Signal Pass</div>
+              <div className={styles.signupCtaKicker}>TapTagg</div>
               <h2>Level up how you network.</h2>
               <p>
                 Build a polished profile, share the right links, and make every follow-up easier.
@@ -474,8 +471,8 @@ export function LuxuryProfileShell({
         ) : null}
 
         <footer className={styles.footer}>
-          <span>{activeProfile.full_name || "Signal Pass"}</span>
-          <span>Signal Pass profile</span>
+          <span>{activeProfile.full_name || "TapTagg"}</span>
+          <span>TapTagg profile</span>
         </footer>
       </div>
     </div>

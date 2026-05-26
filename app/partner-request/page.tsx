@@ -54,10 +54,10 @@ export default function PartnerRequestPage() {
           <span className="mini-star">✦</span>
           <span>Partner request</span>
         </div>
-        <h1 style={{ marginTop: 0 }}>Request partner access.</h1>
+        <h1 style={{ marginTop: 0 }}>Request a partner code.</h1>
         <p className="editor-copy">
-          Tell us who you work with and how you would introduce Signal Pass. Partner access is
-          reviewed manually and approved for qualified networks.
+          Tell us who you work with and how you would help more people Play Tagg.
+          We review requests manually.
         </p>
         {submitted ? (
           <div style={{ marginTop: 20 }}>

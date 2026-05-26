@@ -43,16 +43,16 @@ begin
     'index','info','js','legal','live-demo','livedemo','localhost','login','mail','media',
     'netlify','noreply','null','official','owner','partner','partners','payments','policy',
     'pop','postmaster','press','preview','pricing','privacy','private','public','resend',
-    'robots','root','sales','security','signal-pass','signal-refinery','signalpass',
-    'signalrefinery','signup','sitemap','smtp','staff','stripe','support','supabase',
-    'system','team','terms','undefined','verify','verification','webmail','www'
+    'robots','root','sales','security','signup','sitemap','smtp','staff','stripe',
+    'support','supabase','system','taptagg','team','terms','undefined','verify',
+    'verification','webmail','www'
   ) then
     return true;
   end if;
 
   if slug like 'admin%' or slug like 'api%' or slug like 'billing%' or slug like 'official%'
-     or slug like 'security%' or slug like 'signalpass%' or slug like 'signalrefinery%'
-     or slug like 'staff%' or slug like 'support%' then
+     or slug like 'security%' or slug like 'staff%' or slug like 'support%'
+     or slug like 'taptagg%' then
     return true;
   end if;
 

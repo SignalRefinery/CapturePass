@@ -651,13 +651,14 @@ export function ProfileEditor({
         <h2
           style={{
             margin: "6px 0 10px",
-            fontFamily: '"Cormorant Garamond", Georgia, serif',
+            fontFamily: "var(--font-heading)",
             fontSize: 42,
-            lineHeight: 0.95,
-            letterSpacing: "-0.02em"
+            lineHeight: 0.98,
+            letterSpacing: "-0.035em",
+            fontWeight: 800
           }}
         >
-          Edit your Signal Pass profile.
+          Edit your TapTagg profile.
         </h2>
 
         <p className="editor-copy">
@@ -684,7 +685,7 @@ export function ProfileEditor({
 
             <div className="auth-field">
               <span>Current public URL</span>
-              <input value={`signalpass.app/${form.slug || ""}`} readOnly disabled />
+              <input value={`taptagg.app/${form.slug || ""}`} readOnly disabled />
               {showCurrentUrlReviewNote ? (
                 <small className="auth-message">
                   Your current public URL remains active until approval.
@@ -758,7 +759,7 @@ export function ProfileEditor({
               <input
                 value={form.role_line || ""}
                 onChange={(event) => update("role_line", event.target.value)}
-                placeholder="Founder & Principal"
+                placeholder="Creator, Stylist, Founder"
               />
             </label>
 
@@ -1049,7 +1050,7 @@ export function ProfileEditor({
                     <input
                       value={activeView.role_line || ""}
                       onChange={(event) => updateView("role_line", event.target.value)}
-                      placeholder="Founder & Principal"
+                      placeholder="Creator, Stylist, Founder"
                     />
                   </label>
                 </div>

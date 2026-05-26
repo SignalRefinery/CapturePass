@@ -60,7 +60,7 @@ async function submitFounderCardClaim(formData: FormData) {
     redirect("/dashboard?claim_founder_card=1&claim_error=missing_fields");
   }
 
-  const siteUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://signal-pass.vercel.app").replace(/\/$/, "");
+  const siteUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://taptagg.app").replace(/\/$/, "");
   const tokenUrl = profile?.private_token ? `${siteUrl}/u/${profile.private_token}` : null;
   const qrUrl = tokenUrl
     ? `https://quickchart.io/qr?text=${encodeURIComponent(tokenUrl)}&size=600`
@@ -77,8 +77,8 @@ async function submitFounderCardClaim(formData: FormData) {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      from: "SignalPass <notifications@signalpass.app>",
-      to: "john@signalpass.app",
+      from: "TapTagg <notifications@taptagg.app>",
+      to: "john@taptagg.app",
       subject: `Founder card claimed: ${shippingName}`,
       html: `
         <h2>Founder card claimed</h2>
@@ -228,13 +228,13 @@ export default async function DashboardPage({
   return (
     <Shell
       footerLeft="Dashboard"
-      footerRight="Signal Pass"
+      footerRight="TapTagg"
       myProfileHref={myProfileHref}
       initialAuth={initialAuth}
       navLinks={[
         { href: "/", label: "Home" },
         { href: "/pricing", label: "Pricing" },
-        { href: "/partners", label: "Referral access" }
+        { href: "/partners", label: "Partners" }
       ]}
     >
       <section className="simple-hero">
@@ -271,7 +271,7 @@ export default async function DashboardPage({
                 <div className="dashboard-kicker">Founder card</div>
                 <h2>Claim your founder card.</h2>
                 <p className="editor-copy">
-                  Founder access bypasses Stripe, so enter your shipping details here to have your physical SignalPass card prepared.
+                  Founder access bypasses Stripe, so enter your shipping details here to have your physical TapTagg card prepared.
                 </p>
 
                 {claimError ? (

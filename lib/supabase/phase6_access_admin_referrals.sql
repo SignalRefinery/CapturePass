@@ -22,7 +22,7 @@ begin
   candidate := upper(left(regexp_replace(coalesce(name_seed, ''), '[^A-Za-z0-9]+', '', 'g'), 6));
 
   if candidate is null or candidate = '' then
-    candidate := 'SIGNAL';
+    candidate := 'TAPTAGG';
   end if;
 
   candidate := candidate || upper(left(replace(user_uuid::text, '-', ''), 4));

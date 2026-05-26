@@ -48,7 +48,7 @@ export default function ForgotPasswordPage() {
 
         <h1 style={{ marginTop: 0 }}>Reset your password.</h1>
         <p className="editor-copy">
-          Enter the email connected to your Signal Pass account. We will send a secure link to set a new password.
+          Enter the email connected to your TapTagg account. We will send a secure link to set a new password.
         </p>
 
         <form className="auth-form" onSubmit={handleSubmit} style={{ marginTop: 22 }}>

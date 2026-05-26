@@ -10,7 +10,7 @@ const PLAN_PRICE_MAP: Record<string, string | undefined> = {
   essential: process.env.STRIPE_ESSENTIAL_MONTHLY_PRICE_ID,
   "essential-monthly": process.env.STRIPE_ESSENTIAL_MONTHLY_PRICE_ID,
   "essential-annual": process.env.STRIPE_ESSENTIAL_ANNUAL_PRICE_ID,
-  "additional-cards": process.env.STRIPE_ADDITIONAL_SIGNALPASS_CARD_PRICE_ID
+  "additional-cards": process.env.STRIPE_ADDITIONAL_TAPTAGG_CARD_PRICE_ID
 };
 
 const SETUP_FEE_PRICE_ID = process.env.STRIPE_SETUP_FEE_PRICE_ID || null;
@@ -107,7 +107,7 @@ async function createCheckoutOrPortal(req: Request) {
 
     const isAdditionalCardsCheckout =
       plan === "additional-cards" ||
-      selectedPriceId === process.env.STRIPE_ADDITIONAL_SIGNALPASS_CARD_PRICE_ID;
+      selectedPriceId === process.env.STRIPE_ADDITIONAL_TAPTAGG_CARD_PRICE_ID;
 
     if (profile?.stripe_customer_id && !isAdditionalCardsCheckout) {
       let portal: Stripe.BillingPortal.Session;

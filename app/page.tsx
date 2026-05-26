@@ -28,8 +28,8 @@ export default async function HomePage() {
 
   return (
     <Shell
-      footerLeft="Premium profile system"
-      footerRight="Signal Pass"
+      footerLeft="Play Tagg. Share instantly."
+      footerRight="TapTagg"
       initialAuth={initialAuth}
       navLinks={[
         { href: "/how-it-works", label: "How it works" },
@@ -39,35 +39,34 @@ export default async function HomePage() {
       <section className="simple-hero" style={{ paddingBottom: 40 }}>
         <div className="kicker">
           <span className="mini-star">✦</span>
-          <span>Signal Pass</span>
+          <span>TapTagg / Play Tagg</span>
         </div>
 
         <h1
           style={{
             maxWidth: 1080,
             margin: "28px auto 18px",
-            fontFamily: '"Cormorant Garamond", Georgia, serif',
-            fontWeight: 600,
-            fontSize: "clamp(62px, 8vw, 112px)",
-            lineHeight: 0.9,
+            fontFamily: "var(--font-heading)",
+            fontWeight: 800,
+            fontSize: "clamp(56px, 7.4vw, 104px)",
+            lineHeight: 0.94,
             letterSpacing: "-0.04em"
           }}
         >
-          A sharper digital card for high-trust operators.
+          Play Tagg Everywhere.
         </h1>
 
         <p
           style={{
             maxWidth: 820,
             margin: "0 auto",
-            color: "var(--muted)",
-            fontSize: 21,
-            lineHeight: 1.72,
-            fontWeight: 400
+            color: "#b6bcc8",
+            fontSize: 20,
+            lineHeight: 1.62,
+            fontWeight: 500
           }}
         >
-          Signal Pass turns a physical card into a live, one-tap profile.
-          When someone taps or scans, they land on your contact info and key links instantly — no searching, no typing, no friction.
+          Share your profile, socials, links, and contact info instantly with one tap.
         </p>
 
         <div
@@ -80,7 +79,7 @@ export default async function HomePage() {
           }}
         >
           <Link className="button primary" href="/signup">
-            Request Access
+            Start Sharing
           </Link>
 
           <Link
@@ -92,7 +91,7 @@ export default async function HomePage() {
               color: "var(--text)"
             }}
           >
-            View Pricing
+            Get Your Tagg
           </Link>
         </div>
 
@@ -101,125 +100,132 @@ export default async function HomePage() {
           style={{
             display: "inline-block",
             marginTop: 18,
-            color: "var(--gold-soft)",
+            color: "var(--purple-light)",
             fontSize: 15,
-            borderBottom: "1px solid rgba(219,193,141,.55)"
+            borderBottom: "1px solid rgba(167,139,250,.55)"
           }}
         >
-          How it works
+          See how it works
         </Link>
       </section>
 
       <section className="section-wrap">
         <div style={{ display: "grid", gap: 18 }}>
-          <div className="card" style={{ padding: 26 }}>
+          <div className="card tagg-card" style={{ padding: 26 }}>
             <h2
               style={{
                 margin: "0 0 10px",
-                fontFamily: '"Cormorant Garamond", Georgia, serif',
-                fontSize: 42,
-                lineHeight: 0.95,
-                letterSpacing: "-0.02em"
+                fontFamily: "var(--font-heading)",
+                fontSize: "clamp(34px, 4vw, 42px)",
+                lineHeight: 0.98,
+                letterSpacing: "-0.035em",
+                fontWeight: 800
               }}
             >
-              Built for real conversations
+              No App. No Searching. Just Play Tagg.
             </h2>
             <p
               style={{
                 margin: 0,
-                color: "var(--muted)",
+                color: "#b6bcc8",
                 fontSize: 16,
-                lineHeight: 1.7
+                lineHeight: 1.62,
+                fontWeight: 500
               }}
             >
-              Designed for meetings, briefings, and high-trust environments where
-              clarity matters more than volume.
+              One tap sends people straight to your profile, links, socials,
+              bookings, music, menu, drop, or contact info.
             </p>
           </div>
 
-          <div className="card" style={{ padding: 26 }}>
+          <div className="card tagg-card" style={{ padding: 26 }}>
             <h2
               style={{
                 margin: "0 0 10px",
-                fontFamily: '"Cormorant Garamond", Georgia, serif',
-                fontSize: 42,
-                lineHeight: 0.95,
-                letterSpacing: "-0.02em"
+                fontFamily: "var(--font-heading)",
+                fontSize: "clamp(34px, 4vw, 42px)",
+                lineHeight: 0.98,
+                letterSpacing: "-0.035em",
+                fontWeight: 800
               }}
             >
-              Signal over noise
+              Your Links, Ready Anywhere.
             </h2>
             <p
               style={{
                 margin: 0,
-                color: "var(--muted)",
+                color: "#b6bcc8",
                 fontSize: 16,
-                lineHeight: 1.7
+                lineHeight: 1.62,
+                fontWeight: 500
               }}
             >
-              Structured, minimal, and built to be understood instantly. No clutter.
-              No dead weight. No generic link-hub feel.
+              Your card is just the trigger. TapTagg is where everything you
+              want to share stays ready, updated, and easy to open.
             </p>
           </div>
 
-          <div className="card" style={{ padding: 26 }}>
+          <div className="card tagg-card" style={{ padding: 26 }}>
             <h2
               style={{
                 margin: "0 0 10px",
-                fontFamily: '"Cormorant Garamond", Georgia, serif',
-                fontSize: 42,
-                lineHeight: 0.95,
-                letterSpacing: "-0.02em"
+                fontFamily: "var(--font-heading)",
+                fontSize: "clamp(34px, 4vw, 42px)",
+                lineHeight: 0.98,
+                letterSpacing: "-0.035em",
+                fontWeight: 800
               }}
             >
-              Limited release
+              Made For Creators And Businesses.
             </h2>
             <p
               style={{
                 margin: 0,
-                color: "var(--muted)",
+                color: "#b6bcc8",
                 fontSize: 16,
-                lineHeight: 1.7
+                lineHeight: 1.62,
+                fontWeight: 500
               }}
             >
-              Available on a selective basis while the platform is refined and the
-              full product build is brought online.
+              Artists, salespeople, shops, teams, freelancers, and founders can
+              move people from real life to the right link in seconds.
             </p>
           </div>
 
           <div
-            className="card"
+            className="card tagg-card tagg-card-feature"
             style={{
               marginTop: 18,
               padding: 28,
               textAlign: "center",
               background:
-                "radial-gradient(500px 180px at 50% -20%, rgba(201,164,92,.08), transparent 60%), linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.012)), linear-gradient(180deg, rgba(11,20,35,.82), rgba(7,16,28,.9))"
+                "radial-gradient(circle at 50% -10%, rgba(139,92,246,.16), rgba(139,92,246,.045) 34%, transparent 58%), radial-gradient(circle at 18% 16%, rgba(109,40,217,.10), transparent 34%), linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.014)), linear-gradient(180deg, rgba(10,10,13,.92), rgba(5,5,7,.96))"
             }}
           >
             <h3
               style={{
                 margin: "0 0 10px",
-                fontFamily: '"Cormorant Garamond", Georgia, serif',
-                fontSize: 44,
-                lineHeight: 0.95,
-                letterSpacing: "-0.02em"
+                fontFamily: "var(--font-heading)",
+                fontSize: "clamp(36px, 4.4vw, 44px)",
+                lineHeight: 0.98,
+                letterSpacing: "-0.035em",
+                fontWeight: 800
               }}
             >
-              Not another link hub.
+              Play Tagg In Real Life.
             </h3>
             <p
               style={{
                 margin: "0 auto",
                 maxWidth: 860,
-                color: "var(--muted)",
+                color: "#b6bcc8",
                 fontSize: 18,
-                lineHeight: 1.7
+                lineHeight: 1.62,
+                fontWeight: 500
               }}
             >
-              Signal Pass is designed for environments where credibility, speed,
-              and structure matter. It gives professionals a cleaner way to share
-              the right information in the moment it matters.
+              Meet someone. TapTagg them. They get the page, profile, post, song,
+              booking link, shop, or contact details you wanted them to have.
             </p>
           </div>
         </div>

@@ -28,13 +28,13 @@ export default async function HowItWorksPage() {
   return (
     <Shell
       footerLeft="How it works"
-      footerRight="Signal Pass"
+      footerRight="TapTagg"
       myProfileHref={initialAuth?.slug ? `/${initialAuth.slug}` : null}
       initialAuth={initialAuth}
       navLinks={[
         { href: "/", label: "Home" },
         { href: "/pricing", label: "Pricing" },
-        { href: "/partners", label: "Referral access" }
+        { href: "/partners", label: "Partners" }
       ]}
     >
       <section className="simple-hero">
@@ -42,11 +42,10 @@ export default async function HowItWorksPage() {
           <span className="mini-star">✦</span>
           <span>How it works</span>
         </div>
-        <h1>A cleaner way to hand someone your next step.</h1>
+        <h1>Play Tagg In Seconds.</h1>
         <p>
-          Signal Pass connects a physical card to a live profile. When someone taps
-          or scans, they land on a clean, controlled page with your contact info
-          and next steps — no searching, no typing, no friction.
+          Set up your links once. Share them anywhere with a tap or scan. No app,
+          no searching, no awkward spelling out handles.
         </p>
       </section>
 
@@ -54,11 +53,10 @@ export default async function HowItWorksPage() {
         <div className="step">
           <div className="num">01</div>
           <div>
-            <h2>Create your controlled profile</h2>
+            <h2>Build your TapTagg</h2>
             <p>
-              Set up your profile with your phone, email, and key links. This is
-              exactly what people will see when they tap your card or open your
-              link.
+              Add your socials, contact info, booking links, music, products, content,
+              and whatever you want people to open first.
             </p>
           </div>
         </div>
@@ -66,11 +64,10 @@ export default async function HowItWorksPage() {
         <div className="step">
           <div className="num">02</div>
           <div>
-            <h2>Issue the card link</h2>
+            <h2>Use your card as the trigger</h2>
             <p>
-              Your card points to a secure token link, not a fixed page. You can
-              update your profile anytime without reprinting cards or changing QR
-              codes.
+              Your TapTagg card points people to your page instantly. Update your profile
+              anytime without changing the card.
             </p>
           </div>
         </div>
@@ -78,10 +75,10 @@ export default async function HowItWorksPage() {
         <div className="step">
           <div className="num">03</div>
           <div>
-            <h2>Share without adding friction</h2>
+            <h2>Play Tagg anywhere</h2>
             <p>
-              Hand someone your card or let them scan. They land instantly on your
-              profile and can call, email, or visit your links in one tap.
+              TapTagg someone in the real world and send them straight to the right place:
+              follow, book, buy, listen, call, or save your info.
             </p>
           </div>
         </div>

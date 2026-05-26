@@ -46,24 +46,24 @@ export default async function LoginPage({
 
   return (
     <Shell
-      footerLeft="Signal Pass"
+      footerLeft="TapTagg"
       footerRight="Log in"
       initialAuth={initialAuth}
       navLinks={[
         { href: "/", label: "Home" },
         { href: "/pricing", label: "Pricing" },
-        { href: "/partners", label: "Referral access" }
+        { href: "/partners", label: "Partners" }
       ]}
     >
       <section className="simple-hero">
         <div className="kicker">
           <span className="mini-star">✦</span>
-          <span>Account access</span>
+          <span>Log in</span>
         </div>
-        <h1>Log in to manage your Signal Pass.</h1>
+        <h1>Log in to manage your TapTagg.</h1>
         <p>
-          Update your profile, manage your card link, review account settings, and keep your
-          contact actions current.
+          Update your links, socials, contact actions, and everything people see when
+          they tap.
         </p>
       </section>
 

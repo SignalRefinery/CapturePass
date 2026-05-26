@@ -103,7 +103,7 @@ export function AuthForm({ mode, nextPath, plan }: AuthFormProps) {
           normalizedMessage.includes("email")
         ) {
           setError(
-            "That email is already associated with a SignalPass account. Try signing in instead, or use password reset if you need access."
+            "That email is already associated with a TapTagg account. Try signing in instead, or use password reset if you need access."
           );
         } else {
           setError(signUpMessage);
@@ -279,7 +279,7 @@ function getEmailRedirectUrl(nextPath: string, plan?: string | null) {
   const appOrigin =
     typeof window !== "undefined"
       ? window.location.origin
-      : process.env.NEXT_PUBLIC_APP_URL || "https://signalpass.app";
+      : process.env.NEXT_PUBLIC_APP_URL || "https://taptagg.app";
   const callbackUrl = new URL(
     "/auth/callback",
     appOrigin

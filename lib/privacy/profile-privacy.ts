@@ -64,7 +64,7 @@ export function profileMetadata(): Metadata {
     },
     referrer: "no-referrer",
     openGraph: {
-      title: "SignalPass Profile",
+      title: "TapTagg Profile",
       description: "",
       type: "website"
     },

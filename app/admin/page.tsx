@@ -83,7 +83,7 @@ export default async function AdminPage() {
   return (
     <Shell
       footerLeft="Admin"
-      footerRight="Signal Pass"
+      footerRight="TapTagg"
       myProfileHref={myProfileHref}
       initialAuth={initialAuth}
       navLinks={[
@@ -197,9 +197,9 @@ export default async function AdminPage() {
               style={{
                 padding: 0,
                 overflow: "hidden",
-                background: "#f8fafc",
-                color: "#0f172a",
-                border: "1px solid #cbd5e1"
+                background: "rgba(26,26,26,.6)",
+                color: "#ffffff",
+                border: "1px solid rgba(255,255,255,.1)"
               }}
             >
               <div
@@ -229,13 +229,13 @@ export default async function AdminPage() {
                       margin: "6px 0 0",
                       fontSize: 24,
                       lineHeight: 1.1,
-                      color: "#0f172a"
+                      color: "#ffffff"
                     }}
                   >
                     Affiliate spreadsheet
                   </h2>
                 </div>
-                <div style={{ color: "#475569", fontWeight: 700 }}>
+                <div style={{ color: "#9ca3af", fontWeight: 700 }}>
                   {affiliates.length} affiliate{affiliates.length === 1 ? "" : "s"}
                 </div>
               </div>

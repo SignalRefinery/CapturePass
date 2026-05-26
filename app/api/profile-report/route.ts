@@ -50,8 +50,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unable to submit report right now." }, { status: 500 });
     }
 
-    const to = process.env.INTERNAL_ORDER_EMAIL || "hello@signalpass.app";
-    const from = process.env.INTERNAL_FROM_EMAIL || "Signal Pass <noreply@signalpass.app>";
+    const to = process.env.INTERNAL_ORDER_EMAIL || "hello@taptagg.app";
+    const from = process.env.INTERNAL_FROM_EMAIL || "TapTagg <noreply@taptagg.app>";
 
     const html = `
       <div style="font-family:Arial,sans-serif;line-height:1.6;color:#111;">

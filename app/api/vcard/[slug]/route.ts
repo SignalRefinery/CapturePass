@@ -25,7 +25,7 @@ function escapeVcf(value?: string | null) {
 
 function safeVcardFilename(slug: string) {
   const safeSlug = slug.toLowerCase().replace(/[^a-z0-9-]/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "");
-  return `${safeSlug || "signalpass-contact"}.vcf`;
+  return `${safeSlug || "taptagg-contact"}.vcf`;
 }
 
 function viewToVcardContact(profile: ProfileRecord, view?: ProfileViewRecord | null) {

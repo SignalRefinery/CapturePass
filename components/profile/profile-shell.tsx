@@ -38,7 +38,7 @@ export function ProfileShell({ profile }: { profile: Profile }) {
           </a>
         );
       })}</div><div className="contact-strip"><div className="contact-line"><div><div className="contact-label">Email</div><div className="contact-value">{profile.email}</div></div></div><div className="contact-line"><div><div className="contact-label">Profile URL</div><div className="contact-value">{profile.profileUrl.replace('https://','')}</div></div></div></div></div>
-      <div className="card qr-box"><h2>Scan to open</h2><div className="qr-frame"><img src={profile.qrUrl} alt={`QR code for ${profile.name} Signal Pass profile`} /></div><div className="qr-caption">Use on printed cards, event materials, leave-behinds, or person-to-person introductions.</div></div>
+      <div className="card qr-box"><h2>Scan to open</h2><div className="qr-frame"><img src={profile.qrUrl} alt={`QR code for ${profile.name} TapTagg profile`} /></div><div className="qr-caption">Use on printed cards, event materials, leave-behinds, or person-to-person introductions.</div></div>
     </section>
   </>;
 }

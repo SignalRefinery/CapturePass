@@ -36,12 +36,12 @@ export function InactiveState({ email }: InactiveStateProps) {
         <div className="pricing-grid" style={{ marginTop: 20 }}>
           <div className="card pricing-card">
             <div className="plan-label">Essential</div>
-            <h2>Low-touch coverage.</h2>
+            <h2>Start sharing.</h2>
             <div className="plan-price">
               <span className="setup">$99 setup</span>
               <span className="monthly">$25/mo</span>
             </div>
-            <p className="muted">Simple, credible, and ready to use.</p>
+            <p className="muted">Your TapTagg profile, links, QR, and card connection.</p>
             <button className="button primary" type="button" onClick={() => handleCheckout("essential")}>
               Get Essential
             </button>
@@ -62,12 +62,12 @@ export function InactiveState({ email }: InactiveStateProps) {
 
           <div className="card pricing-card">
             <div className="plan-label">Premium</div>
-            <h2>Concierge options are coming soon.</h2>
+            <h2>Advanced tools are coming soon.</h2>
             <div className="plan-price">
               <span className="setup">$99 setup</span>
               <span className="monthly">$49/mo</span>
             </div>
-            <p className="muted">Managed onboarding and priority support are planned.</p>
+            <p className="muted">More customization, analytics, and team features are planned.</p>
             <button className="button primary" type="button" disabled aria-disabled="true">
               Coming soon
             </button>

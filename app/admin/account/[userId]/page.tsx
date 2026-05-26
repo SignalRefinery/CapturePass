@@ -402,7 +402,7 @@ export default async function AdminUserPage({ params }: PageProps) {
                     id="profile-role-line"
                     name="value"
                     defaultValue={profile.role_line || ""}
-                    placeholder="Founder & Principal"
+                    placeholder="Creator, Stylist, Founder"
                     style={{ width: "100%", padding: 10, margin: "8px 0" }}
                   />
                   <button className="button primary" type="submit">

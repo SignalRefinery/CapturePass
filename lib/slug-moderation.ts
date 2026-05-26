@@ -66,10 +66,6 @@ const BLOCKED_EXACT = new Set([
   "root",
   "sales",
   "security",
-  "signal-pass",
-  "signal-refinery",
-  "signalpass",
-  "signalrefinery",
   "signup",
   "sitemap",
   "smtp",
@@ -78,6 +74,7 @@ const BLOCKED_EXACT = new Set([
   "support",
   "supabase",
   "system",
+  "taptagg",
   "team",
   "terms",
   "undefined",
@@ -93,10 +90,9 @@ const BLOCKED_PREFIXES = [
   "billing",
   "official",
   "security",
-  "signalpass",
-  "signalrefinery",
   "staff",
-  "support"
+  "support",
+  "taptagg"
 ];
 
 const REVIEW_PREFIXES = [

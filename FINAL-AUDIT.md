@@ -1,4 +1,4 @@
-# Signal Pass — Final privacy surface audit
+# TapTagg — Final privacy surface audit
 
 ## Implemented
 

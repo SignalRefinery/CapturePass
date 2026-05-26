@@ -118,7 +118,7 @@ export default async function PublicDigitalPassPage({ params, searchParams }: Pa
   return (
     <main className="public-pass-page">
       <DigitalPassCard
-        name={profile.full_name || "Signal Pass"}
+        name={profile.full_name || "TapTagg"}
         roleLine={profile.role_line || ""}
         organizationName={profile.organization_name}
         defaultViewId={defaultViewId}

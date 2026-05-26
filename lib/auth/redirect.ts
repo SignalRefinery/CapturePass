@@ -1,5 +1,5 @@
 const FALLBACK_REDIRECT = "/dashboard";
-const INTERNAL_REDIRECT_BASE = "https://signalpass.local";
+const INTERNAL_REDIRECT_BASE = "https://taptagg.local";
 const BLOCKED_REDIRECT_PATHS = new Set(["/login", "/signup", "/auth/callback"]);
 
 export function safeInternalRedirect(value?: string | null, fallback = FALLBACK_REDIRECT) {

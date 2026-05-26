@@ -87,7 +87,7 @@ async function sendCardNotification(userId: string, session?: Stripe.Checkout.Se
 
   if (error || !profile || profile.card_notification_sent_at) return;
 
-  const siteUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://signal-pass.vercel.app").replace(/\/$/, "");
+  const siteUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://taptagg.app").replace(/\/$/, "");
   const tokenUrl = profile.private_token ? `${siteUrl}/u/${profile.private_token}` : null;
   const qrUrl = tokenUrl
     ? `https://quickchart.io/qr?text=${encodeURIComponent(tokenUrl)}&size=600`
@@ -172,11 +172,11 @@ async function sendCardNotification(userId: string, session?: Stripe.Checkout.Se
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      from: "SignalPass <notifications@signalpass.app>",
-      to: "john@signalpass.app",
-      subject: `New SignalPass card ready: ${customerName || customerEmail}`,
+      from: "TapTagg <notifications@taptagg.app>",
+      to: "john@taptagg.app",
+      subject: `New TapTagg card ready: ${customerName || customerEmail}`,
       html: `
-        <h2>New SignalPass card ready</h2>
+        <h2>New TapTagg card ready</h2>
         <p><strong>Name:</strong> ${customerName}</p>
         <p><strong>Email:</strong> ${customerEmail}</p>
         ${shippingHtml}

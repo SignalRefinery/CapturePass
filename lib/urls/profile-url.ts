@@ -5,7 +5,7 @@ type ProfileUrlLike = {
 };
 
 function normalizedAppUrl() {
-  return (process.env.NEXT_PUBLIC_APP_URL || "https://signalpass.app").replace(/\/$/, "");
+  return (process.env.NEXT_PUBLIC_APP_URL || "https://taptagg.app").replace(/\/$/, "");
 }
 
 export function getReadableProfileUrl(profile: ProfileUrlLike) {

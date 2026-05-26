@@ -3,7 +3,7 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
-const PARTNER_REQUEST_EMAIL_TO = "john@signalrefinery.pro";
+const PARTNER_REQUEST_EMAIL_TO = "hello@taptagg.app";
 
 export async function POST(request: Request) {
   try {
@@ -43,11 +43,11 @@ export async function POST(request: Request) {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          from: "SignalPass <notifications@signalpass.app>",
+          from: "TapTagg <notifications@taptagg.app>",
           to: PARTNER_REQUEST_EMAIL_TO,
-          subject: `New SignalPass partner request: ${body.name}`,
+          subject: `New TapTagg partner request: ${body.name}`,
           html: `
-            <h2>New SignalPass partner request</h2>
+            <h2>New TapTagg partner request</h2>
             <p><strong>Name:</strong> ${body.name}</p>
             <p><strong>Email:</strong> ${body.email}</p>
             <p><strong>Organization:</strong> ${body.organization || "—"}</p>

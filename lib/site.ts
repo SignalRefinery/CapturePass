@@ -1,5 +1,5 @@
 export const site = {
-  name: "Signal Pass",
-  url: "https://signalpass.app",
-  description: "A sharper digital card for high-trust operators."
+  name: "TapTagg",
+  url: "https://taptagg.app",
+  description: "Share your world instantly. NFC tap cards for creators, professionals, and teams."
 } as const;

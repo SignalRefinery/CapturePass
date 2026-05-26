@@ -1,15 +1,15 @@
-# Signal Pass — Production privacy checklist
+# TapTagg — Production privacy checklist
 
 ## Required environment values
-- `NEXT_PUBLIC_APP_URL=https://signalpass.app`
+- `NEXT_PUBLIC_APP_URL=https://taptagg.app`
 - `NEXT_PUBLIC_SUPABASE_URL=...`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY=...`
 - `SUPABASE_SERVICE_ROLE_KEY=...`
 - `STRIPE_SECRET_KEY=...`
 - `STRIPE_WEBHOOK_SECRET=...`
 - `RESEND_API_KEY=...`
-- `INTERNAL_ORDER_EMAIL=hello@signalpass.app`
-- `INTERNAL_FROM_EMAIL="Signal Pass <noreply@signalpass.app>"`
+- `INTERNAL_ORDER_EMAIL=hello@taptagg.app`
+- `INTERNAL_FROM_EMAIL="TapTagg <noreply@taptagg.app>"`
 
 ## Required database migrations already introduced
 Run any phase SQL files not yet applied:
@@ -30,7 +30,7 @@ Run any phase SQL files not yet applied:
   - `consent_public_visibility = true`
   - `slug_status = approved`
 - confirm disabled profiles 404 immediately
-- confirm report flow emails `hello@signalpass.app`
+- confirm report flow emails `hello@taptagg.app`
 - confirm `/u/[token]` private route works if using token mode
 
 ## Netlify / host checks

@@ -1,14 +1,14 @@
-SignalPass – Developer Handoff README
+TapTagg – Developer Handoff README
 
 Overview
-SignalPass is a controlled digital identity platform that generates personalized profile pages, downloadable vCards, and QR/NFC destinations tied to unique slugs and private token routes.
+TapTagg is a one-tap sharing product for creators, businesses, salespeople, teams, and everyday operators. It connects NFC cards, QR codes, and direct links to fast TapTagg profiles for sharing socials, links, content, bookings, music, business info, and contact details.
 
 Profiles are:
-- Non-indexed (privacy-first)
-- Accessible via direct link, NFC, or QR
+- Easy to update from one dashboard
+- Shareable by NFC tap, direct link, or QR code
 - Backed by Supabase (auth + database)
 - Monetized via Stripe subscriptions
-- Designed for controlled public visibility and intentional sharing
+- Designed for musicians, salespeople, creatives, and small business owners
 
 ---
 
@@ -50,13 +50,13 @@ The system has moved from prototype → **early production backend**.
 
 Primary Use Cases
 
-SignalPass is optimized for:
-- Legislative offices
-- Lobbyists and government affairs professionals
-- Consultants and operators
-- Executive and relationship-based networking
-- Premium NFC/contact workflows
-- Multi-office or multi-role public-facing profiles
+TapTagg is optimized for:
+- Musicians and artists building their fanbase
+- Sales professionals closing deals
+- Small business owners and entrepreneurs
+- Freelancers and creative professionals
+- Event organizers and speakers
+- Multi-role or multi-office professionals
 
 ---
 
@@ -264,7 +264,7 @@ High:
 - Verify Supabase migrations in a staging/production-like environment.
 - Run full production-style QA after the latest auth, QR, vCard, and multi-view changes deploy.
 - Verify Stripe webhook activation, checkout continuation, and portal behavior end-to-end.
-- Build an Add-to-Home-Screen / QR helper page for users to save their SignalPass to a phone home screen and access/share QR codes.
+- Build an Add-to-Home-Screen / QR helper page for users to save their TapTagg to a phone home screen and access/share QR codes.
 
 Medium:
 - Improve subscription UI + plan management clarity.

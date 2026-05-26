@@ -1,8 +1,7 @@
 node_modules
 .next
-out
-.env
-.env.local
+.vercel
+.env*
 .DS_Store
+tsconfig.tsbuildinfo
 *.tar.gz
-.DS_Store

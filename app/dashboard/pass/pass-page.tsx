@@ -128,7 +128,7 @@ export async function DashboardPassPageContent({
   return (
     <Shell
       footerLeft="Digital pass"
-      footerRight="Signal Pass"
+      footerRight="TapTagg"
       myProfileHref={myProfileHref}
       initialAuth={initialAuth}
     >
@@ -143,7 +143,7 @@ export async function DashboardPassPageContent({
 
       {fullAccess ? (
         <DigitalPassCard
-          name={profile.full_name || user.email || "Signal Pass"}
+          name={profile.full_name || user.email || "TapTagg"}
           roleLine={profile.role_line || ""}
           organizationName={profile.organization_name}
           defaultViewId={defaultViewId}

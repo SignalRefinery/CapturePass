@@ -4,7 +4,7 @@ export function AffiliateTerms() {
       <div className="dashboard-kicker">Program terms</div>
       <h2>Affiliate participation is compensation-based.</h2>
       <p className="editor-copy">
-        The Signal Pass referral program is structured as a performance-based compensation arrangement.
+        The TapTagg referral program is structured as a performance-based compensation arrangement.
         Referral payments or service benefits are not gifts, gratuities, or incentives for influence.
       </p>
 

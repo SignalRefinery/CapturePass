@@ -29,7 +29,7 @@ const cellStyle: React.CSSProperties = {
   overflow: "hidden",
   textOverflow: "ellipsis",
   verticalAlign: "middle",
-  color: "#0f172a",
+  color: "#ffffff",
 };
 
 const headerStyle: React.CSSProperties = {
@@ -37,26 +37,26 @@ const headerStyle: React.CSSProperties = {
   position: "sticky",
   top: 0,
   zIndex: 1,
-  background: "#f1f5f9",
-  color: "#020617",
+  background: "rgba(26,26,26,.8)",
+  color: "#8B5CF6",
   fontSize: 11,
   fontWeight: 700,
   textTransform: "uppercase",
-  letterSpacing: "0.04em",
+  letterSpacing: "0.08em",
   cursor: "pointer",
   userSelect: "none",
 };
 
 const actionButtonStyle: React.CSSProperties = {
-  border: "1px solid #cbd5e1",
-  background: "#ffffff",
-  borderRadius: 6,
-  padding: "5px 8px",
+  border: "1px solid rgba(139,92,246,.3)",
+  background: "rgba(139,92,246,.08)",
+  borderRadius: 8,
+  padding: "6px 10px",
   fontSize: 12,
   lineHeight: 1,
   cursor: "pointer",
   textDecoration: "none",
-  color: "#020617",
+  color: "#8B5CF6",
 };
 
 const actionCellStyle: React.CSSProperties = {
@@ -73,10 +73,10 @@ function Badge({
   tone?: "neutral" | "good" | "warn" | "risk";
 }) {
   const colorMap = {
-    neutral: { background: "#e2e8f0", color: "#020617" },
-    good: { background: "#dcfce7", color: "#14532d" },
-    warn: { background: "#fef3c7", color: "#78350f" },
-    risk: { background: "#fee2e2", color: "#7f1d1d" },
+    neutral: { background: "rgba(139,92,246,.15)", color: "#A78BFA" },
+    good: { background: "rgba(34,197,94,.15)", color: "#86efac" },
+    warn: { background: "rgba(250,204,21,.15)", color: "#fde047" },
+    risk: { background: "rgba(239,68,68,.15)", color: "#fca5a5" },
   };
 
   return (
@@ -267,11 +267,11 @@ export function UserManagementTable({ rows }: { rows: Row[] }) {
             borderRadius: 6,
             fontSize: 13,
             outline: "none",
-            color: "#020617",
+            color: "#ffffff",
           }}
         />
 
-        <div style={{ fontSize: 12, color: "#667085", whiteSpace: "nowrap" }}>
+        <div style={{ fontSize: 12, color: "#9ca3af", whiteSpace: "nowrap" }}>
           {filtered.length} of {localRows.length} users
         </div>
       </div>
@@ -423,9 +423,9 @@ export function UserManagementTable({ rows }: { rows: Row[] }) {
                           onClick={() => toggleReferralReconciled(r.user_id, r.referral_reconciled)}
                           style={{
                             ...actionButtonStyle,
-                            borderColor: r.referral_reconciled ? "#bbf7d0" : "#fde68a",
-                            background: r.referral_reconciled ? "#f0fdf4" : "#fffbeb",
-                            color: r.referral_reconciled ? "#14532d" : "#78350f",
+                            borderColor: r.referral_reconciled ? "rgba(34,197,94,.4)" : "rgba(250,204,21,.4)",
+                            background: r.referral_reconciled ? "rgba(34,197,94,.1)" : "rgba(250,204,21,.1)",
+                            color: r.referral_reconciled ? "#86efac" : "#fde047",
                             opacity: workingId === r.user_id ? 0.55 : 1,
                           }}
                         >
@@ -440,7 +440,9 @@ export function UserManagementTable({ rows }: { rows: Row[] }) {
                           onClick={() => disableUser(r.user_id)}
                           style={{
                             ...actionButtonStyle,
-                            color: "#9f1239",
+                            borderColor: "rgba(239,68,68,.4)",
+                            background: "rgba(239,68,68,.1)",
+                            color: "#fca5a5",
                             opacity: workingId === r.user_id ? 0.55 : 1,
                           }}
                         >
@@ -454,9 +456,9 @@ export function UserManagementTable({ rows }: { rows: Row[] }) {
                         onClick={() => deleteUser(r.user_id, r.email)}
                         style={{
                           ...actionButtonStyle,
-                          borderColor: "#fecdd3",
-                          background: "#fff1f2",
-                          color: "#9f1239",
+                          borderColor: "rgba(239,68,68,.4)",
+                          background: "rgba(239,68,68,.1)",
+                          color: "#fca5a5",
                           opacity: workingId === r.user_id ? 0.55 : 1,
                         }}
                       >
