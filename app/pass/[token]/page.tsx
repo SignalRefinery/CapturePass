@@ -4,28 +4,14 @@ import { DigitalPassCard } from "@/components/dashboard/digital-pass-card";
 import { profileMetadata } from "@/lib/privacy/profile-privacy";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isSlugPubliclyAllowed } from "@/lib/slug-moderation";
-import { getProfilePlan, profileCanRenderPublicly } from "@/lib/plans";
+import { profileCanRenderPublicly } from "@/lib/plans";
 import { getPreferredProfileShareUrl } from "@/lib/urls/profile-url";
-import type { ProfileRecord, ProfileViewRecord } from "@/lib/types";
+import type { ProfileRecord } from "@/lib/types";
 
 type PageProps = {
   params: Promise<{ token: string }>;
   searchParams?: Promise<{ view?: string }>;
 };
-
-function viewParamFor(view: ProfileViewRecord | null) {
-  return view?.view_key || view?.id || null;
-}
-
-function publicPassPathFor(token: string, view?: string | null) {
-  return view && view !== "default"
-    ? `/pass/${token}?view=${encodeURIComponent(view)}`
-    : `/pass/${token}`;
-}
-
-function matchesRequestedView(view: ProfileViewRecord, requestedView: string) {
-  return view.view_key === requestedView || view.id === requestedView;
-}
 
 export async function generateMetadata() {
   return profileMetadata();
@@ -36,6 +22,10 @@ export default async function PublicDigitalPassPage({ params, searchParams }: Pa
 
   const { token } = await params;
   const requestedView = (await searchParams)?.view || null;
+  if (requestedView) {
+    redirect(`/pass/${token}`);
+  }
+
   const admin = createAdminClient();
   const { data: profile } = await admin
     .from("profiles")
@@ -50,72 +40,14 @@ export default async function PublicDigitalPassPage({ params, searchParams }: Pa
   ) {
     notFound();
   }
-  const plan = getProfilePlan(profile);
-
-  const { data: profileViews } = await admin
-    .from("profile_views")
-    .select("*")
-    .eq("profile_id", profile.id)
-    .order("sort_order", { ascending: true })
-    .returns<ProfileViewRecord[]>();
-  const views = profileViews || [];
-  const defaultProfileView =
-    (profile.default_view_id
-      ? views.find((view) => view.id === profile.default_view_id)
-      : null) ||
-    views[0] ||
-    null;
-  const requestedProfileView =
-    requestedView && requestedView !== "main"
-      ? views.find((view) => matchesRequestedView(view, requestedView))
-      : null;
-
-  if (
-    requestedView &&
-    requestedView !== "main" &&
-    (profile.page_mode !== "multi" || !requestedProfileView)
-  ) {
-    redirect(`/pass/${token}`);
-  }
-
-  const viewPasses = views.map((view) => {
-    const viewParam = viewParamFor(view);
-    return {
-      id: view.id || view.view_key,
-      label: view.name || view.view_key,
-      url: getPreferredProfileShareUrl(profile, viewParam),
-      passUrl: publicPassPathFor(token, viewParam)
-    };
-  });
-  const passViews =
-    plan.hasMoreProfileSections && profile.page_mode === "multi" && views.length
-      ? [
-          {
-            id: "main",
-            label: "Main profile",
-            url: getPreferredProfileShareUrl(profile),
-            passUrl: publicPassPathFor(token, "main")
-          },
-          ...viewPasses
-        ]
-      : [
-          {
-            id: "main",
-            label: "Main profile",
-            url: getPreferredProfileShareUrl(profile),
-            passUrl: publicPassPathFor(token, "main")
-          }
-        ];
-  const defaultViewId =
-    plan.hasMoreProfileSections && profile.page_mode === "multi" && defaultProfileView
-      ? defaultProfileView.id || defaultProfileView.view_key
-      : "main";
-  const selectedViewId =
-    requestedView && requestedView !== "main"
-      ? requestedProfileView?.id || requestedProfileView?.view_key
-      : requestedView === "main"
-        ? "main"
-        : defaultViewId;
+  const passViews = [
+    {
+      id: "main",
+      label: "TapTagg profile",
+      url: getPreferredProfileShareUrl(profile),
+      passUrl: `/pass/${token}`
+    }
+  ];
 
   return (
     <main className="public-pass-page">
@@ -123,8 +55,8 @@ export default async function PublicDigitalPassPage({ params, searchParams }: Pa
         name={profile.full_name || "TapTagg"}
         roleLine={profile.role_line || ""}
         organizationName={profile.organization_name}
-        defaultViewId={defaultViewId}
-        selectedViewId={selectedViewId}
+        defaultViewId="main"
+        selectedViewId="main"
         views={passViews}
         showViewSwitcher={false}
       />

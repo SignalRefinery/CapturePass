@@ -10,7 +10,7 @@ import { buildPublicProfileViews, profileRecordToPublicProfile } from "@/lib/pro
 import { getProfilePlan, profileCanRenderPublicly } from "@/lib/plans";
 import { profileMetadata } from "@/lib/privacy/profile-privacy";
 import { isSlugPubliclyAllowed } from "@/lib/slug-moderation";
-import { LuxuryProfileShell } from "@/components/profile/luxury-profile-shell";
+import { TapTaggProfileShell } from "@/components/profile/taptagg-profile-shell";
 import type { ProfileRecord } from "@/lib/types";
 
 type PageProps = {
@@ -67,7 +67,7 @@ export default async function PublicProfilePage({ params, searchParams }: PagePr
     : null;
 
   return (
-    <LuxuryProfileShell
+    <TapTaggProfileShell
       profile={defaultPublicView}
       views={orderedPublicViews}
       navViews={publicNavViews}

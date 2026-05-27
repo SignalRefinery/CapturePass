@@ -1,11 +1,5 @@
-import { DashboardPassPageContent } from "../pass-page";
+import { redirect } from "next/navigation";
 
-export default async function DashboardViewPassPage({
-  params
-}: {
-  params: Promise<{ view: string }>;
-}) {
-  const { view } = await params;
-
-  return <DashboardPassPageContent requestedView={view} />;
+export default function DashboardViewPassPage() {
+  redirect("/dashboard/pass");
 }

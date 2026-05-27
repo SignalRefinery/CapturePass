@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { Shell } from "@/components/shared/shell";
-import { LuxuryProfileShell } from "@/components/profile/luxury-profile-shell";
+import { TapTaggProfileShell } from "@/components/profile/taptagg-profile-shell";
 import {
   getDefaultProfileViewServer,
   getProfileForUserServer,
@@ -65,7 +65,7 @@ export default async function DashboardPreviewPage() {
         </div>
       </section>
 
-      <LuxuryProfileShell
+      <TapTaggProfileShell
         profile={defaultPublicView}
         views={orderedPublicViews}
         navViews={publicNavViews}
@@ -76,4 +76,3 @@ export default async function DashboardPreviewPage() {
     </Shell>
   );
 }
-

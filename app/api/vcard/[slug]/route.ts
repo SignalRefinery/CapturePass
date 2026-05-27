@@ -1,12 +1,9 @@
 import { NextResponse } from "next/server";
-import {
-  getProfileBySlugServer,
-  getProfileViewsForProfileServer
-} from "@/lib/profile-service-server";
+import { getProfileBySlugServer } from "@/lib/profile-service-server";
 import { PROFILE_CACHE_HEADERS } from "@/lib/privacy/profile-privacy";
 import { isSlugPubliclyAllowed } from "@/lib/slug-moderation";
-import { getProfilePlan, profileCanRenderPublicly } from "@/lib/plans";
-import type { ProfileRecord, ProfileViewRecord } from "@/lib/types";
+import { profileCanRenderPublicly } from "@/lib/plans";
+import type { ProfileRecord } from "@/lib/types";
 
 type RouteContext = {
   params: Promise<{ slug: string }>;
@@ -29,31 +26,17 @@ function safeVcardFilename(slug: string) {
   return `${safeSlug || "taptagg-contact"}.vcf`;
 }
 
-function viewToVcardContact(profile: ProfileRecord, view?: ProfileViewRecord | null) {
-  if (!view) {
-    return {
-      full_name: profile.full_name,
-      organization_name: profile.organization_name,
-      role_line: profile.role_line,
-      intro: profile.intro,
-      email: profile.email,
-      phone: profile.phone,
-      website_url: profile.website_url,
-      show_email: true,
-      show_phone: true
-    };
-  }
-
+function profileToVcardContact(profile: ProfileRecord) {
   return {
-    full_name: view.full_name,
-    organization_name: view.organization_name,
-    role_line: view.role_line,
-    intro: view.intro,
-    email: view.email,
-    phone: view.phone,
-    website_url: view.website_url,
-    show_email: view.show_email,
-    show_phone: view.show_phone
+    full_name: profile.full_name,
+    organization_name: profile.organization_name,
+    role_line: profile.role_line,
+    intro: profile.intro,
+    email: profile.email,
+    phone: profile.phone,
+    website_url: profile.website_url,
+    show_email: true,
+    show_phone: true
   };
 }
 
@@ -76,22 +59,7 @@ export async function GET(request: Request, context: RouteContext) {
     return new NextResponse("Not found", { status: 404, headers: PROFILE_CACHE_HEADERS });
   }
 
-  const plan = getProfilePlan(profile);
-  const rawRequestedView = new URL(request.url).searchParams.get("view");
-  // "profile" is the public shell's synthetic fallback key when no saved
-  // profile_view exists. Treat it like the default vCard instead of a missing
-  // database view.
-  const requestedView = rawRequestedView === "profile" ? null : rawRequestedView;
-  const profileViews = plan.hasMoreProfileSections && profile.id ? await getProfileViewsForProfileServer(profile.id) : [];
-  const selectedView = requestedView
-    ? profileViews.find((view) => view.view_key === requestedView || view.id === requestedView)
-    : profileViews.find((view) => view.id === profile.default_view_id) || profileViews[0] || null;
-
-  if (requestedView && !selectedView) {
-    return new NextResponse("Not found", { status: 404, headers: PROFILE_CACHE_HEADERS });
-  }
-
-  const contact = viewToVcardContact(profile, selectedView);
+  const contact = profileToVcardContact(profile);
   const publicProfileUrl = getProfileUrl(request, slug);
   const websiteUrl = contact.website_url || "";
   const profileUrlLine = websiteUrl === publicProfileUrl ? "" : `URL:${escapeVcf(publicProfileUrl)}`;

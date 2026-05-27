@@ -142,7 +142,7 @@ function friendlySlugReviewReason(reason?: string | null) {
   }
 
   if (reason === "blocked_name_based_slug_fallback") {
-    return "We issued a private QR link for added privacy.";
+    return "We issued a QR link for added privacy.";
   }
 
   if (reason === "public_office_title") {
@@ -264,7 +264,7 @@ export function ProfileEditor({
   const profileStatusLabel = slugIsApproved
     ? form.private_token
       ? "Ready for use"
-      : "Pending token"
+      : "Pending QR"
     : form.slug_status === "pending_review"
       ? "Pending slug approval"
       : activeSlugModeration.state === "blocked"
@@ -913,6 +913,7 @@ export function ProfileEditor({
             ) : null}
           </div>
 
+          {plan.hasMoreProfileSections ? (
           <div className="card" style={{ marginTop: 24, padding: 22 }}>
             <div className="dashboard-kicker">Profile views</div>
             <h3 style={{ margin: "6px 0 10px", fontSize: "1.25rem", lineHeight: 1.1 }}>
@@ -1265,6 +1266,7 @@ export function ProfileEditor({
               </div>
             ) : null}
           </div>
+          ) : null}
 
           <div className="card" style={{ marginTop: 24, padding: 22 }}>
             <div className="dashboard-kicker">Account flags</div>

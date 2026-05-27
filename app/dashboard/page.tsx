@@ -10,22 +10,14 @@ import {
 import { createClient } from "@/lib/supabase/server";
 import { getProfilePlan } from "@/lib/plans";
 import { slugify } from "@/lib/utils";
-import type { ProfileRecord, ProfileViewRecord } from "@/lib/types";
+import type { ProfileRecord } from "@/lib/types";
 
-function viewParamFor(view: ProfileViewRecord) {
-  return view.view_key || view.id || "main";
-}
-
-function passHrefFor(profile: ProfileRecord, view?: ProfileViewRecord) {
+function passHrefFor(profile: ProfileRecord) {
   if (!profile.private_token) {
-    return view ? `/dashboard/pass/${viewParamFor(view)}` : "/dashboard/pass";
+    return "/dashboard/pass";
   }
 
-  if (!view) {
-    return `/pass/${profile.private_token}`;
-  }
-
-  return `/pass/${profile.private_token}?view=${encodeURIComponent(viewParamFor(view))}`;
+  return `/pass/${profile.private_token}`;
 }
 
 async function submitFounderCardClaim(formData: FormData) {
@@ -94,7 +86,7 @@ async function submitFounderCardClaim(formData: FormData) {
           US
         </p>
         <p><strong>Slug:</strong> ${profile?.slug || "—"}</p>
-        ${tokenUrl ? `<p><strong>Token URL:</strong> <a href="${tokenUrl}">${tokenUrl}</a></p>` : ""}
+        ${tokenUrl ? `<p><strong>Issued card URL:</strong> <a href="${tokenUrl}">${tokenUrl}</a></p>` : ""}
         ${qrUrl ? `<p><strong>QR image URL:</strong> <a href="${qrUrl}">${qrUrl}</a></p><p><img src="${qrUrl}" alt="QR code" width="300" height="300" /></p>` : ""}
       `
     })
@@ -205,14 +197,9 @@ export default async function DashboardPage({
   const passOptions = [
     {
       href: passHrefFor(initialProfile),
-      label: "Default / general pass",
-      description: "Uses your default pass view"
-    },
-    ...initialProfileViews.map((view) => ({
-      href: passHrefFor(initialProfile, view),
-      label: view.name || view.view_key || "Profile view",
-      description: view.show_in_public_nav === false ? "Hidden from public profile buttons" : "Public profile button visible"
-    }))
+      label: "TapTagg digital pass",
+      description: "Shows your QR for your single TapTagg profile"
+    }
   ];
 
   const showFounderClaimForm =
@@ -335,7 +322,7 @@ export default async function DashboardPage({
               <div className="dashboard-kicker">Digital pass</div>
               <h2>Open your QR pass.</h2>
               <p className="editor-copy">
-                Show your QR when you do not have your physical card, or save view-specific passes to your phone home screen.
+                Show your QR when you do not have your physical card, or save your TapTagg pass to your phone home screen.
               </p>
               <details className="dashboard-pass-menu">
                 <summary className="button primary">Open Digital Pass</summary>

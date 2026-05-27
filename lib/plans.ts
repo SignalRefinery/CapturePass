@@ -85,7 +85,9 @@ export function getPlanFeatures(plan: PlanKey, forceActivated = false): PlanFeat
     hasCustomButtons: isTaggPlus,
     hasPrioritySupport: isTaggPlus,
     hasAdvancedAnalytics: isCreator,
-    hasMoreProfileSections: isCreator,
+    // TapTagg is intentionally single-profile focused. Multi-view/profile-view
+    // code can stay dormant for future products, but TapTagg plans do not expose it.
+    hasMoreProfileSections: false,
     hasEmbeds: isCreator,
     hasBookingLinks: isCreator,
     hasSmartRedirects: isCreator,

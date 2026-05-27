@@ -5,7 +5,7 @@ import { buildPublicProfileViews, profileRecordToPublicProfile } from "@/lib/pro
 import { getProfilePlan, profileCanRenderPublicly } from "@/lib/plans";
 import { profileMetadata } from "@/lib/privacy/profile-privacy";
 import { isSlugPubliclyAllowed } from "@/lib/slug-moderation";
-import { LuxuryProfileShell } from "@/components/profile/luxury-profile-shell";
+import { TapTaggProfileShell } from "@/components/profile/taptagg-profile-shell";
 import type { ProfileRecord, ProfileViewRecord } from "@/lib/types";
 
 type PageProps = {
@@ -66,10 +66,10 @@ export default async function PrivateTokenProfilePage({ params, searchParams }: 
         orderedPublicViews: [profileRecordToPublicProfile(profile)]
       };
 
-  // Privacy-mode profiles render only through this unguessable issued URL.
-  // The personalized slug remains non-resolving while the QR/private link works.
+  // Privacy-mode profiles render only through the issued QR/card URL.
+  // The personalized slug remains non-resolving while the issued link works.
   return (
-    <LuxuryProfileShell
+    <TapTaggProfileShell
       profile={defaultPublicView}
       views={orderedPublicViews}
       pageMode={profile.page_mode || "single"}

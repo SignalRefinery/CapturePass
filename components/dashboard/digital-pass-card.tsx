@@ -55,7 +55,7 @@ export function DigitalPassCard({
         <div className="pass-kicker">Digital pass</div>
         {views.length > 1 ? (
           <div className="pass-selected-view">
-            <span>Pass view</span>
+            <span>Profile</span>
             <strong>{selectedView.label}</strong>
           </div>
         ) : null}

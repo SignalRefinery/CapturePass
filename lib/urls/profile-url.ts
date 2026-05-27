@@ -24,12 +24,10 @@ export function getIssuedProfileUrl(profile: ProfileUrlLike) {
 }
 
 export function appendProfileViewParam(url: string, view?: string | null) {
-  if (!view || view === "profile") {
-    return url;
-  }
-
-  const separator = url.includes("?") ? "&" : "?";
-  return `${url}${separator}view=${encodeURIComponent(view)}`;
+  // TapTagg share URLs always target the single public profile. The optional
+  // view argument is ignored so dormant multi-view data cannot leak into links.
+  void view;
+  return url;
 }
 
 export function getPreferredProfileShareUrl(profile: ProfileUrlLike, view?: string | null) {

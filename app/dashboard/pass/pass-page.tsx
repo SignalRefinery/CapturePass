@@ -2,37 +2,14 @@ import { redirect } from "next/navigation";
 import { Shell } from "@/components/shared/shell";
 import { InactiveState } from "@/components/dashboard/inactive-state";
 import { DigitalPassCard } from "@/components/dashboard/digital-pass-card";
-import {
-  getDefaultProfileViewServer,
-  getProfileForUserServer,
-  getProfileViewsForProfileServer
-} from "@/lib/profile-service-server";
+import { getProfileForUserServer } from "@/lib/profile-service-server";
 import { createClient } from "@/lib/supabase/server";
 import { getPreferredProfileShareUrl } from "@/lib/urls/profile-url";
 import { getProfilePlan } from "@/lib/plans";
-import type { ProfileRecord, ProfileViewRecord } from "@/lib/types";
+import type { ProfileRecord } from "@/lib/types";
 
-function viewParamFor(view: ProfileViewRecord | null) {
-  return view?.view_key || view?.id || null;
-}
-
-function passPathFor(view: ProfileViewRecord | null) {
-  return view ? `/dashboard/pass/${view.view_key || view.id}` : "/dashboard/pass/main";
-}
-
-function publicPassPathFor(profile: ProfileRecord, view: ProfileViewRecord | null) {
-  if (!profile.private_token) {
-    return passPathFor(view);
-  }
-
-  const viewParam = view ? viewParamFor(view) : "main";
-  return viewParam
-    ? `/pass/${profile.private_token}?view=${encodeURIComponent(viewParam)}`
-    : `/pass/${profile.private_token}`;
-}
-
-function matchesRequestedView(view: ProfileViewRecord, requestedView: string) {
-  return view.view_key === requestedView || view.id === requestedView;
+function publicPassPathFor(profile: ProfileRecord) {
+  return profile.private_token ? `/pass/${profile.private_token}` : "/dashboard/pass";
 }
 
 async function getInitialAuth(userId: string, email: string | undefined) {
@@ -58,7 +35,11 @@ export async function DashboardPassPageContent({
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect(`/login?next=${encodeURIComponent(requestedView ? `/dashboard/pass/${requestedView}` : "/dashboard/pass")}`);
+    redirect(`/login?next=${encodeURIComponent("/dashboard/pass")}`);
+  }
+
+  if (requestedView && requestedView !== "main") {
+    redirect("/dashboard/pass");
   }
 
   const profile = (await getProfileForUserServer(user.id)) as ProfileRecord | null;
@@ -70,51 +51,14 @@ export async function DashboardPassPageContent({
 
   const plan = getProfilePlan(profile);
   const fullAccess = plan.isActivated;
-  const profileViews = profile.id ? await getProfileViewsForProfileServer(profile.id) : [];
-  const defaultProfileView = await getDefaultProfileViewServer(profile);
-  const viewPasses = profileViews.map((view) => ({
-    id: view.id || view.view_key,
-    label: view.name || view.view_key,
-    url: getPreferredProfileShareUrl(profile, viewParamFor(view)),
-    passUrl: publicPassPathFor(profile, view)
-  }));
-  const passViews =
-    plan.hasMoreProfileSections && profile.page_mode === "multi" && profileViews.length
-      ? [
-          {
-            id: "main",
-            label: "Main profile",
-            url: getPreferredProfileShareUrl(profile),
-            passUrl: publicPassPathFor(profile, null)
-          },
-          ...viewPasses
-        ]
-      : [
-          {
-            id: "main",
-            label: "Main profile",
-            url: getPreferredProfileShareUrl(profile),
-            passUrl: publicPassPathFor(profile, null)
-          }
-        ];
-  if (
-    requestedView &&
-    requestedView !== "main" &&
-    !profileViews.some((view) => matchesRequestedView(view, requestedView))
-  ) {
-    redirect(getPreferredProfileShareUrl(profile));
-  }
-
-  const defaultViewId =
-    plan.hasMoreProfileSections && profile.page_mode === "multi" && defaultProfileView
-      ? defaultProfileView.id || defaultProfileView.view_key
-      : "main";
-  const selectedViewId =
-    requestedView && requestedView !== "main"
-      ? passViews.find((view) => view.id === requestedView || view.passUrl.endsWith(`/${requestedView}`))?.id
-      : requestedView === "main"
-        ? "main"
-        : defaultViewId;
+  const passViews = [
+    {
+      id: "main",
+      label: "TapTagg profile",
+      url: getPreferredProfileShareUrl(profile),
+      passUrl: publicPassPathFor(profile)
+    }
+  ];
   const myProfileHref = profile.slug ? `/${profile.slug}` : null;
 
   return (
@@ -127,8 +71,8 @@ export async function DashboardPassPageContent({
       {passError === "missing-view" ? (
         <section className="dashboard-wrap">
           <div className="dashboard-card pass-alert">
-            <div className="dashboard-kicker">Pass view unavailable</div>
-            <p className="editor-copy">That view was not found, so we brought you back to your default digital pass.</p>
+            <div className="dashboard-kicker">Pass unavailable</div>
+            <p className="editor-copy">That pass was not found, so we brought you back to your TapTagg digital pass.</p>
           </div>
         </section>
       ) : null}
@@ -138,8 +82,8 @@ export async function DashboardPassPageContent({
           name={profile.full_name || user.email || "TapTagg"}
           roleLine={profile.role_line || ""}
           organizationName={profile.organization_name}
-          defaultViewId={defaultViewId}
-          selectedViewId={selectedViewId}
+          defaultViewId="main"
+          selectedViewId="main"
           views={passViews}
         />
       ) : (
@@ -149,6 +93,6 @@ export async function DashboardPassPageContent({
   );
 }
 
-export function profileViewExists(profileViews: ProfileViewRecord[], requestedView: string) {
-  return requestedView === "main" || profileViews.some((view) => matchesRequestedView(view, requestedView));
+export function profileViewExists(_profileViews: unknown[], requestedView: string) {
+  return requestedView === "main";
 }

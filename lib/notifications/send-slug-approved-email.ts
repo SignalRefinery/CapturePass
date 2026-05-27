@@ -62,7 +62,7 @@ export async function sendSlugApprovedEmail(profile: ProfileForEmail) {
     <div style="font-family:Arial,sans-serif;line-height:1.6;color:#111;">
       <h2 style="margin:0 0 16px;">TapTagg profile approved</h2>
       <p style="margin:0 0 18px;">
-        This profile is approved and ready for fulfillment. Issued QR and NFC materials should use the private-token URL below.
+        This profile is approved and ready for fulfillment. Issued QR and NFC materials should use the issued card URL below.
       </p>
 
       <table cellpadding="8" cellspacing="0" border="0" style="border-collapse:collapse;">
@@ -72,7 +72,6 @@ export async function sendSlugApprovedEmail(profile: ProfileForEmail) {
         <tr><td><strong>Readable profile URL</strong></td><td>${escapeHtml(readableUrl)}</td></tr>
         <tr><td><strong>Issued card URL</strong></td><td>${escapeHtml(issuedUrl)}</td></tr>
         <tr><td><strong>QR destination</strong></td><td>${escapeHtml(issuedUrl)}</td></tr>
-        <tr><td><strong>Private token</strong></td><td>${escapeHtml(profile.private_token || "not set")}</td></tr>
         <tr><td><strong>Plan</strong></td><td>${escapeHtml(profile.stripe_plan_key || "Not set")}</td></tr>
         <tr><td><strong>Affiliate</strong></td><td>${profile.is_affiliate ? escapeHtml(profile.affiliate_tier || "affiliate") : "No"}</td></tr>
       </table>

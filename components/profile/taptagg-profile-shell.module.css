@@ -160,109 +160,6 @@
   filter:brightness(1.02);
 }
 
-.viewTabs{
-  display:flex;
-  justify-content:center;
-  gap:10px;
-  flex-wrap:wrap;
-  padding:22px 34px 0;
-}
-
-.viewTab{
-  min-height:42px;
-  padding:10px 15px;
-  border-radius:999px;
-  border:1px solid rgba(255,255,255,.08);
-  background:rgba(255,255,255,.02);
-  color:var(--muted);
-  font:inherit;
-  font-size:13px;
-  font-weight:600;
-  cursor:pointer;
-}
-
-.viewTabActive{
-  border-color:rgba(139,92,246,.38);
-  background:linear-gradient(180deg, rgba(139,92,246,.16), rgba(139,92,246,.06));
-  color:var(--text);
-}
-
-.viewLanding{
-  display:grid;
-  justify-items:center;
-  gap:18px;
-  padding:72px 34px 76px;
-  text-align:center;
-}
-
-.viewLandingTitle{
-  max-width:860px;
-  margin:6px auto 0;
-  font-family:"Inter Tight", "Inter", Arial, sans-serif;
-  font-size:clamp(58px, 8vw, 104px);
-  font-weight:600;
-  line-height:.9;
-  letter-spacing:-.045em;
-}
-
-.viewLandingCopy{
-  max-width:680px;
-  margin:0 auto;
-  color:var(--muted);
-  font-size:17px;
-  line-height:1.7;
-}
-
-.viewSelectorGrid{
-  width:min(760px, 100%);
-  display:grid;
-  grid-template-columns:repeat(auto-fit, minmax(min(100%, 220px), 1fr));
-  gap:12px;
-  margin-top:8px;
-}
-
-.viewSelectorCard{
-  display:grid;
-  gap:8px;
-  min-height:92px;
-  padding:18px;
-  border-radius:20px;
-  border:1px solid rgba(255,255,255,.08);
-  background:rgba(255,255,255,.025);
-  color:var(--text);
-  font:inherit;
-  text-align:left;
-  cursor:pointer;
-  transition:border-color .14s ease, background .14s ease, transform .14s ease;
-}
-
-.viewSelectorCard:hover{
-  border-color:rgba(139,92,246,.34);
-  background:rgba(139,92,246,.055);
-  transform:translateY(-1px);
-}
-
-.viewSelectorCard span{
-  font-size:16px;
-  font-weight:700;
-}
-
-.viewSelectorCard small{
-  color:var(--muted-2);
-  font-size:13px;
-  line-height:1.5;
-}
-
-.viewSelectorCard strong{
-  justify-self:start;
-  margin-top:8px;
-  color:var(--purple-light);
-  font-size:12px;
-  font-weight:700;
-  letter-spacing:.14em;
-  text-transform:uppercase;
-}
-
 .kicker{
   display:inline-flex;
   align-items:center;
@@ -403,7 +300,7 @@
   filter:brightness(1.02);
 }
 
-.profileGoldButton{
+.profilePrimaryButton{
   color:#ffffff;
   background:linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%);
   box-shadow:0 8px 24px rgba(139,92,246,.25), inset 0 1px 0 rgba(255,255,255,.1);
@@ -646,9 +543,7 @@
   .profileGrid,
   .reportSection,
   .signupCtaSection,
-  .footer,
-  .viewTabs,
-  .viewLanding{
+  .footer{
     padding-left:18px;
     padding-right:18px;
   }

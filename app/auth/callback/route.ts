@@ -56,7 +56,7 @@ async function sendFounderCardNotification(userId: string) {
         <p><strong>Email:</strong> ${customerEmail}</p>
         <p><strong>Promo:</strong> FOUNDERS</p>
         <p><strong>Slug:</strong> ${profile.slug || "—"}</p>
-        <p><strong>Token URL:</strong> <a href="${tokenUrl}">${tokenUrl}</a></p>
+        <p><strong>Issued card URL:</strong> <a href="${tokenUrl}">${tokenUrl}</a></p>
         <p><strong>QR image URL:</strong> <a href="${qrUrl}">${qrUrl}</a></p>
         <p><img src="${qrUrl}" alt="QR code" width="300" height="300" /></p>
       `,

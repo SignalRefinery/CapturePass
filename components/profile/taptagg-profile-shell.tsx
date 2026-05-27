@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { getReadableProfileUrl } from "@/lib/urls/profile-url";
 import { ReportIssueForm } from "@/components/profile/report-issue-form";
-import styles from "./luxury-profile-shell.module.css";
+import styles from "./taptagg-profile-shell.module.css";
 
 type ProfileLike = {
   id?: string | null;
@@ -74,16 +74,9 @@ function contactHref(profile: ProfileLike) {
 }
 
 function viewShareParam(profile: ProfileLike) {
-  if (profile.view_id) {
-    return profile.view_id;
-  }
-
-  const viewKey = profile.view_key?.trim();
-
-  if (viewKey && viewKey !== "profile") {
-    return viewKey;
-  }
-
+  // TapTagg renders one public profile. Stored view identifiers are ignored so
+  // saved contacts, share links, and QR codes always point at the main profile.
+  void profile;
   return null;
 }
 
@@ -181,14 +174,14 @@ function primaryLinks(profile: ProfileLike, options: { hideEmailLink?: boolean }
   return items.slice(0, 4);
 }
 
-export function LuxuryProfileShell({
+export function TapTaggProfileShell({
   profile,
-  views = [profile],
-  navViews,
-  pageMode = "single",
-  multiViewDisplayMode = "favorite",
-  initialView = null,
-  heroLabel = "Live profile",
+  views: _views = [profile],
+  navViews: _navViews,
+  pageMode: _pageMode = "single",
+  multiViewDisplayMode: _multiViewDisplayMode = "favorite",
+  initialView: _initialView = null,
+  heroLabel: _heroLabel = "Live profile",
   initialAuth = null
 }: {
   profile: ProfileLike;
@@ -201,30 +194,11 @@ export function LuxuryProfileShell({
   initialAuth?: InitialAuth;
 }) {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const viewOptions = views.length ? views : [profile];
-  const publicNavOptions = navViews?.length
-    ? navViews
-    : viewOptions.filter((view) => view.show_in_public_nav !== false);
-  const viewNavOptions = publicNavOptions.length ? publicNavOptions : [profile];
-  const showViewSwitcher = pageMode === "multi" && viewNavOptions.length > 1;
-  const requestedInitialView =
-    pageMode === "multi" && initialView
-      ? viewOptions.find((view) => view.view_key === initialView || view.view_id === initialView)
-      : null;
-  const [activeViewId, setActiveViewId] = useState(
-    requestedInitialView?.view_id || requestedInitialView?.view_key || profile.view_id || profile.view_key || "profile"
-  );
-  const [landingSelected, setLandingSelected] = useState(
-    !showViewSwitcher || multiViewDisplayMode !== "landing" || !!requestedInitialView
-  );
-  const activeProfile =
-    viewOptions.find((view) => (view.view_id || view.view_key || "profile") === activeViewId) ||
-    profile;
+  const activeProfile = profile;
   const readableUrl = publicShareUrl(activeProfile);
-  const qrViewParam = viewShareParam(activeProfile) || "profile";
   const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=420x420&data=${encodeURIComponent(
     readableUrl
-  )}&view=${encodeURIComponent(qrViewParam)}`;
+  )}`;
   const pills = getPills(activeProfile);
   const showEmail = activeProfile.show_email !== false;
   const showPhone = activeProfile.show_phone !== false;
@@ -239,11 +213,6 @@ export function LuxuryProfileShell({
     activeProfile.intro ||
     "A cleaner way to connect, save contact details, and move the right information forward without clutter.";
   const links = primaryLinks(activeProfile, { hideEmailLink: secondaryAction?.label === "Email" });
-
-  function selectView(view: ProfileLike) {
-    setActiveViewId(view.view_id || view.view_key || "profile");
-    setLandingSelected(true);
-  }
 
   return (
     <div className={styles.page}>
@@ -312,56 +281,6 @@ export function LuxuryProfileShell({
           </div>
         ) : null}
 
-        {showViewSwitcher && multiViewDisplayMode === "landing" && !landingSelected ? (
-          <section className={styles.viewLanding}>
-            <div className={styles.kicker}>
-              <span className={styles.miniStar}>✦</span>
-              <span>{heroLabel}</span>
-            </div>
-            <h1 className={styles.viewLandingTitle}>{activeProfile.full_name || "TapTagg"}</h1>
-            {activeProfile.role_line ? (
-              <p className={styles.viewLandingCopy}>{activeProfile.role_line}</p>
-            ) : null}
-            <div className={styles.viewSelectorGrid}>
-              {viewNavOptions.map((view) => (
-                <button
-                  className={styles.viewSelectorCard}
-                  type="button"
-                  key={view.view_id || view.view_key || view.view_name || view.full_name}
-                  onClick={() => selectView(view)}
-                >
-                  <span>{view.view_name || view.full_name || "Profile view"}</span>
-                  {view.role_line ? <small>{view.role_line}</small> : null}
-                  <strong>Open view</strong>
-                </button>
-              ))}
-            </div>
-          </section>
-        ) : null}
-
-        {showViewSwitcher && landingSelected ? (
-          <div className={styles.viewTabs} aria-label="Profile views">
-            {viewNavOptions.map((view) => {
-              const viewId = view.view_id || view.view_key || "profile";
-              const active = viewId === activeViewId;
-
-              return (
-                <button
-                  className={`${styles.viewTab} ${active ? styles.viewTabActive : ""}`}
-                  type="button"
-                  key={viewId}
-                  onClick={() => selectView(view)}
-                  aria-pressed={active}
-                >
-                  {view.view_name || view.full_name || "Profile view"}
-                </button>
-              );
-            })}
-          </div>
-        ) : null}
-
-        {landingSelected ? (
-          <>
         <section className={styles.profileHero}>
           <div className={styles.profileStack}>
 
@@ -382,7 +301,7 @@ export function LuxuryProfileShell({
 
             <div className={`${styles.ctaRow} ${styles.profileActions}`}>
               {activeProfile.slug && (showEmail || showPhone) ? (
-                <a className={`${styles.button} ${styles.profileGoldButton}`} href={contactHref(activeProfile)}>
+                <a className={`${styles.button} ${styles.profilePrimaryButton}`} href={contactHref(activeProfile)}>
                   Add to Contacts
                 </a>
               ) : null}
@@ -462,13 +381,11 @@ export function LuxuryProfileShell({
                 Build a polished profile, share the right links, and make every follow-up easier.
               </p>
             </div>
-            <Link className={`${styles.button} ${styles.profileGoldButton}`} href="/signup">
+            <Link className={`${styles.button} ${styles.profilePrimaryButton}`} href="/signup">
               Create your profile
             </Link>
           </div>
         </section>
-          </>
-        ) : null}
 
         <footer className={styles.footer}>
           <span>{activeProfile.full_name || "TapTagg"}</span>
