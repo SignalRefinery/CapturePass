@@ -7,6 +7,7 @@ import {
   getProfileViewsForProfileServer
 } from "@/lib/profile-service-server";
 import { buildPublicProfileViews, profileRecordToPublicProfile } from "@/lib/profiles/public-view";
+import { getProfilePlan, profileCanRenderPublicly } from "@/lib/plans";
 import { profileMetadata } from "@/lib/privacy/profile-privacy";
 import { isSlugPubliclyAllowed } from "@/lib/slug-moderation";
 import { LuxuryProfileShell } from "@/components/profile/luxury-profile-shell";
@@ -30,14 +31,15 @@ export default async function PublicProfilePage({ params, searchParams }: PagePr
 
   if (
     !profile ||
-    profile.is_active === false ||
+    !profileCanRenderPublicly(profile) ||
     profile.consent_public_visibility !== true ||
     !isSlugPubliclyAllowed(profile.slug, profile.slug_status)
   ) {
     notFound();
   }
 
-  const isMultiViewProfile = profile.page_mode === "multi";
+  const plan = getProfilePlan(profile);
+  const isMultiViewProfile = plan.hasMoreProfileSections && profile.page_mode === "multi";
   const profileViews = isMultiViewProfile && profile.id ? await getProfileViewsForProfileServer(profile.id) : [];
   const defaultProfileView = isMultiViewProfile ? await getDefaultProfileViewServer(profile) : null;
   const { defaultPublicView, orderedPublicViews } = isMultiViewProfile

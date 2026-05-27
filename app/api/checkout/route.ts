@@ -1,12 +1,17 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { createClient } from "@/lib/supabase/server";
+import { normalizePlanKey } from "@/lib/plans";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2024-06-20"
 });
 
 const PLAN_PRICE_MAP: Record<string, string | undefined> = {
+  core: process.env.STRIPE_CORE_PRICE_ID,
+  tagg_plus: process.env.STRIPE_TAGG_PLUS_ANNUAL_PRICE_ID,
+  "tagg-plus": process.env.STRIPE_TAGG_PLUS_ANNUAL_PRICE_ID,
+  creator: process.env.STRIPE_CREATOR_ANNUAL_PRICE_ID,
   essential: process.env.STRIPE_ESSENTIAL_MONTHLY_PRICE_ID,
   "essential-monthly": process.env.STRIPE_ESSENTIAL_MONTHLY_PRICE_ID,
   "essential-annual": process.env.STRIPE_ESSENTIAL_ANNUAL_PRICE_ID,
@@ -49,11 +54,22 @@ async function createCheckoutOrPortal(req: Request) {
       return NextResponse.json({ error: "Checkout is temporarily unavailable." }, { status: 500 });
     }
 
-    const plan = await getPlanFromRequest(req);
+    const requestedPlan = await getPlanFromRequest(req);
+    const isAdditionalCardsRequest = requestedPlan === "additional-cards";
+    const normalizedPlan = normalizePlanKey(requestedPlan);
+    const plan = isAdditionalCardsRequest
+      ? "additional-cards"
+      : requestedPlan
+        ? normalizedPlan === "tagg_plus"
+          ? "tagg_plus"
+          : normalizedPlan
+        : null;
 
-    const selectedPriceId = plan ? PLAN_PRICE_MAP[plan] : undefined;
+    const selectedPriceId =
+      (requestedPlan ? PLAN_PRICE_MAP[requestedPlan] : undefined) ||
+      (plan ? PLAN_PRICE_MAP[plan] : undefined);
 
-    if (!plan || !selectedPriceId) {
+    if (!requestedPlan || !plan || plan === "free" || !selectedPriceId) {
       return NextResponse.json(
         { error: "Missing or invalid checkout plan." },
         { status: 400 }
@@ -106,10 +122,11 @@ async function createCheckoutOrPortal(req: Request) {
     }
 
     const isAdditionalCardsCheckout =
-      plan === "additional-cards" ||
+      isAdditionalCardsRequest ||
       selectedPriceId === process.env.STRIPE_ADDITIONAL_TAPTAGG_CARD_PRICE_ID;
+    const isCoreCheckout = plan === "core";
 
-    if (profile?.stripe_customer_id && !isAdditionalCardsCheckout) {
+    if (profile?.stripe_customer_id && profile?.stripe_subscription_id && !isAdditionalCardsCheckout && !isCoreCheckout) {
       let portal: Stripe.BillingPortal.Session;
       try {
         portal = await stripe.billingPortal.sessions.create({
@@ -133,7 +150,7 @@ async function createCheckoutOrPortal(req: Request) {
     let session: Stripe.Checkout.Session;
     try {
       session = await stripe.checkout.sessions.create({
-        mode: isAdditionalCardsCheckout ? "payment" : "subscription",
+        mode: isAdditionalCardsCheckout || isCoreCheckout ? "payment" : "subscription",
         ...(profile?.stripe_customer_id
           ? { customer: profile.stripe_customer_id }
           : { customer_email: user.email || undefined }),
@@ -172,7 +189,7 @@ async function createCheckoutOrPortal(req: Request) {
           plan,
           selected_plan: plan
         },
-        ...(isAdditionalCardsCheckout
+        ...(isAdditionalCardsCheckout || isCoreCheckout
           ? {}
           : {
               subscription_data: {

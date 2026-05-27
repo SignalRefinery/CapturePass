@@ -5,6 +5,7 @@ import {
 } from "@/lib/profile-service-server";
 import { PROFILE_CACHE_HEADERS } from "@/lib/privacy/profile-privacy";
 import { isSlugPubliclyAllowed } from "@/lib/slug-moderation";
+import { getProfilePlan, profileCanRenderPublicly } from "@/lib/plans";
 import type { ProfileRecord, ProfileViewRecord } from "@/lib/types";
 
 type RouteContext = {
@@ -68,19 +69,20 @@ export async function GET(request: Request, context: RouteContext) {
 
   if (
     !profile ||
-    profile.is_active === false ||
+    !profileCanRenderPublicly(profile) ||
     profile.consent_public_visibility !== true ||
     !isSlugPubliclyAllowed(profile.slug, profile.slug_status)
   ) {
     return new NextResponse("Not found", { status: 404, headers: PROFILE_CACHE_HEADERS });
   }
 
+  const plan = getProfilePlan(profile);
   const rawRequestedView = new URL(request.url).searchParams.get("view");
   // "profile" is the public shell's synthetic fallback key when no saved
   // profile_view exists. Treat it like the default vCard instead of a missing
   // database view.
   const requestedView = rawRequestedView === "profile" ? null : rawRequestedView;
-  const profileViews = profile.id ? await getProfileViewsForProfileServer(profile.id) : [];
+  const profileViews = plan.hasMoreProfileSections && profile.id ? await getProfileViewsForProfileServer(profile.id) : [];
   const selectedView = requestedView
     ? profileViews.find((view) => view.view_key === requestedView || view.id === requestedView)
     : profileViews.find((view) => view.id === profile.default_view_id) || profileViews[0] || null;

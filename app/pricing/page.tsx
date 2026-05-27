@@ -27,7 +27,7 @@ const individualPlans = [
     cadence: "one-time",
     purpose: "Activate your TapTagg with a physical card and start sharing in the real world.",
     cta: "Get Your Tagg",
-    href: "/signup",
+    href: "/api/checkout?plan=core",
     featured: true,
     features: [
       "1 TapTagg card",
@@ -45,7 +45,7 @@ const individualPlans = [
     cadence: "/ year",
     purpose: "The best everyday plan for people who share often and want more control.",
     cta: "Upgrade to Tagg+",
-    href: "/signup",
+    href: "/api/checkout?plan=tagg_plus",
     features: [
       "Everything in Core",
       "Advanced customization",
@@ -61,7 +61,7 @@ const individualPlans = [
     cadence: "/ year",
     purpose: "For creators, musicians, salespeople, realtors, and small brands.",
     cta: "Start Creator",
-    href: "/signup",
+    href: "/api/checkout?plan=creator",
     features: [
       "Everything in Tagg+",
       "Advanced analytics",
@@ -76,8 +76,8 @@ const individualPlans = [
 ];
 
 const businessFeatures = [
-  "Custom branded profile pages",
-  "Custom cards with company logo",
+  "Business-branded profile pages",
+  "Business cards with company logo",
   "Team dashboard",
   "Employee activation/deactivation",
   "Card/profile reassignment",
@@ -107,7 +107,7 @@ const faqItems = [
       "No. You can start by building your profile and sharing a QR or link after activation. The card makes real-world sharing faster."
   },
   {
-    question: "Can businesses use custom branding?",
+    question: "Can businesses use branded TapTagg systems?",
     answer:
       "Yes. Business plans can include company-branded cards, profile pages, shared templates, review links, and team controls."
   },
@@ -131,7 +131,7 @@ export default function PricingPage() {
       navLinks={[
         { href: "/", label: "Home" },
         { href: "/how-it-works", label: "How it works" },
-        { href: "/custom", label: "Custom Taggs" }
+        { href: "/business", label: "Business" }
       ]}
     >
       <section className="simple-hero" style={{ paddingBottom: 36 }}>
@@ -201,7 +201,7 @@ export default function PricingPage() {
             </div>
 
             <div>
-              <h2 style={sectionHeading}>TapTagg For Teams & Businesses</h2>
+            <h2 style={sectionHeading}>TapTagg Business & Enterprise</h2>
               <p style={sectionCopy}>
                 Custom branded TapTagg systems for dealerships, real estate teams,
                 sales organizations, events, hospitality groups, and local businesses.
@@ -216,15 +216,15 @@ export default function PricingPage() {
           </div>
 
           <div style={businessQuoteCard}>
-            <div style={quoteLabel}>Custom quote</div>
+            <div style={quoteLabel}>Business quote</div>
             <div style={quotePrice}>Setup + annual platform pricing</div>
             <p style={quoteCopy}>
               Business pricing can include setup for branding, onboarding, and card
               design, an annual platform fee, and per-card pricing for new hires,
               replacements, or additional staff.
             </p>
-            <Link className="button primary" href="/custom">
-              Request Business Quote
+            <Link className="button primary" href="/business">
+              Explore Business
             </Link>
           </div>
 

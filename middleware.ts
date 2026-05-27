@@ -17,32 +17,12 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
-  // Auth lookup failures should not break public profile or token routes.
-  // Protected pages still enforce auth server-side; middleware only adds a fast path.
-  if (!authError && user && supabase && pathname.startsWith("/dashboard")) {
-    const { data: profile, error } = await supabase
-      .from("profiles")
-      .select("is_active, billing_exempt, lifetime_free, promo_code_used, is_admin")
-      .or(`user_id.eq.${user.id},id.eq.${user.id}`)
-      .maybeSingle();
+  // Free / Reserved users can edit and preview from the dashboard. Individual
+  // dashboard pages enforce activation only for NFC/QR sharing surfaces.
+  void authError;
+  void user;
+  void supabase;
 
-    if (!error) {
-      const hasDashboardAccess =
-        !!profile?.is_active ||
-        !!profile?.billing_exempt ||
-        !!profile?.lifetime_free ||
-        profile?.promo_code_used === "FOUNDERS" ||
-        !!profile?.is_admin;
-
-      if (!hasDashboardAccess) {
-        return NextResponse.redirect(new URL("/pricing", request.url));
-      }
-    } else {
-      // Let the page render its own guarded state instead of risking a lockout
-      // from a transient profile lookup problem in middleware.
-      console.error(error);
-    }
-  }
 
   const isProfileLike =
     isLikelyProfilePath(pathname) ||

@@ -9,17 +9,8 @@ import {
 } from "@/lib/profile-service-server";
 import { createClient } from "@/lib/supabase/server";
 import { getPreferredProfileShareUrl } from "@/lib/urls/profile-url";
+import { getProfilePlan } from "@/lib/plans";
 import type { ProfileRecord, ProfileViewRecord } from "@/lib/types";
-
-function profileHasFullAccess(profile: ProfileRecord) {
-  return (
-    !!profile.is_active ||
-    !!profile.billing_exempt ||
-    !!profile.lifetime_free ||
-    profile.promo_code_used === "FOUNDERS" ||
-    !!profile.is_admin
-  );
-}
 
 function viewParamFor(view: ProfileViewRecord | null) {
   return view?.view_key || view?.id || null;
@@ -77,7 +68,8 @@ export async function DashboardPassPageContent({
     redirect("/dashboard");
   }
 
-  const fullAccess = profileHasFullAccess(profile);
+  const plan = getProfilePlan(profile);
+  const fullAccess = plan.isActivated;
   const profileViews = profile.id ? await getProfileViewsForProfileServer(profile.id) : [];
   const defaultProfileView = await getDefaultProfileViewServer(profile);
   const viewPasses = profileViews.map((view) => ({
@@ -87,7 +79,7 @@ export async function DashboardPassPageContent({
     passUrl: publicPassPathFor(profile, view)
   }));
   const passViews =
-    profile.page_mode === "multi" && profileViews.length
+    plan.hasMoreProfileSections && profile.page_mode === "multi" && profileViews.length
       ? [
           {
             id: "main",
@@ -114,7 +106,7 @@ export async function DashboardPassPageContent({
   }
 
   const defaultViewId =
-    profile.page_mode === "multi" && defaultProfileView
+    plan.hasMoreProfileSections && profile.page_mode === "multi" && defaultProfileView
       ? defaultProfileView.id || defaultProfileView.view_key
       : "main";
   const selectedViewId =

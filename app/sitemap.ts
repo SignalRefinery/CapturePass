@@ -7,6 +7,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   // intentional direct-share destinations and must not be discoverable here.
   const routes = [
     "",
+    "/business",
     "/pricing",
     "/how-it-works",
     "/partners",

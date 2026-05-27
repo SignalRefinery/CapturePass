@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { normalizePlanKey } from "@/lib/plans";
 import { stripe } from "@/lib/stripe";
 
 function getStringId(value: string | { id?: string } | null | undefined) {
@@ -13,6 +14,15 @@ function subscriptionIsActive(status: string | null | undefined) {
 }
 
 const PLAN_BY_PRICE_ID: Record<string, string> = {
+  ...(process.env.STRIPE_CORE_PRICE_ID
+    ? { [process.env.STRIPE_CORE_PRICE_ID]: "core" }
+    : {}),
+  ...(process.env.STRIPE_TAGG_PLUS_ANNUAL_PRICE_ID
+    ? { [process.env.STRIPE_TAGG_PLUS_ANNUAL_PRICE_ID]: "tagg_plus" }
+    : {}),
+  ...(process.env.STRIPE_CREATOR_ANNUAL_PRICE_ID
+    ? { [process.env.STRIPE_CREATOR_ANNUAL_PRICE_ID]: "creator" }
+    : {}),
   ...(process.env.STRIPE_ESSENTIAL_MONTHLY_PRICE_ID
     ? { [process.env.STRIPE_ESSENTIAL_MONTHLY_PRICE_ID]: "essential-monthly" }
     : {}),
@@ -35,14 +45,15 @@ function getPlanFromSubscription(subscription: Stripe.Subscription) {
   const priceId = subscription.items?.data?.[0]?.price?.id || null;
 
   if (priceId && PLAN_BY_PRICE_ID[priceId]) {
-    return PLAN_BY_PRICE_ID[priceId];
+    return normalizePlanKey(PLAN_BY_PRICE_ID[priceId]);
   }
 
-  return subscription.metadata?.plan || subscription.metadata?.selected_plan || null;
+  return normalizePlanKey(subscription.metadata?.plan || subscription.metadata?.selected_plan || null);
 }
 
 function getPlanFromCheckoutSession(session: Stripe.Checkout.Session) {
-  return session.metadata?.plan || session.metadata?.selected_plan || null;
+  const rawPlan = session.metadata?.plan || session.metadata?.selected_plan || null;
+  return rawPlan === "additional-cards" ? rawPlan : normalizePlanKey(rawPlan);
 }
 
 function isSubscriptionCheckoutSession(session: Stripe.Checkout.Session) {
@@ -51,7 +62,8 @@ function isSubscriptionCheckoutSession(session: Stripe.Checkout.Session) {
   return (
     session.mode === "subscription" &&
     !!session.subscription &&
-    plan !== "additional-cards"
+    plan !== "additional-cards" &&
+    plan !== "core"
   );
 }
 
@@ -195,6 +207,32 @@ async function sendCardNotification(userId: string, session?: Stripe.Checkout.Se
 }
 
 async function updateProfileForCheckout(session: Stripe.Checkout.Session) {
+  const plan = getPlanFromCheckoutSession(session);
+
+  if (session.mode === "payment" && plan === "core") {
+    const admin = createAdminClient();
+    const userId = session.metadata?.user_id || null;
+    const customerId = getStringId(session.customer);
+
+    if (!userId) return;
+
+    const { error } = await admin
+      .from("profiles")
+      .update({
+        is_active: true,
+        stripe_customer_id: customerId,
+        stripe_subscription_id: null,
+        stripe_plan_key: "core",
+        subscription_status: "active",
+      })
+      .or(`user_id.eq.${userId},id.eq.${userId}`);
+
+    if (error) throw error;
+
+    await sendCardNotification(userId, session);
+    return;
+  }
+
   if (!isSubscriptionCheckoutSession(session)) {
     const userId = session.metadata?.user_id || null;
 
@@ -210,8 +248,6 @@ async function updateProfileForCheckout(session: Stripe.Checkout.Session) {
   const admin = createAdminClient();
 
   const userId = session.metadata?.user_id || null;
-  const plan = getPlanFromCheckoutSession(session);
-
   const customerId = getStringId(session.customer);
   const subscriptionId = getStringId(session.subscription);
 

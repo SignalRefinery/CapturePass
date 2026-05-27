@@ -2,6 +2,7 @@
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { ProfileRecord, ProfileViewRecord } from "@/lib/types";
+import { getProfilePlan } from "@/lib/plans";
 import { normalizeUrl } from "@/lib/utils";
 import { classifySlug } from "@/lib/slug-moderation";
 import {
@@ -60,6 +61,10 @@ const MAX_INTRO_TEXTAREA_HEIGHT = 220;
 const LEGACY_INTRO_PROMPT = "Turning complexity into clarity.";
 const INTRO_PLACEHOLDER =
   "Write a short line in your own words: what you do, who you help, or the best next step.";
+
+function UpgradeNotice({ children }: { children: React.ReactNode }) {
+  return <small className="auth-message">{children}</small>;
+}
 
 function cleanIntroValue(value?: string | null) {
   return (value || "").trim() === LEGACY_INTRO_PROMPT ? "" : value || "";
@@ -243,6 +248,7 @@ export function ProfileEditor({
 
   const callLink = phoneToTel(form.phone);
   const emailLink = emailToMailto(form.email);
+  const plan = getProfilePlan(form);
 
   const slugModeration = useMemo(() => classifySlug(slugInput || ""), [slugInput]);
   const activeSlugModeration = useMemo(() => classifySlug(form.slug || ""), [form.slug]);
@@ -253,8 +259,8 @@ export function ProfileEditor({
   const slugIsApproved = form.slug_status === "approved" && activeSlugModeration.state !== "blocked";
   const readableUrl = useMemo(() => getReadableProfileUrl(form), [form]);
   const issuedUrl = useMemo(() => getIssuedProfileUrl(form), [form]);
-  const safeReadableUrl = slugIsApproved ? readableUrl : null;
-  const safeIssuedUrl = form.private_token ? issuedUrl : null;
+  const safeReadableUrl = slugIsApproved && plan.isActivated ? readableUrl : null;
+  const safeIssuedUrl = form.private_token && plan.isActivated ? issuedUrl : null;
   const profileStatusLabel = slugIsApproved
     ? form.private_token
       ? "Ready for use"
@@ -321,7 +327,7 @@ export function ProfileEditor({
   const activeView =
     views.find((view) => (view.id || view.view_key) === activeViewKey) || views[0] || null;
   const defaultViewId = form.default_view_id || views[0]?.id || null;
-  const isMultiViewMode = (form.page_mode || "single") === "multi";
+  const isMultiViewMode = plan.hasMoreProfileSections && (form.page_mode || "single") === "multi";
 
   useEffect(() => {
     setSlugTaken(false);
@@ -447,7 +453,7 @@ export function ProfileEditor({
         ...form,
         slug: normalizedSlugInput || form.slug,
         organization_name: (form.organization_name || "").trim(),
-        page_mode: form.page_mode || "single",
+        page_mode: plan.hasMoreProfileSections ? form.page_mode || "single" : "single",
         multi_view_display_mode: form.multi_view_display_mode || "favorite",
         promo_code_used: promo || null,
         website_url: normalizeUrl(form.website_url || ""),
@@ -525,7 +531,7 @@ export function ProfileEditor({
   }
 
   async function handleCreateView() {
-    if (viewSaving || views.length >= MAX_PROFILE_VIEWS) return;
+    if (viewSaving || views.length >= MAX_PROFILE_VIEWS || !plan.hasMoreProfileSections) return;
 
     setViewSaving(true);
     setViewError("");
@@ -662,8 +668,12 @@ export function ProfileEditor({
         </h2>
 
         <p className="editor-copy">
-          Shape how people encounter you. Keep the next step clear, make follow-up easier, and
-          present yourself with less clutter.
+          {plan.isActivated
+            ? "Shape how people encounter you. Keep the next step clear, make follow-up easier, and present yourself with less clutter."
+            : "Your reserved profile is preview-only. Save the basics now, then activate Core or above when you are ready to go public."}
+        </p>
+        <p className="auth-message" style={{ marginTop: 10 }}>
+          Current plan: <strong>{plan.label}</strong>
         </p>
 
         <form className="editor-form" onSubmit={handleSave} style={{ marginTop: 24 }}>
@@ -671,6 +681,9 @@ export function ProfileEditor({
             <button className="button primary" type="submit" disabled={saving || viewSaving}>
               {saving || viewSaving ? "Saving..." : "Save changes"}
             </button>
+            <a className="button secondary" href="/dashboard/preview" target="_blank" rel="noreferrer">
+              Preview profile
+            </a>
           </div>
 
           <div className="editor-grid">
@@ -730,13 +743,13 @@ export function ProfileEditor({
                 checked={!!form.consent_public_visibility}
                 onChange={(event) => update("consent_public_visibility", event.target.checked)}
               />
-              <span>
+                <span>
                 Use my personalized public profile link.
                 <br />
                 <br />
-                Leave this checked so your approved slug can open your profile. Uncheck it for added
-                privacy; your personalized slug will not be publicly findable, and sharing should
-                use the exact issued link from your QR code.
+                {plan.isActivated
+                  ? "Leave this checked so your approved slug can open your profile. Uncheck it for added privacy; your personalized slug will not be publicly findable, and sharing should use the exact issued link from your QR code."
+                  : "Free / Reserved profiles are preview-only, so this link will stay private until you activate Core or above."}
               </span>
             </label>
           </div>
@@ -791,6 +804,7 @@ export function ProfileEditor({
                   value={form.profile_badge_1 || ""}
                   onChange={(event) => update("profile_badge_1", event.target.value)}
                   placeholder="Direct profile"
+                  disabled={!plan.hasAdvancedCustomization}
                 />
               </label>
 
@@ -800,6 +814,7 @@ export function ProfileEditor({
                   value={form.profile_badge_2 || ""}
                   onChange={(event) => update("profile_badge_2", event.target.value)}
                   placeholder="Direct follow-up"
+                  disabled={!plan.hasAdvancedCustomization}
                 />
               </label>
 
@@ -809,9 +824,13 @@ export function ProfileEditor({
                   value={form.profile_badge_3 || ""}
                   onChange={(event) => update("profile_badge_3", event.target.value)}
                   placeholder="Verified contact card"
+                  disabled={!plan.hasAdvancedCustomization}
                 />
               </label>
             </div>
+            {!plan.hasAdvancedCustomization ? (
+              <UpgradeNotice>Advanced profile badges unlock with Tagg+.</UpgradeNotice>
+            ) : null}
           </div>
 
           <div className="editor-grid" style={{ marginTop: 18 }}>
@@ -867,6 +886,7 @@ export function ProfileEditor({
                     value={(form[field.titleKey] as string) || ""}
                     onChange={(event) => update(field.titleKey, event.target.value)}
                     placeholder={field.titlePlaceholder}
+                    disabled={!plan.hasExpandedLinks && index > 1}
                   />
                 </label>
 
@@ -883,10 +903,14 @@ export function ProfileEditor({
                     onChange={(event) => update(field.urlKey, event.target.value)}
                     placeholder={field.urlPlaceholder}
                     readOnly={field.urlKey === "primary_link_1_url" || field.urlKey === "primary_link_2_url"}
+                    disabled={!plan.hasExpandedLinks && index > 1}
                   />
                 </label>
               </div>
             ))}
+            {!plan.hasExpandedLinks ? (
+              <UpgradeNotice>Free / Reserved profiles include basic Call, Email, and Website fields. Expanded links unlock with Core.</UpgradeNotice>
+            ) : null}
           </div>
 
           <div className="card" style={{ marginTop: 24, padding: 22 }}>
@@ -907,10 +931,14 @@ export function ProfileEditor({
                   onChange={(event) =>
                     update("page_mode", event.target.value as ProfileRecord["page_mode"])
                   }
+                  disabled={!plan.hasMoreProfileSections}
                 >
                   <option value="single">single</option>
                   <option value="multi">multi</option>
                 </select>
+                {!plan.hasMoreProfileSections ? (
+                  <UpgradeNotice>More profile sections and multi-view profiles unlock with Creator.</UpgradeNotice>
+                ) : null}
               </label>
 
               {isMultiViewMode ? (
@@ -1069,29 +1097,32 @@ export function ProfileEditor({
                   <div className="editor-grid" style={{ marginTop: 14 }}>
                     <label className="auth-field">
                       <span>Badge 1</span>
-                      <input
-                        value={activeView.profile_badge_1 || ""}
-                        onChange={(event) => updateView("profile_badge_1", event.target.value)}
-                        placeholder="Direct profile"
-                      />
+                        <input
+                          value={activeView.profile_badge_1 || ""}
+                          onChange={(event) => updateView("profile_badge_1", event.target.value)}
+                          placeholder="Direct profile"
+                          disabled={!plan.hasAdvancedCustomization}
+                        />
                     </label>
 
                     <label className="auth-field">
                       <span>Badge 2</span>
-                      <input
-                        value={activeView.profile_badge_2 || ""}
-                        onChange={(event) => updateView("profile_badge_2", event.target.value)}
-                        placeholder="Direct follow-up"
-                      />
+                        <input
+                          value={activeView.profile_badge_2 || ""}
+                          onChange={(event) => updateView("profile_badge_2", event.target.value)}
+                          placeholder="Direct follow-up"
+                          disabled={!plan.hasAdvancedCustomization}
+                        />
                     </label>
 
                     <label className="auth-field">
                       <span>Badge 3</span>
-                      <input
-                        value={activeView.profile_badge_3 || ""}
-                        onChange={(event) => updateView("profile_badge_3", event.target.value)}
-                        placeholder="Verified contact card"
-                      />
+                        <input
+                          value={activeView.profile_badge_3 || ""}
+                          onChange={(event) => updateView("profile_badge_3", event.target.value)}
+                          placeholder="Verified contact card"
+                          disabled={!plan.hasAdvancedCustomization}
+                        />
                     </label>
                   </div>
                 </div>
@@ -1159,6 +1190,7 @@ export function ProfileEditor({
                         <button
                           className={activeView.show_text === true ? "action-choice is-active" : "action-choice"}
                           type="button"
+                          disabled={!plan.hasCustomButtons}
                           onClick={() => updateView("show_text", true)}
                         >
                           Text
@@ -1167,6 +1199,7 @@ export function ProfileEditor({
                         <button
                           className={activeView.show_text === false ? "action-choice is-active" : "action-choice"}
                           type="button"
+                          disabled={!plan.hasCustomButtons}
                           onClick={() => updateView("show_text", false)}
                         >
                           Email
@@ -1175,11 +1208,15 @@ export function ProfileEditor({
                         <button
                           className={activeView.show_text === null ? "action-choice is-active" : "action-choice"}
                           type="button"
+                          disabled={!plan.hasCustomButtons}
                           onClick={() => updateView("show_text", null)}
                         >
                           None
                         </button>
                       </div>
+                      {!plan.hasCustomButtons ? (
+                        <UpgradeNotice>Custom profile buttons unlock with Tagg+.</UpgradeNotice>
+                      ) : null}
                     </div>
                   </div>
                 </div>
@@ -1244,13 +1281,7 @@ export function ProfileEditor({
               <div className="auth-field">
                 <span>Access</span>
                 <input
-                  value={
-                    form.lifetime_free
-                      ? "Founder lifetime access"
-                      : form.billing_exempt
-                        ? "Billing exempt"
-                        : form.stripe_plan_key || "Not set"
-                  }
+                  value={form.lifetime_free ? "Founder lifetime access" : plan.label}
                   readOnly
                   disabled
                 />

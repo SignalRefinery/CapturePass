@@ -10,7 +10,7 @@ const PUBLIC_NAV_LINKS = [
   { href: "/", label: "Home" },
   { href: "/how-it-works", label: "How it works" },
   { href: "/pricing", label: "Pricing" },
-  { href: "/custom", label: "Custom Cards" },
+  { href: "/business", label: "Business" },
   { href: "/partners", label: "Partners" },
 ];
 
@@ -62,7 +62,7 @@ export function Shell({
     const links = [
       { href: "/", label: "Home" },
       { href: "/pricing", label: "Pricing" },
-      { href: "/custom", label: "Custom Cards" },
+      { href: "/business", label: "Business" },
       { href: "/partners", label: "Partners" },
       { href: "/dashboard", label: "Dashboard" },
       { href: "/dashboard/pass", label: "Digital pass" },

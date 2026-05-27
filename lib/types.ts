@@ -53,6 +53,8 @@ export type ProfileRecord = {
   stripe_customer_id?: string | null;
   stripe_subscription_id?: string | null;
   stripe_plan_key?: string | null;
+  subscription_status?: string | null;
+  subscription_current_period_end?: string | null;
   referral_code?: string | null;
   referred_by?: string | null;
   is_affiliate?: boolean;

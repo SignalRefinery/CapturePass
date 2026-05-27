@@ -4,6 +4,7 @@ import { DigitalPassCard } from "@/components/dashboard/digital-pass-card";
 import { profileMetadata } from "@/lib/privacy/profile-privacy";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isSlugPubliclyAllowed } from "@/lib/slug-moderation";
+import { getProfilePlan, profileCanRenderPublicly } from "@/lib/plans";
 import { getPreferredProfileShareUrl } from "@/lib/urls/profile-url";
 import type { ProfileRecord, ProfileViewRecord } from "@/lib/types";
 
@@ -44,11 +45,12 @@ export default async function PublicDigitalPassPage({ params, searchParams }: Pa
 
   if (
     !profile ||
-    profile.is_active === false ||
+    !profileCanRenderPublicly(profile) ||
     !isSlugPubliclyAllowed(profile.slug, profile.slug_status)
   ) {
     notFound();
   }
+  const plan = getProfilePlan(profile);
 
   const { data: profileViews } = await admin
     .from("profile_views")
@@ -86,7 +88,7 @@ export default async function PublicDigitalPassPage({ params, searchParams }: Pa
     };
   });
   const passViews =
-    profile.page_mode === "multi" && views.length
+    plan.hasMoreProfileSections && profile.page_mode === "multi" && views.length
       ? [
           {
             id: "main",
@@ -105,7 +107,7 @@ export default async function PublicDigitalPassPage({ params, searchParams }: Pa
           }
         ];
   const defaultViewId =
-    profile.page_mode === "multi" && defaultProfileView
+    plan.hasMoreProfileSections && profile.page_mode === "multi" && defaultProfileView
       ? defaultProfileView.id || defaultProfileView.view_key
       : "main";
   const selectedViewId =

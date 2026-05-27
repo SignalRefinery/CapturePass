@@ -27,7 +27,7 @@ export const SITE_ROUTES = new Set([
   "terms",
   "account",
   "auth",
-  "custom",
+  "business",
   "forgot-password",
   "update-password"
 ]);

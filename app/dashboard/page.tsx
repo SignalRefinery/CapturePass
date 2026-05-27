@@ -8,6 +8,7 @@ import {
   getProfileViewsForProfileServer
 } from "@/lib/profile-service-server";
 import { createClient } from "@/lib/supabase/server";
+import { getProfilePlan } from "@/lib/plans";
 import { slugify } from "@/lib/utils";
 import type { ProfileRecord, ProfileViewRecord } from "@/lib/types";
 
@@ -198,13 +199,9 @@ export default async function DashboardPage({
     ? await getProfileViewsForProfileServer(initialProfile.id)
     : [];
 
-  const fullAccess =
-    !!initialProfile.is_active ||
-    !!initialProfile.billing_exempt ||
-    !!initialProfile.lifetime_free ||
-    initialProfile.promo_code_used === "FOUNDERS" ||
-    !!initialProfile.is_admin;
-  const myProfileHref = initialProfile.slug ? `/${initialProfile.slug}` : null;
+  const plan = getProfilePlan(initialProfile);
+  const fullAccess = plan.isActivated;
+  const myProfileHref = fullAccess && initialProfile.slug ? `/${initialProfile.slug}` : "/dashboard/preview";
   const passOptions = [
     {
       href: passHrefFor(initialProfile),
@@ -242,17 +239,16 @@ export default async function DashboardPage({
           <span className="mini-star">✦</span>
           <span>Dashboard</span>
         </div>
-        <h1>{fullAccess ? "Manage your live profile." : "Account created. Activation pending."}</h1>
+        <h1>{fullAccess ? "Manage your live profile." : "Build your reserved profile."}</h1>
         <p>
           You are signed in as <strong>{user.email}</strong>.{" "}
           {fullAccess
             ? "Refine your public presence, keep your links current, and control how your profile is presented."
-            : "Complete activation to unlock the full dashboard. Founder accounts and other billing-exempt accounts bypass this requirement automatically."}
+            : "Your @tagg can be edited and previewed now. Activate Core or above when you are ready to make it publicly live."}
         </p>
       </section>
 
-      {fullAccess ? (
-        <>
+      <>
           {founderClaimed ? (
             <section className="dashboard-wrap">
               <div className="dashboard-card">
@@ -265,6 +261,10 @@ export default async function DashboardPage({
             </section>
           ) : null}
 
+          {!fullAccess ? <InactiveState email={user.email || ""} /> : null}
+
+          {fullAccess ? (
+            <>
           {showFounderClaimForm ? (
             <section className="dashboard-wrap">
               <div className="dashboard-card">
@@ -350,6 +350,8 @@ export default async function DashboardPage({
               </details>
             </div>
           </section>
+            </>
+          ) : null}
 
           <ProfileEditor
             userId={user.id}
@@ -368,11 +370,11 @@ export default async function DashboardPage({
                 <div className="status-list">
                   <div className="status-row">
                     <span>Access</span>
-                    <strong>{initialProfile.billing_exempt ? "Billing exempt" : initialProfile.is_active ? "Active" : "Inactive"}</strong>
+                    <strong>{fullAccess ? "Active" : "Reserved / preview only"}</strong>
                   </div>
                   <div className="status-row">
                     <span>Plan</span>
-                    <strong>{initialProfile.lifetime_free ? "Founder lifetime access" : initialProfile.stripe_plan_key || "Not set"}</strong>
+                    <strong>{initialProfile.lifetime_free ? "Founder lifetime access" : plan.label}</strong>
                   </div>
                   <div className="status-row">
                     <span>Referral code</span>
@@ -408,10 +410,7 @@ export default async function DashboardPage({
               </div>
             </div>
           </section>
-        </>
-      ) : (
-        <InactiveState email={user.email || ""} />
-      )}
+      </>
     </Shell>
   );
 }

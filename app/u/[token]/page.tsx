@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { unstable_noStore as noStore } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { buildPublicProfileViews, profileRecordToPublicProfile } from "@/lib/profiles/public-view";
+import { getProfilePlan, profileCanRenderPublicly } from "@/lib/plans";
 import { profileMetadata } from "@/lib/privacy/profile-privacy";
 import { isSlugPubliclyAllowed } from "@/lib/slug-moderation";
 import { LuxuryProfileShell } from "@/components/profile/luxury-profile-shell";
@@ -30,7 +31,7 @@ export default async function PrivateTokenProfilePage({ params, searchParams }: 
 
   if (
     !profile ||
-    profile.is_active === false ||
+    !profileCanRenderPublicly(profile) ||
     !isSlugPubliclyAllowed(profile.slug, profile.slug_status)
   ) {
     notFound();
@@ -40,7 +41,8 @@ export default async function PrivateTokenProfilePage({ params, searchParams }: 
     redirect(`/${profile.slug}`);
   }
 
-  const isMultiViewProfile = profile.page_mode === "multi";
+  const plan = getProfilePlan(profile);
+  const isMultiViewProfile = plan.hasMoreProfileSections && profile.page_mode === "multi";
   const { data: profileViews } = isMultiViewProfile
     ? await admin
         .from("profile_views")

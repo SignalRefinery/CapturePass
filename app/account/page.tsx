@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Shell } from "@/components/shared/shell";
 import { createClient } from "@/lib/supabase/server";
+import { getPlanFeatures, normalizePlanKey } from "@/lib/plans";
 
 function cleanValue(value: string | null | undefined) {
   if (!value) return null;
@@ -112,17 +113,18 @@ export default async function AccountPage({
   const manualBilling = !!account?.lifetimeFree || !!account?.billingExempt;
   const hasActiveSubscription = account?.status === "active" || account?.status === "trialing";
 
+  const normalizedPlan = normalizePlanKey(account?.plan);
   const currentPlan = account?.lifetimeFree
     ? "Founder lifetime access"
     : account?.billingExempt
       ? "Billing exempt"
-      : account?.plan || "Not set";
+      : getPlanFeatures(normalizedPlan).label;
 
   return (
     <Shell
       footerLeft="Account"
       footerRight="TapTagg"
-      myProfileHref={account?.slug ? `/${account.slug}` : null}
+      myProfileHref={hasAccess && account?.slug ? `/${account.slug}` : account ? "/dashboard/preview" : null}
       initialAuth={
         account
           ? {
@@ -247,7 +249,7 @@ export default async function AccountPage({
                   </Link>
 
                   <p className="editor-copy" style={{ flexBasis: "100%", margin: "4px 0 0" }}>
-                    Choose an Essential plan to activate billing and unlock the full dashboard.
+                    Choose Core or above to activate your public profile, NFC, and QR sharing.
                   </p>
                 </>
               )}
@@ -275,9 +277,15 @@ export default async function AccountPage({
                   flexWrap: "wrap",
                 }}
               >
-                <a href={`/${account.slug}`} className="button secondary">
-                  View profile
-                </a>
+                {hasAccess ? (
+                  <a href={`/${account.slug}`} className="button secondary">
+                    View profile
+                  </a>
+                ) : (
+                  <Link href="/dashboard/preview" className="button secondary">
+                    Preview profile
+                  </Link>
+                )}
 
                 <Link href="/dashboard" className="button secondary">
                   Edit profile
