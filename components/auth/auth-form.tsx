@@ -13,6 +13,13 @@ type AuthFormProps = {
   plan?: string | null;
 };
 
+type SlugAvailabilityResponse = {
+  available?: boolean;
+  normalizedSlug?: string;
+  reason?: string | null;
+  error?: string;
+};
+
 export function AuthForm({ mode, nextPath, plan }: AuthFormProps) {
   const router = useRouter();
   const supabase = useMemo(() => createClient(), []);
@@ -27,7 +34,6 @@ export function AuthForm({ mode, nextPath, plan }: AuthFormProps) {
   const [lastName, setLastName] = useState("");
   const [referral, setReferral] = useState("");
   const [promoCode, setPromoCode] = useState("");
-  const [publicOfficial, setPublicOfficial] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -71,6 +77,19 @@ export function AuthForm({ mode, nextPath, plan }: AuthFormProps) {
         return;
       }
 
+      // Signup blocks unavailable @taggs before creating the Supabase auth user.
+      // Keep this paired with /api/slug/availability when slug rules change.
+      const slugAvailability = await checkSignupSlugAvailability(suggestedSlug);
+
+      if (!slugAvailability.available) {
+        setError(
+          slugAvailability.reason ||
+            "That @tagg is already taken. Try a different first and last name combination."
+        );
+        setLoading(false);
+        return;
+      }
+
       const { error: signUpError } = await supabase.auth.signUp({
         email: email.trim(),
         password,
@@ -86,7 +105,6 @@ export function AuthForm({ mode, nextPath, plan }: AuthFormProps) {
             suggested_slug: suggestedSlug,
             referral_code_used: referral.trim() || null,
             promo_code: normalizedPromoCode || null,
-            is_public_official: publicOfficial,
             selected_plan: isFounderSignup ? null : plan || null
           }
         }
@@ -131,7 +149,7 @@ export function AuthForm({ mode, nextPath, plan }: AuthFormProps) {
         <>
           <div className="editor-grid">
             <label className="auth-field">
-              <span>First name or title</span>
+              <span>First name</span>
               <input
                 type="text"
                 autoComplete="given-name"
@@ -150,17 +168,6 @@ export function AuthForm({ mode, nextPath, plan }: AuthFormProps) {
                 onChange={(event) => setLastName(event.target.value)}
                 required
               />
-            </label>
-          </div>
-
-          <div className="dashboard-card subtle" style={{ padding: 18 }}>
-            <label className="toggle-row" style={{ margin: 0 }}>
-              <input
-                type="checkbox"
-                checked={publicOfficial}
-                onChange={(event) => setPublicOfficial(event.target.checked)}
-              />
-              <span>I am a public official or operate in a government-facing role.</span>
             </label>
           </div>
         </>
@@ -273,6 +280,20 @@ export function AuthForm({ mode, nextPath, plan }: AuthFormProps) {
       ) : null}
     </form>
   );
+}
+
+async function checkSignupSlugAvailability(slug: string) {
+  const params = new URLSearchParams({ slug });
+  const response = await fetch(`/api/slug/availability?${params.toString()}`, {
+    cache: "no-store"
+  });
+  const result = (await response.json().catch(() => ({}))) as SlugAvailabilityResponse;
+
+  if (!response.ok) {
+    throw new Error(result.error || "Unable to check slug availability. Please try again.");
+  }
+
+  return result;
 }
 
 function getEmailRedirectUrl(nextPath: string, plan?: string | null) {

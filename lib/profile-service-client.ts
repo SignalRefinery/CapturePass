@@ -96,8 +96,6 @@ export async function saveProfileClient(record: ProfileRecord, userId: string) {
 }
 
 export async function isSlugTakenClient(slug: string, userId: string) {
-  const supabase = createBrowserClient();
-
   const moderation = classifySlug(slug);
 
   if (moderation.state === "blocked") {
@@ -105,34 +103,18 @@ export async function isSlugTakenClient(slug: string, userId: string) {
   }
 
   const normalizedSlug = moderation.normalized;
+  const params = new URLSearchParams({ slug: normalizedSlug, userId });
+  const response = await fetch(`/api/slug/availability?${params.toString()}`, {
+    cache: "no-store"
+  });
 
-  const { data, error } = await supabase
-    .from("profiles")
-    .select("user_id")
-    .eq("slug", normalizedSlug)
-    .limit(1);
-
-  if (error) {
+  if (!response.ok) {
     throw new Error("Unable to check slug availability. Please try again.");
   }
 
-  if (data && data.length > 0 && data[0].user_id !== userId) {
-    return true;
-  }
+  const result = (await response.json()) as { available?: boolean };
 
-  const { data: requestedData, error: requestedError } = await supabase
-    .from("profiles")
-    .select("user_id")
-    .eq("slug_requested", normalizedSlug)
-    .limit(1);
-
-  if (requestedError) {
-    throw new Error("Unable to check slug availability. Please try again.");
-  }
-
-  if (!requestedData || requestedData.length === 0) return false;
-
-  return requestedData[0].user_id !== userId;
+  return !result.available;
 }
 
 export async function saveProfileViewClient(record: ProfileViewRecord) {

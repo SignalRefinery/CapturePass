@@ -95,15 +95,25 @@ async function slugIsAvailable(
   slug: string,
   userId: string
 ) {
-  const { data, error } = await supabase
+  const { data: activeOwner, error: activeError } = await supabase
     .from("profiles")
     .select("user_id")
     .eq("slug", slug)
     .neq("user_id", userId)
-    .maybeSingle();
+    .limit(1);
 
-  if (error) return false;
-  return !data;
+  if (activeError) return false;
+  if (activeOwner?.length) return false;
+
+  const { data: requestedOwner, error: requestedError } = await supabase
+    .from("profiles")
+    .select("user_id")
+    .eq("slug_requested", slug)
+    .neq("user_id", userId)
+    .limit(1);
+
+  if (requestedError) return false;
+  return !requestedOwner?.length;
 }
 
 async function getBootstrapSlugFields(
