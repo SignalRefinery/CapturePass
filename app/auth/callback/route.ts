@@ -216,7 +216,7 @@ export async function GET(req: Request) {
       full_name: fullName,
       ...bootstrapSlugFields,
       promo_code_used: promoCode,
-      referral_code_used: referralCode,
+      referred_by: referralCode,
       is_public_official: isPublicOfficial,
       lifetime_free: promoCode === "FOUNDERS",
       billing_exempt: promoCode === "FOUNDERS",

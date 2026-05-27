@@ -66,8 +66,7 @@ export function planAtLeast(plan: PlanKey, minimum: PlanKey) {
   return PLAN_ORDER[plan] >= PLAN_ORDER[minimum];
 }
 
-export function getPlanFeatures(plan: PlanKey, forceActivated = false): PlanFeatures {
-  const isActivated = forceActivated || planAtLeast(plan, "core");
+export function getPlanFeatures(plan: PlanKey, isActivated = false): PlanFeatures {
   const isTaggPlus = planAtLeast(plan, "tagg_plus");
   const isCreator = planAtLeast(plan, "creator");
 
@@ -109,10 +108,13 @@ export function getProfilePlan(profile?: ProfileRecord | null): PlanFeatures {
       ? profile?.stripe_plan_key || "core"
       : profile?.stripe_plan_key;
   const plan = normalizePlanKey(storedPlan);
+  const isActivated = manualActivation || !!profile?.is_active;
+  const accessPlan = isActivated ? plan : "free";
 
   // Plan gating lives here so pricing changes can be made in one place.
-  // `is_active` controls paid/manual activation; the plan key controls feature depth.
-  return getPlanFeatures(plan, manualActivation || !!profile?.is_active);
+  // `is_active` controls paid/manual activation; inactive paid plans fall back
+  // to Free so failed or canceled subscriptions cannot keep paid access.
+  return getPlanFeatures(accessPlan, isActivated);
 }
 
 export function profileCanRenderPublicly(profile?: ProfileRecord | null) {

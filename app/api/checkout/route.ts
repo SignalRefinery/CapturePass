@@ -66,8 +66,8 @@ async function createCheckoutOrPortal(req: Request) {
         : null;
 
     const selectedPriceId =
-      (requestedPlan ? PLAN_PRICE_MAP[requestedPlan] : undefined) ||
-      (plan ? PLAN_PRICE_MAP[plan] : undefined);
+      (plan ? PLAN_PRICE_MAP[plan] : undefined) ||
+      (requestedPlan ? PLAN_PRICE_MAP[requestedPlan] : undefined);
 
     if (!requestedPlan || !plan || plan === "free" || !selectedPriceId) {
       return NextResponse.json(
