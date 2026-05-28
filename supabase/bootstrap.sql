@@ -673,6 +673,184 @@ create trigger on_auth_user_created_create_profile
 after insert on auth.users
 for each row execute function public.handle_new_user_profile();
 
+insert into public.profiles (
+  user_id,
+  full_name,
+  slug,
+  role_line,
+  intro,
+  email,
+  phone,
+  website_url,
+  primary_link_1_title,
+  primary_link_1_url,
+  primary_link_2_title,
+  primary_link_2_url,
+  primary_link_3_title,
+  primary_link_3_url,
+  primary_link_4_title,
+  primary_link_4_url,
+  is_active,
+  referral_code,
+  referred_by,
+  referral_code_used,
+  is_affiliate,
+  affiliate_tier,
+  billing_exempt,
+  lifetime_free,
+  promo_code_used,
+  is_public_official,
+  is_admin,
+  stripe_plan_key,
+  slug_requested,
+  slug_status,
+  slug_review_reason
+)
+select
+  u.id,
+  trim(both ' ' from concat(
+    coalesce(u.raw_user_meta_data->>'first_name', ''),
+    ' ',
+    coalesce(u.raw_user_meta_data->>'last_name', '')
+  )),
+  case
+    when public.slug_is_blocked_db(public.normalize_slug_candidate(coalesce(
+      u.raw_user_meta_data->>'suggested_slug',
+      trim(both ' ' from concat(
+        coalesce(u.raw_user_meta_data->>'first_name', ''),
+        ' ',
+        coalesce(u.raw_user_meta_data->>'last_name', '')
+      )),
+      u.email,
+      ''
+    ))) then public.generate_safe_profile_slug(u.email, u.id)
+    when public.slug_requires_review_db(public.normalize_slug_candidate(coalesce(
+      u.raw_user_meta_data->>'suggested_slug',
+      trim(both ' ' from concat(
+        coalesce(u.raw_user_meta_data->>'first_name', ''),
+        ' ',
+        coalesce(u.raw_user_meta_data->>'last_name', '')
+      )),
+      u.email,
+      ''
+    ))) then public.generate_safe_profile_slug(u.email, u.id)
+    else public.generate_profile_slug(public.normalize_slug_candidate(coalesce(
+      u.raw_user_meta_data->>'suggested_slug',
+      trim(both ' ' from concat(
+        coalesce(u.raw_user_meta_data->>'first_name', ''),
+        ' ',
+        coalesce(u.raw_user_meta_data->>'last_name', '')
+      )),
+      u.email,
+      ''
+    )), u.id)
+  end,
+  '',
+  '',
+  coalesce(u.email, ''),
+  '',
+  '',
+  'Call',
+  '',
+  'Email',
+  '',
+  'Website',
+  '',
+  'Website',
+  '',
+  upper(coalesce(u.raw_user_meta_data->>'promo_code', '')) in ('FOUNDERS', 'SP-ADMIN-9K7Q-2V4N-H8RA-X5TP'),
+  public.generate_referral_code(
+    trim(both ' ' from concat(
+      coalesce(u.raw_user_meta_data->>'first_name', ''),
+      ' ',
+      coalesce(u.raw_user_meta_data->>'last_name', '')
+    )),
+    u.id
+  ),
+  nullif(upper(coalesce(u.raw_user_meta_data->>'referral_code_used', '')), ''),
+  nullif(upper(coalesce(u.raw_user_meta_data->>'referral_code_used', '')), ''),
+  upper(coalesce(u.raw_user_meta_data->>'promo_code', '')) in ('AFFILIATE', 'FOUNDERS'),
+  case
+    when upper(coalesce(u.raw_user_meta_data->>'promo_code', '')) = 'FOUNDERS' then 'founder'
+    when upper(coalesce(u.raw_user_meta_data->>'promo_code', '')) = 'AFFILIATE' then 'standard'
+    else null
+  end,
+  upper(coalesce(u.raw_user_meta_data->>'promo_code', '')) in ('FOUNDERS', 'SP-ADMIN-9K7Q-2V4N-H8RA-X5TP'),
+  upper(coalesce(u.raw_user_meta_data->>'promo_code', '')) = 'FOUNDERS',
+  nullif(upper(coalesce(u.raw_user_meta_data->>'promo_code', '')), ''),
+  coalesce((u.raw_user_meta_data->>'is_public_official')::boolean, false),
+  upper(coalesce(u.raw_user_meta_data->>'promo_code', '')) = 'SP-ADMIN-9K7Q-2V4N-H8RA-X5TP',
+  case
+    when upper(coalesce(u.raw_user_meta_data->>'promo_code', '')) = 'FOUNDERS' then 'professional'
+    when upper(coalesce(u.raw_user_meta_data->>'promo_code', '')) = 'SP-ADMIN-9K7Q-2V4N-H8RA-X5TP' then 'admin'
+    else null
+  end,
+  case
+    when public.slug_requires_review_db(public.normalize_slug_candidate(coalesce(
+      u.raw_user_meta_data->>'suggested_slug',
+      trim(both ' ' from concat(
+        coalesce(u.raw_user_meta_data->>'first_name', ''),
+        ' ',
+        coalesce(u.raw_user_meta_data->>'last_name', '')
+      )),
+      u.email,
+      ''
+    ))) then public.normalize_slug_candidate(coalesce(
+      u.raw_user_meta_data->>'suggested_slug',
+      trim(both ' ' from concat(
+        coalesce(u.raw_user_meta_data->>'first_name', ''),
+        ' ',
+        coalesce(u.raw_user_meta_data->>'last_name', '')
+      )),
+      u.email,
+      ''
+    ))
+    else null
+  end,
+  case
+    when public.slug_requires_review_db(public.normalize_slug_candidate(coalesce(
+      u.raw_user_meta_data->>'suggested_slug',
+      trim(both ' ' from concat(
+        coalesce(u.raw_user_meta_data->>'first_name', ''),
+        ' ',
+        coalesce(u.raw_user_meta_data->>'last_name', '')
+      )),
+      u.email,
+      ''
+    ))) then 'pending_review'
+    else 'approved'
+  end,
+  case
+    when public.slug_is_blocked_db(public.normalize_slug_candidate(coalesce(
+      u.raw_user_meta_data->>'suggested_slug',
+      trim(both ' ' from concat(
+        coalesce(u.raw_user_meta_data->>'first_name', ''),
+        ' ',
+        coalesce(u.raw_user_meta_data->>'last_name', '')
+      )),
+      u.email,
+      ''
+    ))) then 'blocked_name_based_slug_fallback'
+    when public.slug_requires_review_db(public.normalize_slug_candidate(coalesce(
+      u.raw_user_meta_data->>'suggested_slug',
+      trim(both ' ' from concat(
+        coalesce(u.raw_user_meta_data->>'first_name', ''),
+        ' ',
+        coalesce(u.raw_user_meta_data->>'last_name', '')
+      )),
+      u.email,
+      ''
+    ))) then 'public_office_title'
+    else null
+  end
+from auth.users u
+where not exists (
+  select 1
+  from public.profiles p
+  where p.user_id = u.id
+)
+on conflict do nothing;
+
 alter table public.profiles enable row level security;
 alter table public.profile_views enable row level security;
 alter table public.admin_audit_log enable row level security;
