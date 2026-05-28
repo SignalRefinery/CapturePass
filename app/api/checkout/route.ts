@@ -72,7 +72,7 @@ async function createCheckoutOrPortal(req: Request) {
       (plan ? PLAN_PRICE_MAP[plan] : undefined) ||
       (requestedPlan ? PLAN_PRICE_MAP[requestedPlan] : undefined);
 
-    if (!requestedPlan || !plan || plan === "free" || !selectedPriceId) {
+    if (!requestedPlan || !plan || plan === "free") {
       if (req.method === "GET") {
         return redirectWithParam(req, "/pricing", "checkout", "choose-plan");
       }
@@ -80,6 +80,23 @@ async function createCheckoutOrPortal(req: Request) {
       return NextResponse.json(
         { error: "Choose a TapTagg plan before starting checkout." },
         { status: 400 }
+      );
+    }
+
+    if (!selectedPriceId) {
+      console.error("Checkout price configuration missing", {
+        route: "/api/checkout",
+        requestedPlan,
+        plan
+      });
+
+      if (req.method === "GET") {
+        return redirectWithParam(req, "/pricing", "checkout", "unavailable");
+      }
+
+      return NextResponse.json(
+        { error: "Checkout is temporarily unavailable for this TapTagg plan." },
+        { status: 500 }
       );
     }
 

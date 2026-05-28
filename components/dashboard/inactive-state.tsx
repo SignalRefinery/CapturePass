@@ -8,19 +8,7 @@ type InactiveStateProps = {
 
 export function InactiveState({ email }: InactiveStateProps) {
   function handleCheckout(plan: "core" | "tagg_plus" | "creator") {
-    const form = document.createElement("form");
-    form.method = "POST";
-    form.action = "/api/checkout";
-    form.style.display = "none";
-
-    const planInput = document.createElement("input");
-    planInput.type = "hidden";
-    planInput.name = "plan";
-    planInput.value = plan;
-
-    form.appendChild(planInput);
-    document.body.appendChild(form);
-    form.submit();
+    window.location.assign(`/api/checkout?plan=${encodeURIComponent(plan)}`);
   }
 
   return (
