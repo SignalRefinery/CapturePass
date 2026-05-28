@@ -1,25 +1,26 @@
 export function AffiliateTerms() {
   return (
     <div className="dashboard-card">
-      <div className="dashboard-kicker">Program terms</div>
-      <h2>Affiliate participation is compensation-based.</h2>
+      <div className="dashboard-kicker">Referral program</div>
+      <h2>Share TapTagg and earn rewards.</h2>
       <p className="editor-copy">
-        The TapTagg referral program is structured as a performance-based compensation arrangement.
-        Referral payments or service benefits are not gifts, gratuities, or incentives for influence.
+        TapTagg may offer rewards when a referral becomes a qualified customer.
+        Rewards are based on eligible signups and purchases, and participants should
+        clearly disclose when they share a referral link.
       </p>
 
       <div className="status-list">
         <div className="status-row">
-          <span>Program basis</span>
-          <strong>Compensation for qualified conversions</strong>
+          <span>How it works</span>
+          <strong>Earn rewards for qualified referrals</strong>
         </div>
         <div className="status-row">
-          <span>Not treated as</span>
-          <strong>Gift, gratuity, or official inducement</strong>
+          <span>Reward type</span>
+          <strong>Account credit, service benefits, or approved payouts</strong>
         </div>
         <div className="status-row">
-          <span>Participant obligation</span>
-          <strong>Follow applicable disclosure and ethics rules</strong>
+          <span>Disclosure</span>
+          <strong>Let people know when you use a referral link</strong>
         </div>
       </div>
     </div>

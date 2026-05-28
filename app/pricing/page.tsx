@@ -123,7 +123,29 @@ const faqItems = [
   }
 ];
 
-export default function PricingPage() {
+function checkoutNoticeFor(value?: string | null) {
+  switch (value) {
+    case "choose-plan":
+      return "Choose Core, Tagg+, or Creator to start checkout.";
+    case "unavailable":
+      return "Checkout is temporarily unavailable. Please try again in a few minutes.";
+    case "start-error":
+      return "We could not start checkout just now. Please choose a plan and try again.";
+    default:
+      return null;
+  }
+}
+
+export default async function PricingPage({
+  searchParams
+}: {
+  searchParams?: Promise<{
+    checkout?: string;
+  }>;
+}) {
+  const params = searchParams ? await searchParams : {};
+  const checkoutNoticeText = checkoutNoticeFor(params.checkout);
+
   return (
     <Shell
       footerLeft="Built For Sharing. Not Tracking."
@@ -145,6 +167,12 @@ export default function PricingPage() {
         <p style={heroCopy}>
           Start by claiming your Tagg, then activate it with a card or plan when you&apos;re ready.
         </p>
+
+        {checkoutNoticeText ? (
+          <div style={checkoutNotice}>
+            {checkoutNoticeText}
+          </div>
+        ) : null}
 
         <div style={trustLine}>Built For Sharing. Not Tracking.</div>
       </section>
@@ -290,6 +318,20 @@ const trustLine = {
   fontSize: 13,
   fontWeight: 800,
   letterSpacing: "0.04em"
+};
+
+const checkoutNotice = {
+  width: "fit-content",
+  maxWidth: "min(100%, 680px)",
+  margin: "20px auto 0",
+  padding: "12px 16px",
+  borderRadius: 14,
+  border: "1px solid rgba(167,139,250,.34)",
+  background: "rgba(139,92,246,.12)",
+  color: "#f3efff",
+  fontSize: 15,
+  lineHeight: 1.35,
+  fontWeight: 800
 };
 
 const pricingGrid = {

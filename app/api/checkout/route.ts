@@ -51,6 +51,9 @@ async function createCheckoutOrPortal(req: Request) {
   try {
     if (!process.env.STRIPE_SECRET_KEY) {
       console.error("Checkout configuration missing", { route: "/api/checkout" });
+      if (req.method === "GET") {
+        return redirectWithParam(req, "/pricing", "checkout", "unavailable");
+      }
       return NextResponse.json({ error: "Checkout is temporarily unavailable." }, { status: 500 });
     }
 
@@ -70,8 +73,12 @@ async function createCheckoutOrPortal(req: Request) {
       (requestedPlan ? PLAN_PRICE_MAP[requestedPlan] : undefined);
 
     if (!requestedPlan || !plan || plan === "free" || !selectedPriceId) {
+      if (req.method === "GET") {
+        return redirectWithParam(req, "/pricing", "checkout", "choose-plan");
+      }
+
       return NextResponse.json(
-        { error: "Missing or invalid checkout plan." },
+        { error: "Choose a TapTagg plan before starting checkout." },
         { status: 400 }
       );
     }
@@ -89,6 +96,9 @@ async function createCheckoutOrPortal(req: Request) {
         route: "/api/checkout",
         error: userError.message
       });
+      if (req.method === "GET") {
+        return redirectWithParam(req, "/login", "auth_error", "checkout");
+      }
       return NextResponse.json(
         { error: "Unable to verify your session. Please sign in and try again." },
         { status: 500 }
@@ -115,6 +125,9 @@ async function createCheckoutOrPortal(req: Request) {
         plan,
         error: profileError.message
       });
+      if (req.method === "GET") {
+        return redirectWithParam(req, "/account", "billing_error", "profile_lookup");
+      }
       return NextResponse.json(
         { error: "Unable to load your account for checkout. Please try again." },
         { status: 500 }
@@ -141,6 +154,9 @@ async function createCheckoutOrPortal(req: Request) {
           hasCustomerId: true,
           error: error instanceof Error ? error.message : "Unknown Stripe portal error"
         });
+        if (req.method === "GET") {
+          return redirectWithParam(req, "/account", "billing_error", "portal_unavailable");
+        }
         return NextResponse.json({ error: "Unable to open billing management. Please try again." }, { status: 500 });
       }
 
@@ -210,6 +226,9 @@ async function createCheckoutOrPortal(req: Request) {
         hasCustomerId: !!profile?.stripe_customer_id,
         error: error instanceof Error ? error.message : "Unknown Stripe checkout error"
       });
+      if (req.method === "GET") {
+        return redirectWithParam(req, "/pricing", "checkout", "start-error");
+      }
       return NextResponse.json({ error: "Unable to start checkout. Please try again." }, { status: 500 });
     }
 
@@ -220,6 +239,9 @@ async function createCheckoutOrPortal(req: Request) {
         plan,
         sessionId: session.id
       });
+      if (req.method === "GET") {
+        return redirectWithParam(req, "/pricing", "checkout", "start-error");
+      }
       return NextResponse.json(
         { error: "Unable to start checkout. Please try again." },
         { status: 500 }
@@ -233,6 +255,9 @@ async function createCheckoutOrPortal(req: Request) {
       route: "/api/checkout",
       error: message
     });
+    if (req.method === "GET") {
+      return redirectWithParam(req, "/pricing", "checkout", "start-error");
+    }
     return NextResponse.json({ error: "Unable to start checkout. Please try again." }, { status: 500 });
   }
 }
@@ -251,4 +276,10 @@ function getSiteUrl(req: Request) {
     process.env.NEXT_PUBLIC_SITE_URL ||
     new URL(req.url).origin
   ).replace(/\/$/, "");
+}
+
+function redirectWithParam(req: Request, path: string, key: string, value: string) {
+  const url = new URL(path, getSiteUrl(req));
+  url.searchParams.set(key, value);
+  return NextResponse.redirect(url.toString(), { status: 303 });
 }
