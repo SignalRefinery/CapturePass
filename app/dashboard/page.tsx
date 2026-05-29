@@ -473,17 +473,9 @@ export default async function DashboardPage({
               <p className="editor-copy">
                 Show your QR when you do not have your physical card, or save your TapTagg pass to your phone home screen.
               </p>
-              <details className="dashboard-pass-menu">
-                <summary className="button primary">Open Digital Pass</summary>
-                <div className="dashboard-pass-menu-panel">
-                  {passOptions.map((option) => (
-                    <Link href={option.href} className="dashboard-pass-menu-item" key={option.href}>
-                      <strong>{option.label}</strong>
-                      <span>{option.description}</span>
-                    </Link>
-                  ))}
-                </div>
-              </details>
+              <Link href={passOptions[0].href} className="button primary" style={{ marginTop: 20 }}>
+                Open Digital Pass
+              </Link>
             </div>
           </section>
             </>
