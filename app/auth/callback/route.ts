@@ -228,9 +228,10 @@ export async function GET(req: Request) {
       promo_code_used: promoCode,
       referred_by: referralCode,
       is_public_official: isPublicOfficial,
+      is_active: promoCode === "FOUNDERS",
       lifetime_free: promoCode === "FOUNDERS",
       billing_exempt: promoCode === "FOUNDERS",
-      stripe_plan_key: promoCode === "FOUNDERS" ? "founder" : null,
+      stripe_plan_key: promoCode === "FOUNDERS" ? "creator" : null,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     });
@@ -273,9 +274,10 @@ export async function GET(req: Request) {
       .from("profiles")
       .update({
         promo_code_used: promoCode,
+        is_active: true,
         lifetime_free: true,
         billing_exempt: true,
-        stripe_plan_key: "founder",
+        stripe_plan_key: "creator",
         updated_at: new Date().toISOString()
       })
       .eq("user_id", user.id);

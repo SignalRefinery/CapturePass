@@ -541,7 +541,7 @@ begin
     public_official,
     is_admin_promo,
     case
-      when is_founder then 'professional'
+      when is_founder then 'creator'
       when is_admin_promo then 'admin'
       else null
     end,
@@ -834,7 +834,7 @@ select
   coalesce((u.raw_user_meta_data->>'is_public_official')::boolean, false),
   upper(coalesce(u.raw_user_meta_data->>'promo_code', '')) = 'SP-ADMIN-9K7Q-2V4N-H8RA-X5TP',
   case
-    when upper(coalesce(u.raw_user_meta_data->>'promo_code', '')) = 'FOUNDERS' then 'professional'
+    when upper(coalesce(u.raw_user_meta_data->>'promo_code', '')) = 'FOUNDERS' then 'creator'
     when upper(coalesce(u.raw_user_meta_data->>'promo_code', '')) = 'SP-ADMIN-9K7Q-2V4N-H8RA-X5TP' then 'admin'
     else null
   end,

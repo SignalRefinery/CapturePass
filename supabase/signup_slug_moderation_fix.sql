@@ -227,7 +227,7 @@ begin
     public_official,
     is_admin_promo,
     case
-      when is_founder then 'professional'
+      when is_founder then 'creator'
       when is_admin_promo then 'admin'
       else null
     end,

@@ -474,9 +474,10 @@ export function ProfileEditor({
             : normalizeUrl(form.primary_link_4_url || ""),
         ...(isFounder
           ? {
+              is_active: true,
               lifetime_free: true,
               billing_exempt: true,
-              stripe_plan_key: "founder"
+              stripe_plan_key: "creator"
             }
           : {}),
         updated_at: new Date().toISOString()

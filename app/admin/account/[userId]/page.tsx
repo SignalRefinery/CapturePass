@@ -104,9 +104,10 @@ async function updateUserAction(formData: FormData) {
       updates.promo_code_used = promo || null;
 
       if (promo === "FOUNDERS") {
+        updates.is_active = true;
         updates.lifetime_free = true;
         updates.billing_exempt = true;
-        updates.stripe_plan_key = "founder";
+        updates.stripe_plan_key = "creator";
       }
       break;
     }
