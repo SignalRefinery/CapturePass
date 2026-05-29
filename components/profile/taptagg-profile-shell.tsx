@@ -35,6 +35,7 @@ type ProfileLike = {
   primary_link_3_url?: string | null;
   primary_link_4_title?: string | null;
   primary_link_4_url?: string | null;
+  public_url?: string | null;
 };
 
 type InitialAuth = {
@@ -81,6 +82,10 @@ function viewShareParam(profile: ProfileLike) {
 }
 
 function publicShareUrl(profile: ProfileLike) {
+  if (profile.public_url) {
+    return profile.public_url;
+  }
+
   const url = getReadableProfileUrl(profile);
   const viewParam = viewShareParam(profile);
 

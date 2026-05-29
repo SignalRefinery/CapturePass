@@ -9,10 +9,13 @@ That file creates the current expected schema in one pass:
 - `public.profiles`
 - `public.profile_views`
 - `public.admin_audit_log`
+- `public.organizations`
+- `public.organization_members`
+- `public.pass_tokens`
 - profile/signup triggers
 - slug moderation helpers
 - profile access and public visibility RLS policies
-- billing, referral, card fulfillment, and profile-view columns
+- billing, referral, card fulfillment, business-token, and profile-view columns
 
 ## Existing Project Upgrades
 

@@ -71,6 +71,41 @@ export type ProfileRecord = {
   updated_at?: string;
 };
 
+export type OrganizationRecord = {
+  id: string;
+  name: string;
+  slug?: string | null;
+  brand_color?: string | null;
+  brand_logo_url?: string | null;
+  owner_user_id: string;
+  managed_service_enabled?: boolean | null;
+  created_at?: string;
+};
+
+export type OrganizationMemberRecord = {
+  id: string;
+  organization_id: string;
+  user_id?: string | null;
+  name: string;
+  email?: string | null;
+  phone?: string | null;
+  title?: string | null;
+  role: "owner" | "admin" | "member";
+  status: "active" | "inactive";
+  created_at?: string;
+};
+
+export type PassTokenRecord = {
+  id: string;
+  organization_id?: string | null;
+  token: string;
+  assigned_member_id?: string | null;
+  status: "active" | "inactive" | "unassigned";
+  token_type: "nfc_card" | "digital_pass" | "both";
+  created_at?: string;
+  updated_at?: string;
+};
+
 export type ProfileViewRecord = {
   id?: string;
   profile_id: string;

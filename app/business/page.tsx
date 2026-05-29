@@ -14,6 +14,8 @@ const businessUseCases = [
 
 const platformFeatures = [
   "Business-branded TapTagg cards",
+  "Permanent /p token URLs that survive employee turnover",
+  "Phone-first Digital Pass QR for everyday sharing",
   "Employee activation and deactivation",
   "Card/profile reassignment",
   "Team-ready profile templates",
@@ -154,7 +156,7 @@ export default async function BusinessPage({
           </div>
           <h1>TapTagg for teams that connect in person.</h1>
           <p>
-            Business cards, team profiles, QR/NFC sharing, lead capture, and rollout support for
+            Permanent card/pass URLs, team profiles, QR/NFC sharing, lead capture, and rollout support for
             businesses that need every employee, event, or location ready to share.
           </p>
           <div className="business-hero-actions">
@@ -176,7 +178,7 @@ export default async function BusinessPage({
           </div>
           <div>
             <span>Sharing</span>
-            <strong>NFC + QR</strong>
+            <strong>Digital Pass QR + NFC</strong>
           </div>
           <div>
             <span>Operations</span>
@@ -192,7 +194,8 @@ export default async function BusinessPage({
           <p>
             Business TapTagg setups are designed for repeatable operations: new hires,
             replacements, seasonal events, location changes, sales campaigns, and teams that need
-            a consistent way to share the right next step.
+            a consistent way to share the right next step. The URL belongs to the card/pass token,
+            not an employee name, so reassignment does not require reprinting or retraining.
           </p>
         </div>
 
@@ -243,9 +246,20 @@ export default async function BusinessPage({
           <div className="dashboard-kicker">Business ready</div>
           <h2>Branded physical cards with updateable digital destinations.</h2>
           <p>
-            Use TapTagg for employee profiles, booking pages, lead forms, review links, menus,
-            product catalogs, event pages, or custom landing pages. Keep the physical card in the
-            field while the destination evolves behind it.
+            NFC cards create the memorable in-person entry point, while the Digital Pass QR is the
+            daily-use sharing method on the phone. Permanent token URLs keep the card useful when an
+            employee leaves: deactivate, unassign, or reassign the token without changing the URL.
+          </p>
+        </div>
+      </section>
+
+      <section className="business-section">
+        <div className="business-section-heading">
+          <div className="dashboard-kicker">Managed service</div>
+          <h2>Optional setup and ongoing changes for +$199/month.</h2>
+          <p>
+            TapTagg can manage employee updates, card/pass assignment, QR setup, routing changes,
+            and turnover workflows for teams that want the system handled for them.
           </p>
         </div>
       </section>
