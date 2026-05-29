@@ -185,23 +185,26 @@
   padding:58px 34px 8px;
   text-align:center;
   overflow:hidden;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.018), rgba(255,255,255,0) 34%),
+    linear-gradient(90deg, rgba(167,139,250,.03), transparent 24%, transparent 76%, rgba(167,139,250,.025));
 
   display:flex;
   align-items:center;
   justify-content:center;
-  min-height:390px;
+  min-height:430px;
 }
 
 .profileHero::before{
   content:"";
   position:absolute;
-  top:-140px;
-  left:50%;
-  transform:translateX(-50%);
-  width:620px;
-  height:360px;
-  background:radial-gradient(circle, rgba(139,92,246,.085) 0%, rgba(139,92,246,.035) 30%, transparent 68%);
-  filter:blur(18px);
+  inset:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+  background-size:42px 42px;
+  opacity:.18;
+  mask-image:linear-gradient(180deg, transparent 0%, black 18%, black 72%, transparent 100%);
   pointer-events:none;
 }
 
@@ -219,15 +222,60 @@
   max-width:980px;
   margin:0 auto;
   width:100%;
-  transform:translateY(-38px);
+  transform:translateY(-24px);
+}
+
+.profileIdentity{
+  display:grid;
+  justify-items:center;
+  gap:12px;
+  margin-bottom:18px;
+}
+
+.profileAvatar{
+  width:78px;
+  height:78px;
+  display:grid;
+  place-items:center;
+  border-radius:22px;
+  color:#ffffff;
+  background:
+    linear-gradient(145deg, rgba(255,255,255,.22), rgba(255,255,255,0) 34%),
+    linear-gradient(135deg, #6d28d9 0%, #a78bfa 100%);
+  border:1px solid rgba(255,255,255,.22);
+  box-shadow:
+    0 22px 54px rgba(124,58,237,.24),
+    inset 0 1px 0 rgba(255,255,255,.35);
+}
+
+.profileAvatar span{
+  font-size:24px;
+  font-weight:800;
+  letter-spacing:0;
+}
+
+.profileEyebrow{
+  display:inline-flex;
+  min-height:30px;
+  align-items:center;
+  justify-content:center;
+  padding:7px 12px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.075);
+  background:rgba(255,255,255,.025);
+  color:var(--muted);
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.16em;
+  text-transform:uppercase;
 }
 
 .profileName{
   position:relative;
   max-width:900px;
-  margin:18px auto 12px;
+  margin:0 auto 14px;
   font-family:"Inter Tight", "Inter", Arial, sans-serif;
-  font-size:clamp(64px, 7.2vw, 104px);
+  font-size:92px;
   font-weight:700;
   line-height:.9;
   letter-spacing:0;
@@ -236,10 +284,10 @@
 .profileRole{
   position:relative;
   margin:0 auto;
-  color:var(--purple-light);
-  font-size:12px;
-  letter-spacing:.28em;
-  text-transform:uppercase;
+  color:#d4d4d8;
+  font-size:17px;
+  font-weight:600;
+  letter-spacing:0;
 }
 
 .profileMeta{
@@ -326,6 +374,28 @@
   color:var(--muted);
   font-size:17px;
   line-height:1.72;
+}
+
+.heroSignalRow{
+  position:relative;
+  display:flex;
+  justify-content:center;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:22px;
+}
+
+.heroSignalRow span{
+  display:inline-flex;
+  align-items:center;
+  min-height:34px;
+  padding:8px 12px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.075);
+  background:rgba(255,255,255,.02);
+  color:var(--muted);
+  font-size:12px;
+  font-weight:600;
 }
 
 .profileGrid{
@@ -554,19 +624,31 @@
     padding-right:18px;
   }
   .profileName{
-    font-size:clamp(58px, 17vw, 84px);
+    font-size:58px;
   }
   .button{
     width:100%;
   }
   .ctaRow{gap:10px}
   .profileStack{
-    transform:translateY(-32px);
+    transform:translateY(-12px);
   }
   .profileHero{
-    min-height:390px;
-    padding-top:58px;
-    padding-bottom:12px;
+    min-height:500px;
+    padding-top:44px;
+    padding-bottom:22px;
+  }
+  .profileAvatar{
+    width:68px;
+    height:68px;
+    border-radius:20px;
+  }
+  .profileAvatar span{
+    font-size:21px;
+  }
+  .profileRole,
+  .profileIntro{
+    font-size:16px;
   }
   .signupCta{
     display:grid;

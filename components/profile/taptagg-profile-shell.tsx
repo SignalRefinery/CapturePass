@@ -104,6 +104,15 @@ function getPills(profile: ProfileLike) {
   ].filter((pill): pill is string => !!pill?.trim());
 }
 
+function initialsForName(name?: string | null) {
+  const parts = (name || "TapTagg")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+
+  return (parts.length > 1 ? `${parts[0][0]}${parts[parts.length - 1][0]}` : parts[0]?.slice(0, 2) || "TT").toUpperCase();
+}
+
 function subtitleForLink(item: { title?: string | null; href?: string | null }, profile: ProfileLike) {
   const title = (item.title || "").toLowerCase();
   const href = item.href || "";
@@ -224,6 +233,10 @@ export function TapTaggProfileShell({
     activeProfile.intro ||
     "A cleaner way to connect, save contact details, and move the right information forward without clutter.";
   const links = primaryLinks(activeProfile, { hideEmailLink: secondaryAction?.label === "Email" });
+  const displayName = activeProfile.full_name || "TapTagg";
+  const descriptor = activeProfile.role_line && activeProfile.organization_name
+    ? `${activeProfile.role_line} at ${activeProfile.organization_name}`
+    : activeProfile.role_line || activeProfile.organization_name || "Digital contact card";
 
   return (
     <div className={styles.page}>
@@ -294,10 +307,16 @@ export function TapTaggProfileShell({
 
         <section className={styles.profileHero}>
           <div className={styles.profileStack}>
+            <div className={styles.profileIdentity}>
+              <div className={styles.profileAvatar} aria-hidden="true">
+                <span>{initialsForName(displayName)}</span>
+              </div>
+              <div className={styles.profileEyebrow}>TapTagg profile</div>
+            </div>
 
-            <h1 className={styles.profileName}>{activeProfile.full_name || "TapTagg"}</h1>
+            <h1 className={styles.profileName}>{displayName}</h1>
 
-            {activeProfile.role_line ? <p className={styles.profileRole}>{activeProfile.role_line}</p> : null}
+            <p className={styles.profileRole}>{descriptor}</p>
 
             {pills.length ? (
               <div className={styles.profileMeta}>
@@ -325,6 +344,12 @@ export function TapTaggProfileShell({
             </div>
 
             <p className={styles.profileIntro}>{intro}</p>
+
+            <div className={styles.heroSignalRow} aria-label="Profile features">
+              <span>Contact card</span>
+              <span>Direct links</span>
+              <span>{showPhone ? "Text ready" : "QR ready"}</span>
+            </div>
           </div>
         </section>
 
