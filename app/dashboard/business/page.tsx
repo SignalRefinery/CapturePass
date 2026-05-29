@@ -121,9 +121,14 @@ async function createOrganization(formData: FormData) {
   if (!user) redirect("/login");
 
   const name = String(formData.get("name") || "").trim();
+  const adminName = String(formData.get("admin_name") || "").trim();
+  const adminEmail = String(formData.get("admin_email") || "").trim();
+  const adminPhone = String(formData.get("admin_phone") || "").trim();
+  const adminTitle = String(formData.get("admin_title") || "").trim();
   const managedService = formData.get("managed_service_enabled") === "on";
 
   if (!name) redirect("/dashboard/business?error=missing_org_name");
+  if (!adminName) redirect("/dashboard/business?error=missing_admin_name");
 
   const admin = createAdminClient();
   const { data: organization, error } = await admin
@@ -140,10 +145,11 @@ async function createOrganization(formData: FormData) {
 
   await admin.from("organization_members").insert({
     organization_id: organization.id,
-    user_id: user.id,
-    name: user.user_metadata?.full_name || user.email || "Owner",
-    email: user.email || null,
-    role: "owner",
+    name: adminName,
+    email: adminEmail || null,
+    phone: adminPhone || null,
+    title: adminTitle || null,
+    role: "admin",
     status: "active"
   });
 
@@ -164,13 +170,18 @@ async function addEmployee(formData: FormData) {
   if (!name) redirect("/dashboard/business?error=missing_employee_name");
 
   const admin = createAdminClient();
+  const { count } = await admin
+    .from("organization_members")
+    .select("id", { count: "exact", head: true })
+    .eq("organization_id", organizationId);
+
   await admin.from("organization_members").insert({
     organization_id: organizationId,
     name,
     email: email || null,
     phone: phone || null,
     title: title || null,
-    role: "member",
+    role: count === 0 ? "admin" : "member",
     status: "active"
   });
 
@@ -311,6 +322,26 @@ export default async function BusinessDashboardPage({
                 Company name
                 <input className="editor-input" name="name" required />
               </label>
+              <div className="editor-grid">
+                <label className="editor-label">
+                  Business admin name
+                  <input className="editor-input" name="admin_name" required />
+                </label>
+                <label className="editor-label">
+                  Business admin title
+                  <input className="editor-input" name="admin_title" placeholder="Owner, manager, office admin..." />
+                </label>
+              </div>
+              <div className="editor-grid">
+                <label className="editor-label">
+                  Business admin email
+                  <input className="editor-input" name="admin_email" type="email" />
+                </label>
+                <label className="editor-label">
+                  Business admin phone
+                  <input className="editor-input" name="admin_phone" type="tel" />
+                </label>
+              </div>
               <label className="checkbox-row">
                 <input name="managed_service_enabled" type="checkbox" />
                 Managed setup and service +$199/month
@@ -497,7 +528,9 @@ export default async function BusinessDashboardPage({
                   <span>
                     {member.name}
                     <br />
-                    <small>{member.title || "Member"} · {assignedToken ? `/p/${assignedToken.token}` : "No token"}</small>
+                    <small>
+                      {member.role === "admin" ? "Business admin" : member.title || "Member"} · {assignedToken ? `/p/${assignedToken.token}` : "No token"}
+                    </small>
                   </span>
                   <strong>{member.status}</strong>
                   {member.status === "active" ? (
