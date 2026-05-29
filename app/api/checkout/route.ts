@@ -368,11 +368,26 @@ export async function GET(req: Request) {
 }
 
 function getSiteUrl(req: Request) {
-  return (
+  const requestOrigin = new URL(req.url).origin;
+  const configuredUrl =
     process.env.NEXT_PUBLIC_APP_URL ||
     process.env.NEXT_PUBLIC_SITE_URL ||
-    new URL(req.url).origin
-  ).replace(/\/$/, "");
+    requestOrigin;
+
+  try {
+    const parsedUrl = new URL(configuredUrl);
+
+    if (parsedUrl.protocol === "http:" || parsedUrl.protocol === "https:") {
+      return parsedUrl.origin.replace(/\/$/, "");
+    }
+  } catch {}
+
+  console.warn("Ignoring invalid configured app URL for checkout", {
+    route: "/api/checkout",
+    configuredUrl
+  });
+
+  return requestOrigin.replace(/\/$/, "");
 }
 
 function redirectWithParam(req: Request, path: string, key: string, value: string) {
