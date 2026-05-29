@@ -186,8 +186,11 @@
   text-align:center;
   overflow:hidden;
   background:
-    linear-gradient(180deg, rgba(255,255,255,.018), rgba(255,255,255,0) 34%),
-    linear-gradient(90deg, rgba(167,139,250,.03), transparent 24%, transparent 76%, rgba(167,139,250,.025));
+    radial-gradient(circle at 50% 10%, rgba(167,139,250,.24) 0%, rgba(124,58,237,.12) 24%, transparent 54%),
+    radial-gradient(circle at 14% 34%, rgba(124,58,237,.12) 0%, transparent 34%),
+    radial-gradient(circle at 86% 26%, rgba(59,130,246,.08) 0%, transparent 32%),
+    linear-gradient(180deg, rgba(255,255,255,.026), rgba(255,255,255,0) 38%),
+    linear-gradient(90deg, rgba(167,139,250,.035), transparent 24%, transparent 76%, rgba(167,139,250,.03));
 
   display:flex;
   align-items:center;
@@ -211,9 +214,15 @@
 .profileHero::after{
   content:"";
   position:absolute;
-  inset:22px 22px auto 22px;
-  height:1px;
-  background:linear-gradient(90deg, transparent 0%, rgba(255,255,255,.08) 18%, rgba(139,92,246,.28) 50%, rgba(255,255,255,.08) 82%, transparent 100%);
+  top:30px;
+  left:50%;
+  width:min(760px, 84%);
+  height:230px;
+  transform:translateX(-50%);
+  border-radius:999px;
+  background:radial-gradient(ellipse at center, rgba(167,139,250,.18) 0%, rgba(124,58,237,.07) 42%, transparent 72%);
+  filter:blur(34px);
+  opacity:.9;
   pointer-events:none;
 }
 
@@ -244,7 +253,9 @@
     linear-gradient(135deg, #6d28d9 0%, #a78bfa 100%);
   border:1px solid rgba(255,255,255,.22);
   box-shadow:
-    0 22px 54px rgba(124,58,237,.24),
+    0 0 0 10px rgba(167,139,250,.045),
+    0 24px 70px rgba(124,58,237,.36),
+    0 0 86px rgba(167,139,250,.22),
     inset 0 1px 0 rgba(255,255,255,.35);
 }
 
@@ -279,6 +290,7 @@
   font-weight:700;
   line-height:.9;
   letter-spacing:0;
+  text-shadow:0 18px 70px rgba(167,139,250,.2);
 }
 
 .profileRole{
@@ -355,7 +367,7 @@
 .profilePrimaryButton{
   color:#ffffff;
   background:linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
-  box-shadow:0 14px 34px rgba(124,58,237,.24), inset 0 1px 0 rgba(255,255,255,.22);
+  box-shadow:0 18px 44px rgba(124,58,237,.34), 0 0 60px rgba(167,139,250,.18), inset 0 1px 0 rgba(255,255,255,.26);
 }
 
 .profileSubtleButton{
@@ -399,13 +411,28 @@
 }
 
 .profileGrid{
+  position:relative;
   padding:0 34px 38px;
   display:grid;
   grid-template-columns:1.25fr .75fr;
   gap:16px;
 }
 
+.profileGrid::before{
+  content:"";
+  position:absolute;
+  top:-80px;
+  left:34px;
+  right:34px;
+  height:180px;
+  border-radius:999px;
+  background:radial-gradient(ellipse at center, rgba(167,139,250,.12) 0%, rgba(124,58,237,.04) 48%, transparent 72%);
+  filter:blur(34px);
+  pointer-events:none;
+}
+
 .card{
+  position:relative;
   border:1px solid rgba(255,255,255,.075);
   border-radius:18px;
   background:
