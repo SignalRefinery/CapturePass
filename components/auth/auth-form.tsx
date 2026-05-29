@@ -17,6 +17,7 @@ type SlugAvailabilityResponse = {
   available?: boolean;
   normalizedSlug?: string;
   reason?: string | null;
+  state?: "available" | "blocked" | "review" | string;
   error?: string;
 };
 
@@ -81,10 +82,10 @@ export function AuthForm({ mode, nextPath, plan }: AuthFormProps) {
       // Keep this paired with /api/slug/availability when slug rules change.
       const slugAvailability = await checkSignupSlugAvailability(suggestedSlug);
 
-      if (!slugAvailability.available) {
+      if (slugAvailability.state === "blocked") {
         setError(
           slugAvailability.reason ||
-            "That @tagg is already taken. Try a different first and last name combination."
+            "That @tagg is not available. Try a different first and last name combination."
         );
         setLoading(false);
         return;
