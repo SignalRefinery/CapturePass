@@ -7,8 +7,10 @@ import {
   getProfileForUserServer,
   getProfileViewsForProfileServer
 } from "@/lib/profile-service-server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
-import { getProfilePlan } from "@/lib/plans";
+import { getProfilePlan, normalizePlanKey } from "@/lib/plans";
+import { stripe } from "@/lib/stripe";
 import { slugify } from "@/lib/utils";
 import type { ProfileRecord } from "@/lib/types";
 
@@ -18,6 +20,113 @@ function passHrefFor(profile: ProfileRecord) {
   }
 
   return `/pass/${profile.private_token}`;
+}
+
+function getStringId(value: string | { id?: string } | null | undefined) {
+  if (!value) return null;
+  return typeof value === "string" ? value : value.id || null;
+}
+
+async function reconcileCheckoutSuccess(sessionId: string | null | undefined, userId: string) {
+  if (!sessionId) {
+    console.warn("Dashboard checkout success missing session id", {
+      route: "/dashboard",
+      userId
+    });
+    return;
+  }
+
+  try {
+    const session = await stripe.checkout.sessions.retrieve(sessionId, {
+      expand: ["subscription"]
+    });
+    const sessionUserId = session.metadata?.user_id || null;
+    const rawPlan = session.metadata?.plan || session.metadata?.selected_plan || null;
+    const plan = normalizePlanKey(rawPlan);
+    const checkoutComplete = session.status === "complete";
+    const paymentComplete =
+      session.payment_status === "paid" ||
+      session.payment_status === "no_payment_required";
+
+    if (sessionUserId !== userId) {
+      console.warn("Dashboard checkout reconciliation skipped for user mismatch", {
+        route: "/dashboard",
+        userId,
+        sessionId,
+        sessionUserId
+      });
+      return;
+    }
+
+    if (!checkoutComplete || !paymentComplete || plan === "free") {
+      console.warn("Dashboard checkout reconciliation skipped for incomplete session", {
+        route: "/dashboard",
+        userId,
+        sessionId,
+        plan,
+        sessionStatus: session.status,
+        paymentStatus: session.payment_status
+      });
+      return;
+    }
+
+    const customerId = getStringId(session.customer);
+    const subscriptionId = getStringId(session.subscription);
+    const admin = createAdminClient();
+    const updatePayload =
+      session.mode === "subscription"
+        ? {
+            is_active: true,
+            stripe_customer_id: customerId,
+            stripe_subscription_id: subscriptionId,
+            stripe_plan_key: plan,
+            subscription_status: "active"
+          }
+        : {
+            is_active: true,
+            stripe_customer_id: customerId,
+            stripe_subscription_id: null,
+            stripe_plan_key: plan,
+            subscription_status: "active"
+          };
+
+    const { data, error } = await admin
+      .from("profiles")
+      .update(updatePayload)
+      .eq("user_id", userId)
+      .select("user_id, is_active, stripe_customer_id, stripe_subscription_id, stripe_plan_key, subscription_status")
+      .maybeSingle();
+
+    if (error) {
+      console.error("Dashboard checkout reconciliation failed", {
+        route: "/dashboard",
+        userId,
+        sessionId,
+        plan,
+        error: error.message
+      });
+      return;
+    }
+
+    console.info("Dashboard checkout reconciliation updated profile", {
+      route: "/dashboard",
+      userId,
+      sessionId,
+      plan,
+      customerId,
+      subscriptionId,
+      isActive: data?.is_active || false,
+      stripePlanKey: data?.stripe_plan_key || null,
+      subscriptionStatus: data?.subscription_status || null
+    });
+  } catch (error) {
+    console.error("Dashboard checkout reconciliation threw", {
+      route: "/dashboard",
+      userId,
+      sessionId,
+      error: error instanceof Error ? error.message : "Unknown checkout reconciliation error"
+    });
+  }
 }
 
 async function submitFounderCardClaim(formData: FormData) {
@@ -140,10 +249,14 @@ export default async function DashboardPage({
     redirect("/login");
   }
 
+  const params = searchParams ? await searchParams : {};
+
+  if (params?.checkout === "success") {
+    await reconcileCheckoutSuccess(params.session_id, user.id);
+  }
+
   const initialAuth = await getInitialAuth();
   const existing = await getProfileForUserServer(user.id);
-
-  const params = searchParams ? await searchParams : {};
 
   const firstName = user.user_metadata?.first_name || "";
   const lastName = user.user_metadata?.last_name || "";
