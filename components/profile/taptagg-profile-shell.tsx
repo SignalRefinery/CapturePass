@@ -114,13 +114,19 @@ function subtitleForLink(item: { title?: string | null; href?: string | null }, 
   if (href.startsWith("sms:") || title.includes("text")) {
     return "Send a quick message directly";
   }
+  if (href.startsWith("mailto:") || title.includes("email")) {
+    return "Send an email";
+  }
+  if (title.includes("website") || href.startsWith("http")) {
+    return "Visit website";
+  }
   if (title.includes("add to contacts") || href.includes("/api/vcard/")) {
     return "Save to iPhone, Android, Outlook, or desktop contacts";
   }
   if (href.includes("taptagg")) {
     return "TapTagg profile destination";
   }
-  return "Open instantly";
+  return "Open link";
 }
 
 function isMeaningfulHref(href?: string | null) {
