@@ -2,8 +2,10 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { CopyLinkButton } from "@/components/business/copy-link-button";
 import { Shell } from "@/components/shared/shell";
+import { claimBusinessOrganizationForUser } from "@/lib/business/organization-access";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
+import { slugify } from "@/lib/utils";
 import { generatePrivateToken } from "@/lib/utils/generate-token";
 import type {
   OrganizationMemberRecord,
@@ -34,7 +36,7 @@ async function getCurrentUser() {
   return user;
 }
 
-async function getBusinessData(userId: string): Promise<BusinessData> {
+async function getBusinessData(userId: string, email?: string | null): Promise<BusinessData> {
   const admin = createAdminClient();
   const { data: ownedOrg } = await admin
     .from("organizations")
@@ -60,6 +62,10 @@ async function getBusinessData(userId: string): Promise<BusinessData> {
       ? adminMember?.organization[0]
       : adminMember?.organization;
     organization = (org as OrganizationRecord | undefined) || null;
+  }
+
+  if (!organization) {
+    organization = await claimBusinessOrganizationForUser({ userId, email });
   }
 
   if (!organization) {
@@ -131,10 +137,12 @@ async function createOrganization(formData: FormData) {
   if (!adminName) redirect("/dashboard/business?error=missing_admin_name");
 
   const admin = createAdminClient();
+  const slug = await generateUniqueOrganizationSlug(name);
   const { data: organization, error } = await admin
     .from("organizations")
     .insert({
       name,
+      slug,
       owner_user_id: user.id,
       managed_service_enabled: managedService
     })
@@ -154,6 +162,23 @@ async function createOrganization(formData: FormData) {
   });
 
   redirect("/dashboard/business");
+}
+
+async function generateUniqueOrganizationSlug(name: string) {
+  const admin = createAdminClient();
+  const base = slugify(name) || `business-${generatePrivateToken(6)}`;
+
+  for (let attempt = 0; attempt < 8; attempt += 1) {
+    const candidate = attempt === 0 ? base : `${base}-${attempt + 1}`;
+    const [{ data: existingOrg }, { data: existingProfile }] = await Promise.all([
+      admin.from("organizations").select("id").eq("slug", candidate).maybeSingle(),
+      admin.from("profiles").select("id").eq("slug", candidate).maybeSingle()
+    ]);
+
+    if (!existingOrg && !existingProfile) return candidate;
+  }
+
+  return `${base}-${generatePrivateToken(6)}`;
 }
 
 async function addEmployee(formData: FormData) {
@@ -299,7 +324,7 @@ export default async function BusinessDashboardPage({
   const user = await getCurrentUser();
   if (!user) redirect("/login");
 
-  const { organization, members, tokens } = await getBusinessData(user.id);
+  const { organization, members, tokens } = await getBusinessData(user.id, user.email);
   const params = searchParams ? await searchParams : {};
   const initialAuth = {
     email: user.email || null,
@@ -383,6 +408,22 @@ export default async function BusinessDashboardPage({
 
       <section className="dashboard-wrap">
         <div className="dashboard-grid">
+          {organization.slug ? (
+            <div className="dashboard-card">
+              <div className="dashboard-kicker">Business login</div>
+              <h2>Admin console link.</h2>
+              <p className="editor-copy" style={{ wordBreak: "break-all" }}>
+                {appUrl()}/business/{organization.slug}
+              </p>
+              <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                <Link className="button secondary" href={`/business/${organization.slug}`}>
+                  Open business login
+                </Link>
+                <CopyLinkButton value={`${appUrl()}/business/${organization.slug}`} />
+              </div>
+            </div>
+          ) : null}
+
           <div className="dashboard-card">
             <div className="dashboard-kicker">Managed service</div>
             <h2>{organization.managed_service_enabled ? "Managed service enabled." : "Managed setup available."}</h2>

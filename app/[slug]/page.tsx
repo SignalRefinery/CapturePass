@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { unstable_noStore as noStore } from "next/cache";
+import { createAdminClient } from "@/lib/supabase/admin";
 import {
   getDefaultProfileViewServer,
   getProfileBySlugServer,
@@ -26,8 +27,22 @@ export default async function PublicProfilePage({ params, searchParams }: PagePr
   noStore();
 
   const { slug } = await params;
+  const normalizedSlug = slug.toLowerCase();
   const requestedView = (await searchParams)?.view || null;
-  const profile = (await getProfileBySlugServer(slug)) as ProfileRecord | null;
+  const profile = (await getProfileBySlugServer(normalizedSlug)) as ProfileRecord | null;
+
+  if (!profile) {
+    const admin = createAdminClient();
+    const { data: organization } = await admin
+      .from("organizations")
+      .select("slug")
+      .eq("slug", normalizedSlug)
+      .maybeSingle();
+
+    if (organization?.slug) {
+      redirect(`/business/${organization.slug}`);
+    }
+  }
 
   if (
     !profile ||
