@@ -103,6 +103,14 @@ export default async function AdminPage() {
               Spreadsheet-style account review, slug approvals, billing flags,
               affiliate status, and operational exceptions.
             </p>
+            <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 18 }}>
+              <Link className="button primary" href="/dashboard/business">
+                Onboard new business
+              </Link>
+              <Link className="button secondary" href="/dashboard">
+                Open dashboard
+              </Link>
+            </div>
           </div>
 
           <div
@@ -146,6 +154,34 @@ export default async function AdminPage() {
               <strong style={{ fontSize: 28 }}>{requestRows.length}</strong>
             </div>
           </div>
+
+          <div className="card" style={{ padding: 18 }}>
+            <div className="dashboard-kicker">Users</div>
+            <h2 className="section-title" style={{ fontSize: 22 }}>
+              User table
+            </h2>
+            <p className="editor-copy">
+              Search, review, manage, disable, or delete user accounts from the main operational table.
+            </p>
+            <UserManagementTable
+              rows={rows.map((row) => ({
+                user_id: row.user_id,
+                full_name: row.full_name,
+                email: row.email,
+                slug: row.slug,
+                is_active: row.is_active,
+                billing_exempt: row.billing_exempt,
+                is_affiliate: row.is_affiliate,
+                affiliate_tier: row.affiliate_tier,
+                is_public_official: row.is_public_official,
+                stripe_plan_key: row.stripe_plan_key,
+                referral_code_used: row.referral_code_used,
+                referral_reconciled: row.referral_reconciled,
+                referral_reconciled_at: row.referral_reconciled_at
+              }))}
+            />
+          </div>
+
           {requestRows.length > 0 ? (
             <div className="card" style={{ padding: 18 }}>
               <div className="dashboard-kicker">Partner intake</div>
@@ -427,24 +463,6 @@ export default async function AdminPage() {
               </AdminTableFrame>
             </div>
           ) : null}
-
-          <UserManagementTable
-            rows={rows.map((row) => ({
-              user_id: row.user_id,
-              full_name: row.full_name,
-              email: row.email,
-              slug: row.slug,
-              is_active: row.is_active,
-              billing_exempt: row.billing_exempt,
-              is_affiliate: row.is_affiliate,
-              affiliate_tier: row.affiliate_tier,
-              is_public_official: row.is_public_official,
-              stripe_plan_key: row.stripe_plan_key,
-              referral_code_used: row.referral_code_used,
-              referral_reconciled: row.referral_reconciled,
-              referral_reconciled_at: row.referral_reconciled_at
-            }))}
-          />
         </div>
       </section>
     </Shell>

@@ -21,8 +21,8 @@ type Row = {
 };
 
 const cellStyle: React.CSSProperties = {
-  borderRight: "1px solid #d0d5dd",
-  borderBottom: "1px solid #d0d5dd",
+  borderRight: "1px solid rgba(255,255,255,.08)",
+  borderBottom: "1px solid rgba(255,255,255,.08)",
   padding: "8px 10px",
   height: 38,
   whiteSpace: "nowrap",
@@ -241,19 +241,20 @@ export function UserManagementTable({ rows }: { rows: Row[] }) {
       style={{
         padding: 0,
         overflow: "hidden",
-        border: "1px solid #cbd5e1",
+        border: "1px solid rgba(255,255,255,.1)",
+        background: "rgba(10,10,12,.72)",
         boxShadow: "none",
       }}
     >
       <div
         style={{
           padding: 10,
-          borderBottom: "1px solid #cbd5e1",
+          borderBottom: "1px solid rgba(255,255,255,.1)",
           display: "grid",
           gridTemplateColumns: "1fr auto",
           gap: 10,
           alignItems: "center",
-          background: "#f8fafc",
+          background: "rgba(255,255,255,.03)",
         }}
       >
         <input
@@ -263,11 +264,12 @@ export function UserManagementTable({ rows }: { rows: Row[] }) {
           style={{
             width: "100%",
             padding: "9px 10px",
-            border: "1px solid #cbd5e1",
+            border: "1px solid rgba(255,255,255,.1)",
             borderRadius: 6,
             fontSize: 13,
             outline: "none",
             color: "#ffffff",
+            background: "rgba(255,255,255,.04)",
           }}
         />
 
@@ -332,7 +334,7 @@ export function UserManagementTable({ rows }: { rows: Row[] }) {
               return (
                 <tr
                   key={r.user_id}
-                  style={{ background: risk ? "#fffafa" : "#fff" }}
+                  style={{ background: risk ? "rgba(239,68,68,.08)" : "rgba(255,255,255,.012)" }}
                 >
                   <td style={cellStyle} title={r.full_name || ""}>
                     {r.full_name || "—"}
