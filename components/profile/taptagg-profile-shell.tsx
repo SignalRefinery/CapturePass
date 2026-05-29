@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import type { CSSProperties } from "react";
 import { useState } from "react";
 import { getReadableProfileUrl } from "@/lib/urls/profile-url";
 import { ReportIssueForm } from "@/components/profile/report-issue-form";
@@ -15,6 +16,10 @@ type ProfileLike = {
   view_name?: string | null;
   full_name?: string | null;
   organization_name?: string | null;
+  brand_logo_url?: string | null;
+  brand_color_primary?: string | null;
+  brand_color_secondary?: string | null;
+  brand_color_accent?: string | null;
   role_line?: string | null;
   intro?: string | null;
   email?: string | null;
@@ -111,6 +116,10 @@ function initialsForName(name?: string | null) {
     .filter(Boolean);
 
   return (parts.length > 1 ? `${parts[0][0]}${parts[parts.length - 1][0]}` : parts[0]?.slice(0, 2) || "TT").toUpperCase();
+}
+
+function isHexColor(value?: string | null) {
+  return /^#[0-9a-fA-F]{6}$/.test((value || "").trim());
 }
 
 function subtitleForLink(item: { title?: string | null; href?: string | null }, profile: ProfileLike) {
@@ -237,9 +246,20 @@ export function TapTaggProfileShell({
   const descriptor = activeProfile.role_line && activeProfile.organization_name
     ? `${activeProfile.role_line} at ${activeProfile.organization_name}`
     : activeProfile.role_line || activeProfile.organization_name || "Digital contact card";
+  const brandStyle = {
+    ...(isHexColor(activeProfile.brand_color_primary)
+      ? { "--profile-primary": activeProfile.brand_color_primary }
+      : {}),
+    ...(isHexColor(activeProfile.brand_color_secondary)
+      ? { "--profile-secondary": activeProfile.brand_color_secondary }
+      : {}),
+    ...(isHexColor(activeProfile.brand_color_accent)
+      ? { "--profile-accent": activeProfile.brand_color_accent }
+      : {})
+  } as CSSProperties;
 
   return (
-    <div className={styles.page}>
+    <div className={styles.page} style={brandStyle}>
       <div className={`${styles.shell} ${mobileOpen ? styles.shellMenuOpen : ""}`}>
         <header className={styles.topbar}>
           <Link className={styles.brand} href="/">
@@ -309,7 +329,12 @@ export function TapTaggProfileShell({
           <div className={styles.profileStack}>
             <div className={styles.profileIdentity}>
               <div className={styles.profileAvatar} aria-hidden="true">
-                <span>{initialsForName(displayName)}</span>
+                {activeProfile.brand_logo_url ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={activeProfile.brand_logo_url} alt="" />
+                ) : (
+                  <span>{initialsForName(displayName)}</span>
+                )}
               </div>
               <div className={styles.profileEyebrow}>TapTagg profile</div>
             </div>

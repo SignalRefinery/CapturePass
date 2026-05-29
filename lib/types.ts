@@ -76,6 +76,9 @@ export type OrganizationRecord = {
   name: string;
   slug?: string | null;
   brand_color?: string | null;
+  brand_color_primary?: string | null;
+  brand_color_secondary?: string | null;
+  brand_color_accent?: string | null;
   brand_logo_url?: string | null;
   owner_user_id: string;
   managed_service_enabled?: boolean | null;

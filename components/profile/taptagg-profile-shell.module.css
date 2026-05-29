@@ -9,6 +9,9 @@
   --stroke-2:rgba(255,255,255,.12);
   --purple:#8B5CF6;
   --purple-light:#A78BFA;
+  --profile-primary:#8B5CF6;
+  --profile-secondary:#A78BFA;
+  --profile-accent:#3B82F6;
   --text:#ffffff;
   --muted:#a1a1aa;
   --muted-2:#71717a;
@@ -186,9 +189,9 @@
   text-align:center;
   overflow:hidden;
   background:
-    radial-gradient(circle at 50% 10%, rgba(167,139,250,.24) 0%, rgba(124,58,237,.12) 24%, transparent 54%),
-    radial-gradient(circle at 14% 34%, rgba(124,58,237,.12) 0%, transparent 34%),
-    radial-gradient(circle at 86% 26%, rgba(59,130,246,.08) 0%, transparent 32%),
+    radial-gradient(circle at 50% 10%, color-mix(in srgb, var(--profile-secondary) 24%, transparent) 0%, color-mix(in srgb, var(--profile-primary) 12%, transparent) 24%, transparent 54%),
+    radial-gradient(circle at 14% 34%, color-mix(in srgb, var(--profile-primary) 12%, transparent) 0%, transparent 34%),
+    radial-gradient(circle at 86% 26%, color-mix(in srgb, var(--profile-accent) 8%, transparent) 0%, transparent 32%),
     linear-gradient(180deg, rgba(255,255,255,.026), rgba(255,255,255,0) 38%),
     linear-gradient(90deg, rgba(167,139,250,.035), transparent 24%, transparent 76%, rgba(167,139,250,.03));
 
@@ -220,7 +223,7 @@
   height:230px;
   transform:translateX(-50%);
   border-radius:999px;
-  background:radial-gradient(ellipse at center, rgba(167,139,250,.18) 0%, rgba(124,58,237,.07) 42%, transparent 72%);
+  background:radial-gradient(ellipse at center, color-mix(in srgb, var(--profile-secondary) 18%, transparent) 0%, color-mix(in srgb, var(--profile-primary) 7%, transparent) 42%, transparent 72%);
   filter:blur(34px);
   opacity:.9;
   pointer-events:none;
@@ -250,13 +253,21 @@
   color:#ffffff;
   background:
     linear-gradient(145deg, rgba(255,255,255,.22), rgba(255,255,255,0) 34%),
-    linear-gradient(135deg, #6d28d9 0%, #a78bfa 100%);
+    linear-gradient(135deg, var(--profile-primary) 0%, var(--profile-secondary) 100%);
   border:1px solid rgba(255,255,255,.22);
   box-shadow:
-    0 0 0 10px rgba(167,139,250,.045),
-    0 24px 70px rgba(124,58,237,.36),
-    0 0 86px rgba(167,139,250,.22),
+    0 0 0 10px color-mix(in srgb, var(--profile-secondary) 5%, transparent),
+    0 24px 70px color-mix(in srgb, var(--profile-primary) 36%, transparent),
+    0 0 86px color-mix(in srgb, var(--profile-secondary) 22%, transparent),
     inset 0 1px 0 rgba(255,255,255,.35);
+}
+
+.profileAvatar img{
+  width:100%;
+  height:100%;
+  display:block;
+  object-fit:cover;
+  border-radius:inherit;
 }
 
 .profileAvatar span{
@@ -366,8 +377,8 @@
 
 .profilePrimaryButton{
   color:#ffffff;
-  background:linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
-  box-shadow:0 18px 44px rgba(124,58,237,.34), 0 0 60px rgba(167,139,250,.18), inset 0 1px 0 rgba(255,255,255,.26);
+  background:linear-gradient(135deg, var(--profile-primary) 0%, var(--profile-secondary) 100%);
+  box-shadow:0 18px 44px color-mix(in srgb, var(--profile-primary) 34%, transparent), 0 0 60px color-mix(in srgb, var(--profile-secondary) 18%, transparent), inset 0 1px 0 rgba(255,255,255,.26);
 }
 
 .profileSubtleButton{
@@ -426,7 +437,7 @@
   right:34px;
   height:180px;
   border-radius:999px;
-  background:radial-gradient(ellipse at center, rgba(167,139,250,.12) 0%, rgba(124,58,237,.04) 48%, transparent 72%);
+  background:radial-gradient(ellipse at center, color-mix(in srgb, var(--profile-secondary) 12%, transparent) 0%, color-mix(in srgb, var(--profile-primary) 4%, transparent) 48%, transparent 72%);
   filter:blur(34px);
   pointer-events:none;
 }

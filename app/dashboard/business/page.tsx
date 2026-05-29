@@ -19,8 +19,15 @@ type BusinessData = {
   tokens: PassTokenRecord[];
 };
 
+const ADMIN_EMAILS = ["john@signalrefinery.pro"];
+
 function appUrl() {
   return (process.env.NEXT_PUBLIC_APP_URL || "https://taptagg.app").replace(/\/$/, "");
+}
+
+function cleanHexColor(value: FormDataEntryValue | null) {
+  const color = String(value || "").trim();
+  return /^#[0-9a-fA-F]{6}$/.test(color) ? color : null;
 }
 
 function tokenUrl(token: string) {
@@ -97,6 +104,7 @@ async function requireBusinessAdmin(organizationId: string) {
 
   const user = await getCurrentUser();
   if (!user) redirect("/login");
+  const isPlatformAdmin = !!user.email && ADMIN_EMAILS.includes(user.email.toLowerCase());
 
   const admin = createAdminClient();
   const { data: organization } = await admin
@@ -105,7 +113,7 @@ async function requireBusinessAdmin(organizationId: string) {
     .eq("id", organizationId)
     .maybeSingle();
 
-  if (organization?.owner_user_id === user.id) return user;
+  if (organization?.owner_user_id === user.id || isPlatformAdmin) return user;
 
   const { data: member } = await admin
     .from("organization_members")
@@ -160,6 +168,40 @@ async function createOrganization(formData: FormData) {
     role: "admin",
     status: "active"
   });
+
+  if (adminEmail.toLowerCase() !== ADMIN_EMAILS[0]) {
+    await admin.from("organization_members").insert({
+      organization_id: organization.id,
+      name: "TapTagg Admin",
+      email: ADMIN_EMAILS[0],
+      title: "Platform admin",
+      role: "admin",
+      status: "active"
+    });
+  }
+
+  redirect("/dashboard/business");
+}
+
+async function updateOrganizationBranding(formData: FormData) {
+  "use server";
+
+  const organizationId = String(formData.get("organization_id") || "");
+  await requireBusinessAdmin(organizationId);
+
+  const brandLogoUrl = String(formData.get("brand_logo_url") || "").trim();
+  const admin = createAdminClient();
+
+  await admin
+    .from("organizations")
+    .update({
+      brand_color_primary: cleanHexColor(formData.get("brand_color_primary")),
+      brand_color_secondary: cleanHexColor(formData.get("brand_color_secondary")),
+      brand_color_accent: cleanHexColor(formData.get("brand_color_accent")),
+      brand_color: cleanHexColor(formData.get("brand_color_primary")),
+      brand_logo_url: brandLogoUrl || null
+    })
+    .eq("id", organizationId);
 
   redirect("/dashboard/business");
 }
@@ -439,6 +481,59 @@ export default async function BusinessDashboardPage({
               NFC cards create the physical moment. Digital Pass QR links point at permanent /p/token URLs that survive turnover.
             </p>
           </div>
+        </div>
+      </section>
+
+      <section className="dashboard-wrap">
+        <div className="dashboard-card">
+          <div className="dashboard-kicker">Business branding</div>
+          <h2>Customize pass pages.</h2>
+          <p className="editor-copy">
+            These colors and logo apply to business token pages like /p/token.
+          </p>
+          <form action={updateOrganizationBranding} className="editor-form" style={{ marginTop: 18 }}>
+            <input type="hidden" name="organization_id" value={organization.id} />
+            <div className="editor-grid">
+              <label className="editor-label">
+                Primary color
+                <input
+                  className="editor-input"
+                  name="brand_color_primary"
+                  type="color"
+                  defaultValue={organization.brand_color_primary || organization.brand_color || "#8b5cf6"}
+                />
+              </label>
+              <label className="editor-label">
+                Secondary color
+                <input
+                  className="editor-input"
+                  name="brand_color_secondary"
+                  type="color"
+                  defaultValue={organization.brand_color_secondary || "#a78bfa"}
+                />
+              </label>
+              <label className="editor-label">
+                Accent color
+                <input
+                  className="editor-input"
+                  name="brand_color_accent"
+                  type="color"
+                  defaultValue={organization.brand_color_accent || "#3b82f6"}
+                />
+              </label>
+            </div>
+            <label className="editor-label">
+              Logo PNG URL
+              <input
+                className="editor-input"
+                name="brand_logo_url"
+                type="url"
+                placeholder="https://..."
+                defaultValue={organization.brand_logo_url || ""}
+              />
+            </label>
+            <button className="button primary" type="submit">Save branding</button>
+          </form>
         </div>
       </section>
 
