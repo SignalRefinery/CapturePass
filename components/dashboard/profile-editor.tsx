@@ -446,16 +446,12 @@ export function ProfileEditor({
         throw new Error("This slug is restricted or unavailable. Choose another slug.");
       }
 
-      const promo = (form.promo_code_used || "").trim().toUpperCase();
-      const isFounder = promo === "FOUNDERS";
-
       const payload: ProfileRecord = {
         ...form,
         slug: normalizedSlugInput || form.slug,
         organization_name: (form.organization_name || "").trim(),
         page_mode: plan.hasMoreProfileSections ? form.page_mode || "single" : "single",
         multi_view_display_mode: form.multi_view_display_mode || "favorite",
-        promo_code_used: promo || null,
         website_url: normalizeUrl(form.website_url || ""),
         profile_badge_1: (form.profile_badge_1 || "").trim(),
         profile_badge_2: (form.profile_badge_2 || "").trim(),
@@ -472,14 +468,6 @@ export function ProfileEditor({
           form.primary_link_4_url?.startsWith("/")
             ? form.primary_link_4_url
             : normalizeUrl(form.primary_link_4_url || ""),
-        ...(isFounder
-          ? {
-              is_active: true,
-              lifetime_free: true,
-              billing_exempt: true,
-              stripe_plan_key: "creator"
-            }
-          : {}),
         updated_at: new Date().toISOString()
       };
 
@@ -1275,9 +1263,9 @@ export function ProfileEditor({
               <label className="auth-field">
                 <span>Promo code</span>
                 <input
-                  value={form.promo_code_used || ""}
-                  onChange={(event) => update("promo_code_used", event.target.value)}
-                  placeholder="Optional promo code"
+                  value={form.promo_code_used || "None"}
+                  readOnly
+                  disabled
                 />
               </label>
 
