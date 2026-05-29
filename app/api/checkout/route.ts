@@ -7,6 +7,10 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2024-06-20"
 });
 
+type CheckoutSessionCreateParams = Parameters<
+  typeof stripe.checkout.sessions.create
+>[0];
+
 const PLAN_PRICE_MAP: Record<string, string | undefined> = {
   core: process.env.STRIPE_CORE_PRICE_ID,
   tagg_plus: process.env.STRIPE_TAGG_PLUS_ANNUAL_PRICE_ID,
@@ -24,6 +28,46 @@ const SETUP_FEE_INCLUDED_PLANS = ["essential", "essential-monthly", "essential-a
 type CheckoutPayload = {
   plan?: string;
 };
+
+function stripeErrorDetails(error: unknown) {
+  if (!error || typeof error !== "object") {
+    return { message: "Unknown Stripe checkout error" };
+  }
+
+  const stripeError = error as {
+    code?: string;
+    message?: string;
+    param?: string;
+    statusCode?: number;
+    type?: string;
+  };
+
+  return {
+    code: stripeError.code,
+    message: stripeError.message || "Unknown Stripe checkout error",
+    param: stripeError.param,
+    statusCode: stripeError.statusCode,
+    type: stripeError.type
+  };
+}
+
+function isMissingStripeCustomerError(error: unknown) {
+  if (!error || typeof error !== "object") return false;
+
+  const stripeError = error as {
+    code?: string;
+    param?: string;
+    statusCode?: number;
+    type?: string;
+  };
+
+  return (
+    stripeError.statusCode === 400 &&
+    stripeError.type === "StripeInvalidRequestError" &&
+    stripeError.code === "resource_missing" &&
+    stripeError.param === "customer"
+  );
+}
 
 async function getPlanFromRequest(req: Request) {
   const url = new URL(req.url);
@@ -180,73 +224,109 @@ async function createCheckoutOrPortal(req: Request) {
       return NextResponse.redirect(portal.url, { status: 303 });
     }
 
-    let session: Stripe.Checkout.Session;
-    try {
-      session = await stripe.checkout.sessions.create({
-        mode: isAdditionalCardsCheckout || isCoreCheckout ? "payment" : "subscription",
-        ...(profile?.stripe_customer_id
-          ? { customer: profile.stripe_customer_id }
-          : { customer_email: user.email || undefined }),
-        shipping_address_collection: {
-          allowed_countries: ["US"]
-        },
-        billing_address_collection: "required",
-        line_items: [
-          ...(SETUP_FEE_PRICE_ID && SETUP_FEE_INCLUDED_PLANS.includes(plan)
-            ? [
-                {
-                  price: SETUP_FEE_PRICE_ID,
-                  quantity: 1
-                }
-              ]
-            : []),
-          {
-            price: selectedPriceId,
-            quantity: 1,
-            ...(isAdditionalCardsCheckout
-              ? {
-                  adjustable_quantity: {
-                    enabled: true,
-                    minimum: 1,
-                    maximum: 50
-                  }
-                }
-              : {})
-          }
-        ],
-        allow_promotion_codes: true,
-        success_url: `${siteUrl}/dashboard`,
-        cancel_url: `${siteUrl}/pricing`,
-        metadata: {
-          user_id: user.id,
-          plan,
-          selected_plan: plan
-        },
-        ...(isAdditionalCardsCheckout || isCoreCheckout
-          ? {}
-          : {
-              subscription_data: {
-                metadata: {
-                  user_id: user.id,
-                  plan,
-                  selected_plan: plan
+    const mode = isAdditionalCardsCheckout || isCoreCheckout ? "payment" : "subscription";
+    const sessionParamsFor = (customerId?: string | null): CheckoutSessionCreateParams => ({
+      mode,
+      ...(customerId
+        ? { customer: customerId }
+        : {
+            customer_email: user.email || undefined,
+            ...(mode === "payment" ? { customer_creation: "always" as const } : {})
+          }),
+      shipping_address_collection: {
+        allowed_countries: ["US"]
+      },
+      billing_address_collection: "required",
+      line_items: [
+        ...(SETUP_FEE_PRICE_ID && SETUP_FEE_INCLUDED_PLANS.includes(plan)
+          ? [
+              {
+                price: SETUP_FEE_PRICE_ID,
+                quantity: 1
+              }
+            ]
+          : []),
+        {
+          price: selectedPriceId,
+          quantity: 1,
+          ...(isAdditionalCardsCheckout
+            ? {
+                adjustable_quantity: {
+                  enabled: true,
+                  minimum: 1,
+                  maximum: 50
                 }
               }
-            })
-      });
+            : {})
+        }
+      ],
+      allow_promotion_codes: true,
+      success_url: `${siteUrl}/dashboard`,
+      cancel_url: `${siteUrl}/pricing`,
+      metadata: {
+        user_id: user.id,
+        plan,
+        selected_plan: plan
+      },
+      ...(mode === "payment"
+        ? {}
+        : {
+            subscription_data: {
+              metadata: {
+                user_id: user.id,
+                plan,
+                selected_plan: plan
+              }
+            }
+          })
+    });
+
+    let session: Stripe.Checkout.Session;
+    try {
+      session = await stripe.checkout.sessions.create(
+        sessionParamsFor(profile?.stripe_customer_id)
+      );
     } catch (error) {
+      if (profile?.stripe_customer_id && isMissingStripeCustomerError(error)) {
+        console.warn("Checkout retrying without stale Stripe customer", {
+          route: "/api/checkout",
+          userId: user.id,
+          plan,
+          staleCustomerId: profile.stripe_customer_id,
+          error: stripeErrorDetails(error)
+        });
+
+        try {
+          session = await stripe.checkout.sessions.create(sessionParamsFor(null));
+        } catch (retryError) {
+          console.error("Checkout session creation retry failed", {
+            route: "/api/checkout",
+            userId: user.id,
+            plan,
+            mode,
+            hasCustomerId: false,
+            originalError: stripeErrorDetails(error),
+            retryError: stripeErrorDetails(retryError)
+          });
+          if (req.method === "GET") {
+            return redirectWithParam(req, "/pricing", "checkout", "start-error");
+          }
+          return NextResponse.json({ error: "Unable to start checkout. Please try again." }, { status: 500 });
+        }
+      } else {
       console.error("Checkout session creation failed", {
         route: "/api/checkout",
         userId: user.id,
         plan,
-        mode: isAdditionalCardsCheckout ? "payment" : "subscription",
+        mode,
         hasCustomerId: !!profile?.stripe_customer_id,
-        error: error instanceof Error ? error.message : "Unknown Stripe checkout error"
+        error: stripeErrorDetails(error)
       });
       if (req.method === "GET") {
         return redirectWithParam(req, "/pricing", "checkout", "start-error");
       }
       return NextResponse.json({ error: "Unable to start checkout. Please try again." }, { status: 500 });
+      }
     }
 
     if (!session.url) {
