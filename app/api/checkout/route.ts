@@ -225,6 +225,8 @@ async function createCheckoutOrPortal(req: Request) {
     }
 
     const mode = isAdditionalCardsCheckout || isCoreCheckout ? "payment" : "subscription";
+    const successUrl = `${siteUrl}/dashboard?checkout=success&session_id={CHECKOUT_SESSION_ID}`;
+    const cancelUrl = `${siteUrl}/pricing`;
     const sessionParamsFor = (customerId?: string | null): CheckoutSessionCreateParams => ({
       mode,
       ...(customerId
@@ -261,8 +263,8 @@ async function createCheckoutOrPortal(req: Request) {
         }
       ],
       allow_promotion_codes: true,
-      success_url: `${siteUrl}/dashboard`,
-      cancel_url: `${siteUrl}/pricing`,
+      success_url: successUrl,
+      cancel_url: cancelUrl,
       metadata: {
         user_id: user.id,
         plan,
@@ -314,18 +316,19 @@ async function createCheckoutOrPortal(req: Request) {
           return NextResponse.json({ error: "Unable to start checkout. Please try again." }, { status: 500 });
         }
       } else {
-      console.error("Checkout session creation failed", {
-        route: "/api/checkout",
-        userId: user.id,
-        plan,
-        mode,
-        hasCustomerId: !!profile?.stripe_customer_id,
-        error: stripeErrorDetails(error)
-      });
-      if (req.method === "GET") {
-        return redirectWithParam(req, "/pricing", "checkout", "start-error");
-      }
-      return NextResponse.json({ error: "Unable to start checkout. Please try again." }, { status: 500 });
+        console.error("Checkout session creation failed", {
+          route: "/api/checkout",
+          userId: user.id,
+          plan,
+          mode,
+          hasCustomerId: !!profile?.stripe_customer_id,
+          successUrl,
+          error: stripeErrorDetails(error)
+        });
+        if (req.method === "GET") {
+          return redirectWithParam(req, "/pricing", "checkout", "start-error");
+        }
+        return NextResponse.json({ error: "Unable to start checkout. Please try again." }, { status: 500 });
       }
     }
 
@@ -344,6 +347,16 @@ async function createCheckoutOrPortal(req: Request) {
         { status: 500 }
       );
     }
+
+    console.info("Checkout session created", {
+      route: "/api/checkout",
+      userId: user.id,
+      plan,
+      mode,
+      sessionId: session.id,
+      successUrl,
+      cancelUrl
+    });
 
     return NextResponse.redirect(session.url, { status: 303 });
   } catch (error) {

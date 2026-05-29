@@ -216,6 +216,15 @@ async function updateProfileForCheckout(session: Stripe.Checkout.Session) {
 
     if (!userId) return;
 
+    console.info("Webhook checkout core activation received", {
+      route: "/api/webhook",
+      event: "checkout.session.completed",
+      sessionId: session.id,
+      userId,
+      customerId,
+      plan
+    });
+
     const { error } = await admin
       .from("profiles")
       .update({
@@ -228,6 +237,18 @@ async function updateProfileForCheckout(session: Stripe.Checkout.Session) {
       .or(`user_id.eq.${userId},id.eq.${userId}`);
 
     if (error) throw error;
+
+    console.info("Webhook checkout profile updated", {
+      route: "/api/webhook",
+      event: "checkout.session.completed",
+      sessionId: session.id,
+      userId,
+      customerId,
+      subscriptionId: null,
+      stripePlanKey: "core",
+      isActive: true,
+      subscriptionStatus: "active"
+    });
 
     await sendCardNotification(userId, session);
     return;
@@ -253,6 +274,16 @@ async function updateProfileForCheckout(session: Stripe.Checkout.Session) {
 
   if (!userId) return;
 
+  console.info("Webhook checkout subscription activation received", {
+    route: "/api/webhook",
+    event: "checkout.session.completed",
+    sessionId: session.id,
+    userId,
+    customerId,
+    subscriptionId,
+    plan
+  });
+
   const { error } = await admin
     .from("profiles")
     .update({
@@ -265,6 +296,18 @@ async function updateProfileForCheckout(session: Stripe.Checkout.Session) {
     .or(`user_id.eq.${userId},id.eq.${userId}`);
 
   if (error) throw error;
+
+  console.info("Webhook checkout profile updated", {
+    route: "/api/webhook",
+    event: "checkout.session.completed",
+    sessionId: session.id,
+    userId,
+    customerId,
+    subscriptionId,
+    stripePlanKey: plan,
+    isActive: true,
+    subscriptionStatus: "active"
+  });
 
   await sendCardNotification(userId, session);
 }
@@ -281,6 +324,16 @@ async function updateProfileForSubscription(subscription: Stripe.Subscription) {
 
   if (!userId) return;
 
+  console.info("Webhook subscription update received", {
+    route: "/api/webhook",
+    event: "customer.subscription",
+    subscriptionId: subscription.id,
+    userId,
+    customerId,
+    plan,
+    subscriptionStatus: subscription.status
+  });
+
   const { error } = await admin
     .from("profiles")
     .update({
@@ -293,6 +346,17 @@ async function updateProfileForSubscription(subscription: Stripe.Subscription) {
     .or(`user_id.eq.${userId},id.eq.${userId}`);
 
   if (error) throw error;
+
+  console.info("Webhook subscription profile updated", {
+    route: "/api/webhook",
+    event: "customer.subscription",
+    subscriptionId: subscription.id,
+    userId,
+    customerId,
+    stripePlanKey: plan,
+    isActive: subscriptionIsActive(subscription.status),
+    subscriptionStatus: subscription.status
+  });
 }
 
 async function updateProfileForInvoice(
@@ -310,6 +374,15 @@ async function updateProfileForInvoice(
 
   if (!userId) return;
 
+  console.info("Webhook invoice subscription status update received", {
+    route: "/api/webhook",
+    event: "invoice",
+    invoiceId: invoice.id,
+    userId,
+    customerId,
+    status
+  });
+
   const { error } = await admin
     .from("profiles")
     .update({
@@ -319,6 +392,16 @@ async function updateProfileForInvoice(
     .or(`user_id.eq.${userId},id.eq.${userId}`);
 
   if (error) throw error;
+
+  console.info("Webhook invoice profile updated", {
+    route: "/api/webhook",
+    event: "invoice",
+    invoiceId: invoice.id,
+    userId,
+    customerId,
+    isActive: status === "active",
+    subscriptionStatus: status
+  });
 }
 
 export async function POST(request: Request) {

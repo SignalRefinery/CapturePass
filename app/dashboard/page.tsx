@@ -125,8 +125,10 @@ export default async function DashboardPage({
 }: {
   searchParams?: Promise<{
     claim_founder_card?: string;
+    checkout?: string;
     founder_card_claimed?: string;
     claim_error?: string;
+    session_id?: string;
   }>;
 }) {
   const supabase = await createClient();
@@ -193,6 +195,8 @@ export default async function DashboardPage({
 
   const plan = getProfilePlan(initialProfile);
   const fullAccess = plan.isActivated;
+  const checkoutSuccess = params?.checkout === "success";
+  const activationPending = checkoutSuccess && !fullAccess;
   const myProfileHref = fullAccess && initialProfile.slug ? `/${initialProfile.slug}` : "/dashboard/preview";
   const passOptions = [
     {
@@ -208,6 +212,24 @@ export default async function DashboardPage({
 
   const founderClaimed = params?.founder_card_claimed === "1";
   const claimError = params?.claim_error || null;
+
+  if (!fullAccess) {
+    console.warn("Dashboard access pending or inactive", {
+      route: "/dashboard",
+      userId: user.id,
+      checkout: params?.checkout || null,
+      checkoutSessionId: params?.session_id || null,
+      reason: activationPending
+        ? "checkout_success_webhook_pending"
+        : "profile_not_active",
+      hasProfile: !!existing,
+      isActive: !!initialProfile.is_active,
+      stripePlanKey: initialProfile.stripe_plan_key || null,
+      subscriptionStatus: initialProfile.subscription_status || null,
+      billingExempt: !!initialProfile.billing_exempt,
+      lifetimeFree: !!initialProfile.lifetime_free
+    });
+  }
 
   return (
     <Shell
@@ -248,7 +270,21 @@ export default async function DashboardPage({
             </section>
           ) : null}
 
-          {!fullAccess ? <InactiveState email={user.email || ""} /> : null}
+          {checkoutSuccess ? (
+            <section className="dashboard-wrap">
+              <div className="dashboard-card">
+                <div className="dashboard-kicker">Checkout</div>
+                <h2>{fullAccess ? "Your TapTagg is active." : "Activating your account."}</h2>
+                <p className="editor-copy">
+                  {fullAccess
+                    ? "Your checkout is complete and your TapTagg profile is ready to manage."
+                    : "Checkout is complete. Stripe is finishing activation, which can take a few moments. Refresh this page shortly if your account is still preview-only."}
+                </p>
+              </div>
+            </section>
+          ) : null}
+
+          {!fullAccess && !activationPending ? <InactiveState email={user.email || ""} /> : null}
 
           {fullAccess ? (
             <>
