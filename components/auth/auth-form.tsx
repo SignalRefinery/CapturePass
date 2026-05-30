@@ -116,12 +116,21 @@ export function AuthForm({ mode, nextPath, plan }: AuthFormProps) {
       if (signUpError) {
         const signUpMessage = signUpError.message || "Unable to create account.";
         const normalizedMessage = signUpMessage.toLowerCase();
+        const signUpCode =
+          typeof signUpError === "object" && signUpError !== null && "code" in signUpError
+            ? String(signUpError.code)
+            : "";
+
+        console.error("[auth] signup failed", {
+          code: signUpCode || null,
+          message: signUpMessage
+        });
 
         if (
+          signUpCode === "user_already_exists" ||
           normalizedMessage.includes("already registered") ||
           normalizedMessage.includes("already exists") ||
-          normalizedMessage.includes("user already") ||
-          normalizedMessage.includes("email")
+          normalizedMessage.includes("user already")
         ) {
           setExistingAuthEmail(true);
           setError(
