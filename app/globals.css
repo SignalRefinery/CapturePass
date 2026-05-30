@@ -670,6 +670,80 @@ textarea{font:inherit}
   grid-template-columns:repeat(2, minmax(0, 1fr));
   gap:16px;
 }
+.editor-form{
+  display:grid;
+  gap:18px;
+  text-align:left;
+}
+.editor-label{
+  display:grid;
+  gap:8px;
+  min-width:0;
+  color:var(--muted-2);
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:.12em;
+  line-height:1.35;
+  text-transform:uppercase;
+}
+.editor-input,
+.editor-label select,
+.editor-label input,
+.editor-label textarea{
+  width:100%;
+  min-height:52px;
+  border:1px solid rgba(255,255,255,.11);
+  border-radius:14px;
+  background:rgba(255,255,255,.04);
+  color:var(--text);
+  padding:0 16px;
+  font:inherit;
+  font-size:16px;
+  font-weight:650;
+  letter-spacing:0;
+  line-height:1.35;
+  outline:none;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+}
+.editor-label textarea{
+  min-height:110px;
+  padding:14px 16px;
+  resize:vertical;
+}
+.editor-input::placeholder,
+.editor-label input::placeholder,
+.editor-label textarea::placeholder{
+  color:rgba(246,242,233,.48);
+}
+.editor-input:focus,
+.editor-label select:focus,
+.editor-label input:focus,
+.editor-label textarea:focus{
+  border-color:rgba(167,139,250,.72);
+  background:rgba(255,255,255,.065);
+  box-shadow:
+    0 0 0 4px rgba(139,92,246,.18),
+    inset 0 1px 0 rgba(255,255,255,.06);
+}
+.editor-input[type="color"]{
+  min-height:54px;
+  padding:6px;
+  cursor:pointer;
+}
+.checkbox-row{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  color:var(--muted);
+  font-size:15px;
+  font-weight:700;
+  line-height:1.45;
+}
+.checkbox-row input{
+  width:18px;
+  height:18px;
+  accent-color:var(--purple);
+}
 .editor-actions{
   display:flex;
   align-items:center;

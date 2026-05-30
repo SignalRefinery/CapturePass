@@ -690,6 +690,7 @@ export default async function BusinessDashboardPage({
             <h1>Create your company account.</h1>
             <p>
               Business TapTagg uses permanent card/pass URLs that can be reassigned as your team changes.
+              The business admin receives an email invite to set their own password.
             </p>
             <form action={createOrganization} className="editor-form" style={{ marginTop: 24 }}>
               <label className="editor-label">
@@ -708,7 +709,7 @@ export default async function BusinessDashboardPage({
               </div>
               <div className="editor-grid">
                 <label className="editor-label">
-                  Business admin email
+                  Business admin email for login invite
                   <input className="editor-input" name="admin_email" type="email" />
                 </label>
                 <label className="editor-label">
@@ -721,7 +722,7 @@ export default async function BusinessDashboardPage({
                 Managed setup and service +$199/month
               </label>
               <button className="button primary" type="submit">
-                Create company account
+                Create account and send invite
               </button>
               {isPlatformAdmin ? (
                 <Link className="button secondary" href="/dashboard/business">
@@ -872,6 +873,9 @@ export default async function BusinessDashboardPage({
         <div className="dashboard-card">
           <div className="dashboard-kicker">Employees</div>
           <h2>Create employee profiles.</h2>
+          <p className="editor-copy">
+            Employees get an email invite to create their password and open their business pass page.
+          </p>
           <form action={addEmployee} className="editor-form" style={{ marginTop: 18 }}>
             <input type="hidden" name="organization_id" value={organization.id} />
             <div className="editor-grid">
