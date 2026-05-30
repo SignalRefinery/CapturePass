@@ -61,6 +61,41 @@ async function getPassOrganization(
   };
 }
 
+async function getBusinessHomeUrl(
+  admin: ReturnType<typeof createAdminClient>,
+  organizationId?: string | null
+) {
+  if (!organizationId) return null;
+
+  const { data: admins, error: adminsError } = await admin
+    .from("organization_members")
+    .select("id, email")
+    .eq("organization_id", organizationId)
+    .eq("role", "admin")
+    .eq("status", "active")
+    .order("created_at", { ascending: true });
+
+  if (adminsError || !admins?.length) return null;
+
+  const businessAdmin = admins.find(
+    (member) => (member.email || "").toLowerCase() !== "john@signalrefinery.pro"
+  ) || admins[0];
+
+  if (!businessAdmin?.id) return null;
+
+  const { data: adminToken } = await admin
+    .from("pass_tokens")
+    .select("token")
+    .eq("organization_id", organizationId)
+    .eq("assigned_member_id", businessAdmin.id)
+    .eq("status", "active")
+    .order("created_at", { ascending: true })
+    .limit(1)
+    .maybeSingle();
+
+  return adminToken?.token ? `${appUrl()}/p/${adminToken.token}` : null;
+}
+
 export default async function PassTokenPage({
   params
 }: {
@@ -130,9 +165,12 @@ export default async function PassTokenPage({
   }
 
   const publicUrl = `${appUrl()}/p/${token}`;
+  const businessHomeUrl = await getBusinessHomeUrl(admin, passToken.organization_id);
   const profile = {
     slug: null,
     public_url: publicUrl,
+    business_home_url: businessHomeUrl || publicUrl,
+    is_business_profile: true,
     full_name: member.name,
     organization_name: organization?.name || "",
     brand_logo_url: organization?.brand_logo_url || null,

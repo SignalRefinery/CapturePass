@@ -42,6 +42,8 @@ type ProfileLike = {
   primary_link_4_title?: string | null;
   primary_link_4_url?: string | null;
   public_url?: string | null;
+  business_home_url?: string | null;
+  is_business_profile?: boolean | null;
 };
 
 type InitialAuth = {
@@ -274,6 +276,8 @@ export function TapTaggProfileShell({
       : {})
   } as CSSProperties;
   const pageClassName = [styles.page, themeClassName(activeProfile.brand_theme)].filter(Boolean).join(" ");
+  const isBusinessProfile = activeProfile.is_business_profile === true;
+  const homeHref = isBusinessProfile ? activeProfile.business_home_url || readableUrl : "/";
 
   return (
     <div className={pageClassName} style={brandStyle}>
@@ -285,9 +289,11 @@ export function TapTaggProfileShell({
           </Link>
 
           <nav className={styles.nav}>
-            <Link href="/">Home</Link>
-            <Link href="/how-it-works">How it works</Link>
-            {initialAuth ? <Link href="/dashboard">Dashboard</Link> : <Link href="/login">Log in</Link>}
+            <Link href={homeHref}>Home</Link>
+            {!isBusinessProfile ? <Link href="/how-it-works">How it works</Link> : null}
+            {!isBusinessProfile ? (
+              initialAuth ? <Link href="/dashboard">Dashboard</Link> : <Link href="/login">Log in</Link>
+            ) : null}
           </nav>
 
           <button
@@ -307,10 +313,10 @@ export function TapTaggProfileShell({
           <div className={styles.mobileMenuOverlay}>
             <div className={styles.mobileMenuPanel}>
               <nav className={styles.mobileNav}>
-                <Link href="/" onClick={() => setMobileOpen(false)}>
+                <Link href={homeHref} onClick={() => setMobileOpen(false)}>
                   Home
                 </Link>
-                {initialAuth ? (
+                {isBusinessProfile ? null : initialAuth ? (
                   <>
                     <Link href="/dashboard" onClick={() => setMobileOpen(false)}>
                       Dashboard
@@ -331,13 +337,15 @@ export function TapTaggProfileShell({
                 )}
               </nav>
 
-              <Link
-                className={styles.profileUpgradeCta}
-                href={initialAuth ? "/dashboard" : "/signup"}
-                onClick={() => setMobileOpen(false)}
-              >
-                {initialAuth ? "Go to your dashboard" : "Want to upgrade how you connect?"}
-              </Link>
+              {!isBusinessProfile ? (
+                <Link
+                  className={styles.profileUpgradeCta}
+                  href={initialAuth ? "/dashboard" : "/signup"}
+                  onClick={() => setMobileOpen(false)}
+                >
+                  {initialAuth ? "Go to your dashboard" : "Want to upgrade how you connect?"}
+                </Link>
+              ) : null}
             </div>
           </div>
         ) : null}
