@@ -10,6 +10,57 @@ function appUrl() {
   return (process.env.NEXT_PUBLIC_APP_URL || "https://taptagg.app").replace(/\/$/, "");
 }
 
+type BusinessPassOrganization = {
+  name?: string | null;
+  brand_color?: string | null;
+  brand_color_primary?: string | null;
+  brand_color_secondary?: string | null;
+  brand_color_accent?: string | null;
+  brand_theme?: "deep_brand" | "clean_light" | "full_color" | "custom" | null;
+  brand_logo_url?: string | null;
+};
+
+async function getPassOrganization(
+  admin: ReturnType<typeof createAdminClient>,
+  organizationId?: string | null
+) {
+  if (!organizationId) return { organization: null, error: null };
+
+  const { data, error } = await admin
+    .from("organizations")
+    .select(`
+      name,
+      brand_color,
+      brand_color_primary,
+      brand_color_secondary,
+      brand_color_accent,
+      brand_theme,
+      brand_logo_url
+    `)
+    .eq("id", organizationId)
+    .maybeSingle();
+
+  if (!error) {
+    return { organization: data as BusinessPassOrganization | null, error: null };
+  }
+
+  console.warn("Business pass extended organization lookup failed; retrying minimal lookup", {
+    organizationId,
+    error: error.message
+  });
+
+  const fallback = await admin
+    .from("organizations")
+    .select("name, brand_color, brand_logo_url")
+    .eq("id", organizationId)
+    .maybeSingle();
+
+  return {
+    organization: (fallback.data as BusinessPassOrganization | null) || null,
+    error: fallback.error
+  };
+}
+
 export default async function PassTokenPage({
   params
 }: {
@@ -25,7 +76,7 @@ export default async function PassTokenPage({
     .eq("token", token)
     .maybeSingle();
 
-  const [{ data: member, error: memberError }, { data: organization, error: organizationError }] =
+  const [{ data: member, error: memberError }, organizationResult] =
     passToken
       ? await Promise.all([
           passToken.assigned_member_id
@@ -35,30 +86,17 @@ export default async function PassTokenPage({
                 .eq("id", passToken.assigned_member_id)
                 .maybeSingle()
             : Promise.resolve({ data: null, error: null }),
-          passToken.organization_id
-            ? admin
-                .from("organizations")
-                .select(`
-                  name,
-                  brand_color,
-                  brand_color_primary,
-                  brand_color_secondary,
-                  brand_color_accent,
-                  brand_theme,
-                  brand_logo_url
-                `)
-                .eq("id", passToken.organization_id)
-                .maybeSingle()
-            : Promise.resolve({ data: null, error: null })
+          getPassOrganization(admin, passToken.organization_id)
         ])
       : [
           { data: null, error: null },
-          { data: null, error: null }
+          { organization: null, error: null }
         ];
+  const organization = organizationResult.organization;
+  const organizationError = organizationResult.error;
   const canRender =
     !tokenError &&
     !memberError &&
-    !organizationError &&
     passToken?.status === "active" &&
     member?.status === "active" &&
     !!member?.name;
