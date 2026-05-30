@@ -765,7 +765,8 @@ textarea{font:inherit}
   letter-spacing:0;
 }
 .metadata-list,
-.status-bottom .status-list{
+.status-bottom .status-list,
+.status-list{
   display:grid;
   gap:0;
   overflow:hidden;
@@ -774,15 +775,17 @@ textarea{font:inherit}
   background:rgba(255,255,255,.018);
 }
 .metadata-row,
-.status-bottom .status-row{
+.status-bottom .status-row,
+.status-row{
   display:grid;
-  grid-template-columns:minmax(132px, .48fr) minmax(0, 1fr);
+  grid-template-columns:minmax(220px, 1fr) auto minmax(260px, 1.35fr);
   gap:18px;
-  align-items:start;
-  padding:15px 16px;
+  align-items:center;
+  padding:16px;
 }
 .metadata-row + .metadata-row,
-.status-bottom .status-row + .status-row{
+.status-bottom .status-row + .status-row,
+.status-row + .status-row{
   border-top:1px solid rgba(255,255,255,.07);
 }
 .metadata-label,
@@ -803,6 +806,54 @@ textarea{font:inherit}
   line-height:1.45;
   overflow-wrap:anywhere;
   word-break:normal;
+}
+.status-person{
+  display:grid;
+  gap:5px;
+  min-width:0;
+}
+.status-person > strong{
+  color:var(--text);
+  font-size:18px;
+  line-height:1.2;
+  overflow-wrap:anywhere;
+}
+.status-person > small{
+  color:var(--muted);
+  font-size:13px;
+  font-weight:650;
+  line-height:1.45;
+  overflow-wrap:anywhere;
+}
+.status-pill{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:34px;
+  padding:7px 12px;
+  border:1px solid rgba(167,139,250,.22);
+  border-radius:999px;
+  background:rgba(139,92,246,.11);
+  color:var(--text);
+  font-size:13px;
+  line-height:1;
+  text-transform:capitalize;
+}
+.status-actions{
+  display:flex;
+  justify-content:flex-end;
+  gap:9px;
+  flex-wrap:wrap;
+}
+.status-actions .button{
+  min-height:42px;
+  padding:10px 14px;
+  font-size:14px;
+}
+.status-bottom .status-row{
+  grid-template-columns:minmax(132px, .48fr) minmax(0, 1fr);
+  align-items:start;
+  padding:15px 16px;
 }
 .status-bottom{
   padding-top:6px;
@@ -1587,10 +1638,14 @@ textarea{font:inherit}
     font-size:14px;
   }
   .metadata-row,
-  .status-bottom .status-row{
+  .status-bottom .status-row,
+  .status-row{
     grid-template-columns:1fr;
     gap:7px;
     padding:14px;
+  }
+  .status-actions{
+    justify-content:stretch;
   }
   .button{
     width:100%;

@@ -935,7 +935,7 @@ export default async function BusinessDashboardPage({
         </div>
       </section>
 
-      <section className="dashboard-wrap">
+      <section className="dashboard-wrap" id="business-tokens">
         <div className="dashboard-grid">
           {tokens.map((token) => {
             const member = token.assigned_member_id ? memberById.get(token.assigned_member_id) : null;
@@ -944,6 +944,7 @@ export default async function BusinessDashboardPage({
 
             return (
               <article className="dashboard-card" key={token.id}>
+                <span id={`token-${token.id}`} />
                 <div className="dashboard-kicker">{token.token_type.replace("_", " ")}</div>
                 <h2>{member?.name || "Unassigned token"}</h2>
                 <p className="editor-copy">
@@ -990,35 +991,52 @@ export default async function BusinessDashboardPage({
       <section className="dashboard-wrap">
         <div className="dashboard-card">
           <div className="dashboard-kicker">Employee status</div>
-          <h2>Deactivate employees without changing token URLs.</h2>
+          <h2>View, manage, or deactivate employees.</h2>
           <div className="status-list">
             {members.map((member) => {
               const assignedToken = tokens.find((token) => token.assigned_member_id === member.id);
+              const assignedProfileUrl = assignedToken ? tokenUrl(assignedToken.token) : null;
               return (
                 <div className="status-row" key={member.id}>
-                  <span>
-                    {member.name}
-                    <br />
+                  <span className="status-person">
+                    <strong>{member.name}</strong>
                     <small>
                       {member.role === "admin" ? "Business admin" : member.title || "Member"} · {assignedToken ? `/p/${assignedToken.token}` : "No token"}
                       {member.email ? ` · ${member.email}` : ""}
                     </small>
                   </span>
-                  <strong>{member.status}</strong>
-                  {member.status === "active" && member.email ? (
-                    <form action={sendBusinessLoginInvite}>
-                      <input type="hidden" name="organization_id" value={organization.id} />
-                      <input type="hidden" name="member_id" value={member.id} />
-                      <button className="button secondary" type="submit">Send login email</button>
-                    </form>
-                  ) : null}
-                  {member.status === "active" ? (
-                    <form action={deactivateEmployee}>
-                      <input type="hidden" name="organization_id" value={organization.id} />
-                      <input type="hidden" name="member_id" value={member.id} />
-                      <button className="button secondary" type="submit">Deactivate</button>
-                    </form>
-                  ) : null}
+                  <strong className="status-pill">{member.status}</strong>
+                  <div className="status-actions">
+                    {assignedToken ? (
+                      <>
+                        <Link className="button secondary" href={`/p/${assignedToken.token}`}>
+                          View profile
+                        </Link>
+                        <Link className="button secondary" href={`#token-${assignedToken.id}`}>
+                          Manage profile
+                        </Link>
+                        {assignedProfileUrl ? <CopyLinkButton value={assignedProfileUrl} /> : null}
+                      </>
+                    ) : (
+                      <Link className="button secondary" href="#business-tokens">
+                        Assign token
+                      </Link>
+                    )}
+                    {member.status === "active" && member.email ? (
+                      <form action={sendBusinessLoginInvite}>
+                        <input type="hidden" name="organization_id" value={organization.id} />
+                        <input type="hidden" name="member_id" value={member.id} />
+                        <button className="button secondary" type="submit">Send login email</button>
+                      </form>
+                    ) : null}
+                    {member.status === "active" ? (
+                      <form action={deactivateEmployee}>
+                        <input type="hidden" name="organization_id" value={organization.id} />
+                        <input type="hidden" name="member_id" value={member.id} />
+                        <button className="button secondary" type="submit">Deactivate</button>
+                      </form>
+                    ) : null}
+                  </div>
                 </div>
               );
             })}
