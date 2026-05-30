@@ -13,39 +13,61 @@ export default async function PassTokenPage({
 }) {
   const { token } = await params;
   const admin = createAdminClient();
-  const { data, error } = await admin
+  const { data: passToken, error: tokenError } = await admin
     .from("pass_tokens")
-    .select(`
-      token,
-      status,
-      token_type,
-      organization:organizations (
-        name,
-        brand_color,
-        brand_color_primary,
-        brand_color_secondary,
-        brand_color_accent,
-        brand_theme,
-        brand_logo_url
-      ),
-      member:organization_members (
-        name,
-        email,
-        phone,
-        title,
-        status
-      )
-    `)
+    .select("token, status, token_type, organization_id, assigned_member_id")
     .eq("token", token)
     .maybeSingle();
 
-  const member = Array.isArray(data?.member) ? data?.member[0] : data?.member;
-  const organization = Array.isArray(data?.organization) ? data?.organization[0] : data?.organization;
+  const [{ data: member, error: memberError }, { data: organization, error: organizationError }] =
+    passToken
+      ? await Promise.all([
+          passToken.assigned_member_id
+            ? admin
+                .from("organization_members")
+                .select("name, email, phone, title, status")
+                .eq("id", passToken.assigned_member_id)
+                .maybeSingle()
+            : Promise.resolve({ data: null, error: null }),
+          passToken.organization_id
+            ? admin
+                .from("organizations")
+                .select(`
+                  name,
+                  brand_color,
+                  brand_color_primary,
+                  brand_color_secondary,
+                  brand_color_accent,
+                  brand_theme,
+                  brand_logo_url
+                `)
+                .eq("id", passToken.organization_id)
+                .maybeSingle()
+            : Promise.resolve({ data: null, error: null })
+        ])
+      : [
+          { data: null, error: null },
+          { data: null, error: null }
+        ];
   const canRender =
-    !error &&
-    data?.status === "active" &&
+    !tokenError &&
+    !memberError &&
+    !organizationError &&
+    passToken?.status === "active" &&
     member?.status === "active" &&
     !!member?.name;
+
+  if (!canRender) {
+    console.info("Business pass token inactive or unresolved", {
+      token,
+      tokenStatus: passToken?.status || null,
+      assignedMemberId: passToken?.assigned_member_id || null,
+      memberStatus: member?.status || null,
+      tokenError: tokenError?.message || null,
+      memberError: memberError?.message || null,
+      organizationError: organizationError?.message || null
+    });
+  }
 
   if (!canRender) {
     return (
