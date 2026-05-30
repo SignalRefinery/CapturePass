@@ -18,6 +18,14 @@ type BusinessPassOrganization = {
   brand_color_accent?: string | null;
   brand_theme?: "deep_brand" | "clean_light" | "full_color" | "custom" | null;
   brand_logo_url?: string | null;
+  business_link_1_title?: string | null;
+  business_link_1_url?: string | null;
+  business_link_2_title?: string | null;
+  business_link_2_url?: string | null;
+  business_link_3_title?: string | null;
+  business_link_3_url?: string | null;
+  business_link_4_title?: string | null;
+  business_link_4_url?: string | null;
 };
 
 async function getPassOrganization(
@@ -35,7 +43,15 @@ async function getPassOrganization(
       brand_color_secondary,
       brand_color_accent,
       brand_theme,
-      brand_logo_url
+      brand_logo_url,
+      business_link_1_title,
+      business_link_1_url,
+      business_link_2_title,
+      business_link_2_url,
+      business_link_3_title,
+      business_link_3_url,
+      business_link_4_title,
+      business_link_4_url
     `)
     .eq("id", organizationId)
     .maybeSingle();
@@ -166,11 +182,23 @@ export default async function PassTokenPage({
 
   const publicUrl = `${appUrl()}/p/${token}`;
   const businessHomeUrl = await getBusinessHomeUrl(admin, passToken.organization_id);
+  const businessLinks = [
+    { title: organization?.business_link_1_title, url: organization?.business_link_1_url },
+    { title: organization?.business_link_2_title, url: organization?.business_link_2_url },
+    { title: organization?.business_link_3_title, url: organization?.business_link_3_url },
+    { title: organization?.business_link_4_title, url: organization?.business_link_4_url }
+  ]
+    .map((item) => ({
+      title: (item.title || "").trim(),
+      url: (item.url || "").trim()
+    }))
+    .filter((item) => item.title && item.url);
   const profile = {
     slug: null,
     public_url: publicUrl,
     business_home_url: businessHomeUrl || publicUrl,
     is_business_profile: true,
+    business_links: businessLinks,
     full_name: member.name,
     organization_name: organization?.name || "",
     brand_logo_url: organization?.brand_logo_url || null,

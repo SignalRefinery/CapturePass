@@ -44,6 +44,7 @@ type ProfileLike = {
   public_url?: string | null;
   business_home_url?: string | null;
   is_business_profile?: boolean | null;
+  business_links?: Array<{ title: string; url: string }> | null;
 };
 
 type InitialAuth = {
@@ -278,6 +279,9 @@ export function TapTaggProfileShell({
   const pageClassName = [styles.page, themeClassName(activeProfile.brand_theme)].filter(Boolean).join(" ");
   const isBusinessProfile = activeProfile.is_business_profile === true;
   const homeHref = isBusinessProfile ? activeProfile.business_home_url || readableUrl : "/";
+  const businessLinks = isBusinessProfile
+    ? (activeProfile.business_links || []).filter((item) => item.title && item.url)
+    : [];
 
   return (
     <div className={pageClassName} style={brandStyle}>
@@ -418,23 +422,38 @@ export function TapTaggProfileShell({
               ))}
             </div>
 
-            <div className={styles.contactStrip}>
-              {showEmail && activeProfile.email ? (
+            {isBusinessProfile ? (
+              businessLinks.length ? (
+                <div className={styles.contactStrip}>
+                  {businessLinks.map((item) => (
+                    <a className={styles.contactLine} href={item.url} key={`${item.title}-${item.url}`}>
+                      <div>
+                        <div className={styles.contactLabel}>{item.title}</div>
+                        <div className={styles.contactValue}>{item.url.replace(/^https?:\/\//, "")}</div>
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              ) : null
+            ) : (
+              <div className={styles.contactStrip}>
+                {showEmail && activeProfile.email ? (
+                  <div className={styles.contactLine}>
+                    <div>
+                      <div className={styles.contactLabel}>Email</div>
+                      <div className={styles.contactValue}>{activeProfile.email}</div>
+                    </div>
+                  </div>
+                ) : null}
+
                 <div className={styles.contactLine}>
                   <div>
-                    <div className={styles.contactLabel}>Email</div>
-                    <div className={styles.contactValue}>{activeProfile.email}</div>
+                    <div className={styles.contactLabel}>Profile URL</div>
+                    <div className={styles.contactValue}>{readableUrl.replace(/^https?:\/\//, "")}</div>
                   </div>
                 </div>
-              ) : null}
-
-              <div className={styles.contactLine}>
-                <div>
-                  <div className={styles.contactLabel}>Profile URL</div>
-                  <div className={styles.contactValue}>{readableUrl.replace(/^https?:\/\//, "")}</div>
-                </div>
               </div>
-            </div>
+            )}
           </div>
 
           <div className={`${styles.card} ${styles.qrBox}`}>

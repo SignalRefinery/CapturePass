@@ -44,6 +44,17 @@ function cleanBrandTheme(value: FormDataEntryValue | null) {
     : "full_color";
 }
 
+function cleanText(value: FormDataEntryValue | null) {
+  return String(value || "").trim() || null;
+}
+
+function cleanUrl(value: FormDataEntryValue | null) {
+  const url = String(value || "").trim();
+  if (!url) return null;
+  if (/^https?:\/\//i.test(url)) return url;
+  return `https://${url}`;
+}
+
 function businessErrorMessage(error?: string) {
   switch (error) {
     case "branding_save_failed":
@@ -400,7 +411,15 @@ async function updateOrganizationBranding(formData: FormData) {
     brand_color_secondary: cleanHexColor(formData.get("brand_color_secondary")),
     brand_color_accent: cleanHexColor(formData.get("brand_color_accent")),
     brand_color: cleanHexColor(formData.get("brand_color_primary")),
-    brand_logo_url: brandLogoUrl || null
+    brand_logo_url: brandLogoUrl || null,
+    business_link_1_title: cleanText(formData.get("business_link_1_title")),
+    business_link_1_url: cleanUrl(formData.get("business_link_1_url")),
+    business_link_2_title: cleanText(formData.get("business_link_2_title")),
+    business_link_2_url: cleanUrl(formData.get("business_link_2_url")),
+    business_link_3_title: cleanText(formData.get("business_link_3_title")),
+    business_link_3_url: cleanUrl(formData.get("business_link_3_url")),
+    business_link_4_title: cleanText(formData.get("business_link_4_title")),
+    business_link_4_url: cleanUrl(formData.get("business_link_4_url"))
   };
 
   const { data: updatedOrganization, error } = await admin
@@ -849,8 +868,8 @@ export default async function BusinessDashboardPage({
         <div className="dashboard-card">
           <div className="dashboard-kicker">Business branding</div>
           <h2>Customize pass pages.</h2>
-          <p className="editor-copy">
-            These colors and logo apply to business token pages like /p/token.
+            <p className="editor-copy">
+            These colors, logo, and optional links apply to business token pages like /p/token.
           </p>
           <form action={updateOrganizationBranding} className="editor-form" style={{ marginTop: 18 }}>
             <input type="hidden" name="organization_id" value={organization.id} />
@@ -902,6 +921,39 @@ export default async function BusinessDashboardPage({
                 defaultValue={organization.brand_logo_url || ""}
               />
             </label>
+            <div>
+              <div className="dashboard-kicker">Business web links</div>
+              <p className="editor-copy">
+                These replace the email/profile URL strip on every employee pass. Empty links stay hidden.
+              </p>
+            </div>
+            {[1, 2, 3, 4].map((index) => {
+              const titleKey = `business_link_${index}_title` as keyof OrganizationRecord;
+              const urlKey = `business_link_${index}_url` as keyof OrganizationRecord;
+              return (
+                <div className="editor-grid" key={index}>
+                  <label className="editor-label">
+                    Link {index} label
+                    <input
+                      className="editor-input"
+                      name={`business_link_${index}_title`}
+                      placeholder={index === 1 ? "Company website" : "Book a demo"}
+                      defaultValue={(organization[titleKey] as string | null) || ""}
+                    />
+                  </label>
+                  <label className="editor-label">
+                    Link {index} URL
+                    <input
+                      className="editor-input"
+                      name={`business_link_${index}_url`}
+                      type="url"
+                      placeholder="https://..."
+                      defaultValue={(organization[urlKey] as string | null) || ""}
+                    />
+                  </label>
+                </div>
+              );
+            })}
             <button className="button primary" type="submit">Save branding</button>
           </form>
         </div>
