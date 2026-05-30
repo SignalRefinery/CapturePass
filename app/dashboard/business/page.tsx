@@ -19,6 +19,13 @@ type BusinessData = {
   tokens: PassTokenRecord[];
 };
 
+type BusinessSummary = {
+  organization: OrganizationRecord;
+  memberCount: number;
+  tokenCount: number;
+  activeTokenCount: number;
+};
+
 const ADMIN_EMAILS = ["john@signalrefinery.pro"];
 
 function appUrl() {
@@ -43,8 +50,81 @@ async function getCurrentUser() {
   return user;
 }
 
-async function getBusinessData(userId: string, email?: string | null): Promise<BusinessData> {
+async function getBusinessIndex(): Promise<BusinessSummary[]> {
   const admin = createAdminClient();
+  const [{ data: organizations }, { data: members }, { data: tokens }] = await Promise.all([
+    admin.from("organizations").select("*").order("created_at", { ascending: false }),
+    admin.from("organization_members").select("organization_id, status"),
+    admin.from("pass_tokens").select("organization_id, status")
+  ]);
+
+  return ((organizations || []) as OrganizationRecord[]).map((organization) => {
+    const orgMembers = (members || []).filter((member) => member.organization_id === organization.id);
+    const orgTokens = (tokens || []).filter((token) => token.organization_id === organization.id);
+
+    return {
+      organization,
+      memberCount: orgMembers.length,
+      tokenCount: orgTokens.length,
+      activeTokenCount: orgTokens.filter((token) => token.status === "active").length
+    };
+  });
+}
+
+async function getBusinessData(
+  userId: string,
+  email?: string | null,
+  organizationId?: string | null,
+  isPlatformAdmin = false
+): Promise<BusinessData> {
+  const admin = createAdminClient();
+
+  if (organizationId) {
+    const { data: requestedOrg } = await admin
+      .from("organizations")
+      .select("*")
+      .eq("id", organizationId)
+      .maybeSingle();
+
+    if (!requestedOrg) {
+      return { organization: null, members: [], tokens: [] };
+    }
+
+    if (!isPlatformAdmin) {
+      const { data: allowedMember } = await admin
+        .from("organization_members")
+        .select("id")
+        .eq("organization_id", organizationId)
+        .eq("user_id", userId)
+        .eq("status", "active")
+        .in("role", ["owner", "admin"])
+        .maybeSingle();
+
+      if (requestedOrg.owner_user_id !== userId && !allowedMember) {
+        return { organization: null, members: [], tokens: [] };
+      }
+    }
+
+    const [{ data: members }, { data: tokens }] = await Promise.all([
+      admin
+        .from("organization_members")
+        .select("*")
+        .eq("organization_id", requestedOrg.id)
+        .order("created_at", { ascending: true }),
+      admin
+        .from("pass_tokens")
+        .select("*")
+        .eq("organization_id", requestedOrg.id)
+        .order("created_at", { ascending: true })
+    ]);
+
+    return {
+      organization: requestedOrg as OrganizationRecord,
+      members: (members || []) as OrganizationMemberRecord[],
+      tokens: (tokens || []) as PassTokenRecord[]
+    };
+  }
+
   const { data: ownedOrg } = await admin
     .from("organizations")
     .select("*")
@@ -180,7 +260,7 @@ async function createOrganization(formData: FormData) {
     });
   }
 
-  redirect("/dashboard/business");
+  redirect(`/dashboard/business?org=${organization.id}`);
 }
 
 async function updateOrganizationBranding(formData: FormData) {
@@ -203,7 +283,7 @@ async function updateOrganizationBranding(formData: FormData) {
     })
     .eq("id", organizationId);
 
-  redirect("/dashboard/business");
+  redirect(`/dashboard/business?org=${organizationId}`);
 }
 
 async function generateUniqueOrganizationSlug(name: string) {
@@ -252,7 +332,7 @@ async function addEmployee(formData: FormData) {
     status: "active"
   });
 
-  redirect("/dashboard/business");
+  redirect(`/dashboard/business?org=${organizationId}`);
 }
 
 async function generateUniqueToken() {
@@ -291,7 +371,7 @@ async function issueToken(formData: FormData) {
     token_type: tokenType
   });
 
-  redirect("/dashboard/business");
+  redirect(`/dashboard/business?org=${organizationId}`);
 }
 
 async function updateTokenAssignment(formData: FormData) {
@@ -313,7 +393,7 @@ async function updateTokenAssignment(formData: FormData) {
     .eq("id", tokenId)
     .eq("organization_id", organizationId);
 
-  redirect("/dashboard/business");
+  redirect(`/dashboard/business?org=${organizationId}`);
 }
 
 async function deactivateToken(formData: FormData) {
@@ -331,7 +411,7 @@ async function deactivateToken(formData: FormData) {
     .eq("id", tokenId)
     .eq("organization_id", organizationId);
 
-  redirect("/dashboard/business");
+  redirect(`/dashboard/business?org=${organizationId}`);
 }
 
 async function deactivateEmployee(formData: FormData) {
@@ -355,24 +435,93 @@ async function deactivateEmployee(formData: FormData) {
     .eq("assigned_member_id", memberId)
     .eq("organization_id", organizationId);
 
-  redirect("/dashboard/business");
+  redirect(`/dashboard/business?org=${organizationId}`);
 }
 
 export default async function BusinessDashboardPage({
   searchParams
 }: {
-  searchParams?: Promise<{ error?: string }>;
+  searchParams?: Promise<{ error?: string; org?: string; onboard?: string }>;
 }) {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
 
-  const { organization, members, tokens } = await getBusinessData(user.id, user.email);
   const params = searchParams ? await searchParams : {};
+  const isPlatformAdmin = !!user.email && ADMIN_EMAILS.includes(user.email.toLowerCase());
+  const selectedOrganizationId = params?.org || null;
+  const showOnboarding = params?.onboard === "1";
+  const businessIndex = isPlatformAdmin ? await getBusinessIndex() : [];
+  const { organization, members, tokens } = showOnboarding
+    ? { organization: null, members: [], tokens: [] }
+    : await getBusinessData(user.id, user.email, selectedOrganizationId, isPlatformAdmin);
   const initialAuth = {
     email: user.email || null,
     fullName: user.user_metadata?.full_name || null,
     slug: null
   };
+
+  if (isPlatformAdmin && !selectedOrganizationId && !showOnboarding) {
+    return (
+      <Shell footerLeft="Business dashboard" footerRight="TapTagg" initialAuth={initialAuth}>
+        <section className="simple-hero">
+          <div className="kicker">
+            <span className="mini-star">✦</span>
+            <span>Business operations</span>
+          </div>
+          <h1>Business accounts</h1>
+          <p>Review every business, open its console, or onboard a new business account.</p>
+          <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap", marginTop: 22 }}>
+            <Link className="button primary" href="/dashboard/business?onboard=1">
+              Onboard new business
+            </Link>
+            <Link className="button secondary" href="/admin">
+              Admin users
+            </Link>
+          </div>
+        </section>
+
+        <section className="dashboard-wrap">
+          <div className="dashboard-grid">
+            {businessIndex.map(({ organization: org, memberCount, tokenCount, activeTokenCount }) => (
+              <article className="dashboard-card" key={org.id}>
+                <div className="dashboard-kicker">Business account</div>
+                <h2>{org.name}</h2>
+                <p className="editor-copy">
+                  {memberCount} member{memberCount === 1 ? "" : "s"} · {activeTokenCount}/{tokenCount} active token{tokenCount === 1 ? "" : "s"}
+                </p>
+                <p className="editor-copy" style={{ wordBreak: "break-all" }}>
+                  {org.slug ? `${appUrl()}/business/${org.slug}` : "No business slug yet"}
+                </p>
+                <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                  <Link className="button primary" href={`/dashboard/business?org=${org.id}`}>
+                    Manage business
+                  </Link>
+                  {org.slug ? (
+                    <>
+                      <Link className="button secondary" href={`/business/${org.slug}`}>
+                        Login page
+                      </Link>
+                      <CopyLinkButton value={`${appUrl()}/business/${org.slug}`} />
+                    </>
+                  ) : null}
+                </div>
+              </article>
+            ))}
+          </div>
+
+          {businessIndex.length === 0 ? (
+            <div className="dashboard-card">
+              <div className="dashboard-kicker">No businesses yet</div>
+              <h2>Onboard the first business.</h2>
+              <Link className="button primary" href="/dashboard/business?onboard=1">
+                Onboard new business
+              </Link>
+            </div>
+          ) : null}
+        </section>
+      </Shell>
+    );
+  }
 
   if (!organization) {
     return (
@@ -416,6 +565,11 @@ export default async function BusinessDashboardPage({
               <button className="button primary" type="submit">
                 Create company account
               </button>
+              {isPlatformAdmin ? (
+                <Link className="button secondary" href="/dashboard/business">
+                  Back to business accounts
+                </Link>
+              ) : null}
             </form>
           </div>
         </section>
@@ -437,6 +591,16 @@ export default async function BusinessDashboardPage({
         <p>
           Manage employees, permanent card/pass tokens, and phone-first digital sharing for your team.
         </p>
+        {isPlatformAdmin ? (
+          <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap", marginTop: 22 }}>
+            <Link className="button secondary" href="/dashboard/business">
+              All businesses
+            </Link>
+            <Link className="button primary" href="/dashboard/business?onboard=1">
+              Onboard new business
+            </Link>
+          </div>
+        ) : null}
       </section>
 
       {params?.error ? (
