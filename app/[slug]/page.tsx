@@ -40,7 +40,7 @@ export default async function PublicProfilePage({ params, searchParams }: PagePr
       .maybeSingle();
 
     if (organization?.slug) {
-      redirect(`/business/${organization.slug}`);
+      redirect(`/${organization.slug}/login`);
     }
   }
 

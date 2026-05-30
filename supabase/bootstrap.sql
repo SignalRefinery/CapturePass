@@ -729,7 +729,9 @@ for each row execute function public.enforce_profile_slug_security();
 drop trigger if exists on_auth_user_created_create_profile on auth.users;
 create trigger on_auth_user_created_create_profile
 after insert on auth.users
-for each row execute function public.handle_new_user_profile();
+for each row
+when (coalesce((new.raw_user_meta_data->>'business_only')::boolean, false) = false)
+execute function public.handle_new_user_profile();
 
 insert into public.profiles (
   user_id,

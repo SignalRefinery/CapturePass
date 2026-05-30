@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { safeInternalRedirect } from "@/lib/auth/redirect";
+import { claimBusinessOrganizationForUser } from "@/lib/business/organization-access";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { classifySlug } from "@/lib/slug-moderation";
@@ -202,6 +203,17 @@ export async function GET(req: Request) {
   const referralCode = cleanValue(meta.referral_code_used);
   const isPublicOfficial = Boolean(meta.is_public_official);
   const finalNextPath = promoCode === "FOUNDERS" ? "/dashboard" : nextPath;
+
+  if (meta.business_only === true || meta.business_only === "true") {
+    await claimBusinessOrganizationForUser({
+      userId: user.id,
+      email: user.email,
+      organizationId: cleanValue(meta.organization_id),
+      roles: ["owner", "admin", "member"]
+    });
+
+    return NextResponse.redirect(new URL(nextPath, req.url));
+  }
 
   const { data: existingProfile, error: lookupError } = await profileAdmin
     .from("profiles")

@@ -48,6 +48,22 @@ function tokenUrl(token: string) {
   return `${appUrl()}/p/${token}`;
 }
 
+function businessLoginPath(slug?: string | null) {
+  return slug ? `/${slug}/login` : "/dashboard/business";
+}
+
+function businessLoginUrl(slug?: string | null) {
+  return `${appUrl()}${businessLoginPath(slug)}`;
+}
+
+function businessInviteRedirectUrl(slug?: string | null) {
+  const callbackUrl = new URL("/auth/callback", appUrl());
+  const passwordUrl = new URL("/update-password", appUrl());
+  passwordUrl.searchParams.set("next", businessLoginPath(slug));
+  callbackUrl.searchParams.set("next", `${passwordUrl.pathname}${passwordUrl.search}`);
+  return callbackUrl.toString();
+}
+
 async function getCurrentUser() {
   const supabase = await createClient();
   const {
@@ -55,6 +71,77 @@ async function getCurrentUser() {
   } = await supabase.auth.getUser();
 
   return user;
+}
+
+async function sendBusinessInviteEmail({
+  organization,
+  member
+}: {
+  organization: Pick<OrganizationRecord, "id" | "name" | "slug">;
+  member: Pick<OrganizationMemberRecord, "id" | "name" | "email" | "role">;
+}) {
+  const email = (member.email || "").trim();
+  if (!email || !organization.slug) return { sent: false, reason: "missing_email_or_slug" };
+
+  const admin = createAdminClient();
+  const redirectTo = businessInviteRedirectUrl(organization.slug);
+
+  const { error } = await admin.auth.admin.inviteUserByEmail(email, {
+    redirectTo,
+    data: {
+      business_only: true,
+      organization_id: organization.id,
+      organization_slug: organization.slug,
+      organization_member_id: member.id,
+      full_name: member.name,
+      business_role: member.role
+    }
+  });
+
+  if (!error) {
+    console.info("Business invite email sent", {
+      organizationId: organization.id,
+      memberId: member.id,
+      role: member.role,
+      redirectTo
+    });
+    return { sent: true };
+  }
+
+  const message = error.message.toLowerCase();
+  if (
+    message.includes("already registered") ||
+    message.includes("already been registered") ||
+    message.includes("already exists")
+  ) {
+    const { error: resetError } = await admin.auth.resetPasswordForEmail(email, {
+      redirectTo
+    });
+
+    if (!resetError) {
+      console.info("Business password setup email sent to existing auth user", {
+        organizationId: organization.id,
+        memberId: member.id,
+        role: member.role,
+        redirectTo
+      });
+      return { sent: true };
+    }
+
+    console.error("Business password setup email failed", {
+      organizationId: organization.id,
+      memberId: member.id,
+      error: resetError.message
+    });
+    return { sent: false, reason: resetError.message };
+  }
+
+  console.error("Business invite email failed", {
+    organizationId: organization.id,
+    memberId: member.id,
+    error: error.message
+  });
+  return { sent: false, reason: error.message };
 }
 
 async function getBusinessIndex(): Promise<BusinessSummary[]> {
@@ -241,20 +328,31 @@ async function createOrganization(formData: FormData) {
       owner_user_id: user.id,
       managed_service_enabled: managedService
     })
-    .select("id")
+    .select("id, name, slug")
     .single();
 
   if (error || !organization) redirect("/dashboard/business?error=org_create_failed");
 
-  await admin.from("organization_members").insert({
-    organization_id: organization.id,
-    name: adminName,
-    email: adminEmail || null,
-    phone: adminPhone || null,
-    title: adminTitle || null,
-    role: "admin",
-    status: "active"
-  });
+  const { data: businessAdminMember } = await admin
+    .from("organization_members")
+    .insert({
+      organization_id: organization.id,
+      name: adminName,
+      email: adminEmail || null,
+      phone: adminPhone || null,
+      title: adminTitle || null,
+      role: "admin",
+      status: "active"
+    })
+    .select("id, name, email, role")
+    .single();
+
+  if (businessAdminMember) {
+    await sendBusinessInviteEmail({
+      organization,
+      member: businessAdminMember as Pick<OrganizationMemberRecord, "id" | "name" | "email" | "role">
+    });
+  }
 
   if (adminEmail.toLowerCase() !== ADMIN_EMAILS[0]) {
     await admin.from("organization_members").insert({
@@ -330,14 +428,66 @@ async function addEmployee(formData: FormData) {
     .select("id", { count: "exact", head: true })
     .eq("organization_id", organizationId);
 
-  await admin.from("organization_members").insert({
-    organization_id: organizationId,
-    name,
-    email: email || null,
-    phone: phone || null,
-    title: title || null,
-    role: count === 0 ? "admin" : "member",
-    status: "active"
+  const [{ data: organization }, { data: member }] = await Promise.all([
+    admin
+      .from("organizations")
+      .select("id, name, slug")
+      .eq("id", organizationId)
+      .maybeSingle(),
+    admin
+      .from("organization_members")
+      .insert({
+        organization_id: organizationId,
+        name,
+        email: email || null,
+        phone: phone || null,
+        title: title || null,
+        role: count === 0 ? "admin" : "member",
+        status: "active"
+      })
+      .select("id, name, email, role")
+      .single()
+  ]);
+
+  if (organization && member) {
+    await sendBusinessInviteEmail({
+      organization,
+      member: member as Pick<OrganizationMemberRecord, "id" | "name" | "email" | "role">
+    });
+  }
+
+  redirect(`/dashboard/business?org=${organizationId}`);
+}
+
+async function sendBusinessLoginInvite(formData: FormData) {
+  "use server";
+
+  const organizationId = String(formData.get("organization_id") || "");
+  await requireBusinessAdmin(organizationId);
+
+  const memberId = String(formData.get("member_id") || "");
+  const admin = createAdminClient();
+  const [{ data: organization }, { data: member }] = await Promise.all([
+    admin
+      .from("organizations")
+      .select("id, name, slug")
+      .eq("id", organizationId)
+      .maybeSingle(),
+    admin
+      .from("organization_members")
+      .select("id, name, email, role")
+      .eq("id", memberId)
+      .eq("organization_id", organizationId)
+      .maybeSingle()
+  ]);
+
+  if (!organization || !member?.email) {
+    redirect(`/dashboard/business?org=${organizationId}&error=missing_member_email`);
+  }
+
+  await sendBusinessInviteEmail({
+    organization,
+    member: member as Pick<OrganizationMemberRecord, "id" | "name" | "email" | "role">
   });
 
   redirect(`/dashboard/business?org=${organizationId}`);
@@ -498,7 +648,7 @@ export default async function BusinessDashboardPage({
                   {memberCount} member{memberCount === 1 ? "" : "s"} · {activeTokenCount}/{tokenCount} active token{tokenCount === 1 ? "" : "s"}
                 </p>
                 <p className="editor-copy" style={{ wordBreak: "break-all" }}>
-                  {org.slug ? `${appUrl()}/business/${org.slug}` : "No business slug yet"}
+                  {org.slug ? businessLoginUrl(org.slug) : "No business slug yet"}
                 </p>
                 <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
                   <Link className="button primary" href={`/dashboard/business?org=${org.id}`}>
@@ -506,10 +656,10 @@ export default async function BusinessDashboardPage({
                   </Link>
                   {org.slug ? (
                     <>
-                      <Link className="button secondary" href={`/business/${org.slug}`}>
+                      <Link className="button secondary" href={businessLoginPath(org.slug)}>
                         Login page
                       </Link>
-                      <CopyLinkButton value={`${appUrl()}/business/${org.slug}`} />
+                      <CopyLinkButton value={businessLoginUrl(org.slug)} />
                     </>
                   ) : null}
                 </div>
@@ -625,15 +775,15 @@ export default async function BusinessDashboardPage({
           {organization.slug ? (
             <div className="dashboard-card">
               <div className="dashboard-kicker">Business login</div>
-              <h2>Admin console link.</h2>
+              <h2>Team login link.</h2>
               <p className="editor-copy" style={{ wordBreak: "break-all" }}>
-                {appUrl()}/business/{organization.slug}
+                {businessLoginUrl(organization.slug)}
               </p>
               <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-                <Link className="button secondary" href={`/business/${organization.slug}`}>
+                <Link className="button secondary" href={businessLoginPath(organization.slug)}>
                   Open business login
                 </Link>
-                <CopyLinkButton value={`${appUrl()}/business/${organization.slug}`} />
+                <CopyLinkButton value={businessLoginUrl(organization.slug)} />
               </div>
             </div>
           ) : null}
@@ -847,9 +997,17 @@ export default async function BusinessDashboardPage({
                     <br />
                     <small>
                       {member.role === "admin" ? "Business admin" : member.title || "Member"} · {assignedToken ? `/p/${assignedToken.token}` : "No token"}
+                      {member.email ? ` · ${member.email}` : ""}
                     </small>
                   </span>
                   <strong>{member.status}</strong>
+                  {member.status === "active" && member.email ? (
+                    <form action={sendBusinessLoginInvite}>
+                      <input type="hidden" name="organization_id" value={organization.id} />
+                      <input type="hidden" name="member_id" value={member.id} />
+                      <button className="button secondary" type="submit">Send login email</button>
+                    </form>
+                  ) : null}
                   {member.status === "active" ? (
                     <form action={deactivateEmployee}>
                       <input type="hidden" name="organization_id" value={organization.id} />

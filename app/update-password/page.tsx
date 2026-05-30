@@ -3,10 +3,23 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useState } from "react";
+import { FormEvent, Suspense, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { safeInternalRedirect } from "@/lib/auth/redirect";
 import { createClient } from "@/lib/supabase/client";
 
 export default function UpdatePasswordPage() {
+  return (
+    <Suspense fallback={<main className="auth-wrap"><section className="auth-card">Loading...</section></main>}>
+      <UpdatePasswordForm />
+    </Suspense>
+  );
+}
+
+function UpdatePasswordForm() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const nextPath = safeInternalRedirect(searchParams.get("next"), "/dashboard");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -41,10 +54,12 @@ export default function UpdatePasswordPage() {
       return;
     }
 
-    setMessage("Your password has been updated. You can now log in.");
+    setMessage("Your password has been updated.");
     setPassword("");
     setConfirmPassword("");
     setLoading(false);
+    router.push(nextPath);
+    router.refresh();
   }
 
   return (
@@ -92,7 +107,7 @@ export default function UpdatePasswordPage() {
         </form>
 
         <p className="auth-switch">
-          Back to <Link href="/login">login</Link>
+          Back to <Link href={nextPath}>login</Link>
         </p>
       </section>
     </main>

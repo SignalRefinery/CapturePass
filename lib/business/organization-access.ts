@@ -1,14 +1,18 @@
 import { createAdminClient } from "@/lib/supabase/admin";
-import type { OrganizationRecord } from "@/lib/types";
+import type { OrganizationMemberRecord, OrganizationRecord } from "@/lib/types";
 
-export async function claimBusinessOrganizationForUser({
+type BusinessRole = OrganizationMemberRecord["role"];
+
+export async function claimBusinessMembershipForUser({
   userId,
   email,
-  organizationId
+  organizationId,
+  roles = ["owner", "admin", "member"]
 }: {
   userId: string;
   email?: string | null;
   organizationId?: string | null;
+  roles?: BusinessRole[];
 }) {
   const normalizedEmail = (email || "").trim();
 
@@ -17,10 +21,10 @@ export async function claimBusinessOrganizationForUser({
   const admin = createAdminClient();
   let query = admin
     .from("organization_members")
-    .select("id, user_id, organization:organizations(*)")
+    .select("id, organization_id, user_id, name, email, phone, title, role, status, organization:organizations(*)")
     .ilike("email", normalizedEmail)
     .eq("status", "active")
-    .in("role", ["owner", "admin"])
+    .in("role", roles)
     .limit(1);
 
   if (organizationId) {
@@ -43,5 +47,41 @@ export async function claimBusinessOrganizationForUser({
     ? member.organization[0]
     : member.organization;
 
-  return (organization as OrganizationRecord | undefined) || null;
+  if (!organization) return null;
+
+  return {
+    organization: organization as OrganizationRecord,
+    member: {
+      id: member.id,
+      organization_id: member.organization_id,
+      user_id: userId,
+      name: member.name,
+      email: member.email,
+      phone: member.phone,
+      title: member.title,
+      role: member.role,
+      status: member.status
+    } as OrganizationMemberRecord
+  };
+}
+
+export async function claimBusinessOrganizationForUser({
+  userId,
+  email,
+  organizationId,
+  roles = ["owner", "admin"]
+}: {
+  userId: string;
+  email?: string | null;
+  organizationId?: string | null;
+  roles?: BusinessRole[];
+}) {
+  const result = await claimBusinessMembershipForUser({
+    userId,
+    email,
+    organizationId,
+    roles
+  });
+
+  return result?.organization || null;
 }
