@@ -136,6 +136,15 @@ export function AuthForm({ mode, nextPath, plan }: AuthFormProps) {
           setError(
             "That email already exists in secure login, even if it does not have a TapTagg profile yet. Sign in or set a password to continue."
           );
+        } else if (
+          signUpCode === "email_address_not_authorized" ||
+          normalizedMessage.includes("confirmation email") ||
+          normalizedMessage.includes("send email") ||
+          normalizedMessage.includes("email address not authorized")
+        ) {
+          setError(
+            "TapTagg could not send the confirmation email. Check the Supabase Auth email/SMTP settings, then try creating the account again."
+          );
         } else {
           setError(signUpMessage);
         }
