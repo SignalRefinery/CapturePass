@@ -36,6 +36,8 @@ export function AuthForm({ mode, nextPath, plan }: AuthFormProps) {
   const [promoCode, setPromoCode] = useState("");
 
   const [loading, setLoading] = useState(false);
+  const [resetLoading, setResetLoading] = useState(false);
+  const [existingAuthEmail, setExistingAuthEmail] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
 
@@ -44,6 +46,7 @@ export function AuthForm({ mode, nextPath, plan }: AuthFormProps) {
     setLoading(true);
     setError("");
     setMessage("");
+    setExistingAuthEmail(false);
 
     try {
       if (mode === "login") {
@@ -120,8 +123,9 @@ export function AuthForm({ mode, nextPath, plan }: AuthFormProps) {
           normalizedMessage.includes("user already") ||
           normalizedMessage.includes("email")
         ) {
+          setExistingAuthEmail(true);
           setError(
-            "That email is already associated with a TapTagg account. Try signing in instead, or use password reset if you need access."
+            "That email already exists in secure login, even if it does not have a TapTagg profile yet. Sign in or set a password to continue."
           );
         } else {
           setError(signUpMessage);
@@ -141,6 +145,31 @@ export function AuthForm({ mode, nextPath, plan }: AuthFormProps) {
     } finally {
       setLoading(false);
     }
+  }
+
+  async function sendPasswordReset() {
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail) {
+      setError("Enter the email address first.");
+      return;
+    }
+
+    setResetLoading(true);
+    setError("");
+    setMessage("");
+
+    const { error: resetError } = await supabase.auth.resetPasswordForEmail(trimmedEmail, {
+      redirectTo: getPasswordResetRedirectUrl(redirectTo)
+    });
+
+    if (resetError) {
+      setError(resetError.message || "Unable to send password setup email.");
+      setResetLoading(false);
+      return;
+    }
+
+    setMessage("Check your email for a password setup link, then sign in to finish your TapTagg profile.");
+    setResetLoading(false);
   }
 
   return (
@@ -242,6 +271,16 @@ export function AuthForm({ mode, nextPath, plan }: AuthFormProps) {
       ) : null}
 
       {error ? <p className="auth-error">{error}</p> : null}
+      {mode === "signup" && existingAuthEmail ? (
+        <div className="editor-actions" style={{ marginTop: 8 }}>
+          <button className="button secondary" type="button" onClick={sendPasswordReset} disabled={resetLoading}>
+            {resetLoading ? "Sending..." : "Send password setup email"}
+          </button>
+          <Link className="button secondary" href={`/login?next=${encodeURIComponent(redirectTo)}`}>
+            Sign in instead
+          </Link>
+        </div>
+      ) : null}
       {message ? <p className="auth-message">{message}</p> : null}
 
       <button className="button primary auth-submit" type="submit" disabled={loading}>
@@ -313,4 +352,14 @@ function getEmailRedirectUrl(nextPath: string, plan?: string | null) {
   }
 
   return callbackUrl.toString();
+}
+
+function getPasswordResetRedirectUrl(nextPath: string) {
+  const appOrigin =
+    typeof window !== "undefined"
+      ? window.location.origin
+      : process.env.NEXT_PUBLIC_APP_URL || "https://taptagg.app";
+  const resetUrl = new URL("/update-password", appOrigin);
+  resetUrl.searchParams.set("next", safeInternalRedirect(nextPath));
+  return resetUrl.toString();
 }
