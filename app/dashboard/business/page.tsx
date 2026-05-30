@@ -1030,54 +1030,73 @@ export default async function BusinessDashboardPage({
         <div className="dashboard-card">
           <div className="dashboard-kicker">Employee status</div>
           <h2>View, manage, or deactivate employees.</h2>
-          <div className="status-list">
-            {members.map((member) => {
-              const assignedToken = tokens.find((token) => token.assigned_member_id === member.id);
-              const assignedProfileUrl = assignedToken ? tokenUrl(assignedToken.token) : null;
-              return (
-                <div className="status-row" key={member.id}>
-                  <span className="status-person">
-                    <strong>{member.name}</strong>
-                    <small>
-                      {member.role === "admin" ? "Business admin" : member.title || "Member"} · {assignedToken ? `/p/${assignedToken.token}` : "No token"}
-                      {member.email ? ` · ${member.email}` : ""}
-                    </small>
-                  </span>
-                  <strong className="status-pill">{member.status}</strong>
-                  <div className="status-actions">
-                    {assignedToken ? (
-                      <>
-                        <Link className="button secondary" href={`/p/${assignedToken.token}`}>
-                          View profile
-                        </Link>
-                        <Link className="button secondary" href={`#token-${assignedToken.id}`}>
-                          Manage profile
-                        </Link>
-                        {assignedProfileUrl ? <CopyLinkButton value={assignedProfileUrl} /> : null}
-                      </>
-                    ) : (
-                      <Link className="button secondary" href="#business-tokens">
-                        Assign token
-                      </Link>
-                    )}
-                    {member.status === "active" && member.email ? (
-                      <form action={sendBusinessLoginInvite}>
-                        <input type="hidden" name="organization_id" value={organization.id} />
-                        <input type="hidden" name="member_id" value={member.id} />
-                        <button className="button secondary" type="submit">Send login email</button>
-                      </form>
-                    ) : null}
-                    {member.status === "active" ? (
-                      <form action={deactivateEmployee}>
-                        <input type="hidden" name="organization_id" value={organization.id} />
-                        <input type="hidden" name="member_id" value={member.id} />
-                        <button className="button secondary" type="submit">Deactivate</button>
-                      </form>
-                    ) : null}
-                  </div>
-                </div>
-              );
-            })}
+          <div className="admin-table-frame business-member-table">
+            <div className="admin-table-scroll">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Role / title</th>
+                    <th>Email</th>
+                    <th>Token</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {members.map((member) => {
+                    const assignedToken = tokens.find((token) => token.assigned_member_id === member.id);
+                    const assignedProfileUrl = assignedToken ? tokenUrl(assignedToken.token) : null;
+                    return (
+                      <tr key={member.id}>
+                        <td>
+                          <strong>{member.name}</strong>
+                        </td>
+                        <td>{member.role === "admin" ? "Business admin" : member.title || "Member"}</td>
+                        <td>{member.email || "—"}</td>
+                        <td>{assignedToken ? `/p/${assignedToken.token}` : "No token"}</td>
+                        <td>
+                          <span className="status-pill">{member.status}</span>
+                        </td>
+                        <td>
+                          <div className="table-actions">
+                            {assignedToken ? (
+                              <>
+                                <Link className="button secondary" href={`/p/${assignedToken.token}`}>
+                                  View
+                                </Link>
+                                <Link className="button secondary" href={`#token-${assignedToken.id}`}>
+                                  Manage
+                                </Link>
+                                {assignedProfileUrl ? <CopyLinkButton value={assignedProfileUrl} /> : null}
+                              </>
+                            ) : (
+                              <Link className="button secondary" href="#business-tokens">
+                                Assign token
+                              </Link>
+                            )}
+                            {member.status === "active" && member.email ? (
+                              <form action={sendBusinessLoginInvite}>
+                                <input type="hidden" name="organization_id" value={organization.id} />
+                                <input type="hidden" name="member_id" value={member.id} />
+                                <button className="button secondary" type="submit">Invite</button>
+                              </form>
+                            ) : null}
+                            {member.status === "active" ? (
+                              <form action={deactivateEmployee}>
+                                <input type="hidden" name="organization_id" value={organization.id} />
+                                <input type="hidden" name="member_id" value={member.id} />
+                                <button className="button secondary" type="submit">Deactivate</button>
+                              </form>
+                            ) : null}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </section>

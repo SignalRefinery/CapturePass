@@ -658,6 +658,33 @@ textarea{font:inherit}
   letter-spacing:.08em;
   text-transform:uppercase;
 }
+.table-actions{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.table-actions .button{
+  min-height:38px;
+  padding:8px 12px;
+  border-radius:12px;
+  font-size:13px;
+}
+.business-member-table{
+  margin-top:18px;
+  border:1px solid rgba(255,255,255,.075);
+  border-radius:18px;
+  background:rgba(255,255,255,.018);
+}
+.business-member-table .admin-table td{
+  vertical-align:middle;
+}
+.business-member-table .admin-table td:nth-child(3),
+.business-member-table .admin-table td:nth-child(4){
+  color:var(--muted);
+  overflow-wrap:anywhere;
+  white-space:normal;
+}
 .editor-copy{
   margin:0;
   max-width:68ch;

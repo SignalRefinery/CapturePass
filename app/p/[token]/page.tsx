@@ -1,6 +1,10 @@
 import { Shell } from "@/components/shared/shell";
 import { TapTaggProfileShell } from "@/components/profile/taptagg-profile-shell";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { unstable_noStore as noStore } from "next/cache";
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 function appUrl() {
   return (process.env.NEXT_PUBLIC_APP_URL || "https://taptagg.app").replace(/\/$/, "");
@@ -11,6 +15,8 @@ export default async function PassTokenPage({
 }: {
   params: Promise<{ token: string }>;
 }) {
+  noStore();
+
   const { token } = await params;
   const admin = createAdminClient();
   const { data: passToken, error: tokenError } = await admin
