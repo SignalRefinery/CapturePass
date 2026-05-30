@@ -37,6 +37,13 @@ function cleanHexColor(value: FormDataEntryValue | null) {
   return /^#[0-9a-fA-F]{6}$/.test(color) ? color : null;
 }
 
+function cleanBrandTheme(value: FormDataEntryValue | null) {
+  const theme = String(value || "").trim();
+  return ["deep_brand", "clean_light", "full_color", "custom"].includes(theme)
+    ? theme
+    : "full_color";
+}
+
 function tokenUrl(token: string) {
   return `${appUrl()}/p/${token}`;
 }
@@ -275,6 +282,7 @@ async function updateOrganizationBranding(formData: FormData) {
   await admin
     .from("organizations")
     .update({
+      brand_theme: cleanBrandTheme(formData.get("brand_theme")),
       brand_color_primary: cleanHexColor(formData.get("brand_color_primary")),
       brand_color_secondary: cleanHexColor(formData.get("brand_color_secondary")),
       brand_color_accent: cleanHexColor(formData.get("brand_color_accent")),
@@ -657,6 +665,15 @@ export default async function BusinessDashboardPage({
           </p>
           <form action={updateOrganizationBranding} className="editor-form" style={{ marginTop: 18 }}>
             <input type="hidden" name="organization_id" value={organization.id} />
+            <label className="editor-label">
+              Page theme
+              <select className="editor-input" name="brand_theme" defaultValue={organization.brand_theme || "full_color"}>
+                <option value="full_color">Full color brand</option>
+                <option value="clean_light">Clean light brand</option>
+                <option value="deep_brand">Deep brand</option>
+                <option value="custom">Custom palette</option>
+              </select>
+            </label>
             <div className="editor-grid">
               <label className="editor-label">
                 Primary color

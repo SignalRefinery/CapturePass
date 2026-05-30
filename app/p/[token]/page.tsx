@@ -25,6 +25,7 @@ export default async function PassTokenPage({
         brand_color_primary,
         brand_color_secondary,
         brand_color_accent,
+        brand_theme,
         brand_logo_url
       ),
       member:organization_members (
@@ -72,6 +73,7 @@ export default async function PassTokenPage({
     brand_color_primary: organization?.brand_color_primary || organization?.brand_color || null,
     brand_color_secondary: organization?.brand_color_secondary || null,
     brand_color_accent: organization?.brand_color_accent || null,
+    brand_theme: organization?.brand_theme || "full_color",
     role_line: member.title || "",
     intro: `Connect with ${member.name}${organization?.name ? ` at ${organization.name}` : ""}.`,
     email: member.email || "",

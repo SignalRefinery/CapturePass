@@ -6,7 +6,15 @@
 alter table public.organizations
   add column if not exists brand_color_primary text,
   add column if not exists brand_color_secondary text,
-  add column if not exists brand_color_accent text;
+  add column if not exists brand_color_accent text,
+  add column if not exists brand_theme text not null default 'full_color';
+
+alter table public.organizations
+  drop constraint if exists organizations_brand_theme_check;
+
+alter table public.organizations
+  add constraint organizations_brand_theme_check
+  check (brand_theme in ('deep_brand', 'clean_light', 'full_color', 'custom'));
 
 insert into public.organization_members (
   organization_id,

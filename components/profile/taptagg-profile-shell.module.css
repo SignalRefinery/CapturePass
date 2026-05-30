@@ -16,6 +16,30 @@
   --muted:#a1a1aa;
   --muted-2:#71717a;
   --shadow:0 24px 80px rgba(0,0,0,.42);
+  --shell-bg:
+    linear-gradient(180deg, rgba(255,255,255,.025), rgba(255,255,255,0) 24%),
+    linear-gradient(135deg, #09090b 0%, #141418 100%);
+  --topbar-bg:rgba(0,0,0,.14);
+  --brand-copy:#d4d4d8;
+  --icon-button-bg:
+    linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.018)),
+    rgba(255,255,255,.015);
+  --hero-wash:
+    radial-gradient(circle at 50% 10%, color-mix(in srgb, var(--profile-secondary) 24%, transparent) 0%, color-mix(in srgb, var(--profile-primary) 12%, transparent) 24%, transparent 54%),
+    radial-gradient(circle at 14% 34%, color-mix(in srgb, var(--profile-primary) 12%, transparent) 0%, transparent 34%),
+    radial-gradient(circle at 86% 26%, color-mix(in srgb, var(--profile-accent) 8%, transparent) 0%, transparent 32%),
+    linear-gradient(180deg, rgba(255,255,255,.026), rgba(255,255,255,0) 38%),
+    linear-gradient(90deg, rgba(167,139,250,.035), transparent 24%, transparent 76%, rgba(167,139,250,.03));
+  --grid-line:rgba(255,255,255,.035);
+  --grid-line-2:rgba(255,255,255,.03);
+  --eyebrow-bg:rgba(255,255,255,.025);
+  --chip-bg:rgba(255,255,255,.02);
+  --panel-bg:
+    linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.01)),
+    linear-gradient(180deg, rgba(18,18,22,.78), rgba(10,10,12,.92));
+  --link-bg:rgba(255,255,255,.018);
+  --link-hover-bg:rgba(255,255,255,.028);
+  --subtle-button-bg:rgba(255,255,255,.018);
 
   width:min(1240px, calc(100% - 28px));
   margin:28px auto 40px;
@@ -23,13 +47,83 @@
   font-family:"Inter",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 }
 
+.themeDeepBrand{
+  --text:#fffaf5;
+  --muted:color-mix(in srgb, var(--profile-secondary) 18%, #d6d3d1);
+  --muted-2:color-mix(in srgb, var(--profile-primary) 28%, #a8a29e);
+  --shell-bg:
+    radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--profile-primary) 34%, transparent) 0%, transparent 42%),
+    linear-gradient(145deg, color-mix(in srgb, var(--profile-primary) 42%, #050505) 0%, color-mix(in srgb, var(--profile-accent) 20%, #080808) 48%, #050505 100%);
+  --topbar-bg:color-mix(in srgb, var(--profile-primary) 16%, rgba(0,0,0,.46));
+  --brand-copy:#fffaf5;
+  --hero-wash:
+    radial-gradient(circle at 50% 12%, color-mix(in srgb, var(--profile-secondary) 34%, transparent) 0%, transparent 42%),
+    radial-gradient(circle at 16% 34%, color-mix(in srgb, var(--profile-primary) 28%, transparent) 0%, transparent 36%),
+    radial-gradient(circle at 82% 28%, color-mix(in srgb, var(--profile-accent) 24%, transparent) 0%, transparent 34%);
+  --panel-bg:
+    linear-gradient(180deg, color-mix(in srgb, var(--profile-secondary) 10%, rgba(255,255,255,.04)), rgba(255,255,255,.018)),
+    linear-gradient(145deg, color-mix(in srgb, var(--profile-primary) 30%, #090909) 0%, color-mix(in srgb, var(--profile-accent) 18%, #080808) 100%);
+  --link-bg:color-mix(in srgb, var(--profile-primary) 12%, rgba(255,255,255,.035));
+  --link-hover-bg:color-mix(in srgb, var(--profile-secondary) 16%, rgba(255,255,255,.055));
+  --chip-bg:color-mix(in srgb, var(--profile-primary) 10%, rgba(255,255,255,.035));
+}
+
+.themeCleanLight{
+  --text:#111827;
+  --muted:#475569;
+  --muted-2:#64748b;
+  --shadow:0 22px 70px rgba(15,23,42,.18);
+  --shell-bg:
+    radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--profile-secondary) 24%, transparent) 0%, transparent 44%),
+    linear-gradient(145deg, #ffffff 0%, color-mix(in srgb, var(--profile-primary) 10%, #f8fafc) 54%, color-mix(in srgb, var(--profile-accent) 10%, #eef2ff) 100%);
+  --topbar-bg:rgba(255,255,255,.72);
+  --brand-copy:#111827;
+  --icon-button-bg:rgba(255,255,255,.72);
+  --hero-wash:
+    radial-gradient(circle at 50% 12%, color-mix(in srgb, var(--profile-secondary) 28%, transparent) 0%, transparent 44%),
+    linear-gradient(180deg, color-mix(in srgb, var(--profile-primary) 9%, transparent), transparent 62%);
+  --grid-line:rgba(15,23,42,.055);
+  --grid-line-2:rgba(15,23,42,.045);
+  --eyebrow-bg:rgba(255,255,255,.62);
+  --chip-bg:rgba(255,255,255,.58);
+  --panel-bg:
+    linear-gradient(180deg, rgba(255,255,255,.86), rgba(255,255,255,.62)),
+    color-mix(in srgb, var(--profile-primary) 8%, #ffffff);
+  --link-bg:rgba(255,255,255,.62);
+  --link-hover-bg:rgba(255,255,255,.82);
+  --subtle-button-bg:rgba(255,255,255,.62);
+}
+
+.themeFullColor,
+.themeCustom{
+  --text:#ffffff;
+  --muted:rgba(255,255,255,.78);
+  --muted-2:rgba(255,255,255,.58);
+  --shell-bg:
+    radial-gradient(circle at 20% 10%, color-mix(in srgb, var(--profile-secondary) 44%, transparent) 0%, transparent 34%),
+    radial-gradient(circle at 88% 20%, color-mix(in srgb, var(--profile-accent) 40%, transparent) 0%, transparent 34%),
+    linear-gradient(135deg, var(--profile-primary) 0%, color-mix(in srgb, var(--profile-secondary) 64%, var(--profile-primary)) 48%, var(--profile-accent) 100%);
+  --topbar-bg:rgba(0,0,0,.2);
+  --brand-copy:#ffffff;
+  --hero-wash:
+    radial-gradient(circle at 50% 8%, rgba(255,255,255,.24) 0%, transparent 32%),
+    radial-gradient(circle at 20% 40%, color-mix(in srgb, var(--profile-secondary) 38%, transparent) 0%, transparent 34%),
+    radial-gradient(circle at 82% 34%, color-mix(in srgb, var(--profile-accent) 34%, transparent) 0%, transparent 34%),
+    linear-gradient(180deg, color-mix(in srgb, var(--profile-primary) 24%, transparent), transparent 62%);
+  --panel-bg:
+    linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.075)),
+    color-mix(in srgb, var(--profile-primary) 28%, rgba(0,0,0,.42));
+  --link-bg:rgba(255,255,255,.12);
+  --link-hover-bg:rgba(255,255,255,.18);
+  --chip-bg:rgba(255,255,255,.12);
+  --subtle-button-bg:rgba(255,255,255,.11);
+}
+
 .shell{
   border:1px solid rgba(255,255,255,.095);
   border-radius:22px;
   overflow:hidden;
-  background:
-    linear-gradient(180deg, rgba(255,255,255,.025), rgba(255,255,255,0) 24%),
-    linear-gradient(135deg, #09090b 0%, #141418 100%);
+  background:var(--shell-bg);
   box-shadow:var(--shadow);
   backdrop-filter: blur(10px);
 }
@@ -43,7 +137,7 @@
   gap:16px;
   padding:18px 34px;
   border-bottom:1px solid rgba(255,255,255,.06);
-  background:rgba(0,0,0,.14);
+  background:var(--topbar-bg);
 }
 
 .brand{
@@ -53,7 +147,7 @@
   font-size:12px;
   letter-spacing:.22em;
   text-transform:uppercase;
-  color:#d4d4d8;
+  color:var(--brand-copy);
   font-weight:700;
 }
 
@@ -64,8 +158,8 @@
   place-items:center;
   border-radius:7px;
   color:#ffffff;
-  background:linear-gradient(135deg, #8B5CF6, #A78BFA);
-  border:1px solid rgba(139,92,246,.3);
+  background:linear-gradient(135deg, var(--profile-primary), var(--profile-secondary));
+  border:1px solid color-mix(in srgb, var(--profile-secondary) 34%, transparent);
   font-size:13px;
   box-shadow:0 10px 24px rgba(139,92,246,.2);
 }
@@ -78,9 +172,7 @@
   height:48px;
   border-radius:14px;
   border:1px solid rgba(255,255,255,.08);
-  background:
-    linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.018)),
-    rgba(255,255,255,.015);
+  background:var(--icon-button-bg);
   padding:0;
   cursor:pointer;
   align-items:center;
@@ -181,19 +273,14 @@
   text-transform:uppercase;
 }
 
-.miniStar{color:var(--purple-light)}
+.miniStar{color:var(--profile-secondary)}
 
 .profileHero{
   position:relative;
   padding:58px 34px 8px;
   text-align:center;
   overflow:hidden;
-  background:
-    radial-gradient(circle at 50% 10%, color-mix(in srgb, var(--profile-secondary) 24%, transparent) 0%, color-mix(in srgb, var(--profile-primary) 12%, transparent) 24%, transparent 54%),
-    radial-gradient(circle at 14% 34%, color-mix(in srgb, var(--profile-primary) 12%, transparent) 0%, transparent 34%),
-    radial-gradient(circle at 86% 26%, color-mix(in srgb, var(--profile-accent) 8%, transparent) 0%, transparent 32%),
-    linear-gradient(180deg, rgba(255,255,255,.026), rgba(255,255,255,0) 38%),
-    linear-gradient(90deg, rgba(167,139,250,.035), transparent 24%, transparent 76%, rgba(167,139,250,.03));
+  background:var(--hero-wash);
 
   display:flex;
   align-items:center;
@@ -206,8 +293,8 @@
   position:absolute;
   inset:0;
   background-image:
-    linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line-2) 1px, transparent 1px);
   background-size:42px 42px;
   opacity:.18;
   mask-image:linear-gradient(180deg, transparent 0%, black 18%, black 72%, transparent 100%);
@@ -284,7 +371,7 @@
   padding:7px 12px;
   border-radius:999px;
   border:1px solid rgba(255,255,255,.075);
-  background:rgba(255,255,255,.025);
+  background:var(--eyebrow-bg);
   color:var(--muted);
   font-size:11px;
   font-weight:700;
@@ -307,7 +394,7 @@
 .profileRole{
   position:relative;
   margin:0 auto;
-  color:#d4d4d8;
+  color:var(--text);
   font-size:17px;
   font-weight:600;
   letter-spacing:0;
@@ -345,7 +432,7 @@
   width:5px;
   height:5px;
   border-radius:999px;
-  background:var(--purple-light);
+  background:var(--profile-secondary);
 }
 
 .ctaRow{
@@ -415,7 +502,7 @@
   padding:8px 12px;
   border-radius:999px;
   border:1px solid rgba(255,255,255,.075);
-  background:rgba(255,255,255,.02);
+  background:var(--chip-bg);
   color:var(--muted);
   font-size:12px;
   font-weight:600;
@@ -446,9 +533,7 @@
   position:relative;
   border:1px solid rgba(255,255,255,.075);
   border-radius:18px;
-  background:
-    linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.01)),
-    linear-gradient(180deg, rgba(18,18,22,.78), rgba(10,10,12,.92));
+  background:var(--panel-bg);
   padding:24px;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.045), 0 18px 42px rgba(0,0,0,.18);
 }
@@ -471,16 +556,16 @@
   min-height:72px;
   padding:16px 16px;
   border-radius:14px;
-  background:rgba(255,255,255,.018);
+  background:var(--link-bg);
   border:1px solid rgba(255,255,255,.065);
   transition:transform .15s ease, background .15s ease, border-color .15s ease, box-shadow .15s ease;
 }
 
 .linkCard:hover{
   transform:translateY(-1px);
-  background:rgba(255,255,255,.028);
-  border-color:rgba(167,139,250,.22);
-  box-shadow:0 0 0 1px rgba(167,139,250,.08) inset, 0 14px 28px rgba(0,0,0,.16);
+  background:var(--link-hover-bg);
+  border-color:color-mix(in srgb, var(--profile-secondary) 30%, transparent);
+  box-shadow:0 0 0 1px color-mix(in srgb, var(--profile-secondary) 10%, transparent) inset, 0 14px 28px rgba(0,0,0,.16);
 }
 
 .linkTitle{
@@ -502,7 +587,7 @@
   display:grid;
   place-items:center;
   border-radius:999px;
-  color:var(--purple-light);
+  color:var(--profile-secondary);
   background:rgba(255,255,255,.024);
   border:1px solid rgba(255,255,255,.07);
   font-size:17px;
@@ -522,7 +607,7 @@
   gap:14px;
   padding:14px 16px;
   border-radius:16px;
-  background:rgba(255,255,255,.018);
+  background:var(--link-bg);
   border:1px solid rgba(255,255,255,.06);
 }
 

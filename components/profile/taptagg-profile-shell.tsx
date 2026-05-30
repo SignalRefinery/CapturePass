@@ -20,6 +20,7 @@ type ProfileLike = {
   brand_color_primary?: string | null;
   brand_color_secondary?: string | null;
   brand_color_accent?: string | null;
+  brand_theme?: string | null;
   role_line?: string | null;
   intro?: string | null;
   email?: string | null;
@@ -120,6 +121,21 @@ function initialsForName(name?: string | null) {
 
 function isHexColor(value?: string | null) {
   return /^#[0-9a-fA-F]{6}$/.test((value || "").trim());
+}
+
+function themeClassName(theme?: string | null) {
+  switch (theme) {
+    case "deep_brand":
+      return styles.themeDeepBrand;
+    case "clean_light":
+      return styles.themeCleanLight;
+    case "full_color":
+      return styles.themeFullColor;
+    case "custom":
+      return styles.themeCustom;
+    default:
+      return "";
+  }
 }
 
 function subtitleForLink(item: { title?: string | null; href?: string | null }, profile: ProfileLike) {
@@ -257,9 +273,10 @@ export function TapTaggProfileShell({
       ? { "--profile-accent": activeProfile.brand_color_accent }
       : {})
   } as CSSProperties;
+  const pageClassName = [styles.page, themeClassName(activeProfile.brand_theme)].filter(Boolean).join(" ");
 
   return (
-    <div className={styles.page} style={brandStyle}>
+    <div className={pageClassName} style={brandStyle}>
       <div className={`${styles.shell} ${mobileOpen ? styles.shellMenuOpen : ""}`}>
         <header className={styles.topbar}>
           <Link className={styles.brand} href="/">

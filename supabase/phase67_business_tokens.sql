@@ -6,10 +6,12 @@ create table if not exists public.organizations (
   brand_color_primary text,
   brand_color_secondary text,
   brand_color_accent text,
+  brand_theme text not null default 'full_color',
   brand_logo_url text,
   owner_user_id uuid not null references auth.users(id) on delete cascade,
   managed_service_enabled boolean not null default false,
-  created_at timestamptz not null default timezone('utc', now())
+  created_at timestamptz not null default timezone('utc', now()),
+  constraint organizations_brand_theme_check check (brand_theme in ('deep_brand', 'clean_light', 'full_color', 'custom'))
 );
 
 create table if not exists public.organization_members (

@@ -79,6 +79,7 @@ export type OrganizationRecord = {
   brand_color_primary?: string | null;
   brand_color_secondary?: string | null;
   brand_color_accent?: string | null;
+  brand_theme?: "deep_brand" | "clean_light" | "full_color" | "custom" | null;
   brand_logo_url?: string | null;
   owner_user_id: string;
   managed_service_enabled?: boolean | null;
