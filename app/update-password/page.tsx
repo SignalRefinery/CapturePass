@@ -3,7 +3,7 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, Suspense, useState } from "react";
+import { FormEvent, Suspense, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { safeInternalRedirect } from "@/lib/auth/redirect";
 import { createClient } from "@/lib/supabase/client";
@@ -20,11 +20,53 @@ function UpdatePasswordForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const nextPath = safeInternalRedirect(searchParams.get("next"), "/dashboard");
+  const supabase = useMemo(() => createClient(), []);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [sessionLoading, setSessionLoading] = useState(true);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    let mounted = true;
+
+    async function hydrateInviteSession() {
+      const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+      const accessToken = hashParams.get("access_token");
+      const refreshToken = hashParams.get("refresh_token");
+
+      if (accessToken && refreshToken) {
+        const { error: sessionError } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken
+        });
+
+        window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}`);
+
+        if (sessionError && mounted) {
+          setError(sessionError.message || "This password setup link could not be verified.");
+        }
+      }
+
+      const {
+        data: { session }
+      } = await supabase.auth.getSession();
+
+      if (mounted) {
+        if (!session) {
+          setError("This password setup link is missing or expired. Please request a new login email.");
+        }
+        setSessionLoading(false);
+      }
+    }
+
+    hydrateInviteSession();
+
+    return () => {
+      mounted = false;
+    };
+  }, [supabase]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -43,7 +85,6 @@ function UpdatePasswordForm() {
 
     setLoading(true);
 
-    const supabase = createClient();
     const { error: updateError } = await supabase.auth.updateUser({
       password
     });
@@ -101,8 +142,8 @@ function UpdatePasswordForm() {
           {error ? <p className="auth-error">{error}</p> : null}
           {message ? <p className="auth-message">{message}</p> : null}
 
-          <button className="button primary" type="submit" disabled={loading}>
-            {loading ? "Updating..." : "Update password"}
+          <button className="button primary" type="submit" disabled={sessionLoading || loading}>
+            {sessionLoading ? "Preparing..." : loading ? "Updating..." : "Update password"}
           </button>
         </form>
 
