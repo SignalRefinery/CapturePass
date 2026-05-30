@@ -196,6 +196,7 @@ export default async function PassTokenPage({
   const profile = {
     slug: null,
     public_url: publicUrl,
+    vcard_url: `/api/pass-vcard/${token}`,
     business_home_url: businessHomeUrl || publicUrl,
     is_business_profile: true,
     business_links: businessLinks,

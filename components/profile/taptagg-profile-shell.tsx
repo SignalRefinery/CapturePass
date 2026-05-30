@@ -42,6 +42,7 @@ type ProfileLike = {
   primary_link_4_title?: string | null;
   primary_link_4_url?: string | null;
   public_url?: string | null;
+  vcard_url?: string | null;
   business_home_url?: string | null;
   is_business_profile?: boolean | null;
   business_links?: Array<{ title: string; url: string }> | null;
@@ -75,6 +76,7 @@ function textHref(phone?: string | null) {
 }
 
 function contactHref(profile: ProfileLike) {
+  if (profile.vcard_url) return profile.vcard_url;
   if (!profile.slug) return "#";
 
   const viewParam = viewShareParam(profile);
@@ -209,9 +211,9 @@ function primaryLinks(profile: ProfileLike, options: { hideEmailLink?: boolean }
   });
 
   if (
-    profile.slug &&
+    contactHref(profile) !== "#" &&
     hasVisibleContact &&
-    !items.some((item) => (item.href || "").includes("/api/vcard/"))
+    !items.some((item) => (item.href || "").includes("/api/vcard/") || (item.href || "").includes("/api/pass-vcard/"))
   ) {
     items.push({
       title: "Add to contacts",
@@ -384,7 +386,7 @@ export function TapTaggProfileShell({
             ) : null}
 
             <div className={`${styles.ctaRow} ${styles.profileActions}`}>
-              {activeProfile.slug && (showEmail || showPhone) ? (
+              {contactHref(activeProfile) !== "#" && (showEmail || showPhone) ? (
                 <a className={`${styles.button} ${styles.profilePrimaryButton}`} href={contactHref(activeProfile)}>
                   Add to Contacts
                 </a>
