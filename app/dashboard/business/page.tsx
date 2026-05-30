@@ -59,6 +59,8 @@ function businessErrorMessage(error?: string) {
   switch (error) {
     case "branding_save_failed":
       return "Branding did not save. Confirm the business branding Supabase SQL has been run, then try again.";
+    case "business_links_save_failed":
+      return "Colors and logo saved, but business links did not. Run phase72_business_global_links.sql in Supabase, then save again.";
     case "missing_member_email":
       return "That person needs an email address before a login invite can be sent.";
     case "missing_org_name":
@@ -405,13 +407,16 @@ async function updateOrganizationBranding(formData: FormData) {
   const brandLogoUrl = String(formData.get("brand_logo_url") || "").trim();
   const admin = createAdminClient();
 
-  const updatePayload = {
+  const brandingPayload = {
     brand_theme: cleanBrandTheme(formData.get("brand_theme")),
     brand_color_primary: cleanHexColor(formData.get("brand_color_primary")),
     brand_color_secondary: cleanHexColor(formData.get("brand_color_secondary")),
     brand_color_accent: cleanHexColor(formData.get("brand_color_accent")),
     brand_color: cleanHexColor(formData.get("brand_color_primary")),
-    brand_logo_url: brandLogoUrl || null,
+    brand_logo_url: brandLogoUrl || null
+  };
+
+  const linksPayload = {
     business_link_1_title: cleanText(formData.get("business_link_1_title")),
     business_link_1_url: cleanUrl(formData.get("business_link_1_url")),
     business_link_2_title: cleanText(formData.get("business_link_2_title")),
@@ -424,7 +429,7 @@ async function updateOrganizationBranding(formData: FormData) {
 
   const { data: updatedOrganization, error } = await admin
     .from("organizations")
-    .update(updatePayload)
+    .update(brandingPayload)
     .eq("id", organizationId)
     .select("id")
     .maybeSingle();
@@ -433,9 +438,23 @@ async function updateOrganizationBranding(formData: FormData) {
     console.error("Business branding save failed", {
       organizationId,
       error: error?.message || "No organization updated",
-      payload: updatePayload
+      payload: brandingPayload
     });
     redirect(`/dashboard/business?org=${organizationId}&error=branding_save_failed#business-branding`);
+  }
+
+  const { error: linksError } = await admin
+    .from("organizations")
+    .update(linksPayload)
+    .eq("id", organizationId);
+
+  if (linksError) {
+    console.error("Business links save failed", {
+      organizationId,
+      error: linksError.message,
+      payload: linksPayload
+    });
+    redirect(`/dashboard/business?org=${organizationId}&error=business_links_save_failed&saved=branding#business-branding`);
   }
 
   redirect(`/dashboard/business?org=${organizationId}&saved=branding#business-branding`);
