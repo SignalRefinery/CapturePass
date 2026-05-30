@@ -44,6 +44,23 @@ function cleanBrandTheme(value: FormDataEntryValue | null) {
     : "full_color";
 }
 
+function businessErrorMessage(error?: string) {
+  switch (error) {
+    case "branding_save_failed":
+      return "Branding did not save. Confirm the business branding Supabase SQL has been run, then try again.";
+    case "missing_member_email":
+      return "That person needs an email address before a login invite can be sent.";
+    case "missing_org_name":
+      return "Company name is required.";
+    case "missing_admin_name":
+      return "Business admin name is required.";
+    case "missing_employee_name":
+      return "Employee name is required.";
+    default:
+      return "Please complete the required business fields and try again.";
+  }
+}
+
 function tokenUrl(token: string) {
   return `${appUrl()}/p/${token}`;
 }
@@ -377,19 +394,32 @@ async function updateOrganizationBranding(formData: FormData) {
   const brandLogoUrl = String(formData.get("brand_logo_url") || "").trim();
   const admin = createAdminClient();
 
-  await admin
-    .from("organizations")
-    .update({
-      brand_theme: cleanBrandTheme(formData.get("brand_theme")),
-      brand_color_primary: cleanHexColor(formData.get("brand_color_primary")),
-      brand_color_secondary: cleanHexColor(formData.get("brand_color_secondary")),
-      brand_color_accent: cleanHexColor(formData.get("brand_color_accent")),
-      brand_color: cleanHexColor(formData.get("brand_color_primary")),
-      brand_logo_url: brandLogoUrl || null
-    })
-    .eq("id", organizationId);
+  const updatePayload = {
+    brand_theme: cleanBrandTheme(formData.get("brand_theme")),
+    brand_color_primary: cleanHexColor(formData.get("brand_color_primary")),
+    brand_color_secondary: cleanHexColor(formData.get("brand_color_secondary")),
+    brand_color_accent: cleanHexColor(formData.get("brand_color_accent")),
+    brand_color: cleanHexColor(formData.get("brand_color_primary")),
+    brand_logo_url: brandLogoUrl || null
+  };
 
-  redirect(`/dashboard/business?org=${organizationId}`);
+  const { data: updatedOrganization, error } = await admin
+    .from("organizations")
+    .update(updatePayload)
+    .eq("id", organizationId)
+    .select("id")
+    .maybeSingle();
+
+  if (error || !updatedOrganization) {
+    console.error("Business branding save failed", {
+      organizationId,
+      error: error?.message || "No organization updated",
+      payload: updatePayload
+    });
+    redirect(`/dashboard/business?org=${organizationId}&error=branding_save_failed#business-branding`);
+  }
+
+  redirect(`/dashboard/business?org=${organizationId}&saved=branding#business-branding`);
 }
 
 async function generateUniqueOrganizationSlug(name: string) {
@@ -599,7 +629,7 @@ async function deactivateEmployee(formData: FormData) {
 export default async function BusinessDashboardPage({
   searchParams
 }: {
-  searchParams?: Promise<{ error?: string; org?: string; onboard?: string }>;
+  searchParams?: Promise<{ error?: string; org?: string; onboard?: string; saved?: string }>;
 }) {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
@@ -766,12 +796,20 @@ export default async function BusinessDashboardPage({
         <section className="dashboard-wrap">
           <div className="dashboard-card pass-alert">
             <div className="dashboard-kicker">Action needed</div>
-            <p className="editor-copy">Please complete the required business fields and try again.</p>
+            <p className="editor-copy">{businessErrorMessage(params.error)}</p>
+          </div>
+        </section>
+      ) : null}
+      {params?.saved === "branding" ? (
+        <section className="dashboard-wrap">
+          <div className="dashboard-card pass-alert">
+            <div className="dashboard-kicker">Saved</div>
+            <p className="editor-copy">Business branding was saved.</p>
           </div>
         </section>
       ) : null}
 
-      <section className="dashboard-wrap">
+      <section className="dashboard-wrap" id="business-branding">
         <div className="dashboard-grid">
           {organization.slug ? (
             <div className="dashboard-card">
