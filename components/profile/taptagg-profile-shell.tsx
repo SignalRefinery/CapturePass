@@ -443,7 +443,7 @@ export function TapTaggProfileShell({
               ) : null}
 
               {contactShareTarget.profileId || contactShareTarget.slug ? (
-                <ContactShareModal target={contactShareTarget} />
+                <ContactShareModal target={contactShareTarget} modalStyle={brandStyle} />
               ) : null}
             </div>
 
