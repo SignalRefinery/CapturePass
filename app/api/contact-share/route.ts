@@ -94,6 +94,23 @@ function sourceFor(value?: string | null) {
   return "unknown";
 }
 
+function contactShareInsertErrorMessage(error: {
+  code?: string;
+  message?: string;
+  details?: string;
+  hint?: string;
+}) {
+  if (error.code === "42P01" || /contact_submissions/i.test(error.message || "")) {
+    return "Contact sharing is not fully configured yet.";
+  }
+
+  if (error.code === "42703" || error.code === "PGRST204") {
+    return "Contact sharing needs a database update before it can save contacts.";
+  }
+
+  return "Unable to share your contact right now.";
+}
+
 async function sendNotificationEmail({
   to,
   contact,
@@ -248,7 +265,7 @@ export async function POST(request: Request) {
     notificationEmail = profile.email || null;
   }
 
-  const { error } = await admin.from("contact_submissions").insert({
+  const contactSubmission = {
     profile_id: resolvedProfileId,
     organization_id: resolvedOrganizationId,
     profile_view_id: viewId,
@@ -261,16 +278,25 @@ export async function POST(request: Request) {
     note,
     source: sourceFor(source),
     user_agent: cleanText(request.headers.get("user-agent"), 300) || null
-  });
+  };
+
+  const { error } = await admin.from("contact_submissions").insert(contactSubmission);
 
   if (error) {
     console.error("Contact share insert failed", {
       profileId: resolvedProfileId,
       organizationId: resolvedOrganizationId,
       source,
-      error: error.message
+      code: error.code,
+      details: error.details,
+      hint: error.hint,
+      error: error.message,
+      migration: "Run supabase/phase73_contact_sharing.sql in Supabase if this table or columns are missing."
     });
-    return NextResponse.json({ error: "Unable to share your contact right now." }, { status: 500 });
+    return NextResponse.json(
+      { error: contactShareInsertErrorMessage(error) },
+      { status: error.code === "42P01" || error.code === "42703" || error.code === "PGRST204" ? 503 : 500 }
+    );
   }
 
   console.info("contact_shared", {
