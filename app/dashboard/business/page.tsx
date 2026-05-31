@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { ContactTable } from "@/components/contacts/contact-table";
 import { CopyLinkButton } from "@/components/business/copy-link-button";
 import { Shell } from "@/components/shared/shell";
 import { claimBusinessOrganizationForUser } from "@/lib/business/organization-access";
@@ -10,6 +11,7 @@ import { generatePrivateToken } from "@/lib/utils/generate-token";
 import type {
   OrganizationMemberRecord,
   OrganizationRecord,
+  ContactSubmissionRecord,
   PassTokenRecord
 } from "@/lib/types";
 
@@ -17,6 +19,7 @@ type BusinessData = {
   organization: OrganizationRecord | null;
   members: OrganizationMemberRecord[];
   tokens: PassTokenRecord[];
+  contacts: ContactSubmissionRecord[];
 };
 
 type BusinessSummary = {
@@ -211,7 +214,7 @@ async function getBusinessData(
       .maybeSingle();
 
     if (!requestedOrg) {
-      return { organization: null, members: [], tokens: [] };
+      return { organization: null, members: [], tokens: [], contacts: [] };
     }
 
     if (!isPlatformAdmin) {
@@ -225,11 +228,11 @@ async function getBusinessData(
         .maybeSingle();
 
       if (requestedOrg.owner_user_id !== userId && !allowedMember) {
-        return { organization: null, members: [], tokens: [] };
+        return { organization: null, members: [], tokens: [], contacts: [] };
       }
     }
 
-    const [{ data: members }, { data: tokens }] = await Promise.all([
+    const [{ data: members }, { data: tokens }, { data: contacts }] = await Promise.all([
       admin
         .from("organization_members")
         .select("*")
@@ -239,13 +242,19 @@ async function getBusinessData(
         .from("pass_tokens")
         .select("*")
         .eq("organization_id", requestedOrg.id)
+        .order("created_at", { ascending: true }),
+      admin
+        .from("contact_submissions")
+        .select("*")
+        .eq("organization_id", requestedOrg.id)
         .order("created_at", { ascending: true })
     ]);
 
     return {
       organization: requestedOrg as OrganizationRecord,
       members: (members || []) as OrganizationMemberRecord[],
-      tokens: (tokens || []) as PassTokenRecord[]
+      tokens: (tokens || []) as PassTokenRecord[],
+      contacts: (contacts || []) as ContactSubmissionRecord[]
     };
   }
 
@@ -280,10 +289,10 @@ async function getBusinessData(
   }
 
   if (!organization) {
-    return { organization: null, members: [], tokens: [] };
+    return { organization: null, members: [], tokens: [], contacts: [] };
   }
 
-  const [{ data: members }, { data: tokens }] = await Promise.all([
+  const [{ data: members }, { data: tokens }, { data: contacts }] = await Promise.all([
     admin
       .from("organization_members")
       .select("*")
@@ -293,13 +302,19 @@ async function getBusinessData(
       .from("pass_tokens")
       .select("*")
       .eq("organization_id", organization.id)
+      .order("created_at", { ascending: true }),
+    admin
+      .from("contact_submissions")
+      .select("*")
+      .eq("organization_id", organization.id)
       .order("created_at", { ascending: true })
   ]);
 
   return {
     organization,
     members: (members || []) as OrganizationMemberRecord[],
-    tokens: (tokens || []) as PassTokenRecord[]
+    tokens: (tokens || []) as PassTokenRecord[],
+    contacts: (contacts || []) as ContactSubmissionRecord[]
   };
 }
 
@@ -679,8 +694,8 @@ export default async function BusinessDashboardPage({
   const selectedOrganizationId = params?.org || null;
   const showOnboarding = isPlatformAdmin && params?.onboard === "1";
   const businessIndex = isPlatformAdmin ? await getBusinessIndex() : [];
-  const { organization, members, tokens } = showOnboarding
-    ? { organization: null, members: [], tokens: [] }
+  const { organization, members, tokens, contacts } = showOnboarding
+    ? { organization: null, members: [], tokens: [], contacts: [] }
     : await getBusinessData(user.id, user.email, selectedOrganizationId, isPlatformAdmin);
   const initialAuth = {
     email: user.email || null,
@@ -902,6 +917,10 @@ export default async function BusinessDashboardPage({
             </p>
           </div>
         </div>
+      </section>
+
+      <section className="dashboard-wrap" id="business-contacts">
+        <ContactTable contacts={contacts} members={members} showMemberFilter />
       </section>
 
       <section className="dashboard-wrap">

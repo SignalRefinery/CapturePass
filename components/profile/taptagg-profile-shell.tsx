@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { CSSProperties } from "react";
 import { useState } from "react";
 import { getReadableProfileUrl } from "@/lib/urls/profile-url";
+import { ContactShareModal } from "@/components/profile/contact-share-modal";
 import { ReportIssueForm } from "@/components/profile/report-issue-form";
 import styles from "./taptagg-profile-shell.module.css";
 
@@ -45,6 +46,8 @@ type ProfileLike = {
   vcard_url?: string | null;
   business_home_url?: string | null;
   is_business_profile?: boolean | null;
+  contact_share_profile_id?: string | null;
+  contact_share_organization_id?: string | null;
   business_links?: Array<{ title: string; url: string }> | null;
 };
 
@@ -284,6 +287,13 @@ export function TapTaggProfileShell({
   const businessLinks = isBusinessProfile
     ? (activeProfile.business_links || []).filter((item) => item.title && item.url)
     : [];
+  const contactShareTarget = {
+    profileId: activeProfile.contact_share_profile_id || activeProfile.id || null,
+    slug: activeProfile.slug || null,
+    viewId: activeProfile.view_id || null,
+    organizationId: activeProfile.contact_share_organization_id || null,
+    source: isBusinessProfile ? "business_profile" : "public_profile"
+  };
 
   return (
     <div className={pageClassName} style={brandStyle}>
@@ -396,6 +406,10 @@ export function TapTaggProfileShell({
                 <a className={`${styles.button} ${styles.profileSubtleButton}`} href={secondaryAction.href}>
                   {secondaryAction.label}
                 </a>
+              ) : null}
+
+              {contactShareTarget.profileId || contactShareTarget.slug ? (
+                <ContactShareModal target={contactShareTarget} />
               ) : null}
             </div>
 

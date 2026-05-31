@@ -133,7 +133,7 @@ export default async function PassTokenPage({
           passToken.assigned_member_id
             ? admin
                 .from("organization_members")
-                .select("name, email, phone, title, status")
+                .select("id, user_id, organization_id, name, email, phone, title, status")
                 .eq("id", passToken.assigned_member_id)
                 .maybeSingle()
             : Promise.resolve({ data: null, error: null }),
@@ -199,6 +199,8 @@ export default async function PassTokenPage({
     vcard_url: `/api/pass-vcard/${token}`,
     business_home_url: businessHomeUrl || publicUrl,
     is_business_profile: true,
+    contact_share_profile_id: member.id,
+    contact_share_organization_id: passToken.organization_id,
     business_links: businessLinks,
     full_name: member.name,
     organization_name: organization?.name || "",

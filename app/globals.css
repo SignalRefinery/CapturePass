@@ -670,6 +670,22 @@ textarea{font:inherit}
   border-radius:12px;
   font-size:13px;
 }
+.table-subtext{
+  margin-top:4px;
+  color:var(--muted);
+  font-size:12px;
+  font-weight:600;
+}
+.contact-toolbar{
+  display:grid;
+  grid-template-columns:repeat(3, minmax(0, 1fr));
+  gap:14px;
+  align-items:end;
+  margin-top:18px;
+}
+.contact-toolbar .button{
+  min-height:52px;
+}
 .business-member-table{
   margin-top:18px;
   border:1px solid rgba(255,255,255,.075);
@@ -1614,6 +1630,9 @@ textarea{font:inherit}
   }
   .admin-table-scroll table{
     min-width:760px;
+  }
+  .contact-toolbar{
+    grid-template-columns:1fr;
   }
   .view-subsection{
     padding:16px 0 0;

@@ -118,6 +118,23 @@ export type PassTokenRecord = {
   updated_at?: string;
 };
 
+export type ContactSubmissionRecord = {
+  id: string;
+  profile_id: string;
+  organization_id?: string | null;
+  profile_view_id?: string | null;
+  submitted_to_user_id?: string | null;
+  name: string;
+  email?: string | null;
+  phone?: string | null;
+  company?: string | null;
+  title?: string | null;
+  note?: string | null;
+  source?: string | null;
+  user_agent?: string | null;
+  created_at?: string;
+};
+
 export type ProfileViewRecord = {
   id?: string;
   profile_id: string;

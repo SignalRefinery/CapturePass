@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { AuthForm } from "@/components/auth/auth-form";
+import { ContactTable } from "@/components/contacts/contact-table";
 import { CopyLinkButton } from "@/components/business/copy-link-button";
 import { Shell } from "@/components/shared/shell";
 import { claimBusinessMembershipForUser } from "@/lib/business/organization-access";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
-import type { OrganizationMemberRecord, OrganizationRecord, PassTokenRecord } from "@/lib/types";
+import type { ContactSubmissionRecord, OrganizationMemberRecord, OrganizationRecord, PassTokenRecord } from "@/lib/types";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -114,6 +115,12 @@ export default async function BusinessSlugLoginPage({ params }: PageProps) {
   const qrUrl = primaryUrl
     ? `https://api.qrserver.com/v1/create-qr-code/?size=520x520&data=${encodeURIComponent(primaryUrl)}`
     : null;
+  const { data: contacts } = await admin
+    .from("contact_submissions")
+    .select("*")
+    .eq("organization_id", org.id)
+    .or(`profile_id.eq.${member.id},submitted_to_user_id.eq.${user.id}`)
+    .order("created_at", { ascending: false });
 
   return (
     <Shell footerLeft={org.name} footerRight="Employee pass" initialAuth={initialAuth}>
@@ -155,6 +162,10 @@ export default async function BusinessSlugLoginPage({ params }: PageProps) {
             </>
           )}
         </div>
+      </section>
+
+      <section className="dashboard-wrap">
+        <ContactTable contacts={(contacts || []) as ContactSubmissionRecord[]} />
       </section>
     </Shell>
   );
