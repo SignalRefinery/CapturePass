@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Shell } from "@/components/shared/shell";
 import { createClient } from "@/lib/supabase/server";
-import { getPlanFeatures, normalizePlanKey } from "@/lib/plans";
+import { getPlanFeatures, normalizePlanKey, type PlanKey } from "@/lib/plans";
 
 function cleanValue(value: string | null | undefined) {
   if (!value) return null;
@@ -91,6 +91,24 @@ function billingErrorFor(value?: string | null) {
     default:
       return null;
   }
+}
+
+function billingDescriptionFor(
+  plan: PlanKey,
+  status?: string | null,
+  hasSubscription?: boolean,
+  manualBilling?: boolean
+) {
+  if (manualBilling) return "Founder or manually granted access.";
+
+  if (plan === "digital") return "Monthly subscription.";
+  if (plan === "core") return "Physical card activated. No renewal required.";
+  if (plan === "tagg_plus") return "Annual subscription.";
+  if (plan === "creator") return "Annual subscription.";
+  if (plan === "business") return "Managed team plan.";
+  if (hasSubscription) return status ? `Subscription status: ${status}.` : "Subscription billing.";
+
+  return "Not activated yet.";
 }
 
 export default async function AccountPage({
@@ -196,6 +214,18 @@ export default async function AccountPage({
                 <span className="label">Promo code</span>
                 <div>{account?.promoCodeUsed || "—"}</div>
               </div>
+
+              <div>
+                <span className="label">Billing</span>
+                <div>
+                  {billingDescriptionFor(
+                    normalizedPlan,
+                    account?.status,
+                    !!account?.subscriptionId,
+                    manualBilling
+                  )}
+                </div>
+              </div>
             </div>
 
             <div
@@ -249,7 +279,7 @@ export default async function AccountPage({
                   </Link>
 
                   <p className="editor-copy" style={{ flexBasis: "100%", margin: "4px 0 0" }}>
-                    Choose Core or above to activate your public profile, NFC, and QR sharing.
+                    Choose Digital or above to activate your public profile and QR sharing. Core adds the physical NFC card.
                   </p>
                 </>
               )}

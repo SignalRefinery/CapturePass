@@ -366,7 +366,7 @@ export default async function DashboardPage({
           You are signed in as <strong>{user.email}</strong>.{" "}
           {fullAccess
             ? "Refine your public presence, keep your links current, and control how your profile is presented."
-            : "Your @tagg can be edited and previewed now. Activate Core or above when you are ready to make it publicly live."}
+            : "Your @tagg can be edited and previewed now. Activate Digital or above when you are ready to make it publicly live."}
         </p>
       </section>
 

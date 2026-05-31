@@ -12,10 +12,11 @@ type CheckoutSessionCreateParams = Parameters<
 >[0];
 
 const PLAN_PRICE_MAP: Record<string, string | undefined> = {
+  digital: process.env.STRIPE_DIGITAL_PRICE_ID,
   core: process.env.STRIPE_CORE_PRICE_ID,
-  tagg_plus: process.env.STRIPE_TAGG_PLUS_ANNUAL_PRICE_ID,
-  "tagg-plus": process.env.STRIPE_TAGG_PLUS_ANNUAL_PRICE_ID,
-  creator: process.env.STRIPE_CREATOR_ANNUAL_PRICE_ID,
+  tagg_plus: process.env.STRIPE_TAGG_PLUS_PRICE_ID || process.env.STRIPE_TAGG_PLUS_ANNUAL_PRICE_ID,
+  "tagg-plus": process.env.STRIPE_TAGG_PLUS_PRICE_ID || process.env.STRIPE_TAGG_PLUS_ANNUAL_PRICE_ID,
+  creator: process.env.STRIPE_CREATOR_PRICE_ID || process.env.STRIPE_CREATOR_ANNUAL_PRICE_ID,
   essential: process.env.STRIPE_ESSENTIAL_MONTHLY_PRICE_ID,
   "essential-monthly": process.env.STRIPE_ESSENTIAL_MONTHLY_PRICE_ID,
   "essential-annual": process.env.STRIPE_ESSENTIAL_ANNUAL_PRICE_ID,
@@ -115,6 +116,18 @@ async function createCheckoutOrPortal(req: Request) {
     const selectedPriceId =
       (plan ? PLAN_PRICE_MAP[plan] : undefined) ||
       (requestedPlan ? PLAN_PRICE_MAP[requestedPlan] : undefined);
+
+    if (plan === "business") {
+      const businessUrl = new URL("/business", getSiteUrl(req));
+      businessUrl.hash = "business-request";
+      if (req.method === "GET") {
+        return NextResponse.redirect(businessUrl.toString(), { status: 303 });
+      }
+      return NextResponse.json(
+        { error: "Business plans are handled through a quote request.", redirectTo: businessUrl.toString() },
+        { status: 400 }
+      );
+    }
 
     if (!requestedPlan || !plan || plan === "free") {
       if (req.method === "GET") {
@@ -225,6 +238,7 @@ async function createCheckoutOrPortal(req: Request) {
     }
 
     const mode = isAdditionalCardsCheckout || isCoreCheckout ? "payment" : "subscription";
+    const collectsShipping = plan !== "digital";
     const successUrl = `${siteUrl}/dashboard?checkout=success&session_id={CHECKOUT_SESSION_ID}`;
     const cancelUrl = `${siteUrl}/pricing`;
     const sessionParamsFor = (customerId?: string | null): CheckoutSessionCreateParams => ({
@@ -235,9 +249,13 @@ async function createCheckoutOrPortal(req: Request) {
             customer_email: user.email || undefined,
             ...(mode === "payment" ? { customer_creation: "always" as const } : {})
           }),
-      shipping_address_collection: {
-        allowed_countries: ["US"]
-      },
+      ...(collectsShipping
+        ? {
+            shipping_address_collection: {
+              allowed_countries: ["US"]
+            }
+          }
+        : {}),
       billing_address_collection: "required",
       line_items: [
         ...(SETUP_FEE_PRICE_ID && SETUP_FEE_INCLUDED_PLANS.includes(plan)

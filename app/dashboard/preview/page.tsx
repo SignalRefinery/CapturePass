@@ -60,7 +60,7 @@ export default async function DashboardPreviewPage() {
           <p className="editor-copy">
             {plan.isActivated
               ? "Public visitors see this profile when they open your TapTagg link."
-              : "Free / Reserved profiles can be previewed here, but public profile, NFC, and QR sharing unlock with Core."}
+              : "Free / Reserved profiles can be previewed here, but public profile and QR sharing unlock with Digital. NFC unlocks with Core."}
           </p>
         </div>
       </section>

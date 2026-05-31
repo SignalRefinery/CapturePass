@@ -7,7 +7,7 @@ type InactiveStateProps = {
 };
 
 export function InactiveState({ email }: InactiveStateProps) {
-  function handleCheckout(plan: "core" | "tagg_plus" | "creator") {
+  function handleCheckout(plan: "digital" | "core" | "tagg_plus" | "creator") {
     window.location.assign(`/api/checkout?plan=${encodeURIComponent(plan)}`);
   }
 
@@ -17,11 +17,24 @@ export function InactiveState({ email }: InactiveStateProps) {
         <div className="dashboard-kicker">Reserved Tagg</div>
         <h2>Your profile is preview-only until activation.</h2>
         <p className="editor-copy">
-          Your account for <strong>{email}</strong> can build a basic profile now. Activate Core
-          to make it public, enable NFC and QR sharing, and keep updating your profile anytime.
+          Your account for <strong>{email}</strong> can build a basic profile now. Activate Digital
+          to make it public with QR sharing, or choose Core to add a physical NFC card.
         </p>
 
         <div className="pricing-grid" style={{ marginTop: 20 }}>
+          <div className="card pricing-card">
+            <div className="plan-label">Digital</div>
+            <h2>Start phone-first.</h2>
+            <div className="plan-price">
+              <span className="setup">$1.99</span>
+              <span className="monthly">/ month</span>
+            </div>
+            <p className="muted">Public profile, QR sharing, vCard save contact, Share My Contact, and contacts dashboard.</p>
+            <button className="button primary" type="button" onClick={() => handleCheckout("digital")}>
+              Start Digital
+            </button>
+          </div>
+
           <div className="card pricing-card">
             <div className="plan-label">Core</div>
             <h2>Activate your TapTagg.</h2>
@@ -37,12 +50,12 @@ export function InactiveState({ email }: InactiveStateProps) {
 
           <div className="card pricing-card featured">
             <div className="plan-label">Tagg+</div>
-            <h2>Add capture and control.</h2>
+            <h2>Add analytics and control.</h2>
             <div className="plan-price">
               <span className="setup">$49</span>
               <span className="monthly">/ year</span>
             </div>
-            <p className="muted">Everything in Core plus advanced customization, analytics, lead capture, and support.</p>
+            <p className="muted">Everything in Core plus advanced customization, analytics, contact sharing insights, and support.</p>
             <button className="button primary" type="button" onClick={() => handleCheckout("tagg_plus")}>
               Upgrade to Tagg+
             </button>
@@ -55,7 +68,7 @@ export function InactiveState({ email }: InactiveStateProps) {
               <span className="setup">$99</span>
               <span className="monthly">/ year</span>
             </div>
-            <p className="muted">Everything in Tagg+ plus advanced analytics, embeds, exports, redirects, and multiple cards.</p>
+            <p className="muted">Everything in Tagg+ plus multi-view profiles, advanced branding, featured sections, and creator tools.</p>
             <button className="button primary" type="button" onClick={() => handleCheckout("creator")}>
               Start Creator
             </button>

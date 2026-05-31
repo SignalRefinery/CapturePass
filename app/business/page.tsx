@@ -20,7 +20,7 @@ const platformFeatures = [
   "Card/profile reassignment",
   "Team-ready profile templates",
   "QR and NFC sharing",
-  "Lead capture and export workflows",
+  "Contact sharing and export workflows",
   "Review, booking, menu, and form links",
   "Setup, onboarding, and support"
 ];
@@ -156,7 +156,7 @@ export default async function BusinessPage({
           </div>
           <h1>TapTagg for teams that connect in person.</h1>
           <p>
-            Permanent card/pass URLs, team profiles, QR/NFC sharing, lead capture, and rollout support for
+            Permanent card/pass URLs, team profiles, QR/NFC sharing, contact sharing, and rollout support for
             businesses that need every employee, event, or location ready to share.
           </p>
           <div className="business-hero-actions">
@@ -349,7 +349,7 @@ export default async function BusinessPage({
                 Choose the closest fit
               </option>
               <option value="Team cards and employee profiles">Team cards and employee profiles</option>
-              <option value="Lead capture and contact export">Lead capture and contact export</option>
+              <option value="Contact sharing and export">Contact sharing and export</option>
               <option value="Events, launches, or conferences">Events, launches, or conferences</option>
               <option value="Review, booking, menu, or product links">Review, booking, menu, or product links</option>
               <option value="Custom branded rollout">Custom branded rollout</option>

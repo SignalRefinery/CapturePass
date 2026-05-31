@@ -1,17 +1,20 @@
 import type { ProfileRecord } from "@/lib/types";
 
-export type PlanKey = "free" | "core" | "tagg_plus" | "creator";
+export type PlanKey = "free" | "digital" | "core" | "tagg_plus" | "creator" | "business";
 
 export type PlanFeatures = {
   key: PlanKey;
   label: string;
   isActivated: boolean;
+  hasDigitalProfile: boolean;
   hasNfcSharing: boolean;
   hasQrSharing: boolean;
   hasExpandedLinks: boolean;
   hasBasicThemes: boolean;
   hasAdvancedCustomization: boolean;
   hasBasicAnalytics: boolean;
+  hasContactSharing: boolean;
+  hasContactsDashboard: boolean;
   hasLeadCapture: boolean;
   hasCustomButtons: boolean;
   hasPrioritySupport: boolean;
@@ -22,20 +25,29 @@ export type PlanFeatures = {
   hasSmartRedirects: boolean;
   hasContactExport: boolean;
   hasMultipleCards: boolean;
+  hasBusinessConsole: boolean;
+  hasTeamAnalytics: boolean;
+  canManageEmployees: boolean;
+  canAssignCards: boolean;
+  canExportContacts: boolean;
 };
 
 const PLAN_ORDER: Record<PlanKey, number> = {
   free: 0,
-  core: 1,
-  tagg_plus: 2,
-  creator: 3
+  digital: 1,
+  core: 2,
+  tagg_plus: 3,
+  creator: 4,
+  business: 5
 };
 
 const PLAN_LABELS: Record<PlanKey, string> = {
   free: "Free / Reserved Tagg",
+  digital: "Digital",
   core: "Core",
   tagg_plus: "Tagg+",
-  creator: "Creator"
+  creator: "Creator",
+  business: "Business"
 };
 
 const LEGACY_PLAN_ALIASES: Record<string, PlanKey> = {
@@ -44,6 +56,9 @@ const LEGACY_PLAN_ALIASES: Record<string, PlanKey> = {
   reserved: "free",
   "reserved-tagg": "free",
   "reserved_tagg": "free",
+  digital: "digital",
+  "digital-monthly": "digital",
+  "digital_monthly": "digital",
   core: "core",
   essential: "core",
   "essential-monthly": "core",
@@ -54,7 +69,10 @@ const LEGACY_PLAN_ALIASES: Record<string, PlanKey> = {
   professional: "tagg_plus",
   creator: "creator",
   premium: "creator",
-  founder: "creator"
+  founder: "creator",
+  business: "business",
+  enterprise: "business",
+  team: "business"
 };
 
 export function normalizePlanKey(value?: string | null): PlanKey {
@@ -67,31 +85,43 @@ export function planAtLeast(plan: PlanKey, minimum: PlanKey) {
 }
 
 export function getPlanFeatures(plan: PlanKey, isActivated = false): PlanFeatures {
+  const isDigital = isActivated && planAtLeast(plan, "digital");
+  const isCore = isActivated && planAtLeast(plan, "core");
   const isTaggPlus = planAtLeast(plan, "tagg_plus");
   const isCreator = planAtLeast(plan, "creator");
+  const isBusiness = isActivated && plan === "business";
+  const hasAnalytics = isActivated && (isTaggPlus || isBusiness);
+  const hasAdvancedCustomization = isActivated && (isTaggPlus || isBusiness);
+  const hasMultiView = isActivated && isCreator && !isBusiness;
 
   return {
     key: plan,
     label: PLAN_LABELS[plan],
     isActivated,
-    hasNfcSharing: isActivated,
-    hasQrSharing: isActivated,
-    hasExpandedLinks: isActivated,
-    hasBasicThemes: isActivated,
-    hasAdvancedCustomization: isTaggPlus,
-    hasBasicAnalytics: isTaggPlus,
-    hasLeadCapture: isTaggPlus,
-    hasCustomButtons: isTaggPlus,
-    hasPrioritySupport: isTaggPlus,
-    hasAdvancedAnalytics: isCreator,
-    // TapTagg is intentionally single-profile focused. Multi-view/profile-view
-    // code can stay dormant for future products, but TapTagg plans do not expose it.
-    hasMoreProfileSections: false,
-    hasEmbeds: isCreator,
-    hasBookingLinks: isCreator,
-    hasSmartRedirects: isCreator,
-    hasContactExport: isCreator,
-    hasMultipleCards: isCreator
+    hasDigitalProfile: isDigital,
+    hasNfcSharing: isCore || isBusiness,
+    hasQrSharing: isDigital || isBusiness,
+    hasExpandedLinks: isDigital || isBusiness,
+    hasBasicThemes: isCore || isBusiness,
+    hasAdvancedCustomization,
+    hasBasicAnalytics: hasAnalytics,
+    hasContactSharing: isDigital || isBusiness,
+    hasContactsDashboard: isDigital || isBusiness,
+    hasLeadCapture: isDigital || isBusiness,
+    hasCustomButtons: hasAdvancedCustomization,
+    hasPrioritySupport: isActivated && (isTaggPlus || isCreator || isBusiness),
+    hasAdvancedAnalytics: isActivated && (isCreator || isBusiness),
+    hasMoreProfileSections: hasMultiView,
+    hasEmbeds: isActivated && isCreator,
+    hasBookingLinks: isActivated && isCreator,
+    hasSmartRedirects: isActivated && isCreator,
+    hasContactExport: isDigital || isBusiness,
+    hasMultipleCards: isActivated && (isCreator || isBusiness),
+    hasBusinessConsole: isBusiness,
+    hasTeamAnalytics: isBusiness,
+    canManageEmployees: isBusiness,
+    canAssignCards: isBusiness,
+    canExportContacts: isDigital || isBusiness
   };
 }
 
@@ -118,5 +148,61 @@ export function getProfilePlan(profile?: ProfileRecord | null): PlanFeatures {
 }
 
 export function profileCanRenderPublicly(profile?: ProfileRecord | null) {
-  return !!profile && getProfilePlan(profile).isActivated;
+  return !!profile && canUseDigitalProfile(getProfilePlan(profile));
+}
+
+export function canUseDigitalProfile(plan: PlanFeatures) {
+  return plan.hasDigitalProfile || plan.hasBusinessConsole;
+}
+
+export function canUseQR(plan: PlanFeatures) {
+  return plan.hasQrSharing;
+}
+
+export function canUseNFC(plan: PlanFeatures) {
+  return plan.hasNfcSharing;
+}
+
+export function canUseContactSharing(plan: PlanFeatures) {
+  return plan.hasContactSharing;
+}
+
+export function canUseContactsDashboard(plan: PlanFeatures) {
+  return plan.hasContactsDashboard;
+}
+
+export function canUseAnalytics(plan: PlanFeatures) {
+  return plan.hasBasicAnalytics;
+}
+
+export function canUseAdvancedCustomization(plan: PlanFeatures) {
+  return plan.hasAdvancedCustomization;
+}
+
+export function canUseCustomButtons(plan: PlanFeatures) {
+  return plan.hasCustomButtons;
+}
+
+export function canUseMultiViews(plan: PlanFeatures) {
+  return plan.hasMoreProfileSections;
+}
+
+export function canUseBusinessConsole(plan: PlanFeatures) {
+  return plan.hasBusinessConsole;
+}
+
+export function canUseTeamAnalytics(plan: PlanFeatures) {
+  return plan.hasTeamAnalytics;
+}
+
+export function canManageEmployees(plan: PlanFeatures) {
+  return plan.canManageEmployees;
+}
+
+export function canAssignCards(plan: PlanFeatures) {
+  return plan.canAssignCards;
+}
+
+export function canExportContacts(plan: PlanFeatures) {
+  return plan.canExportContacts;
 }

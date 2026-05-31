@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { AnalyticsSummary } from "@/components/analytics/analytics-summary";
 import { Shell } from "@/components/shared/shell";
 import { createClient } from "@/lib/supabase/server";
-import { getProfilePlan } from "@/lib/plans";
+import { canUseAnalytics, getProfilePlan } from "@/lib/plans";
 import type { AnalyticsEventRecord, ContactSubmissionRecord, ProfileRecord } from "@/lib/types";
 
 async function getInitialAuth(userId: string, email?: string | null) {
@@ -50,7 +50,7 @@ export default async function AnalyticsPage({
     .maybeSingle<ProfileRecord>();
   const plan = getProfilePlan(profile);
 
-  if (!profile || !plan.hasBasicAnalytics) {
+  if (!profile || !canUseAnalytics(plan)) {
     return (
       <Shell footerLeft="Analytics" footerRight="TapTagg" initialAuth={initialAuth}>
         <section className="simple-hero">

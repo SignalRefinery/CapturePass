@@ -659,7 +659,7 @@ export function ProfileEditor({
         <p className="editor-copy">
           {plan.isActivated
             ? "Shape how people encounter you. Keep the next step clear, make follow-up easier, and present yourself with less clutter."
-            : "Your reserved profile is preview-only. Save the basics now, then activate Core or above when you are ready to go public."}
+            : "Your reserved profile is preview-only. Save the basics now, then activate Digital or above when you are ready to go public."}
         </p>
         <p className="auth-message" style={{ marginTop: 10 }}>
           Current plan: <strong>{plan.label}</strong>
@@ -738,7 +738,7 @@ export function ProfileEditor({
                 <br />
                 {plan.isActivated
                   ? "Leave this checked so your approved slug can open your profile. Uncheck it for added privacy; your personalized slug will not be publicly findable, and sharing should use the exact issued link from your QR code."
-                  : "Free / Reserved profiles are preview-only, so this link will stay private until you activate Core or above."}
+                  : "Free / Reserved profiles are preview-only, so this link will stay private until you activate Digital or above."}
               </span>
             </label>
           </div>
@@ -898,7 +898,7 @@ export function ProfileEditor({
               </div>
             ))}
             {!plan.hasExpandedLinks ? (
-              <UpgradeNotice>Free / Reserved profiles include basic Call, Email, and Website fields. Expanded links unlock with Core.</UpgradeNotice>
+              <UpgradeNotice>Free / Reserved profiles include basic Call, Email, and Website fields. Expanded links unlock with Digital.</UpgradeNotice>
             ) : null}
           </div>
 

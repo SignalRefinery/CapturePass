@@ -3,22 +3,20 @@ import { Shell } from "@/components/shared/shell";
 
 const individualPlans = [
   {
-    name: "Free / Reserved Tagg",
-    price: "Free",
-    purpose: "Claim a handle, build your profile, and preview your TapTagg before activation.",
-    cta: "Claim Your Tagg",
-    href: "/signup",
+    name: "Digital",
+    price: "$1.99",
+    cadence: "/ month",
+    purpose: "A phone-first TapTagg for QR sharing, contact saving, and contact exchange.",
+    cta: "Start Digital",
+    href: "/api/checkout?plan=digital",
     features: [
-      "Reserve your @tagg for 14 days",
-      "Build your profile",
-      "Add basic links and socials",
-      "Preview your TapTagg page",
-      "Reminder emails before your reservation expires"
-    ],
-    limits: [
-      "Not publicly active until activated",
-      "No NFC sharing",
-      "Limited customization"
+      "Active TapTagg profile",
+      "QR sharing",
+      "Unlimited updates",
+      "vCard save contact",
+      "Share My Contact",
+      "Contacts dashboard",
+      "Basic links and socials"
     ]
   },
   {
@@ -30,13 +28,12 @@ const individualPlans = [
     href: "/api/checkout?plan=core",
     featured: true,
     features: [
-      "1 TapTagg card",
-      "Activate your TapTagg profile",
+      "Everything in Digital",
+      "1 physical TapTagg NFC card",
       "NFC sharing",
       "QR sharing",
-      "Unlimited profile updates",
-      "Expanded links and socials",
-      "Basic themes"
+      "Basic profile customization",
+      "Themes"
     ]
   },
   {
@@ -48,9 +45,12 @@ const individualPlans = [
     href: "/api/checkout?plan=tagg_plus",
     features: [
       "Everything in Core",
+      "Analytics dashboard",
+      "Views and unique visitors",
+      "QR, NFC, and source tracking",
+      "Button click analytics",
+      "Contact save and contact sharing analytics",
       "Advanced customization",
-      "Basic analytics",
-      "Lead/contact capture",
       "Custom buttons",
       "Priority support"
     ]
@@ -64,13 +64,29 @@ const individualPlans = [
     href: "/api/checkout?plan=creator",
     features: [
       "Everything in Tagg+",
-      "Advanced analytics",
-      "More profile sections",
-      "Music/video/content embeds",
-      "Booking links",
-      "Smart redirects",
-      "Contact export",
-      "Multiple TapTagg cards supported"
+      "Multi-view profiles",
+      "Multiple layouts",
+      "Advanced branding",
+      "Featured links and sections",
+      "Priority support",
+      "Future creator tools"
+    ]
+  },
+  {
+    name: "Business",
+    price: "Custom",
+    purpose: "A managed team system for permanent cards, employee profiles, and branded business sharing.",
+    cta: "Contact Sales",
+    href: "/business#business-request",
+    features: [
+      "Team console",
+      "Organization branding",
+      "Employee seats",
+      "Permanent card assignment and reassignment",
+      "Business contacts dashboard",
+      "Business analytics",
+      "Team leaderboard",
+      "Managed setup available for +$199/month"
     ]
   }
 ];
@@ -82,7 +98,7 @@ const businessFeatures = [
   "Employee activation/deactivation",
   "Card/profile reassignment",
   "Shared company templates",
-  "Lead capture",
+  "Contact sharing",
   "Review links",
   "Analytics",
   "CRM/export-ready contact data",
@@ -126,7 +142,7 @@ const faqItems = [
 function checkoutNoticeFor(value?: string | null) {
   switch (value) {
     case "choose-plan":
-      return "Choose Core, Tagg+, or Creator to start checkout.";
+      return "Choose Digital, Core, Tagg+, or Creator to start checkout.";
     case "unavailable":
       return "Checkout is temporarily unavailable. Please try again in a few minutes.";
     case "start-error":
@@ -165,7 +181,7 @@ export default async function PricingPage({
         <h1 style={heroHeading}>Choose How You Tagg.</h1>
 
         <p style={heroCopy}>
-          Start by claiming your Tagg, then activate it with a card or plan when you&apos;re ready.
+          Choose a phone-first profile, a physical card, or a larger system for your team.
         </p>
 
         {checkoutNoticeText ? (
@@ -204,16 +220,6 @@ export default async function PricingPage({
                 ))}
               </div>
 
-              {plan.limits ? (
-                <div style={limitBox}>
-                  {plan.limits.map((limit) => (
-                    <div key={limit} style={limitItem}>
-                      {limit}
-                    </div>
-                  ))}
-                </div>
-              ) : null}
-
               <Link className="button primary" href={plan.href} style={{ marginTop: "auto" }}>
                 {plan.cta}
               </Link>
@@ -221,7 +227,7 @@ export default async function PricingPage({
           ))}
         </div>
 
-        <section className="card tagg-card tagg-card-feature" style={businessPanel}>
+        <section className="card tagg-card tagg-card-feature" style={businessPanel} id="business-request">
           <div style={{ display: "grid", gap: 16 }}>
             <div className="kicker" style={{ width: "fit-content" }}>
               <span className="mini-star">✦</span>
@@ -251,8 +257,8 @@ export default async function PricingPage({
               design, an annual platform fee, and per-card pricing for new hires,
               replacements, or additional staff.
             </p>
-            <Link className="button primary" href="/business">
-              Explore Business
+            <Link className="button primary" href="/business#business-request">
+              Contact Sales
             </Link>
           </div>
 
@@ -416,21 +422,6 @@ const featureItem = {
   fontSize: 14,
   lineHeight: 1.4,
   fontWeight: 600
-};
-
-const limitBox = {
-  display: "grid",
-  gap: 7,
-  padding: 14,
-  borderRadius: 14,
-  border: "1px solid rgba(255,255,255,.1)",
-  background: "rgba(255,255,255,.025)"
-};
-
-const limitItem = {
-  color: "#9ca3af",
-  fontSize: 13,
-  lineHeight: 1.35
 };
 
 const businessPanel = {

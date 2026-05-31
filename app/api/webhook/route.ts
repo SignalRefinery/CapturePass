@@ -14,11 +14,20 @@ function subscriptionIsActive(status: string | null | undefined) {
 }
 
 const PLAN_BY_PRICE_ID: Record<string, string> = {
+  ...(process.env.STRIPE_DIGITAL_PRICE_ID
+    ? { [process.env.STRIPE_DIGITAL_PRICE_ID]: "digital" }
+    : {}),
   ...(process.env.STRIPE_CORE_PRICE_ID
     ? { [process.env.STRIPE_CORE_PRICE_ID]: "core" }
     : {}),
+  ...(process.env.STRIPE_TAGG_PLUS_PRICE_ID
+    ? { [process.env.STRIPE_TAGG_PLUS_PRICE_ID]: "tagg_plus" }
+    : {}),
   ...(process.env.STRIPE_TAGG_PLUS_ANNUAL_PRICE_ID
     ? { [process.env.STRIPE_TAGG_PLUS_ANNUAL_PRICE_ID]: "tagg_plus" }
+    : {}),
+  ...(process.env.STRIPE_CREATOR_PRICE_ID
+    ? { [process.env.STRIPE_CREATOR_PRICE_ID]: "creator" }
     : {}),
   ...(process.env.STRIPE_CREATOR_ANNUAL_PRICE_ID
     ? { [process.env.STRIPE_CREATOR_ANNUAL_PRICE_ID]: "creator" }
@@ -65,6 +74,10 @@ function isSubscriptionCheckoutSession(session: Stripe.Checkout.Session) {
     plan !== "additional-cards" &&
     plan !== "core"
   );
+}
+
+function planIncludesPhysicalCard(plan: string) {
+  return plan === "core" || plan === "tagg_plus" || plan === "creator";
 }
 
 function getInvoiceSubscriptionId(invoice: Stripe.Invoice) {
@@ -309,7 +322,9 @@ async function updateProfileForCheckout(session: Stripe.Checkout.Session) {
     subscriptionStatus: "active"
   });
 
-  await sendCardNotification(userId, session);
+  if (planIncludesPhysicalCard(plan)) {
+    await sendCardNotification(userId, session);
+  }
 }
 
 async function updateProfileForSubscription(subscription: Stripe.Subscription) {

@@ -1,8 +1,10 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { ContactTable } from "@/components/contacts/contact-table";
 import { Shell } from "@/components/shared/shell";
+import { canUseContactsDashboard, getProfilePlan } from "@/lib/plans";
 import { createClient } from "@/lib/supabase/server";
-import type { ContactSubmissionRecord } from "@/lib/types";
+import type { ContactSubmissionRecord, ProfileRecord } from "@/lib/types";
 
 async function getInitialAuth() {
   const supabase = await createClient();
@@ -34,6 +36,31 @@ export default async function ContactsPage() {
   if (!user) redirect("/login");
 
   const initialAuth = await getInitialAuth();
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("user_id", user.id)
+    .maybeSingle<ProfileRecord>();
+  const plan = getProfilePlan(profile);
+
+  if (!profile || !canUseContactsDashboard(plan)) {
+    return (
+      <Shell footerLeft="Contacts" footerRight="TapTagg" initialAuth={initialAuth}>
+        <section className="simple-hero">
+          <div className="kicker">
+            <span className="mini-star">✦</span>
+            <span>Contacts</span>
+          </div>
+          <h1>Contacts unlock with Digital.</h1>
+          <p>Contact Sharing and the Contacts dashboard are available on Digital, Core, Tagg+, and Creator.</p>
+          <Link className="button primary" href="/pricing" style={{ marginTop: 22 }}>
+            View plans
+          </Link>
+        </section>
+      </Shell>
+    );
+  }
+
   const { data, error } = await supabase
     .from("contact_submissions")
     .select("*")
