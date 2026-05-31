@@ -66,7 +66,6 @@ export function Shell({
       { href: "/partners", label: "Partners" },
       { href: "/dashboard", label: "Dashboard" },
       { href: "/dashboard/pass", label: "Digital pass" },
-      { href: "/dashboard/business", label: "Business admin" },
     ];
 
     if (profileHref) {
@@ -74,6 +73,7 @@ export function Shell({
     }
 
     if (isAdmin) {
+      links.push({ href: "/dashboard/business", label: "Business admin" });
       links.push({ href: "/admin", label: "Admin" });
     }
 
