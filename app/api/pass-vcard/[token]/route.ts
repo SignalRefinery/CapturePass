@@ -38,7 +38,7 @@ export async function GET(request: Request, context: RouteContext) {
   const admin = createAdminClient();
   const { data: passToken } = await admin
     .from("pass_tokens")
-    .select("token, status, organization_id, assigned_member_id")
+    .select("id, token, status, organization_id, assigned_member_id")
     .eq("token", token)
     .maybeSingle();
 
@@ -80,6 +80,22 @@ export async function GET(request: Request, context: RouteContext) {
     .filter(Boolean)
     .join("\r\n");
   const filename = safeVcardFilename(member.name);
+
+  admin.from("analytics_events").insert({
+    event_type: "vcard_download",
+    organization_id: passToken.organization_id,
+    organization_member_id: passToken.assigned_member_id,
+    card_id: passToken.id,
+    source: "unknown",
+    action_type: "custom_button",
+    action_label: "Add to Contacts",
+    action_url: `/api/pass-vcard/${token}`,
+    user_agent: request.headers.get("user-agent") || null,
+    referrer: request.headers.get("referer") || null,
+    metadata: {}
+  }).then(({ error }) => {
+    if (error) console.error("Business vCard analytics insert failed", { token, error: error.message });
+  });
 
   return new NextResponse(vcard, {
     status: 200,

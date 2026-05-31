@@ -135,6 +135,41 @@ export type ContactSubmissionRecord = {
   created_at?: string;
 };
 
+export type AnalyticsEventRecord = {
+  id: string;
+  event_type:
+    | "profile_view"
+    | "qr_scan"
+    | "nfc_tap"
+    | "direct_visit"
+    | "shared_link_visit"
+    | "button_click"
+    | "vcard_download"
+    | "contact_save"
+    | "contact_shared"
+    | "card_assigned"
+    | "card_reassigned"
+    | "employee_activated"
+    | "employee_deactivated";
+  profile_id?: string | null;
+  organization_id?: string | null;
+  organization_member_id?: string | null;
+  profile_view_id?: string | null;
+  user_id?: string | null;
+  card_id?: string | null;
+  source?: string | null;
+  action_type?: string | null;
+  action_label?: string | null;
+  action_url?: string | null;
+  visitor_id?: string | null;
+  session_id?: string | null;
+  user_agent?: string | null;
+  referrer?: string | null;
+  ip_hash?: string | null;
+  metadata?: Record<string, unknown> | null;
+  created_at?: string;
+};
+
 export type ProfileViewRecord = {
   id?: string;
   profile_id: string;

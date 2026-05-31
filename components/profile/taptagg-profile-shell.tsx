@@ -3,6 +3,7 @@
 import Link from "next/link";
 import type { CSSProperties } from "react";
 import { useState } from "react";
+import { ProfileAnalyticsTracker, trackProfileAction } from "@/components/analytics/profile-analytics-tracker";
 import { getReadableProfileUrl } from "@/lib/urls/profile-url";
 import { ContactShareModal } from "@/components/profile/contact-share-modal";
 import { ReportIssueForm } from "@/components/profile/report-issue-form";
@@ -48,6 +49,10 @@ type ProfileLike = {
   is_business_profile?: boolean | null;
   contact_share_profile_id?: string | null;
   contact_share_organization_id?: string | null;
+  analytics_profile_id?: string | null;
+  analytics_organization_id?: string | null;
+  analytics_organization_member_id?: string | null;
+  analytics_card_id?: string | null;
   business_links?: Array<{ title: string; url: string }> | null;
 };
 
@@ -108,6 +113,17 @@ function publicShareUrl(profile: ProfileLike) {
   }
 
   return `${url}?view=${encodeURIComponent(viewParam)}`;
+}
+
+function urlWithSource(url: string, source: string) {
+  try {
+    const parsed = new URL(url);
+    parsed.searchParams.set("source", source);
+    return parsed.toString();
+  } catch {
+    const separator = url.includes("?") ? "&" : "?";
+    return `${url}${separator}source=${encodeURIComponent(source)}`;
+  }
 }
 
 function getPills(profile: ProfileLike) {
@@ -249,8 +265,9 @@ export function TapTaggProfileShell({
   const [mobileOpen, setMobileOpen] = useState(false);
   const activeProfile = profile;
   const readableUrl = publicShareUrl(activeProfile);
+  const qrReadableUrl = urlWithSource(readableUrl, "qr");
   const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=420x420&data=${encodeURIComponent(
-    readableUrl
+    qrReadableUrl
   )}`;
   const pills = getPills(activeProfile);
   const showEmail = activeProfile.show_email !== false;
@@ -294,9 +311,18 @@ export function TapTaggProfileShell({
     organizationId: activeProfile.contact_share_organization_id || null,
     source: isBusinessProfile ? "business_profile" : "public_profile"
   };
+  const analyticsTarget = {
+    profileId: activeProfile.analytics_profile_id || (!isBusinessProfile ? activeProfile.id : null) || null,
+    slug: activeProfile.slug || null,
+    organizationId: activeProfile.analytics_organization_id || activeProfile.contact_share_organization_id || null,
+    organizationMemberId: activeProfile.analytics_organization_member_id || (isBusinessProfile ? activeProfile.contact_share_profile_id : null) || null,
+    profileViewId: activeProfile.view_id || null,
+    cardId: activeProfile.analytics_card_id || null
+  };
 
   return (
     <div className={pageClassName} style={brandStyle}>
+      <ProfileAnalyticsTracker target={analyticsTarget} />
       <div className={`${styles.shell} ${mobileOpen ? styles.shellMenuOpen : ""}`}>
         <header className={styles.topbar}>
           <Link className={styles.brand} href="/">
@@ -397,13 +423,21 @@ export function TapTaggProfileShell({
 
             <div className={`${styles.ctaRow} ${styles.profileActions}`}>
               {contactHref(activeProfile) !== "#" && (showEmail || showPhone) ? (
-                <a className={`${styles.button} ${styles.profilePrimaryButton}`} href={contactHref(activeProfile)}>
+                <a
+                  className={`${styles.button} ${styles.profilePrimaryButton}`}
+                  href={contactHref(activeProfile)}
+                  onClick={() => trackProfileAction(analyticsTarget, { title: "Add to Contacts", href: contactHref(activeProfile) })}
+                >
                   Add to Contacts
                 </a>
               ) : null}
 
               {secondaryAction ? (
-                <a className={`${styles.button} ${styles.profileSubtleButton}`} href={secondaryAction.href}>
+                <a
+                  className={`${styles.button} ${styles.profileSubtleButton}`}
+                  href={secondaryAction.href}
+                  onClick={() => trackProfileAction(analyticsTarget, { title: secondaryAction.label, href: secondaryAction.href })}
+                >
                   {secondaryAction.label}
                 </a>
               ) : null}
@@ -428,7 +462,12 @@ export function TapTaggProfileShell({
             <h2>Primary links</h2>
             <div className={styles.links}>
               {links.map((item) => (
-                <a className={styles.linkCard} href={item.href || "#"} key={`${activeProfile.view_id || activeProfile.view_key || "profile"}-${item.title}-${item.href}`}>
+                <a
+                  className={styles.linkCard}
+                  href={item.href || "#"}
+                  key={`${activeProfile.view_id || activeProfile.view_key || "profile"}-${item.title}-${item.href}`}
+                  onClick={() => trackProfileAction(analyticsTarget, item)}
+                >
                   <div>
                     <div className={styles.linkTitle}>{item.title}</div>
                     <div className={styles.linkSub}>{subtitleForLink(item, activeProfile)}</div>
@@ -442,7 +481,12 @@ export function TapTaggProfileShell({
               businessLinks.length ? (
                 <div className={styles.contactStrip}>
                   {businessLinks.map((item) => (
-                    <a className={styles.contactLine} href={item.url} key={`${item.title}-${item.url}`}>
+                    <a
+                      className={styles.contactLine}
+                      href={item.url}
+                      key={`${item.title}-${item.url}`}
+                      onClick={() => trackProfileAction(analyticsTarget, { title: item.title, href: item.url })}
+                    >
                       <div>
                         <div className={styles.contactLabel}>{item.title}</div>
                         <div className={styles.contactValue}>{item.url.replace(/^https?:\/\//, "")}</div>

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getProfileBySlugServer } from "@/lib/profile-service-server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { PROFILE_CACHE_HEADERS } from "@/lib/privacy/profile-privacy";
 import { isSlugPubliclyAllowed } from "@/lib/slug-moderation";
 import { profileCanRenderPublicly } from "@/lib/plans";
@@ -80,6 +81,21 @@ export async function GET(request: Request, context: RouteContext) {
     .filter(Boolean)
     .join("\r\n");
   const filename = safeVcardFilename(slug);
+
+  createAdminClient().from("analytics_events").insert({
+    event_type: "vcard_download",
+    profile_id: profile.id,
+    user_id: profile.user_id,
+    source: "unknown",
+    action_type: "custom_button",
+    action_label: "Add to Contacts",
+    action_url: `/api/vcard/${slug}`,
+    user_agent: request.headers.get("user-agent") || null,
+    referrer: request.headers.get("referer") || null,
+    metadata: {}
+  }).then(({ error }) => {
+    if (error) console.error("vCard analytics insert failed", { slug, error: error.message });
+  });
 
   return new NextResponse(vcard, {
     status: 200,

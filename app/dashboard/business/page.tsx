@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { AnalyticsSummary } from "@/components/analytics/analytics-summary";
 import { ContactTable } from "@/components/contacts/contact-table";
 import { CopyLinkButton } from "@/components/business/copy-link-button";
 import { Shell } from "@/components/shared/shell";
@@ -12,6 +13,7 @@ import type {
   OrganizationMemberRecord,
   OrganizationRecord,
   ContactSubmissionRecord,
+  AnalyticsEventRecord,
   PassTokenRecord
 } from "@/lib/types";
 
@@ -20,6 +22,7 @@ type BusinessData = {
   members: OrganizationMemberRecord[];
   tokens: PassTokenRecord[];
   contacts: ContactSubmissionRecord[];
+  analyticsEvents: AnalyticsEventRecord[];
 };
 
 type BusinessSummary = {
@@ -214,7 +217,7 @@ async function getBusinessData(
       .maybeSingle();
 
     if (!requestedOrg) {
-      return { organization: null, members: [], tokens: [], contacts: [] };
+      return { organization: null, members: [], tokens: [], contacts: [], analyticsEvents: [] };
     }
 
     if (!isPlatformAdmin) {
@@ -228,11 +231,11 @@ async function getBusinessData(
         .maybeSingle();
 
       if (requestedOrg.owner_user_id !== userId && !allowedMember) {
-        return { organization: null, members: [], tokens: [], contacts: [] };
+        return { organization: null, members: [], tokens: [], contacts: [], analyticsEvents: [] };
       }
     }
 
-    const [{ data: members }, { data: tokens }, { data: contacts }] = await Promise.all([
+    const [{ data: members }, { data: tokens }, { data: contacts }, { data: analyticsEvents }] = await Promise.all([
       admin
         .from("organization_members")
         .select("*")
@@ -247,14 +250,20 @@ async function getBusinessData(
         .from("contact_submissions")
         .select("*")
         .eq("organization_id", requestedOrg.id)
-        .order("created_at", { ascending: true })
+        .order("created_at", { ascending: false }),
+      admin
+        .from("analytics_events")
+        .select("*")
+        .eq("organization_id", requestedOrg.id)
+        .order("created_at", { ascending: false })
     ]);
 
     return {
       organization: requestedOrg as OrganizationRecord,
       members: (members || []) as OrganizationMemberRecord[],
       tokens: (tokens || []) as PassTokenRecord[],
-      contacts: (contacts || []) as ContactSubmissionRecord[]
+      contacts: (contacts || []) as ContactSubmissionRecord[],
+      analyticsEvents: (analyticsEvents || []) as AnalyticsEventRecord[]
     };
   }
 
@@ -289,10 +298,10 @@ async function getBusinessData(
   }
 
   if (!organization) {
-    return { organization: null, members: [], tokens: [], contacts: [] };
+    return { organization: null, members: [], tokens: [], contacts: [], analyticsEvents: [] };
   }
 
-  const [{ data: members }, { data: tokens }, { data: contacts }] = await Promise.all([
+  const [{ data: members }, { data: tokens }, { data: contacts }, { data: analyticsEvents }] = await Promise.all([
     admin
       .from("organization_members")
       .select("*")
@@ -307,14 +316,20 @@ async function getBusinessData(
       .from("contact_submissions")
       .select("*")
       .eq("organization_id", organization.id)
-      .order("created_at", { ascending: true })
+      .order("created_at", { ascending: false }),
+    admin
+      .from("analytics_events")
+      .select("*")
+      .eq("organization_id", organization.id)
+      .order("created_at", { ascending: false })
   ]);
 
   return {
     organization,
     members: (members || []) as OrganizationMemberRecord[],
     tokens: (tokens || []) as PassTokenRecord[],
-    contacts: (contacts || []) as ContactSubmissionRecord[]
+    contacts: (contacts || []) as ContactSubmissionRecord[],
+    analyticsEvents: (analyticsEvents || []) as AnalyticsEventRecord[]
   };
 }
 
@@ -539,6 +554,12 @@ async function addEmployee(formData: FormData) {
       organization,
       member: member as Pick<OrganizationMemberRecord, "id" | "name" | "email" | "role">
     });
+    await insertBusinessAnalyticsEvent({
+      organizationId,
+      memberId: member.id,
+      eventType: "employee_activated",
+      label: member.role
+    });
   }
 
   redirect(`/dashboard/business?org=${organizationId}`);
@@ -595,6 +616,40 @@ async function generateUniqueToken() {
   return generatePrivateToken(16);
 }
 
+async function insertBusinessAnalyticsEvent({
+  organizationId,
+  memberId,
+  cardId,
+  eventType,
+  label
+}: {
+  organizationId: string;
+  memberId?: string | null;
+  cardId?: string | null;
+  eventType: "card_assigned" | "card_reassigned" | "employee_activated" | "employee_deactivated";
+  label?: string | null;
+}) {
+  const admin = createAdminClient();
+  await admin.from("analytics_events").insert({
+    event_type: eventType,
+    organization_id: organizationId,
+    organization_member_id: memberId || null,
+    card_id: cardId || null,
+    source: "dashboard_preview",
+    action_label: label || null,
+    metadata: {}
+  }).then(({ error }) => {
+    if (error) {
+      console.error("Business analytics event insert failed", {
+        organizationId,
+        memberId,
+        eventType,
+        error: error.message
+      });
+    }
+  });
+}
+
 async function issueToken(formData: FormData) {
   "use server";
 
@@ -606,13 +661,23 @@ async function issueToken(formData: FormData) {
   const token = await generateUniqueToken();
   const admin = createAdminClient();
 
-  await admin.from("pass_tokens").insert({
+  const { data: insertedToken } = await admin.from("pass_tokens").insert({
     organization_id: organizationId,
     token,
     assigned_member_id: assignedMemberId,
     status: assignedMemberId ? "active" : "unassigned",
     token_type: tokenType
-  });
+  }).select("id").maybeSingle();
+
+  if (assignedMemberId) {
+    await insertBusinessAnalyticsEvent({
+      organizationId,
+      memberId: assignedMemberId,
+      cardId: insertedToken?.id || null,
+      eventType: "card_assigned",
+      label: tokenType
+    });
+  }
 
   redirect(`/dashboard/business?org=${organizationId}`);
 }
@@ -635,6 +700,14 @@ async function updateTokenAssignment(formData: FormData) {
     })
     .eq("id", tokenId)
     .eq("organization_id", organizationId);
+
+  await insertBusinessAnalyticsEvent({
+    organizationId,
+    memberId: assignedMemberId,
+    cardId: tokenId,
+    eventType: "card_reassigned",
+    label: assignedMemberId ? "assigned" : "unassigned"
+  });
 
   redirect(`/dashboard/business?org=${organizationId}`);
 }
@@ -672,6 +745,12 @@ async function deactivateEmployee(formData: FormData) {
     .eq("id", memberId)
     .eq("organization_id", organizationId);
 
+  await insertBusinessAnalyticsEvent({
+    organizationId,
+    memberId,
+    eventType: "employee_deactivated"
+  });
+
   await admin
     .from("pass_tokens")
     .update({ status: "inactive" })
@@ -694,8 +773,8 @@ export default async function BusinessDashboardPage({
   const selectedOrganizationId = params?.org || null;
   const showOnboarding = isPlatformAdmin && params?.onboard === "1";
   const businessIndex = isPlatformAdmin ? await getBusinessIndex() : [];
-  const { organization, members, tokens, contacts } = showOnboarding
-    ? { organization: null, members: [], tokens: [], contacts: [] }
+  const { organization, members, tokens, contacts, analyticsEvents } = showOnboarding
+    ? { organization: null, members: [], tokens: [], contacts: [], analyticsEvents: [] }
     : await getBusinessData(user.id, user.email, selectedOrganizationId, isPlatformAdmin);
   const initialAuth = {
     email: user.email || null,
@@ -922,6 +1001,8 @@ export default async function BusinessDashboardPage({
       <section className="dashboard-wrap" id="business-contacts">
         <ContactTable contacts={contacts} members={members} showMemberFilter />
       </section>
+
+      <AnalyticsSummary events={analyticsEvents} contacts={contacts} members={members} business />
 
       <section className="dashboard-wrap">
         <div className="dashboard-card">

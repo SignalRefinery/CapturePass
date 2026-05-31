@@ -123,7 +123,7 @@ export default async function PassTokenPage({
   const admin = createAdminClient();
   const { data: passToken, error: tokenError } = await admin
     .from("pass_tokens")
-    .select("token, status, token_type, organization_id, assigned_member_id")
+    .select("id, token, status, token_type, organization_id, assigned_member_id")
     .eq("token", token)
     .maybeSingle();
 
@@ -201,6 +201,9 @@ export default async function PassTokenPage({
     is_business_profile: true,
     contact_share_profile_id: member.id,
     contact_share_organization_id: passToken.organization_id,
+    analytics_organization_id: passToken.organization_id,
+    analytics_organization_member_id: member.id,
+    analytics_card_id: passToken.id,
     business_links: businessLinks,
     full_name: member.name,
     organization_name: organization?.name || "",

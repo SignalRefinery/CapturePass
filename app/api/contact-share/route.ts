@@ -83,6 +83,17 @@ function appUrl() {
   return (process.env.NEXT_PUBLIC_APP_URL || "https://taptagg.app").replace(/\/$/, "");
 }
 
+function sourceFor(value?: string | null) {
+  const source = cleanText(value, 80);
+  if (source === "business_profile") return "business_profile";
+  if (source === "public_profile") return "public_profile";
+  if (source === "nfc") return "nfc";
+  if (source === "qr") return "qr";
+  if (source === "share") return "shared_link";
+  if (source === "shared_link") return "shared_link";
+  return "unknown";
+}
+
 async function sendNotificationEmail({
   to,
   contact,
@@ -248,7 +259,7 @@ export async function POST(request: Request) {
     company,
     title,
     note,
-    source,
+    source: sourceFor(source),
     user_agent: cleanText(request.headers.get("user-agent"), 300) || null
   });
 
@@ -265,8 +276,31 @@ export async function POST(request: Request) {
   console.info("contact_shared", {
     profile_id: resolvedProfileId,
     organization_id: resolvedOrganizationId,
-    source,
+    source: sourceFor(source),
     profile_view_id: viewId
+  });
+
+  await admin.from("analytics_events").insert({
+    event_type: "contact_shared",
+    profile_id: resolvedOrganizationId ? null : resolvedProfileId,
+    organization_id: resolvedOrganizationId,
+    organization_member_id: resolvedOrganizationId ? resolvedProfileId : null,
+    profile_view_id: viewId,
+    user_id: submittedToUserId,
+    source: sourceFor(source),
+    action_type: "other",
+    action_label: "Share My Contact",
+    user_agent: cleanText(request.headers.get("user-agent"), 300) || null,
+    referrer: cleanText(request.headers.get("referer"), 400) || null,
+    metadata: {}
+  }).then(({ error: analyticsError }) => {
+    if (analyticsError) {
+      console.error("Contact shared analytics insert failed", {
+        profileId: resolvedProfileId,
+        organizationId: resolvedOrganizationId,
+        error: analyticsError.message
+      });
+    }
   });
 
   await sendNotificationEmail({

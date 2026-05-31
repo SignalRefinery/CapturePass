@@ -686,6 +686,30 @@ textarea{font:inherit}
 .contact-toolbar .button{
   min-height:52px;
 }
+.analytics-card-grid{
+  display:grid;
+  grid-template-columns:repeat(3, minmax(0, 1fr));
+  gap:16px;
+}
+.analytics-metric-card{
+  min-height:156px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+}
+.analytics-metric-card span{
+  color:var(--muted-2);
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+.analytics-metric-card strong{
+  color:var(--text);
+  font-family:"Inter Tight", "Inter", Arial, sans-serif;
+  font-size:52px;
+  line-height:.9;
+}
 .business-member-table{
   margin-top:18px;
   border:1px solid rgba(255,255,255,.075);
@@ -1632,6 +1656,9 @@ textarea{font:inherit}
     min-width:760px;
   }
   .contact-toolbar{
+    grid-template-columns:1fr;
+  }
+  .analytics-card-grid{
     grid-template-columns:1fr;
   }
   .view-subsection{
