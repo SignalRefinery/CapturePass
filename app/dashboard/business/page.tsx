@@ -337,6 +337,8 @@ async function createOrganization(formData: FormData) {
 
   const user = await getCurrentUser();
   if (!user) redirect("/login");
+  const isPlatformAdmin = !!user.email && ADMIN_EMAILS.includes(user.email.toLowerCase());
+  if (!isPlatformAdmin) redirect("/business");
 
   const name = String(formData.get("name") || "").trim();
   const adminName = String(formData.get("admin_name") || "").trim();
@@ -675,7 +677,7 @@ export default async function BusinessDashboardPage({
   const params = searchParams ? await searchParams : {};
   const isPlatformAdmin = !!user.email && ADMIN_EMAILS.includes(user.email.toLowerCase());
   const selectedOrganizationId = params?.org || null;
-  const showOnboarding = params?.onboard === "1";
+  const showOnboarding = isPlatformAdmin && params?.onboard === "1";
   const businessIndex = isPlatformAdmin ? await getBusinessIndex() : [];
   const { organization, members, tokens } = showOnboarding
     ? { organization: null, members: [], tokens: [] }
@@ -754,50 +756,69 @@ export default async function BusinessDashboardPage({
       <Shell footerLeft="Business dashboard" footerRight="TapTagg" initialAuth={initialAuth}>
         <section className="simple-hero">
           <div className="dashboard-card" style={{ maxWidth: 780, margin: "0 auto" }}>
-            <div className="dashboard-kicker">Business setup</div>
-            <h1>Create your company account.</h1>
-            <p>
-              Business TapTagg uses permanent card/pass URLs that can be reassigned as your team changes.
-              The business admin receives an email invite to set their own password.
-            </p>
-            <form action={createOrganization} className="editor-form" style={{ marginTop: 24 }}>
-              <label className="editor-label">
-                Company name
-                <input className="editor-input" name="name" required />
-              </label>
-              <div className="editor-grid">
-                <label className="editor-label">
-                  Business admin name
-                  <input className="editor-input" name="admin_name" required />
-                </label>
-                <label className="editor-label">
-                  Business admin title
-                  <input className="editor-input" name="admin_title" placeholder="Owner, manager, office admin..." />
-                </label>
-              </div>
-              <div className="editor-grid">
-                <label className="editor-label">
-                  Business admin email for login invite
-                  <input className="editor-input" name="admin_email" type="email" />
-                </label>
-                <label className="editor-label">
-                  Business admin phone
-                  <input className="editor-input" name="admin_phone" type="tel" />
-                </label>
-              </div>
-              <label className="checkbox-row">
-                <input name="managed_service_enabled" type="checkbox" />
-                Managed setup and service +$199/month
-              </label>
-              <button className="button primary" type="submit">
-                Create account and send invite
-              </button>
-              {isPlatformAdmin ? (
-                <Link className="button secondary" href="/dashboard/business">
-                  Back to business accounts
-                </Link>
-              ) : null}
-            </form>
+            {isPlatformAdmin ? (
+              <>
+                <div className="dashboard-kicker">Business setup</div>
+                <h1>Create your company account.</h1>
+                <p>
+                  Business TapTagg uses permanent card/pass URLs that can be reassigned as your team changes.
+                  The business admin receives an email invite to set their own password.
+                </p>
+                <form action={createOrganization} className="editor-form" style={{ marginTop: 24 }}>
+                  <label className="editor-label">
+                    Company name
+                    <input className="editor-input" name="name" required />
+                  </label>
+                  <div className="editor-grid">
+                    <label className="editor-label">
+                      Business admin name
+                      <input className="editor-input" name="admin_name" required />
+                    </label>
+                    <label className="editor-label">
+                      Business admin title
+                      <input className="editor-input" name="admin_title" placeholder="Owner, manager, office admin..." />
+                    </label>
+                  </div>
+                  <div className="editor-grid">
+                    <label className="editor-label">
+                      Business admin email for login invite
+                      <input className="editor-input" name="admin_email" type="email" />
+                    </label>
+                    <label className="editor-label">
+                      Business admin phone
+                      <input className="editor-input" name="admin_phone" type="tel" />
+                    </label>
+                  </div>
+                  <label className="checkbox-row">
+                    <input name="managed_service_enabled" type="checkbox" />
+                    Managed setup and service +$199/month
+                  </label>
+                  <button className="button primary" type="submit">
+                    Create account and send invite
+                  </button>
+                  <Link className="button secondary" href="/dashboard/business">
+                    Back to business accounts
+                  </Link>
+                </form>
+              </>
+            ) : (
+              <>
+                <div className="dashboard-kicker">Business quote</div>
+                <h1>Business accounts are created by TapTagg.</h1>
+                <p>
+                  Business TapTagg is currently quote-based. Request a business quote and we will set up
+                  the company console, admin login, employees, branding, and card/pass tokens.
+                </p>
+                <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap", marginTop: 24 }}>
+                  <Link className="button primary" href="/business#business-request">
+                    Request business quote
+                  </Link>
+                  <Link className="button secondary" href="/dashboard/business">
+                    Refresh business access
+                  </Link>
+                </div>
+              </>
+            )}
           </div>
         </section>
       </Shell>
