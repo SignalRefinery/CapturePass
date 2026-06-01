@@ -77,6 +77,7 @@ export async function saveProfileClient(record: ProfileRecord, userId: string) {
     brand_color_primary: useCustomColors && isHexColor(record.brand_color_primary) ? record.brand_color_primary : null,
     brand_color_secondary: useCustomColors && isHexColor(record.brand_color_secondary) ? record.brand_color_secondary : null,
     brand_color_accent: useCustomColors && isHexColor(record.brand_color_accent) ? record.brand_color_accent : null,
+    brand_color_text: useCustomColors && isHexColor(record.brand_color_text) ? record.brand_color_text : null,
     profile_badge_1: record.profile_badge_1 || "",
     profile_badge_2: record.profile_badge_2 || "",
     profile_badge_3: record.profile_badge_3 || "",

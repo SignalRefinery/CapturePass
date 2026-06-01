@@ -36,6 +36,7 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
       primary: "#0F172A",
       secondary: "#1E293B",
       accent: "#2563EB",
+      text: "#FFFFFF",
       background: "#F8FAFC"
     },
     allowedPlans: ["free", "digital", "core", "tagg_plus", "creator", "business"]
@@ -48,6 +49,7 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
       primary: "#111827",
       secondary: "#374151",
       accent: "#06B6D4",
+      text: "#FFFFFF",
       background: "#F9FAFB"
     },
     allowedPlans: ["core", "tagg_plus", "creator", "business"]
@@ -60,6 +62,7 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
       primary: "#1C2431",
       secondary: "#334155",
       accent: "#D4A017",
+      text: "#FFFAF0",
       background: "#FAF8F3"
     },
     allowedPlans: ["tagg_plus", "creator", "business"]
@@ -131,12 +134,14 @@ export function resolveThemeColors({
   themeKey,
   customPrimary,
   customSecondary,
-  customAccent
+  customAccent,
+  customText
 }: {
   themeKey?: string | null;
   customPrimary?: string | null;
   customSecondary?: string | null;
   customAccent?: string | null;
+  customText?: string | null;
 }): ThemeColors {
   const normalized = normalizeThemeKey(themeKey);
   const preset = THEME_PRESETS[normalized];
@@ -149,7 +154,8 @@ export function resolveThemeColors({
     ...preset.colors,
     primary: isHexColor(customPrimary) ? customPrimary : preset.colors.primary,
     secondary: isHexColor(customSecondary) ? customSecondary : preset.colors.secondary,
-    accent: isHexColor(customAccent) ? customAccent : preset.colors.accent
+    accent: isHexColor(customAccent) ? customAccent : preset.colors.accent,
+    text: isHexColor(customText) ? customText : preset.colors.text
   };
 }
 

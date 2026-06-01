@@ -852,7 +852,7 @@ textarea{font:inherit}
 }
 .theme-preview-strip{
   display:grid;
-  grid-template-columns:1.2fr 1fr .8fr .9fr;
+  grid-template-columns:1.2fr 1fr .8fr .9fr .7fr;
   gap:6px;
   margin-top:12px;
   padding:6px;
@@ -877,6 +877,10 @@ textarea{font:inherit}
 }
 .theme-preview-strip i:nth-child(4){
   background:var(--theme-preview-background, #f8fafc);
+  border:1px solid rgba(15,23,42,.16);
+}
+.theme-preview-strip i:nth-child(5){
+  background:var(--theme-preview-text, #ffffff);
   border:1px solid rgba(15,23,42,.16);
 }
 .theme-choice-card:has(input:checked){

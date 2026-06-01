@@ -15,6 +15,9 @@
   --profile-background:#F8FAFC;
   --profile-text:#ffffff;
   --text:var(--profile-text);
+  --button-start:var(--profile-primary);
+  --button-end:var(--profile-secondary);
+  --button-text:#ffffff;
   --muted:#a1a1aa;
   --muted-2:#71717a;
   --shadow:0 24px 80px rgba(0,0,0,.42);
@@ -70,10 +73,40 @@
   --chip-bg:color-mix(in srgb, var(--profile-primary) 10%, rgba(255,255,255,.035));
 }
 
+.themeExecutiveGold{
+  --text:#fffaf0;
+  --muted:#e6dcc4;
+  --muted-2:#cdbd95;
+  --button-start:#D4A017;
+  --button-end:#b98612;
+  --button-text:#141820;
+  --shadow:0 26px 86px rgba(0,0,0,.45);
+  --shell-bg:
+    radial-gradient(circle at 82% 8%, rgba(212,160,23,.22) 0%, transparent 34%),
+    radial-gradient(circle at 18% 30%, rgba(51,65,85,.34) 0%, transparent 38%),
+    linear-gradient(145deg, #101620 0%, #1c2431 48%, #15120a 100%);
+  --topbar-bg:rgba(15,18,24,.46);
+  --brand-copy:#fff4d5;
+  --hero-wash:
+    radial-gradient(circle at 28% 12%, rgba(255,255,255,.11) 0%, transparent 30%),
+    radial-gradient(circle at 72% 24%, rgba(212,160,23,.26) 0%, transparent 34%),
+    linear-gradient(180deg, rgba(51,65,85,.3), transparent 64%);
+  --panel-bg:
+    linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.025)),
+    linear-gradient(145deg, rgba(28,36,49,.88), rgba(28,24,14,.9));
+  --link-bg:rgba(255,244,213,.075);
+  --link-hover-bg:rgba(255,244,213,.12);
+  --chip-bg:rgba(255,244,213,.085);
+  --subtle-button-bg:rgba(255,244,213,.055);
+}
+
 .themeCleanLight{
   --text:var(--profile-text, #111827);
   --muted:#475569;
   --muted-2:#64748b;
+  --button-start:var(--profile-accent);
+  --button-end:color-mix(in srgb, var(--profile-accent) 82%, var(--profile-secondary));
+  --button-text:#ffffff;
   --shadow:0 22px 70px rgba(15,23,42,.18);
   --shell-bg:
     radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--profile-secondary) 24%, transparent) 0%, transparent 44%),
@@ -96,11 +129,39 @@
   --subtle-button-bg:rgba(255,255,255,.62);
 }
 
-.themeFullColor,
+.themeCleanHorizon{
+  --panel-bg:
+    linear-gradient(180deg, rgba(255,255,255,.94), rgba(255,255,255,.74)),
+    #ffffff;
+  --link-bg:rgba(248,250,252,.86);
+  --link-hover-bg:#ffffff;
+}
+
+.themeSageProfessional{
+  --button-start:#5C7C5A;
+  --button-end:#456b45;
+  --button-text:#ffffff;
+  --shell-bg:
+    radial-gradient(circle at 50% 0%, rgba(92,124,90,.14) 0%, transparent 42%),
+    linear-gradient(145deg, #ffffff 0%, #f7f7f2 52%, #eef4ea 100%);
+  --hero-wash:
+    radial-gradient(circle at 50% 12%, rgba(92,124,90,.16) 0%, transparent 42%),
+    linear-gradient(180deg, rgba(221,229,216,.45), transparent 62%);
+  --panel-bg:
+    linear-gradient(180deg, rgba(255,255,255,.9), rgba(247,247,242,.72)),
+    #ffffff;
+  --link-bg:rgba(247,247,242,.88);
+  --link-hover-bg:#ffffff;
+  --chip-bg:rgba(247,247,242,.86);
+}
+
 .themeCustom{
-  --text:#ffffff;
-  --muted:rgba(255,255,255,.78);
-  --muted-2:rgba(255,255,255,.58);
+  --text:var(--profile-text, #ffffff);
+  --muted:color-mix(in srgb, var(--text) 78%, transparent);
+  --muted-2:color-mix(in srgb, var(--text) 58%, transparent);
+  --button-start:var(--profile-accent);
+  --button-end:color-mix(in srgb, var(--profile-accent) 70%, var(--profile-secondary));
+  --button-text:var(--profile-text, #ffffff);
   --shell-bg:
     radial-gradient(circle at 20% 10%, color-mix(in srgb, var(--profile-secondary) 44%, transparent) 0%, transparent 34%),
     radial-gradient(circle at 88% 20%, color-mix(in srgb, var(--profile-accent) 40%, transparent) 0%, transparent 34%),
@@ -465,8 +526,8 @@
 }
 
 .profilePrimaryButton{
-  color:#ffffff;
-  background:linear-gradient(135deg, var(--profile-primary) 0%, var(--profile-secondary) 100%);
+  color:var(--button-text);
+  background:linear-gradient(135deg, var(--button-start) 0%, var(--button-end) 100%);
   box-shadow:0 18px 44px color-mix(in srgb, var(--profile-primary) 34%, transparent), 0 0 60px color-mix(in srgb, var(--profile-secondary) 18%, transparent), inset 0 1px 0 rgba(255,255,255,.26);
 }
 

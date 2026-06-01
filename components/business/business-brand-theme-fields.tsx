@@ -8,7 +8,13 @@ import type { OrganizationRecord } from "@/lib/types";
 type BusinessBrandThemeFieldsProps = {
   organization: Pick<
     OrganizationRecord,
-    "theme_key" | "brand_theme" | "brand_color" | "brand_color_primary" | "brand_color_secondary" | "brand_color_accent"
+    | "theme_key"
+    | "brand_theme"
+    | "brand_color"
+    | "brand_color_primary"
+    | "brand_color_secondary"
+    | "brand_color_accent"
+    | "brand_color_text"
   >;
 };
 
@@ -45,7 +51,8 @@ export function BusinessBrandThemeFields({ organization }: BusinessBrandThemeFie
                 themeKey: CUSTOM_THEME_KEY,
                 customPrimary: organization.brand_color_primary || organization.brand_color,
                 customSecondary: organization.brand_color_secondary,
-                customAccent: organization.brand_color_accent
+                customAccent: organization.brand_color_accent,
+                customText: organization.brand_color_text
               })
             : theme.colors;
 
@@ -67,10 +74,12 @@ export function BusinessBrandThemeFields({ organization }: BusinessBrandThemeFie
                     "--theme-preview-primary": colors.primary,
                     "--theme-preview-secondary": colors.secondary,
                     "--theme-preview-accent": colors.accent,
-                    "--theme-preview-background": colors.background
+                    "--theme-preview-background": colors.background,
+                    "--theme-preview-text": colors.text || "#FFFFFF"
                   } as CSSProperties}
                   aria-hidden="true"
                 >
+                  <i />
                   <i />
                   <i />
                   <i />
@@ -109,6 +118,15 @@ export function BusinessBrandThemeFields({ organization }: BusinessBrandThemeFie
               name="brand_color_accent"
               type="color"
               defaultValue={organization.brand_color_accent || "#2563EB"}
+            />
+          </label>
+          <label className="editor-label">
+            Text color
+            <input
+              className="editor-input"
+              name="brand_color_text"
+              type="color"
+              defaultValue={organization.brand_color_text || "#FFFFFF"}
             />
           </label>
         </div>

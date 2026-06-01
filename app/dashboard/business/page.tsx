@@ -452,6 +452,7 @@ async function updateOrganizationBranding(formData: FormData) {
     brand_color_primary: useCustomColors ? cleanHexColor(formData.get("brand_color_primary")) : null,
     brand_color_secondary: useCustomColors ? cleanHexColor(formData.get("brand_color_secondary")) : null,
     brand_color_accent: useCustomColors ? cleanHexColor(formData.get("brand_color_accent")) : null,
+    brand_color_text: useCustomColors ? cleanHexColor(formData.get("brand_color_text")) : null,
     brand_color: useCustomColors ? cleanHexColor(formData.get("brand_color_primary")) : null,
     brand_logo_url: brandLogoUrl || null
   };

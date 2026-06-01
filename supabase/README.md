@@ -27,6 +27,7 @@ Recent upgrades:
 
 - `phase76_contact_submission_consent.sql` adds contact consent audit fields for inquiry follow-up consent. This is not a marketing opt-in.
 - `phase77_theme_presets.sql` adds curated profile/business themes, custom color storage, and profile theme entitlement enforcement.
+- `phase78_custom_theme_text_color.sql` adds a custom text color for readable custom themes.
 
 ## Stripe Billing Note
 

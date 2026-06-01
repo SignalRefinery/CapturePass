@@ -23,6 +23,7 @@ type ProfileLike = {
   brand_color_primary?: string | null;
   brand_color_secondary?: string | null;
   brand_color_accent?: string | null;
+  brand_color_text?: string | null;
   theme_key?: string | null;
   brand_theme?: string | null;
   role_line?: string | null;
@@ -149,7 +150,13 @@ function themeClassName(theme?: string | null) {
   const themeKey = normalizeThemeKey(theme);
 
   if (themeKey === "clean_horizon" || themeKey === "sage_professional") {
-    return styles.themeCleanLight;
+    return themeKey === "sage_professional"
+      ? `${styles.themeCleanLight} ${styles.themeSageProfessional}`
+      : `${styles.themeCleanLight} ${styles.themeCleanHorizon}`;
+  }
+
+  if (themeKey === "executive_gold") {
+    return styles.themeExecutiveGold;
   }
 
   if (themeKey === CUSTOM_THEME_KEY) {
@@ -166,7 +173,7 @@ function legacyThemeClassName(theme?: string | null) {
     case "clean_light":
       return styles.themeCleanLight;
     case "full_color":
-      return styles.themeFullColor;
+      return styles.themeDeepBrand;
     case "custom":
       return styles.themeCustom;
     default:
@@ -304,7 +311,8 @@ export function TapTaggProfileShell({
     themeKey: resolvedThemeKey,
     customPrimary: activeProfile.brand_color_primary,
     customSecondary: activeProfile.brand_color_secondary,
-    customAccent: activeProfile.brand_color_accent
+    customAccent: activeProfile.brand_color_accent,
+    customText: activeProfile.brand_color_text
   });
   const brandStyle = {
     "--profile-primary": resolvedThemeColors.primary,

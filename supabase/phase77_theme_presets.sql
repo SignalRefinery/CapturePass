@@ -7,10 +7,12 @@ alter table public.profiles
   add column if not exists theme_key text not null default 'executive_navy',
   add column if not exists brand_color_primary text,
   add column if not exists brand_color_secondary text,
-  add column if not exists brand_color_accent text;
+  add column if not exists brand_color_accent text,
+  add column if not exists brand_color_text text;
 
 alter table public.organizations
-  add column if not exists theme_key text not null default 'executive_navy';
+  add column if not exists theme_key text not null default 'executive_navy',
+  add column if not exists brand_color_text text;
 
 update public.profiles
 set theme_key = 'executive_navy'
@@ -24,6 +26,7 @@ where coalesce(theme_key, 'executive_navy') = 'executive_navy'
     or brand_color_primary is not null
     or brand_color_secondary is not null
     or brand_color_accent is not null
+    or brand_color_text is not null
     or brand_theme = 'custom'
   );
 
@@ -113,6 +116,7 @@ begin
     new.brand_color_primary := null;
     new.brand_color_secondary := null;
     new.brand_color_accent := null;
+    new.brand_color_text := null;
   end if;
 
   return new;
@@ -121,7 +125,7 @@ $$;
 
 drop trigger if exists enforce_profile_theme_entitlement on public.profiles;
 create trigger enforce_profile_theme_entitlement
-before insert or update of theme_key, brand_color_primary, brand_color_secondary, brand_color_accent, stripe_plan_key, is_active, billing_exempt, lifetime_free, promo_code_used, is_admin
+before insert or update of theme_key, brand_color_primary, brand_color_secondary, brand_color_accent, brand_color_text, stripe_plan_key, is_active, billing_exempt, lifetime_free, promo_code_used, is_admin
 on public.profiles
 for each row
 execute function public.enforce_profile_theme_entitlement();

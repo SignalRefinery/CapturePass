@@ -763,7 +763,8 @@ export function ProfileEditor({
                       themeKey: CUSTOM_THEME_KEY,
                       customPrimary: form.brand_color_primary,
                       customSecondary: form.brand_color_secondary,
-                      customAccent: form.brand_color_accent
+                      customAccent: form.brand_color_accent,
+                      customText: form.brand_color_text
                     })
                   : theme.colors;
 
@@ -789,10 +790,12 @@ export function ProfileEditor({
                           "--theme-preview-primary": colors.primary,
                           "--theme-preview-secondary": colors.secondary,
                           "--theme-preview-accent": colors.accent,
-                          "--theme-preview-background": colors.background
+                          "--theme-preview-background": colors.background,
+                          "--theme-preview-text": colors.text || "#FFFFFF"
                         } as React.CSSProperties}
                         aria-hidden="true"
                       >
+                        <i />
                         <i />
                         <i />
                         <i />
@@ -827,6 +830,14 @@ export function ProfileEditor({
                     type="color"
                     value={form.brand_color_accent || "#2563EB"}
                     onChange={(event) => update("brand_color_accent", event.target.value)}
+                  />
+                </label>
+                <label className="auth-field">
+                  <span>Text color</span>
+                  <input
+                    type="color"
+                    value={form.brand_color_text || "#FFFFFF"}
+                    onChange={(event) => update("brand_color_text", event.target.value)}
                   />
                 </label>
               </div>
