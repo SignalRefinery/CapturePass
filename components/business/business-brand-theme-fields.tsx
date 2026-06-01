@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { BUSINESS_THEME_OPTIONS, CUSTOM_THEME_KEY, normalizeThemeKey } from "@/lib/themes";
+import type { CSSProperties } from "react";
+import { BUSINESS_THEME_OPTIONS, CUSTOM_THEME_KEY, normalizeThemeKey, resolveThemeColors } from "@/lib/themes";
 import type { OrganizationRecord } from "@/lib/types";
 
 type BusinessBrandThemeFieldsProps = {
@@ -36,22 +37,49 @@ export function BusinessBrandThemeFields({ organization }: BusinessBrandThemeFie
   return (
     <div className="brand-theme-section">
       <div className="dashboard-kicker">Brand Theme</div>
+      <input type="hidden" name="theme_key" value={themeKey} />
       <div className="theme-choice-list" role="radiogroup" aria-label="Business brand theme">
-        {BUSINESS_THEME_OPTIONS.map((theme) => (
-          <label className="theme-choice-card" key={theme.key}>
-            <input
-              type="radio"
-              name="theme_key"
-              value={theme.key}
-              checked={themeKey === theme.key}
-              onChange={() => setThemeKey(theme.key)}
-            />
-            <span>
-              <strong>{theme.name}</strong>
-              <small>{theme.description}</small>
-            </span>
-          </label>
-        ))}
+        {BUSINESS_THEME_OPTIONS.map((theme) => {
+          const colors = theme.key === CUSTOM_THEME_KEY
+            ? resolveThemeColors({
+                themeKey: CUSTOM_THEME_KEY,
+                customPrimary: organization.brand_color_primary || organization.brand_color,
+                customSecondary: organization.brand_color_secondary,
+                customAccent: organization.brand_color_accent
+              })
+            : theme.colors;
+
+          return (
+            <label className="theme-choice-card" key={theme.key}>
+              <input
+                type="radio"
+                name="theme_key_choice"
+                value={theme.key}
+                checked={themeKey === theme.key}
+                onChange={() => setThemeKey(theme.key)}
+              />
+              <span>
+                <strong>{theme.name}</strong>
+                <small>{theme.description}</small>
+                <span
+                  className="theme-preview-strip"
+                  style={{
+                    "--theme-preview-primary": colors.primary,
+                    "--theme-preview-secondary": colors.secondary,
+                    "--theme-preview-accent": colors.accent,
+                    "--theme-preview-background": colors.background
+                  } as CSSProperties}
+                  aria-hidden="true"
+                >
+                  <i />
+                  <i />
+                  <i />
+                  <i />
+                </span>
+              </span>
+            </label>
+          );
+        })}
       </div>
 
       {showCustomColors ? (

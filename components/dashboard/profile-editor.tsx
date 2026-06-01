@@ -5,7 +5,7 @@ import type { ProfileRecord, ProfileViewRecord } from "@/lib/types";
 import { getProfilePlan } from "@/lib/plans";
 import { normalizeUrl } from "@/lib/utils";
 import { classifySlug } from "@/lib/slug-moderation";
-import { CUSTOM_THEME_KEY, THEME_OPTIONS, coerceThemeForPlan, themeIsAllowedForPlan } from "@/lib/themes";
+import { CUSTOM_THEME_KEY, THEME_OPTIONS, coerceThemeForPlan, resolveThemeColors, themeIsAllowedForPlan } from "@/lib/themes";
 import {
   deleteProfileViewClient,
   getProfileIdForUserClient,
@@ -758,6 +758,15 @@ export function ProfileEditor({
             <div className="theme-choice-list" role="radiogroup" aria-label="Profile theme">
               {THEME_OPTIONS.map((theme) => {
                 const allowed = themeIsAllowedForPlan(theme.key, plan.key);
+                const colors = theme.key === CUSTOM_THEME_KEY
+                  ? resolveThemeColors({
+                      themeKey: CUSTOM_THEME_KEY,
+                      customPrimary: form.brand_color_primary,
+                      customSecondary: form.brand_color_secondary,
+                      customAccent: form.brand_color_accent
+                    })
+                  : theme.colors;
+
                 return (
                   <label className={`theme-choice-card${allowed ? "" : " is-disabled"}`} key={theme.key}>
                     <input
@@ -774,6 +783,21 @@ export function ProfileEditor({
                         {theme.description}
                         {!allowed ? ` Upgrade to ${theme.key === CUSTOM_THEME_KEY ? "Creator" : "Pro"} to unlock.` : ""}
                       </small>
+                      <span
+                        className="theme-preview-strip"
+                        style={{
+                          "--theme-preview-primary": colors.primary,
+                          "--theme-preview-secondary": colors.secondary,
+                          "--theme-preview-accent": colors.accent,
+                          "--theme-preview-background": colors.background
+                        } as React.CSSProperties}
+                        aria-hidden="true"
+                      >
+                        <i />
+                        <i />
+                        <i />
+                        <i />
+                      </span>
                     </span>
                   </label>
                 );
