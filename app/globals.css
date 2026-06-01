@@ -811,6 +811,60 @@ textarea{font:inherit}
   height:18px;
   accent-color:var(--purple);
 }
+.brand-theme-section{
+  display:grid;
+  gap:14px;
+}
+.theme-choice-list{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));
+  gap:12px;
+}
+.theme-choice-card{
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:10px;
+  align-items:start;
+  padding:14px;
+  border:1px solid rgba(15,23,42,.12);
+  border-radius:16px;
+  background:rgba(255,255,255,.72);
+  cursor:pointer;
+  transition:border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+.theme-choice-card:hover{
+  transform:translateY(-1px);
+  border-color:rgba(37,99,235,.32);
+  box-shadow:0 14px 30px rgba(15,23,42,.08);
+}
+.theme-choice-card input{
+  margin-top:3px;
+  accent-color:#2563eb;
+}
+.theme-choice-card strong,
+.theme-choice-card small{
+  display:block;
+}
+.theme-choice-card small{
+  margin-top:4px;
+  color:#64748b;
+  line-height:1.4;
+}
+.theme-choice-card:has(input:checked){
+  border-color:#2563eb;
+  box-shadow:0 0 0 3px rgba(37,99,235,.12);
+}
+.theme-choice-card.is-disabled{
+  cursor:not-allowed;
+  opacity:.58;
+}
+.theme-choice-card.is-disabled:hover{
+  transform:none;
+  box-shadow:none;
+}
+.theme-custom-grid{
+  margin-top:4px;
+}
 .editor-actions{
   display:flex;
   align-items:center;
@@ -891,6 +945,38 @@ textarea{font:inherit}
   font-weight:650;
   line-height:1.45;
   overflow-wrap:anywhere;
+}
+.progress-bar{
+  width:100%;
+  height:10px;
+  margin-top:14px;
+  border-radius:999px;
+  overflow:hidden;
+  background:rgba(255,255,255,.08);
+}
+.progress-bar > span{
+  display:block;
+  height:100%;
+  border-radius:inherit;
+  background:linear-gradient(90deg,var(--accent),var(--brand));
+}
+.gamification-manager{
+  display:grid;
+  gap:28px;
+}
+.gamification-manager-section{
+  display:grid;
+  gap:18px;
+}
+.gamification-manage-list{
+  display:grid;
+  gap:16px;
+}
+.gamification-manage-item{
+  padding:18px;
+  border:1px solid rgba(255,255,255,.075);
+  border-radius:8px;
+  background:rgba(255,255,255,.018);
 }
 .status-pill{
   display:inline-flex;

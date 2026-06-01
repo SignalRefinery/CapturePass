@@ -19,6 +19,8 @@ type ContactShareModalProps = {
 
 type Status = "idle" | "submitting" | "success" | "error";
 
+const CONTACT_CONSENT_TEXT = "I agree to be contacted by this person or organization regarding my inquiry.";
+
 const FOCUSABLE_SELECTOR = [
   "a[href]",
   "button:not([disabled])",
@@ -152,6 +154,13 @@ export function ContactShareModal({ target, modalStyle }: ContactShareModalProps
     event.preventDefault();
     const form = event.currentTarget;
     const formData = new FormData(form);
+    const consentToContact = formData.get("consent_to_contact") === "on";
+
+    if (!consentToContact) {
+      setStatus("error");
+      setError("Please agree to be contacted about your inquiry before sharing your contact.");
+      return;
+    }
 
     setStatus("submitting");
     setError("");
@@ -171,6 +180,8 @@ export function ContactShareModal({ target, modalStyle }: ContactShareModalProps
         company: formData.get("company"),
         title: formData.get("title"),
         note: formData.get("note"),
+        consent_to_contact: consentToContact,
+        consent_text: CONTACT_CONSENT_TEXT,
         website: formData.get("website")
       })
     });
@@ -265,6 +276,28 @@ export function ContactShareModal({ target, modalStyle }: ContactShareModalProps
                     <label className={styles.contactHoneypot} aria-hidden="true">
                       <span>Website</span>
                       <input name="website" tabIndex={-1} autoComplete="off" />
+                    </label>
+                    <label className={styles.contactConsentRow}>
+                      <input
+                        name="consent_to_contact"
+                        type="checkbox"
+                        required
+                        onChange={(event) => {
+                          event.currentTarget.setCustomValidity("");
+                          if (event.currentTarget.checked && error) {
+                            setError("");
+                            setStatus("idle");
+                          }
+                        }}
+                        onInvalid={(event) => {
+                          event.currentTarget.setCustomValidity(
+                            "Please agree to be contacted about your inquiry before sharing your contact."
+                          );
+                          setStatus("error");
+                          setError("Please agree to be contacted about your inquiry before sharing your contact.");
+                        }}
+                      />
+                      <span>{CONTACT_CONSENT_TEXT}</span>
                     </label>
                     {error ? <div className={styles.contactError}>{error}</div> : null}
                     <button

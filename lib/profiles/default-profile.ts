@@ -17,6 +17,7 @@ export function buildDashboardProfile(user: User, existing: ProfileRecord | null
       ...existing,
       full_name: existing.full_name || `${user.user_metadata?.first_name || ""} ${user.user_metadata?.last_name || ""}`.trim(),
       email: existing.email || user.email || "",
+      theme_key: existing.theme_key || "executive_navy",
       consent_public_visibility: existing.consent_public_visibility !== false
     };
   }
@@ -37,6 +38,7 @@ export function buildDashboardProfile(user: User, existing: ProfileRecord | null
     email,
     phone: "",
     website_url: "",
+    theme_key: "executive_navy",
     primary_link_1_title: "Call",
     primary_link_1_url: "15551234",
     primary_link_2_title: "Email",

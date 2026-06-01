@@ -64,7 +64,7 @@ export function Shell({
       { href: "/pricing", label: "Pricing" },
       { href: "/business", label: "Business" },
       { href: "/partners", label: "Partners" },
-      { href: "/dashboard", label: "Dashboard" },
+      { href: "/dashboard#performance", label: "Performance" },
       { href: "/dashboard/contacts", label: "Contacts" },
       { href: "/dashboard/analytics", label: "Analytics" },
       { href: "/dashboard/pass", label: "Digital pass" },

@@ -12,7 +12,9 @@
   --profile-primary:#8B5CF6;
   --profile-secondary:#A78BFA;
   --profile-accent:#3B82F6;
-  --text:#ffffff;
+  --profile-background:#F8FAFC;
+  --profile-text:#ffffff;
+  --text:var(--profile-text);
   --muted:#a1a1aa;
   --muted-2:#71717a;
   --shadow:0 24px 80px rgba(0,0,0,.42);
@@ -53,7 +55,7 @@
   --muted-2:color-mix(in srgb, var(--profile-primary) 28%, #a8a29e);
   --shell-bg:
     radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--profile-primary) 34%, transparent) 0%, transparent 42%),
-    linear-gradient(145deg, color-mix(in srgb, var(--profile-primary) 42%, #050505) 0%, color-mix(in srgb, var(--profile-accent) 20%, #080808) 48%, #050505 100%);
+    linear-gradient(145deg, color-mix(in srgb, var(--profile-primary) 42%, #050505) 0%, color-mix(in srgb, var(--profile-accent) 20%, #080808) 48%, color-mix(in srgb, var(--profile-background) 12%, #050505) 100%);
   --topbar-bg:color-mix(in srgb, var(--profile-primary) 16%, rgba(0,0,0,.46));
   --brand-copy:#fffaf5;
   --hero-wash:
@@ -69,13 +71,13 @@
 }
 
 .themeCleanLight{
-  --text:#111827;
+  --text:var(--profile-text, #111827);
   --muted:#475569;
   --muted-2:#64748b;
   --shadow:0 22px 70px rgba(15,23,42,.18);
   --shell-bg:
     radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--profile-secondary) 24%, transparent) 0%, transparent 44%),
-    linear-gradient(145deg, #ffffff 0%, color-mix(in srgb, var(--profile-primary) 10%, #f8fafc) 54%, color-mix(in srgb, var(--profile-accent) 10%, #eef2ff) 100%);
+    linear-gradient(145deg, var(--profile-background, #ffffff) 0%, color-mix(in srgb, var(--profile-primary) 10%, #f8fafc) 54%, color-mix(in srgb, var(--profile-accent) 10%, #eef2ff) 100%);
   --topbar-bg:rgba(255,255,255,.72);
   --brand-copy:#111827;
   --icon-button-bg:rgba(255,255,255,.72);
@@ -735,6 +737,26 @@
 
 .contactShareForm textarea{
   resize:vertical;
+}
+
+.contactConsentRow{
+  display:grid !important;
+  grid-template-columns:auto 1fr;
+  gap:10px !important;
+  align-items:start;
+  color:var(--muted, #a1a1aa) !important;
+  font-size:13px !important;
+  font-weight:650 !important;
+  letter-spacing:0 !important;
+  line-height:1.45;
+  text-transform:none !important;
+}
+
+.contactConsentRow input{
+  width:18px;
+  height:18px;
+  margin-top:1px;
+  accent-color:var(--profile-primary, #8B5CF6);
 }
 
 .contactHoneypot{

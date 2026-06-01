@@ -16,7 +16,13 @@ create table if not exists public.contact_submissions (
   title text,
   note text,
   source text,
+  consent_to_contact boolean not null default false,
+  consent_text text,
+  consent_given_at timestamptz,
+  source_profile_slug text,
+  source_url text,
   user_agent text,
+  ip_address text,
   created_at timestamptz not null default timezone('utc', now())
 );
 

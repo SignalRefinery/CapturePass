@@ -14,11 +14,14 @@ type ContactPayload = {
   note?: string | null;
   source?: string | null;
   website?: string | null;
+  consent_to_contact?: boolean | string | null;
+  consent_text?: string | null;
 };
 
 const rateLimit = new Map<string, { count: number; resetAt: number }>();
 const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
 const RATE_LIMIT_MAX = 5;
+const CONTACT_CONSENT_TEXT = "I agree to be contacted by this person or organization regarding my inquiry.";
 
 function cleanText(value?: string | null, max = 180) {
   return String(value || "")
@@ -55,6 +58,17 @@ function cleanPhone(value?: string | null) {
   return `+${digits}`;
 }
 
+function cleanUrl(value?: string | null) {
+  const url = cleanText(value, 500);
+  if (!url) return null;
+  if (/^https?:\/\//i.test(url)) return url;
+  return null;
+}
+
+function consentWasGiven(value: ContactPayload["consent_to_contact"]) {
+  return value === true || value === "true" || value === "on";
+}
+
 function isUuid(value?: string | null) {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value || "");
 }
@@ -63,6 +77,16 @@ function rateLimitKey(request: Request, profileId?: string | null) {
   const forwardedFor = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
   const ip = forwardedFor || request.headers.get("x-real-ip") || "unknown";
   return `${ip}:${profileId || "unknown"}`;
+}
+
+function clientIp(request: Request) {
+  return cleanText(
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+      request.headers.get("x-real-ip") ||
+      request.headers.get("cf-connecting-ip") ||
+      "",
+    80
+  ) || null;
 }
 
 function checkRateLimit(key: string) {
@@ -188,6 +212,10 @@ export async function POST(request: Request) {
   const organizationId = cleanText(payload.organizationId, 64) || null;
   const viewId = cleanText(payload.viewId, 64) || null;
   const slug = cleanText(payload.slug, 80).toLowerCase() || null;
+  const consentToContact = consentWasGiven(payload.consent_to_contact);
+  const sourceUrl = cleanUrl(request.headers.get("referer"));
+  const userAgent = cleanText(request.headers.get("user-agent"), 300) || null;
+  const ipAddress = clientIp(request);
 
   if (!name) {
     return NextResponse.json({ error: "Name is required." }, { status: 400 });
@@ -203,6 +231,13 @@ export async function POST(request: Request) {
 
   if (!email && !phone) {
     return NextResponse.json({ error: "Email or phone is required." }, { status: 400 });
+  }
+
+  if (!consentToContact) {
+    return NextResponse.json(
+      { error: "Please agree to be contacted about your inquiry before sharing your contact." },
+      { status: 400 }
+    );
   }
 
   if ((profileId && !isUuid(profileId)) || (organizationId && !isUuid(organizationId)) || (viewId && !isUuid(viewId))) {
@@ -277,7 +312,13 @@ export async function POST(request: Request) {
     title,
     note,
     source: sourceFor(source),
-    user_agent: cleanText(request.headers.get("user-agent"), 300) || null
+    consent_to_contact: true,
+    consent_text: CONTACT_CONSENT_TEXT,
+    consent_given_at: new Date().toISOString(),
+    source_profile_slug: slug,
+    source_url: sourceUrl,
+    user_agent: userAgent,
+    ip_address: ipAddress
   };
 
   const { error } = await admin.from("contact_submissions").insert(contactSubmission);
@@ -316,7 +357,7 @@ export async function POST(request: Request) {
     source: sourceFor(source),
     action_type: "other",
     action_label: "Share My Contact",
-    user_agent: cleanText(request.headers.get("user-agent"), 300) || null,
+    user_agent: userAgent,
     referrer: cleanText(request.headers.get("referer"), 400) || null,
     metadata: {}
   }).then(({ error: analyticsError }) => {

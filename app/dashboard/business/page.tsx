@@ -2,13 +2,17 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { AnalyticsSummary } from "@/components/analytics/analytics-summary";
 import { ContactTable } from "@/components/contacts/contact-table";
+import { BusinessBrandThemeFields } from "@/components/business/business-brand-theme-fields";
 import { CopyLinkButton } from "@/components/business/copy-link-button";
+import { BusinessGamificationPanel } from "@/components/gamification/gamification-panels";
 import { Shell } from "@/components/shared/shell";
 import { claimBusinessOrganizationForUser } from "@/lib/business/organization-access";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
+import { getOrganizationGamificationSummary } from "@/lib/gamification/server";
 import { slugify } from "@/lib/utils";
 import { generatePrivateToken } from "@/lib/utils/generate-token";
+import { CUSTOM_THEME_KEY, normalizeThemeKey, isHexColor } from "@/lib/themes";
 import type {
   OrganizationMemberRecord,
   OrganizationRecord,
@@ -40,14 +44,14 @@ function appUrl() {
 
 function cleanHexColor(value: FormDataEntryValue | null) {
   const color = String(value || "").trim();
-  return /^#[0-9a-fA-F]{6}$/.test(color) ? color : null;
+  return isHexColor(color) ? color : null;
 }
 
 function cleanBrandTheme(value: FormDataEntryValue | null) {
-  const theme = String(value || "").trim();
-  return ["deep_brand", "clean_light", "full_color", "custom"].includes(theme)
-    ? theme
-    : "full_color";
+  const theme = normalizeThemeKey(String(value || ""));
+  if (theme === "clean_horizon" || theme === "sage_professional") return "clean_light";
+  if (theme === "custom") return "custom";
+  return "deep_brand";
 }
 
 function cleanText(value: FormDataEntryValue | null) {
@@ -387,6 +391,7 @@ async function createOrganization(formData: FormData) {
     .insert({
       name,
       slug,
+      theme_key: "executive_navy",
       owner_user_id: user.id,
       managed_service_enabled: managedService
     })
@@ -438,13 +443,16 @@ async function updateOrganizationBranding(formData: FormData) {
 
   const brandLogoUrl = String(formData.get("brand_logo_url") || "").trim();
   const admin = createAdminClient();
+  const themeKey = normalizeThemeKey(String(formData.get("theme_key") || ""));
+  const useCustomColors = themeKey === CUSTOM_THEME_KEY;
 
   const brandingPayload = {
-    brand_theme: cleanBrandTheme(formData.get("brand_theme")),
-    brand_color_primary: cleanHexColor(formData.get("brand_color_primary")),
-    brand_color_secondary: cleanHexColor(formData.get("brand_color_secondary")),
-    brand_color_accent: cleanHexColor(formData.get("brand_color_accent")),
-    brand_color: cleanHexColor(formData.get("brand_color_primary")),
+    theme_key: themeKey,
+    brand_theme: cleanBrandTheme(themeKey),
+    brand_color_primary: useCustomColors ? cleanHexColor(formData.get("brand_color_primary")) : null,
+    brand_color_secondary: useCustomColors ? cleanHexColor(formData.get("brand_color_secondary")) : null,
+    brand_color_accent: useCustomColors ? cleanHexColor(formData.get("brand_color_accent")) : null,
+    brand_color: useCustomColors ? cleanHexColor(formData.get("brand_color_primary")) : null,
     brand_logo_url: brandLogoUrl || null
   };
 
@@ -776,15 +784,26 @@ export default async function BusinessDashboardPage({
   const { organization, members, tokens, contacts, analyticsEvents } = showOnboarding
     ? { organization: null, members: [], tokens: [], contacts: [], analyticsEvents: [] }
     : await getBusinessData(user.id, user.email, selectedOrganizationId, isPlatformAdmin);
+  const gamificationSummary = organization
+    ? await getOrganizationGamificationSummary({ organizationId: organization.id })
+    : null;
   const initialAuth = {
     email: user.email || null,
     fullName: user.user_metadata?.full_name || null,
     slug: null
   };
+  const businessNavLinks = [
+    { href: "/", label: "Home" },
+    { href: "/dashboard", label: "Dashboard" },
+    { href: "/dashboard/business#leaderboard", label: "Leaderboard" },
+    { href: "/dashboard/business#challenges", label: "Challenges" },
+    { href: "/dashboard/business#competitions", label: "Competitions" },
+    { href: "/dashboard/business#revenue", label: "Revenue" }
+  ];
 
   if (isPlatformAdmin && !selectedOrganizationId && !showOnboarding) {
     return (
-      <Shell footerLeft="Business dashboard" footerRight="TapTagg" initialAuth={initialAuth}>
+      <Shell footerLeft="Business dashboard" footerRight="TapTagg" initialAuth={initialAuth} navLinks={businessNavLinks}>
         <section className="simple-hero">
           <div className="kicker">
             <span className="mini-star">✦</span>
@@ -847,7 +866,7 @@ export default async function BusinessDashboardPage({
 
   if (!organization) {
     return (
-      <Shell footerLeft="Business dashboard" footerRight="TapTagg" initialAuth={initialAuth}>
+      <Shell footerLeft="Business dashboard" footerRight="TapTagg" initialAuth={initialAuth} navLinks={businessNavLinks}>
         <section className="simple-hero">
           <div className="dashboard-card" style={{ maxWidth: 780, margin: "0 auto" }}>
             {isPlatformAdmin ? (
@@ -923,7 +942,7 @@ export default async function BusinessDashboardPage({
   const memberById = new Map(members.map((member) => [member.id, member]));
 
   return (
-    <Shell footerLeft="Business dashboard" footerRight="TapTagg" initialAuth={initialAuth}>
+    <Shell footerLeft="Business dashboard" footerRight="TapTagg" initialAuth={initialAuth} navLinks={businessNavLinks}>
       <section className="simple-hero">
         <div className="kicker">
           <span className="mini-star">✦</span>
@@ -1004,6 +1023,8 @@ export default async function BusinessDashboardPage({
 
       <AnalyticsSummary events={analyticsEvents} contacts={contacts} members={members} business />
 
+      {gamificationSummary ? <BusinessGamificationPanel summary={gamificationSummary} organizationId={organization.id} /> : null}
+
       <section className="dashboard-wrap">
         <div className="dashboard-card">
           <div className="dashboard-kicker">Business branding</div>
@@ -1013,44 +1034,7 @@ export default async function BusinessDashboardPage({
           </p>
           <form action={updateOrganizationBranding} className="editor-form" style={{ marginTop: 18 }}>
             <input type="hidden" name="organization_id" value={organization.id} />
-            <label className="editor-label">
-              Page theme
-              <select className="editor-input" name="brand_theme" defaultValue={organization.brand_theme || "full_color"}>
-                <option value="full_color">Full color brand</option>
-                <option value="clean_light">Clean light brand</option>
-                <option value="deep_brand">Deep brand</option>
-                <option value="custom">Custom palette</option>
-              </select>
-            </label>
-            <div className="editor-grid">
-              <label className="editor-label">
-                Primary color
-                <input
-                  className="editor-input"
-                  name="brand_color_primary"
-                  type="color"
-                  defaultValue={organization.brand_color_primary || organization.brand_color || "#8b5cf6"}
-                />
-              </label>
-              <label className="editor-label">
-                Secondary color
-                <input
-                  className="editor-input"
-                  name="brand_color_secondary"
-                  type="color"
-                  defaultValue={organization.brand_color_secondary || "#a78bfa"}
-                />
-              </label>
-              <label className="editor-label">
-                Accent color
-                <input
-                  className="editor-input"
-                  name="brand_color_accent"
-                  type="color"
-                  defaultValue={organization.brand_color_accent || "#3b82f6"}
-                />
-              </label>
-            </div>
+            <BusinessBrandThemeFields organization={organization} />
             <label className="editor-label">
               Logo PNG URL
               <input

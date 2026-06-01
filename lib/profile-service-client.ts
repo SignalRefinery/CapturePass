@@ -1,6 +1,8 @@
 import type { ProfileRecord, ProfileViewRecord } from "@/lib/types";
 import { createClient as createBrowserClient } from "@/lib/supabase/client";
 import { classifySlug } from "@/lib/slug-moderation";
+import { coerceThemeForPlan, isHexColor } from "@/lib/themes";
+import { getProfilePlan } from "@/lib/plans";
 
 function safeFallbackSlugForUser(userId: string) {
   return `profile-${userId.replace(/-/g, "").slice(0, 12)}`;
@@ -58,7 +60,9 @@ export async function saveProfileClient(record: ProfileRecord, userId: string) {
           slug_requested: null,
           slug_status: "approved",
           slug_review_reason: null
-        };
+      };
+  const themeKey = coerceThemeForPlan(record.theme_key, getProfilePlan(record));
+  const useCustomColors = themeKey === "custom";
 
   const profilePayload = {
     user_id: userId,
@@ -69,6 +73,10 @@ export async function saveProfileClient(record: ProfileRecord, userId: string) {
     email: record.email,
     phone: record.phone,
     website_url: record.website_url,
+    theme_key: themeKey,
+    brand_color_primary: useCustomColors && isHexColor(record.brand_color_primary) ? record.brand_color_primary : null,
+    brand_color_secondary: useCustomColors && isHexColor(record.brand_color_secondary) ? record.brand_color_secondary : null,
+    brand_color_accent: useCustomColors && isHexColor(record.brand_color_accent) ? record.brand_color_accent : null,
     profile_badge_1: record.profile_badge_1 || "",
     profile_badge_2: record.profile_badge_2 || "",
     profile_badge_3: record.profile_badge_3 || "",
@@ -80,7 +88,7 @@ export async function saveProfileClient(record: ProfileRecord, userId: string) {
     primary_link_3_url: record.primary_link_3_url,
     primary_link_4_title: record.primary_link_4_title,
     primary_link_4_url: record.primary_link_4_url,
-    consent_public_visibility: !!record.consent_public_visibility,
+    consent_public_visibility: record.consent_public_visibility !== false,
     page_mode: record.page_mode || "single",
     multi_view_display_mode: record.multi_view_display_mode || "favorite",
     default_view_id: record.default_view_id || null,

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Shell } from "@/components/shared/shell";
 import { ProfileEditor } from "@/components/dashboard/profile-editor";
 import { InactiveState } from "@/components/dashboard/inactive-state";
+import { PersonalPerformancePanel } from "@/components/gamification/gamification-panels";
 import {
   getProfileForUserServer,
   getProfileViewsForProfileServer
@@ -12,6 +13,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getProfilePlan, normalizePlanKey } from "@/lib/plans";
 import { stripe } from "@/lib/stripe";
 import { slugify } from "@/lib/utils";
+import { getPersonalGamificationSummary } from "@/lib/gamification/server";
 import type { ProfileRecord } from "@/lib/types";
 
 function passHrefFor(profile: ProfileRecord) {
@@ -278,6 +280,7 @@ export default async function DashboardPage({
       email,
       phone: "",
       website_url: "",
+      theme_key: "executive_navy",
       profile_badge_1: "",
       profile_badge_2: "",
       profile_badge_3: "",
@@ -300,11 +303,16 @@ export default async function DashboardPage({
       billing_exempt: false,
       lifetime_free: false,
       promo_code_used: user.user_metadata?.promo_code || null,
-      is_public_official: !!user.user_metadata?.is_public_official
+      is_public_official: !!user.user_metadata?.is_public_official,
+      consent_public_visibility: true
     };
   const initialProfileViews = initialProfile.id
     ? await getProfileViewsForProfileServer(initialProfile.id)
     : [];
+  const gamificationSummary = await getPersonalGamificationSummary({
+    userId: user.id,
+    profileId: initialProfile.id || null,
+  });
 
   const plan = getProfilePlan(initialProfile);
   const fullAccess = plan.isActivated;
@@ -353,6 +361,10 @@ export default async function DashboardPage({
       navLinks={[
         { href: "/", label: "Home" },
         { href: "/pricing", label: "Pricing" },
+        { href: "/dashboard", label: "Dashboard" },
+        { href: "/dashboard#performance", label: "Performance" },
+        { href: "/dashboard/contacts", label: "Contacts" },
+        { href: "/dashboard/analytics", label: "Analytics" },
         { href: "/partners", label: "Partners" }
       ]}
     >
@@ -480,6 +492,8 @@ export default async function DashboardPage({
           </section>
             </>
           ) : null}
+
+          <PersonalPerformancePanel summary={gamificationSummary} />
 
           <ProfileEditor
             userId={user.id}

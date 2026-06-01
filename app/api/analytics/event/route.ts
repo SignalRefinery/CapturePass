@@ -1,17 +1,31 @@
 import { createHash, randomUUID } from "crypto";
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { normalizeGamificationEventType } from "@/lib/gamification/event-normalizer";
 
 const EVENT_TYPES = new Set([
   "profile_view",
+  "profileViewed",
+  "page_view",
   "qr_scan",
+  "qrScan",
+  "qr_open",
   "nfc_tap",
   "direct_visit",
   "shared_link_visit",
   "button_click",
+  "email_click",
+  "phone_click",
+  "website_click",
+  "social_click",
+  "appointment_click",
+  "manual_follow_up_logged",
+  "sale_logged",
+  "revenue_logged",
   "vcard_download",
   "contact_save",
   "contact_shared",
+  "contact_submission",
   "card_assigned",
   "card_reassigned",
   "employee_activated",
@@ -98,7 +112,9 @@ export async function POST(request: Request) {
   }
 
   const eventType = cleanText((payload as { event_type?: unknown }).event_type, 60);
-  if (!EVENT_TYPES.has(eventType)) {
+  const normalizedEventType = normalizeGamificationEventType(eventType) || eventType;
+
+  if (!EVENT_TYPES.has(eventType) && !EVENT_TYPES.has(normalizedEventType)) {
     return NextResponse.json({ ok: false, error: "Invalid event type." }, { status: 400 });
   }
 
@@ -167,7 +183,7 @@ export async function POST(request: Request) {
   const source = sourceFor(cleanText((payload as { source?: unknown }).source, 80));
 
   const { error } = await admin.from("analytics_events").insert({
-    event_type: eventType,
+    event_type: normalizeGamificationEventType(eventType) || eventType,
     profile_id: resolvedProfileId,
     organization_id: organizationId,
     organization_member_id: organizationMemberId,

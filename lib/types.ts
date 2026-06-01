@@ -37,6 +37,10 @@ export type ProfileRecord = {
   email: string;
   phone: string;
   website_url: string;
+  theme_key?: string | null;
+  brand_color_primary?: string | null;
+  brand_color_secondary?: string | null;
+  brand_color_accent?: string | null;
   profile_badge_1?: string | null;
   profile_badge_2?: string | null;
   profile_badge_3?: string | null;
@@ -79,6 +83,7 @@ export type OrganizationRecord = {
   brand_color_primary?: string | null;
   brand_color_secondary?: string | null;
   brand_color_accent?: string | null;
+  theme_key?: string | null;
   brand_theme?: "deep_brand" | "clean_light" | "full_color" | "custom" | null;
   brand_logo_url?: string | null;
   business_link_1_title?: string | null;
@@ -132,6 +137,12 @@ export type ContactSubmissionRecord = {
   note?: string | null;
   source?: string | null;
   user_agent?: string | null;
+  consent_to_contact?: boolean | null;
+  consent_text?: string | null;
+  consent_given_at?: string | null;
+  source_profile_slug?: string | null;
+  source_url?: string | null;
+  ip_address?: string | null;
   created_at?: string;
 };
 
@@ -139,14 +150,27 @@ export type AnalyticsEventRecord = {
   id: string;
   event_type:
     | "profile_view"
+    | "profileViewed"
+    | "page_view"
     | "qr_scan"
+    | "qrScan"
+    | "qr_open"
     | "nfc_tap"
     | "direct_visit"
     | "shared_link_visit"
     | "button_click"
+    | "email_click"
+    | "phone_click"
+    | "website_click"
+    | "social_click"
+    | "appointment_click"
+    | "manual_follow_up_logged"
+    | "sale_logged"
+    | "revenue_logged"
     | "vcard_download"
     | "contact_save"
     | "contact_shared"
+    | "contact_submission"
     | "card_assigned"
     | "card_reassigned"
     | "employee_activated"
@@ -198,6 +222,131 @@ export type ProfileViewRecord = {
   primary_link_3_url: string;
   primary_link_4_title: string;
   primary_link_4_url: string;
+  created_at?: string;
+  updated_at?: string;
+};
+
+export type GamificationMetricKey =
+  | "contacts_captured"
+  | "profile_views"
+  | "qr_scans"
+  | "taptagg_score"
+  | "active_streak"
+  | "monthly_score"
+  | "appointment_actions"
+  | "sales_logged"
+  | "revenue_logged";
+
+export type GamificationScoreBreakdown = {
+  total: number;
+  breakdown: Record<string, number>;
+};
+
+export type BadgeDefinition = {
+  id: string;
+  badge_key: string;
+  name: string;
+  description: string;
+  category: string;
+  icon?: string | null;
+  point_bonus?: number | null;
+  threshold_value?: number | null;
+  metric_key?: GamificationMetricKey | string | null;
+  is_active?: boolean | null;
+  created_at?: string;
+};
+
+export type UserBadge = {
+  id: string;
+  user_id: string;
+  badge_key: string;
+  earned_at?: string;
+  period_start?: string | null;
+  period_end?: string | null;
+  metadata?: Record<string, unknown>;
+};
+
+export type LeaderboardRow = {
+  rank: number;
+  user_id: string;
+  name: string;
+  organization_member_id?: string | null;
+  contacts_captured: number;
+  profile_views: number;
+  qr_scans: number;
+  phone_clicks: number;
+  appointment_clicks: number;
+  sales_logged: number;
+  revenue_logged: number;
+  taptagg_score: number;
+};
+
+export type TeamChallenge = {
+  id: string;
+  organization_id: string;
+  created_by?: string | null;
+  title: string;
+  description?: string | null;
+  metric_key: GamificationMetricKey | string;
+  goal_value: number;
+  start_date: string;
+  end_date: string;
+  prize?: string | null;
+  status?: string | null;
+  created_at?: string;
+  updated_at?: string;
+};
+
+export type ChallengeProgress = {
+  challenge: TeamChallenge;
+  progress_value: number;
+  goal_value: number;
+  percent: number;
+  days_remaining: number;
+  top_contributors: LeaderboardRow[];
+};
+
+export type Competition = {
+  id: string;
+  organization_id: string;
+  title: string;
+  metric_key: GamificationMetricKey | string;
+  start_date: string;
+  end_date: string;
+  prize?: string | null;
+  status?: string | null;
+  created_by?: string | null;
+  created_at?: string;
+};
+
+export type CompetitionResult = {
+  id: string;
+  competition_id: string;
+  user_id: string;
+  rank: number;
+  score_value: number;
+  calculated_at?: string;
+  metadata?: Record<string, unknown>;
+};
+
+export type SalesAttributionEvent = {
+  id: string;
+  organization_id?: string | null;
+  profile_id?: string | null;
+  owner_user_id: string;
+  contact_submission_id?: string | null;
+  attribution_type:
+    | "appointment_booked"
+    | "follow_up_logged"
+    | "opportunity_created"
+    | "sale_logged"
+    | "revenue_logged";
+  revenue_amount?: string | number | null;
+  deal_name?: string | null;
+  customer_name?: string | null;
+  notes?: string | null;
+  source?: string | null;
+  occurred_at?: string;
   created_at?: string;
   updated_at?: string;
 };

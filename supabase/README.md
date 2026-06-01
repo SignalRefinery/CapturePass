@@ -23,6 +23,11 @@ Use the individual `phase*.sql` files only when upgrading an existing database t
 
 For older databases, apply phase files in chronological/order-of-dependency order. Do not start with a late phase file, because many of them assume `public.profiles` and related functions already exist.
 
+Recent upgrades:
+
+- `phase76_contact_submission_consent.sql` adds contact consent audit fields for inquiry follow-up consent. This is not a marketing opt-in.
+- `phase77_theme_presets.sql` adds curated profile/business themes, custom color storage, and profile theme entitlement enforcement.
+
 ## Stripe Billing Note
 
 The app expects these billing columns on `public.profiles`:

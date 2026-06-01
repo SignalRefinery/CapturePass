@@ -47,7 +47,7 @@ function percent(numerator: number, denominator: number) {
 export function AnalyticsSummary({ events, contacts = [], members = [], business = false }: AnalyticsSummaryProps) {
   const profileViews = count(events, "profile_view");
   const visitors = uniqueVisitors(events);
-  const contactsReceived = contacts.length || count(events, "contact_shared");
+  const contactsReceived = contacts.length || count(events, "contact_shared") || count(events, "contact_submission");
   const contactSaves = count(events, "contact_save");
   const buttonClicks = count(events, "button_click");
   const summaryCards = [
@@ -63,14 +63,15 @@ export function AnalyticsSummary({ events, contacts = [], members = [], business
     const memberEvents = events.filter((event) => event.organization_member_id === member.id);
     const memberContacts = contacts.filter((contact) => contact.profile_id === member.id);
     const memberVisitors = uniqueVisitors(memberEvents);
+    const memberContactCount = memberContacts.length || count(memberEvents, "contact_shared") || count(memberEvents, "contact_submission");
     return {
       member,
       views: count(memberEvents, "profile_view"),
       visitors: memberVisitors,
-      contacts: memberContacts.length || count(memberEvents, "contact_shared"),
+      contacts: memberContactCount,
       contactSaves: count(memberEvents, "contact_save"),
       buttonClicks: count(memberEvents, "button_click"),
-      conversionRate: percent(memberContacts.length || count(memberEvents, "contact_shared"), memberVisitors)
+      conversionRate: percent(memberContactCount, memberVisitors)
     };
   }).sort((a, b) => b.views - a.views);
 

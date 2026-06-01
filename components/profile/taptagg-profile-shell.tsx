@@ -5,6 +5,7 @@ import type { CSSProperties } from "react";
 import { useState } from "react";
 import { ProfileAnalyticsTracker, trackProfileAction } from "@/components/analytics/profile-analytics-tracker";
 import { getReadableProfileUrl } from "@/lib/urls/profile-url";
+import { CUSTOM_THEME_KEY, normalizeThemeKey, resolveThemeColors } from "@/lib/themes";
 import { ContactShareModal } from "@/components/profile/contact-share-modal";
 import { ReportIssueForm } from "@/components/profile/report-issue-form";
 import styles from "./taptagg-profile-shell.module.css";
@@ -22,6 +23,7 @@ type ProfileLike = {
   brand_color_primary?: string | null;
   brand_color_secondary?: string | null;
   brand_color_accent?: string | null;
+  theme_key?: string | null;
   brand_theme?: string | null;
   role_line?: string | null;
   intro?: string | null;
@@ -143,11 +145,21 @@ function initialsForName(name?: string | null) {
   return (parts.length > 1 ? `${parts[0][0]}${parts[parts.length - 1][0]}` : parts[0]?.slice(0, 2) || "TT").toUpperCase();
 }
 
-function isHexColor(value?: string | null) {
-  return /^#[0-9a-fA-F]{6}$/.test((value || "").trim());
+function themeClassName(theme?: string | null) {
+  const themeKey = normalizeThemeKey(theme);
+
+  if (themeKey === "clean_horizon" || themeKey === "sage_professional") {
+    return styles.themeCleanLight;
+  }
+
+  if (themeKey === CUSTOM_THEME_KEY) {
+    return styles.themeCustom;
+  }
+
+  return styles.themeDeepBrand;
 }
 
-function themeClassName(theme?: string | null) {
+function legacyThemeClassName(theme?: string | null) {
   switch (theme) {
     case "deep_brand":
       return styles.themeDeepBrand;
@@ -287,18 +299,24 @@ export function TapTaggProfileShell({
   const descriptor = activeProfile.role_line && activeProfile.organization_name
     ? `${activeProfile.role_line} at ${activeProfile.organization_name}`
     : activeProfile.role_line || activeProfile.organization_name || "Digital contact card";
+  const resolvedThemeKey = activeProfile.theme_key || (activeProfile.brand_theme === "custom" ? "custom" : null);
+  const resolvedThemeColors = resolveThemeColors({
+    themeKey: resolvedThemeKey,
+    customPrimary: activeProfile.brand_color_primary,
+    customSecondary: activeProfile.brand_color_secondary,
+    customAccent: activeProfile.brand_color_accent
+  });
   const brandStyle = {
-    ...(isHexColor(activeProfile.brand_color_primary)
-      ? { "--profile-primary": activeProfile.brand_color_primary }
-      : {}),
-    ...(isHexColor(activeProfile.brand_color_secondary)
-      ? { "--profile-secondary": activeProfile.brand_color_secondary }
-      : {}),
-    ...(isHexColor(activeProfile.brand_color_accent)
-      ? { "--profile-accent": activeProfile.brand_color_accent }
-      : {})
+    "--profile-primary": resolvedThemeColors.primary,
+    "--profile-secondary": resolvedThemeColors.secondary,
+    "--profile-accent": resolvedThemeColors.accent,
+    "--profile-background": resolvedThemeColors.background,
+    ...(resolvedThemeColors.text ? { "--profile-text": resolvedThemeColors.text } : {})
   } as CSSProperties;
-  const pageClassName = [styles.page, themeClassName(activeProfile.brand_theme)].filter(Boolean).join(" ");
+  const pageClassName = [
+    styles.page,
+    activeProfile.theme_key ? themeClassName(activeProfile.theme_key) : legacyThemeClassName(activeProfile.brand_theme)
+  ].filter(Boolean).join(" ");
   const isBusinessProfile = activeProfile.is_business_profile === true;
   const homeHref = isBusinessProfile ? activeProfile.business_home_url || readableUrl : "/";
   const businessLinks = isBusinessProfile

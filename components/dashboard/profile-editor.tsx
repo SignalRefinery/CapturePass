@@ -5,6 +5,7 @@ import type { ProfileRecord, ProfileViewRecord } from "@/lib/types";
 import { getProfilePlan } from "@/lib/plans";
 import { normalizeUrl } from "@/lib/utils";
 import { classifySlug } from "@/lib/slug-moderation";
+import { CUSTOM_THEME_KEY, THEME_OPTIONS, coerceThemeForPlan, themeIsAllowedForPlan } from "@/lib/themes";
 import {
   deleteProfileViewClient,
   getProfileIdForUserClient,
@@ -222,7 +223,9 @@ export function ProfileEditor({
 }: ProfileEditorProps) {
   const [form, setForm] = useState<ProfileRecord>({
     ...initialProfile,
-    intro: cleanIntroValue(initialProfile.intro)
+    intro: cleanIntroValue(initialProfile.intro),
+    consent_public_visibility: initialProfile.consent_public_visibility !== false,
+    theme_key: coerceThemeForPlan(initialProfile.theme_key, getProfilePlan(initialProfile))
   });
   const [views, setViews] = useState<ProfileViewRecord[]>(
     initialProfileViews.map((view) => ({
@@ -249,6 +252,8 @@ export function ProfileEditor({
   const callLink = phoneToTel(form.phone);
   const emailLink = emailToMailto(form.email);
   const plan = getProfilePlan(form);
+  const selectedThemeKey = coerceThemeForPlan(form.theme_key, plan);
+  const showCustomThemeColors = selectedThemeKey === CUSTOM_THEME_KEY;
 
   const slugModeration = useMemo(() => classifySlug(slugInput || ""), [slugInput]);
   const activeSlugModeration = useMemo(() => classifySlug(form.slug || ""), [form.slug]);
@@ -729,7 +734,7 @@ export function ProfileEditor({
             <label className="toggle-row" style={{ margin: 0 }}>
               <input
                 type="checkbox"
-                checked={!!form.consent_public_visibility}
+                checked={form.consent_public_visibility !== false}
                 onChange={(event) => update("consent_public_visibility", event.target.checked)}
               />
                 <span>
@@ -741,6 +746,67 @@ export function ProfileEditor({
                   : "Free / Reserved profiles are preview-only, so this link will stay private until you activate Digital or above."}
               </span>
             </label>
+          </div>
+
+          <div className="card" style={{ marginTop: 18, padding: 18 }}>
+            <div className="dashboard-kicker">Profile Theme</div>
+            <h3 style={{ margin: "6px 0 8px" }}>Choose a polished look.</h3>
+            <p className="editor-copy">
+              Presets keep your profile sharp without needing to tune colors manually. Your plan controls which
+              themes are available.
+            </p>
+            <div className="theme-choice-list" role="radiogroup" aria-label="Profile theme">
+              {THEME_OPTIONS.map((theme) => {
+                const allowed = themeIsAllowedForPlan(theme.key, plan.key);
+                return (
+                  <label className={`theme-choice-card${allowed ? "" : " is-disabled"}`} key={theme.key}>
+                    <input
+                      type="radio"
+                      name="theme_key"
+                      value={theme.key}
+                      checked={selectedThemeKey === theme.key}
+                      disabled={!allowed}
+                      onChange={() => update("theme_key", theme.key)}
+                    />
+                    <span>
+                      <strong>{theme.name}</strong>
+                      <small>
+                        {theme.description}
+                        {!allowed ? ` Upgrade to ${theme.key === CUSTOM_THEME_KEY ? "Creator" : "Pro"} to unlock.` : ""}
+                      </small>
+                    </span>
+                  </label>
+                );
+              })}
+            </div>
+            {showCustomThemeColors ? (
+              <div className="editor-grid theme-custom-grid">
+                <label className="auth-field">
+                  <span>Primary color</span>
+                  <input
+                    type="color"
+                    value={form.brand_color_primary || "#0F172A"}
+                    onChange={(event) => update("brand_color_primary", event.target.value)}
+                  />
+                </label>
+                <label className="auth-field">
+                  <span>Secondary color</span>
+                  <input
+                    type="color"
+                    value={form.brand_color_secondary || "#1E293B"}
+                    onChange={(event) => update("brand_color_secondary", event.target.value)}
+                  />
+                </label>
+                <label className="auth-field">
+                  <span>Accent color</span>
+                  <input
+                    type="color"
+                    value={form.brand_color_accent || "#2563EB"}
+                    onChange={(event) => update("brand_color_accent", event.target.value)}
+                  />
+                </label>
+              </div>
+            ) : null}
           </div>
 
           <div className="editor-grid" style={{ marginTop: 18 }}>
