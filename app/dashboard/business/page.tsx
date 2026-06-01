@@ -90,6 +90,10 @@ function tokenUrl(token: string) {
   return `${appUrl()}/p/${token}`;
 }
 
+function digitalPassUrl(token: string) {
+  return `${appUrl()}/pass/business/${token}`;
+}
+
 function passVcardUrl(token: string) {
   return `${appUrl()}/api/pass-vcard/${token}`;
 }
@@ -674,6 +678,7 @@ async function sendBusinessDigitalPass(formData: FormData) {
   }
 
   const publicPassUrl = tokenUrl(token.token);
+  const saveablePassUrl = digitalPassUrl(token.token);
   const contactCardUrl = passVcardUrl(token.token);
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
@@ -692,14 +697,15 @@ async function sendBusinessDigitalPass(formData: FormData) {
             ${escapeHtml(organization.name)} has assigned a TapTagg digital pass to ${escapeHtml(member.name)}.
           </p>
           <p style="margin:0 0 12px;">
-            <a href="${escapeHtml(publicPassUrl)}" style="display:inline-block;background:#111827;color:#fff;padding:12px 18px;border-radius:12px;text-decoration:none;font-weight:700;">
-              View digital pass
+            <a href="${escapeHtml(saveablePassUrl)}" style="display:inline-block;background:#111827;color:#fff;padding:12px 18px;border-radius:12px;text-decoration:none;font-weight:700;">
+              Save digital pass
             </a>
           </p>
           <p style="margin:0 0 18px;">
             To save the contact card, open this link: <a href="${escapeHtml(contactCardUrl)}">${escapeHtml(contactCardUrl)}</a>
           </p>
-          <p style="margin:0;color:#555;">Pass link: ${escapeHtml(publicPassUrl)}</p>
+          <p style="margin:0 0 8px;color:#555;">Digital pass: ${escapeHtml(saveablePassUrl)}</p>
+          <p style="margin:0;color:#555;">Public profile: ${escapeHtml(publicPassUrl)}</p>
         </div>
       `
     })
@@ -1286,7 +1292,7 @@ export default async function BusinessDashboardPage({
                           <div className="table-actions">
                             {assignedToken ? (
                               <>
-                                <Link className="button secondary" href={`/p/${assignedToken.token}`}>
+                                <Link className="button secondary" href={`/pass/business/${assignedToken.token}`}>
                                   View digital pass
                                 </Link>
                                 {assignedProfileUrl ? <CopyLinkButton value={assignedProfileUrl} /> : null}
@@ -1383,9 +1389,6 @@ export default async function BusinessDashboardPage({
                         </td>
                         <td>
                           <div className="table-actions">
-                            <Link className="button secondary" href={`/p/${token.token}`}>
-                              View
-                            </Link>
                             <CopyLinkButton value={url} />
                             <form action={updateTokenAssignment} className="table-actions">
                               <input type="hidden" name="organization_id" value={organization.id} />
