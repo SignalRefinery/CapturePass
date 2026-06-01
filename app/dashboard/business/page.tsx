@@ -73,6 +73,8 @@ function businessErrorMessage(error?: string) {
       return "Colors and logo saved, but business links did not. Run phase72_business_global_links.sql in Supabase, then save again.";
     case "missing_member_email":
       return "That person needs an email address before a login invite can be sent.";
+    case "digital_pass_send_failed":
+      return "Digital pass email could not be sent. Confirm the employee has an active assigned token and email address, then try again.";
     case "missing_org_name":
       return "Company name is required.";
     case "missing_admin_name":
@@ -86,6 +88,19 @@ function businessErrorMessage(error?: string) {
 
 function tokenUrl(token: string) {
   return `${appUrl()}/p/${token}`;
+}
+
+function passVcardUrl(token: string) {
+  return `${appUrl()}/api/pass-vcard/${token}`;
+}
+
+function escapeHtml(value?: string | null) {
+  return (value || "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
 }
 
 function businessLoginPath(slug?: string | null) {
@@ -608,6 +623,102 @@ async function sendBusinessLoginInvite(formData: FormData) {
   redirect(`/dashboard/business?org=${organizationId}`);
 }
 
+async function sendBusinessDigitalPass(formData: FormData) {
+  "use server";
+
+  const organizationId = String(formData.get("organization_id") || "");
+  await requireBusinessAdmin(organizationId);
+
+  const memberId = String(formData.get("member_id") || "");
+  const tokenId = String(formData.get("token_id") || "");
+  const admin = createAdminClient();
+  const [{ data: organization }, { data: member }, { data: token }] = await Promise.all([
+    admin
+      .from("organizations")
+      .select("id, name")
+      .eq("id", organizationId)
+      .maybeSingle(),
+    admin
+      .from("organization_members")
+      .select("id, name, email, status")
+      .eq("id", memberId)
+      .eq("organization_id", organizationId)
+      .maybeSingle(),
+    admin
+      .from("pass_tokens")
+      .select("id, token, assigned_member_id, status")
+      .eq("id", tokenId)
+      .eq("organization_id", organizationId)
+      .maybeSingle()
+  ]);
+
+  if (
+    !organization ||
+    !member?.email ||
+    member.status !== "active" ||
+    !token ||
+    token.status !== "active" ||
+    token.assigned_member_id !== member.id
+  ) {
+    redirect(`/dashboard/business?org=${organizationId}&error=digital_pass_send_failed`);
+  }
+
+  const resendApiKey = process.env.RESEND_API_KEY;
+  if (!resendApiKey) {
+    console.warn("RESEND_API_KEY is missing. Skipping business digital pass email.", {
+      organizationId,
+      memberId,
+      tokenId
+    });
+    redirect(`/dashboard/business?org=${organizationId}&error=digital_pass_send_failed`);
+  }
+
+  const publicPassUrl = tokenUrl(token.token);
+  const contactCardUrl = passVcardUrl(token.token);
+  const response = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${resendApiKey}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      from: process.env.INTERNAL_FROM_EMAIL || "TapTagg <noreply@taptagg.app>",
+      to: member.email,
+      subject: `Your ${organization.name} TapTagg digital pass`,
+      html: `
+        <div style="font-family:Arial,sans-serif;line-height:1.6;color:#111;">
+          <h2 style="margin:0 0 16px;">Your TapTagg digital pass is ready</h2>
+          <p style="margin:0 0 18px;">
+            ${escapeHtml(organization.name)} has assigned a TapTagg digital pass to ${escapeHtml(member.name)}.
+          </p>
+          <p style="margin:0 0 12px;">
+            <a href="${escapeHtml(publicPassUrl)}" style="display:inline-block;background:#111827;color:#fff;padding:12px 18px;border-radius:12px;text-decoration:none;font-weight:700;">
+              View digital pass
+            </a>
+          </p>
+          <p style="margin:0 0 18px;">
+            To save the contact card, open this link: <a href="${escapeHtml(contactCardUrl)}">${escapeHtml(contactCardUrl)}</a>
+          </p>
+          <p style="margin:0;color:#555;">Pass link: ${escapeHtml(publicPassUrl)}</p>
+        </div>
+      `
+    })
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error("Business digital pass email failed", {
+      organizationId,
+      memberId,
+      tokenId,
+      error: errorText
+    });
+    redirect(`/dashboard/business?org=${organizationId}&error=digital_pass_send_failed`);
+  }
+
+  redirect(`/dashboard/business?org=${organizationId}&saved=digital_pass_sent`);
+}
+
 async function generateUniqueToken() {
   const admin = createAdminClient();
 
@@ -941,6 +1052,7 @@ export default async function BusinessDashboardPage({
 
   const activeMembers = members.filter((member) => member.status === "active");
   const memberById = new Map(members.map((member) => [member.id, member]));
+  const unassignedTokens = tokens.filter((token) => !token.assigned_member_id || !memberById.has(token.assigned_member_id));
 
   return (
     <Shell footerLeft="Business dashboard" footerRight="TapTagg" initialAuth={initialAuth} navLinks={businessNavLinks}>
@@ -978,6 +1090,14 @@ export default async function BusinessDashboardPage({
           <div className="dashboard-card pass-alert">
             <div className="dashboard-kicker">Saved</div>
             <p className="editor-copy">Business branding was saved.</p>
+          </div>
+        </section>
+      ) : null}
+      {params?.saved === "digital_pass_sent" ? (
+        <section className="dashboard-wrap">
+          <div className="dashboard-card pass-alert">
+            <div className="dashboard-kicker">Sent</div>
+            <p className="editor-copy">Digital pass email was sent.</p>
           </div>
         </section>
       ) : null}
@@ -1120,93 +1240,11 @@ export default async function BusinessDashboardPage({
 
       <section className="dashboard-wrap">
         <div className="dashboard-card">
-          <div className="dashboard-kicker">Permanent tokens</div>
-          <h2>Issue a card/pass token.</h2>
-          <form action={issueToken} className="editor-form" style={{ marginTop: 18 }}>
-            <input type="hidden" name="organization_id" value={organization.id} />
-            <div className="editor-grid">
-              <label className="editor-label">
-                Assign to employee
-                <select className="editor-input" name="assigned_member_id" defaultValue="">
-                  <option value="">Leave unassigned</option>
-                  {activeMembers.map((member) => (
-                    <option key={member.id} value={member.id}>
-                      {member.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="editor-label">
-                Token type
-                <select className="editor-input" name="token_type" defaultValue="both">
-                  <option value="both">NFC card + digital pass</option>
-                  <option value="nfc_card">NFC card</option>
-                  <option value="digital_pass">Digital pass</option>
-                </select>
-              </label>
-            </div>
-            <button className="button primary" type="submit">Create token</button>
-          </form>
-        </div>
-      </section>
-
-      <section className="dashboard-wrap" id="business-tokens">
-        <div className="dashboard-grid">
-          {tokens.map((token) => {
-            const member = token.assigned_member_id ? memberById.get(token.assigned_member_id) : null;
-            const url = tokenUrl(token.token);
-            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=360x360&data=${encodeURIComponent(url)}`;
-
-            return (
-              <article className="dashboard-card" key={token.id}>
-                <span id={`token-${token.id}`} />
-                <div className="dashboard-kicker">{token.token_type.replace("_", " ")}</div>
-                <h2>{member?.name || "Unassigned token"}</h2>
-                <p className="editor-copy">
-                  {member?.title || "Permanent URL"} · {token.status}
-                </p>
-                <div className="pass-qr-frame" style={{ maxWidth: 220 }}>
-                  <img src={qrUrl} alt={`QR code for ${url}`} />
-                </div>
-                <p className="editor-copy" style={{ wordBreak: "break-all" }}>{url}</p>
-                <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-                  <Link className="button secondary" href={`/p/${token.token}`}>Open</Link>
-                  <CopyLinkButton value={url} />
-                  <button className="button secondary" type="button" disabled aria-disabled="true">
-                    Add/save digital pass
-                  </button>
-                </div>
-                <form action={updateTokenAssignment} className="editor-form" style={{ marginTop: 16 }}>
-                  <input type="hidden" name="organization_id" value={organization.id} />
-                  <input type="hidden" name="token_id" value={token.id} />
-                  <label className="editor-label">
-                    Reassign token
-                    <select className="editor-input" name="assigned_member_id" defaultValue={token.assigned_member_id || ""}>
-                      <option value="">Unassigned</option>
-                      {activeMembers.map((candidate) => (
-                        <option key={candidate.id} value={candidate.id}>
-                          {candidate.name}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                  <button className="button secondary" type="submit">Save assignment</button>
-                </form>
-                <form action={deactivateToken} style={{ marginTop: 10 }}>
-                  <input type="hidden" name="organization_id" value={organization.id} />
-                  <input type="hidden" name="token_id" value={token.id} />
-                  <button className="button secondary" type="submit">Deactivate token</button>
-                </form>
-              </article>
-            );
-          })}
-        </div>
-      </section>
-
-      <section className="dashboard-wrap">
-        <div className="dashboard-card">
           <div className="dashboard-kicker">Employee status</div>
           <h2>View, manage, or deactivate employees.</h2>
+          <p className="editor-copy">
+            Token links, assignments, and deactivation now live in this table so each employee can be managed in one place.
+          </p>
           <div className="admin-table-frame business-member-table">
             <div className="admin-table-scroll">
               <table className="admin-table">
@@ -1231,7 +1269,16 @@ export default async function BusinessDashboardPage({
                         </td>
                         <td>{member.role === "admin" ? "Business admin" : member.title || "Member"}</td>
                         <td>{member.email || "—"}</td>
-                        <td>{assignedToken ? `/p/${assignedToken.token}` : "No token"}</td>
+                        <td>
+                          {assignedToken && assignedProfileUrl ? (
+                            <div>
+                              <strong>{assignedToken.token_type.replace("_", " ")}</strong>
+                              <div className="table-subtext">{assignedProfileUrl}</div>
+                            </div>
+                          ) : (
+                            "No token"
+                          )}
+                        </td>
                         <td>
                           <span className="status-pill">{member.status}</span>
                         </td>
@@ -1240,17 +1287,63 @@ export default async function BusinessDashboardPage({
                             {assignedToken ? (
                               <>
                                 <Link className="button secondary" href={`/p/${assignedToken.token}`}>
-                                  View
-                                </Link>
-                                <Link className="button secondary" href={`#token-${assignedToken.id}`}>
-                                  Manage
+                                  View digital pass
                                 </Link>
                                 {assignedProfileUrl ? <CopyLinkButton value={assignedProfileUrl} /> : null}
+                                {member.email && member.status === "active" && assignedToken.status === "active" ? (
+                                  <form action={sendBusinessDigitalPass}>
+                                    <input type="hidden" name="organization_id" value={organization.id} />
+                                    <input type="hidden" name="member_id" value={member.id} />
+                                    <input type="hidden" name="token_id" value={assignedToken.id} />
+                                    <button className="button secondary" type="submit">Send digital pass</button>
+                                  </form>
+                                ) : (
+                                  <button className="button secondary" type="button" disabled aria-disabled="true">
+                                    Send digital pass
+                                  </button>
+                                )}
+                                <form action={updateTokenAssignment} className="table-actions">
+                                  <input type="hidden" name="organization_id" value={organization.id} />
+                                  <input type="hidden" name="token_id" value={assignedToken.id} />
+                                  <select
+                                    className="editor-input"
+                                    name="assigned_member_id"
+                                    defaultValue={assignedToken.assigned_member_id || ""}
+                                    aria-label={`Reassign ${member.name}'s token`}
+                                  >
+                                    <option value="">Unassigned</option>
+                                    {activeMembers.map((candidate) => (
+                                      <option key={candidate.id} value={candidate.id}>
+                                        {candidate.name}
+                                      </option>
+                                    ))}
+                                  </select>
+                                  <button className="button secondary" type="submit">Save</button>
+                                </form>
+                                <form action={deactivateToken}>
+                                  <input type="hidden" name="organization_id" value={organization.id} />
+                                  <input type="hidden" name="token_id" value={assignedToken.id} />
+                                  <button className="button secondary" type="submit">Deactivate token</button>
+                                </form>
                               </>
+                            ) : member.status === "active" ? (
+                              <form action={issueToken} className="table-actions">
+                                <input type="hidden" name="organization_id" value={organization.id} />
+                                <input type="hidden" name="assigned_member_id" value={member.id} />
+                                <select
+                                  className="editor-input"
+                                  name="token_type"
+                                  defaultValue="both"
+                                  aria-label={`Token type for ${member.name}`}
+                                >
+                                  <option value="both">NFC + digital</option>
+                                  <option value="nfc_card">NFC card</option>
+                                  <option value="digital_pass">Digital pass</option>
+                                </select>
+                                <button className="button secondary" type="submit">Issue token</button>
+                              </form>
                             ) : (
-                              <Link className="button secondary" href="#business-tokens">
-                                Assign token
-                              </Link>
+                              <span className="editor-copy">Activate employee to issue a token.</span>
                             )}
                             {member.status === "active" && member.email ? (
                               <form action={sendBusinessLoginInvite}>
@@ -1266,6 +1359,57 @@ export default async function BusinessDashboardPage({
                                 <button className="button secondary" type="submit">Deactivate</button>
                               </form>
                             ) : null}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                  {unassignedTokens.map((token) => {
+                    const url = tokenUrl(token.token);
+
+                    return (
+                      <tr key={token.id}>
+                        <td>
+                          <strong>Unassigned token</strong>
+                        </td>
+                        <td>{token.token_type.replace("_", " ")}</td>
+                        <td>—</td>
+                        <td>
+                          <strong>{`/p/${token.token}`}</strong>
+                          <div className="table-subtext">{url}</div>
+                        </td>
+                        <td>
+                          <span className="status-pill">{token.status}</span>
+                        </td>
+                        <td>
+                          <div className="table-actions">
+                            <Link className="button secondary" href={`/p/${token.token}`}>
+                              View
+                            </Link>
+                            <CopyLinkButton value={url} />
+                            <form action={updateTokenAssignment} className="table-actions">
+                              <input type="hidden" name="organization_id" value={organization.id} />
+                              <input type="hidden" name="token_id" value={token.id} />
+                              <select
+                                className="editor-input"
+                                name="assigned_member_id"
+                                defaultValue=""
+                                aria-label="Assign unassigned token"
+                              >
+                                <option value="">Unassigned</option>
+                                {activeMembers.map((candidate) => (
+                                  <option key={candidate.id} value={candidate.id}>
+                                    {candidate.name}
+                                  </option>
+                                ))}
+                              </select>
+                              <button className="button secondary" type="submit">Save</button>
+                            </form>
+                            <form action={deactivateToken}>
+                              <input type="hidden" name="organization_id" value={organization.id} />
+                              <input type="hidden" name="token_id" value={token.id} />
+                              <button className="button secondary" type="submit">Deactivate token</button>
+                            </form>
                           </div>
                         </td>
                       </tr>
