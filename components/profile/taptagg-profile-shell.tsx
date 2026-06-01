@@ -559,24 +559,28 @@ export function TapTaggProfileShell({
           </div>
         </section>
 
-        <section className={styles.reportSection}>
-          <ReportIssueForm profileId={activeProfile.id || undefined} slug={activeProfile.slug || ""} />
-        </section>
+        {!isBusinessProfile ? (
+          <>
+            <section className={styles.reportSection}>
+              <ReportIssueForm profileId={activeProfile.id || undefined} slug={activeProfile.slug || ""} />
+            </section>
 
-        <section className={styles.signupCtaSection}>
-          <div className={styles.signupCta}>
-            <div>
-              <div className={styles.signupCtaKicker}>TapTagg</div>
-              <h2>Level up how you network.</h2>
-              <p>
-                Build a polished profile, share the right links, and make every follow-up easier.
-              </p>
-            </div>
-            <Link className={`${styles.button} ${styles.profilePrimaryButton}`} href="/signup">
-              Create your profile
-            </Link>
-          </div>
-        </section>
+            <section className={styles.signupCtaSection}>
+              <div className={styles.signupCta}>
+                <div>
+                  <div className={styles.signupCtaKicker}>TapTagg</div>
+                  <h2>Level up how you network.</h2>
+                  <p>
+                    Build a polished profile, share the right links, and make every follow-up easier.
+                  </p>
+                </div>
+                <Link className={`${styles.button} ${styles.profilePrimaryButton}`} href="/signup">
+                  Create your profile
+                </Link>
+              </div>
+            </section>
+          </>
+        ) : null}
 
         <footer className={styles.footer}>
           <span>{activeProfile.full_name || "TapTagg"}</span>
