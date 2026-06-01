@@ -783,7 +783,7 @@ async function issueToken(formData: FormData) {
   await requireBusinessAdmin(organizationId);
 
   const assignedMemberId = String(formData.get("assigned_member_id") || "") || null;
-  const tokenType = String(formData.get("token_type") || "both");
+  const tokenType = "both";
   const token = await generateUniqueToken();
   const admin = createAdminClient();
 
@@ -1336,16 +1336,6 @@ export default async function BusinessDashboardPage({
                               <form action={issueToken} className="table-actions">
                                 <input type="hidden" name="organization_id" value={organization.id} />
                                 <input type="hidden" name="assigned_member_id" value={member.id} />
-                                <select
-                                  className="editor-input"
-                                  name="token_type"
-                                  defaultValue="both"
-                                  aria-label={`Token type for ${member.name}`}
-                                >
-                                  <option value="both">NFC + digital</option>
-                                  <option value="nfc_card">NFC card</option>
-                                  <option value="digital_pass">Digital pass</option>
-                                </select>
                                 <button className="button secondary" type="submit">Issue token</button>
                               </form>
                             ) : (
