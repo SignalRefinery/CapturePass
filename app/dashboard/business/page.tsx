@@ -857,7 +857,35 @@ async function deactivateToken(formData: FormData) {
   await requireBusinessAdmin(organizationId);
 
   const tokenId = String(formData.get("token_id") || "");
+  const assignedMemberId = String(formData.get("assigned_member_id") || "") || null;
+  const status = String(formData.get("status") || "inactive");
   const admin = createAdminClient();
+
+  if (status === "unassigned") {
+    await admin
+      .from("pass_tokens")
+      .update({
+        assigned_member_id: null,
+        status: "unassigned"
+      })
+      .eq("id", tokenId)
+      .eq("organization_id", organizationId);
+
+    redirect(`/dashboard/business?org=${organizationId}`);
+  }
+
+  if (status === "active" && assignedMemberId) {
+    await admin
+      .from("pass_tokens")
+      .update({
+        assigned_member_id: assignedMemberId,
+        status: "active"
+      })
+      .eq("id", tokenId)
+      .eq("organization_id", organizationId);
+
+    redirect(`/dashboard/business?org=${organizationId}`);
+  }
 
   await admin
     .from("pass_tokens")
@@ -1309,8 +1337,24 @@ export default async function BusinessDashboardPage({
                                 <form action={deactivateToken}>
                                   <input type="hidden" name="organization_id" value={organization.id} />
                                   <input type="hidden" name="token_id" value={assignedToken.id} />
-                                  <button className="button secondary" type="submit">Deactivate token</button>
+                                  <input type="hidden" name="status" value="unassigned" />
+                                  <button className="button secondary" type="submit">Unassign token</button>
                                 </form>
+                                {assignedToken.status === "inactive" ? (
+                                  <form action={deactivateToken}>
+                                    <input type="hidden" name="organization_id" value={organization.id} />
+                                    <input type="hidden" name="token_id" value={assignedToken.id} />
+                                    <input type="hidden" name="assigned_member_id" value={member.id} />
+                                    <input type="hidden" name="status" value="active" />
+                                    <button className="button secondary" type="submit">Reactivate token</button>
+                                  </form>
+                                ) : (
+                                  <form action={deactivateToken}>
+                                    <input type="hidden" name="organization_id" value={organization.id} />
+                                    <input type="hidden" name="token_id" value={assignedToken.id} />
+                                    <button className="button secondary" type="submit">Deactivate token</button>
+                                  </form>
+                                )}
                               </>
                             ) : member.status === "active" ? (
                               <form action={issueToken} className="table-actions">
@@ -1401,11 +1445,13 @@ export default async function BusinessDashboardPage({
                               </select>
                               <button className="button secondary" type="submit">Save</button>
                             </form>
-                            <form action={deactivateToken}>
-                              <input type="hidden" name="organization_id" value={organization.id} />
-                              <input type="hidden" name="token_id" value={token.id} />
-                              <button className="button secondary" type="submit">Deactivate token</button>
-                            </form>
+                            {token.status !== "inactive" ? (
+                              <form action={deactivateToken}>
+                                <input type="hidden" name="organization_id" value={organization.id} />
+                                <input type="hidden" name="token_id" value={token.id} />
+                                <button className="button secondary" type="submit">Deactivate token</button>
+                              </form>
+                            ) : null}
                           </div>
                         </td>
                       </tr>
@@ -1477,22 +1523,6 @@ export default async function BusinessDashboardPage({
               </div>
             </div>
           ) : null}
-
-          <div className="dashboard-card">
-            <div className="dashboard-kicker">Managed service</div>
-            <h2>{organization.managed_service_enabled ? "Managed service enabled." : "Managed setup available."}</h2>
-            <p className="editor-copy">
-              Add managed setup, employee changes, card routing help, and ongoing support for +$199/month.
-            </p>
-          </div>
-
-          <div className="dashboard-card">
-            <div className="dashboard-kicker">Digital pass first</div>
-            <h2>QR is the daily share method.</h2>
-            <p className="editor-copy">
-              NFC cards create the physical moment. Digital Pass QR links point at permanent /p/token URLs that survive turnover.
-            </p>
-          </div>
         </div>
       </section>
 
