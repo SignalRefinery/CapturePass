@@ -247,52 +247,6 @@ export function BusinessGamificationPanel({
         </div>
       </section>
 
-      <section className="dashboard-wrap" id="revenue">
-        <div className="dashboard-card">
-          <div className="dashboard-kicker">Revenue attribution</div>
-          <h2>Manual deal and revenue logging.</h2>
-          <div className="status-list">
-            <div className="status-row"><span>Events</span><strong>{summary.salesAttributionEvents.length}</strong></div>
-            <div className="status-row"><span>Last revenue</span><strong>
-              {summary.salesAttributionEvents[0]?.revenue_amount ? `$${Number(summary.salesAttributionEvents[0].revenue_amount).toLocaleString()}` : "—"}
-            </strong></div>
-          </div>
-          <form className="editor-form" action="/api/sales-attribution" method="post" style={{ marginTop: 24 }}>
-            <input type="hidden" name="organization_id" value={organizationId} />
-            <div className="editor-grid">
-              <label className="editor-label">
-                Type
-                <select className="editor-input" name="attribution_type" defaultValue="appointment_booked">
-                  <option value="appointment_booked">Appointment booked</option>
-                  <option value="follow_up_logged">Follow-up logged</option>
-                  <option value="opportunity_created">Opportunity created</option>
-                  <option value="sale_logged">Sale logged</option>
-                  <option value="revenue_logged">Revenue logged</option>
-                </select>
-              </label>
-              <label className="editor-label">
-                Revenue amount
-                <input className="editor-input" name="revenue_amount" type="number" min={0} step="0.01" placeholder="0.00" />
-              </label>
-            </div>
-            <div className="editor-grid">
-              <label className="editor-label">
-                Deal name
-                <input className="editor-input" name="deal_name" placeholder="Acme renewal" />
-              </label>
-              <label className="editor-label">
-                Customer name
-                <input className="editor-input" name="customer_name" placeholder="Taylor Smith" />
-              </label>
-            </div>
-            <label className="editor-label">
-              Notes
-              <textarea className="editor-input" name="notes" rows={3} placeholder="Add context about the deal or handoff." />
-            </label>
-            <button className="button primary" type="submit">Log attribution</button>
-          </form>
-        </div>
-      </section>
     </>
   );
 }

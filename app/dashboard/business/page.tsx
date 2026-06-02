@@ -915,8 +915,7 @@ export default async function BusinessDashboardPage({
     { href: "/dashboard", label: "Dashboard" },
     { href: "/dashboard/business#leaderboard", label: "Leaderboard" },
     { href: "/dashboard/business#challenges", label: "Challenges" },
-    { href: "/dashboard/business#competitions", label: "Competitions" },
-    { href: "/dashboard/business#revenue", label: "Revenue" }
+    { href: "/dashboard/business#competitions", label: "Competitions" }
   ];
 
   if (isPlatformAdmin && !selectedOrganizationId && !showOnboarding) {
@@ -1108,148 +1107,12 @@ export default async function BusinessDashboardPage({
         </section>
       ) : null}
 
-      <section className="dashboard-wrap" id="business-branding">
-        <div className="dashboard-grid">
-          {organization.slug ? (
-            <div className="dashboard-card">
-              <div className="dashboard-kicker">Business login</div>
-              <h2>Team login link.</h2>
-              <p className="editor-copy" style={{ wordBreak: "break-all" }}>
-                {businessLoginUrl(organization.slug)}
-              </p>
-              <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-                <Link className="button secondary" href={businessLoginPath(organization.slug)}>
-                  Open business login
-                </Link>
-                <CopyLinkButton value={businessLoginUrl(organization.slug)} />
-              </div>
-            </div>
-          ) : null}
-
-          <div className="dashboard-card">
-            <div className="dashboard-kicker">Managed service</div>
-            <h2>{organization.managed_service_enabled ? "Managed service enabled." : "Managed setup available."}</h2>
-            <p className="editor-copy">
-              Add managed setup, employee changes, card routing help, and ongoing support for +$199/month.
-            </p>
-          </div>
-
-          <div className="dashboard-card">
-            <div className="dashboard-kicker">Digital pass first</div>
-            <h2>QR is the daily share method.</h2>
-            <p className="editor-copy">
-              NFC cards create the physical moment. Digital Pass QR links point at permanent /p/token URLs that survive turnover.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <section className="dashboard-wrap" id="business-contacts">
-        <ContactTable contacts={contacts} members={members} showMemberFilter />
-      </section>
-
-      <AnalyticsSummary events={analyticsEvents} contacts={contacts} members={members} business />
-
-      {gamificationSummary ? <BusinessGamificationPanel summary={gamificationSummary} organizationId={organization.id} /> : null}
-
-      <section className="dashboard-wrap">
-        <div className="dashboard-card">
-          <div className="dashboard-kicker">Business branding</div>
-          <h2>Customize pass pages.</h2>
-            <p className="editor-copy">
-            These colors, logo, and optional links apply to business token pages like /p/token.
-          </p>
-          <form action={updateOrganizationBranding} className="editor-form" style={{ marginTop: 18 }}>
-            <input type="hidden" name="organization_id" value={organization.id} />
-            <BusinessBrandThemeFields organization={organization} />
-            <label className="editor-label">
-              Logo PNG URL
-              <input
-                className="editor-input"
-                name="brand_logo_url"
-                type="url"
-                placeholder="https://..."
-                defaultValue={organization.brand_logo_url || ""}
-              />
-            </label>
-            <div>
-              <div className="dashboard-kicker">Business web links</div>
-              <p className="editor-copy">
-                These replace the email/profile URL strip on every employee pass. Empty links stay hidden.
-              </p>
-            </div>
-            {[1, 2, 3, 4].map((index) => {
-              const titleKey = `business_link_${index}_title` as keyof OrganizationRecord;
-              const urlKey = `business_link_${index}_url` as keyof OrganizationRecord;
-              return (
-                <div className="editor-grid" key={index}>
-                  <label className="editor-label">
-                    Link {index} label
-                    <input
-                      className="editor-input"
-                      name={`business_link_${index}_title`}
-                      placeholder={index === 1 ? "Company website" : "Book a demo"}
-                      defaultValue={(organization[titleKey] as string | null) || ""}
-                    />
-                  </label>
-                  <label className="editor-label">
-                    Link {index} URL
-                    <input
-                      className="editor-input"
-                      name={`business_link_${index}_url`}
-                      type="url"
-                      placeholder="https://..."
-                      defaultValue={(organization[urlKey] as string | null) || ""}
-                    />
-                  </label>
-                </div>
-              );
-            })}
-            <button className="button primary" type="submit">Save branding</button>
-          </form>
-        </div>
-      </section>
-
-      <section className="dashboard-wrap">
-        <div className="dashboard-card">
-          <div className="dashboard-kicker">Employees</div>
-          <h2>Create employee profiles.</h2>
-          <p className="editor-copy">
-            Employees get an email invite to create their password and open their business pass page.
-          </p>
-          <form action={addEmployee} className="editor-form" style={{ marginTop: 18 }}>
-            <input type="hidden" name="organization_id" value={organization.id} />
-            <div className="editor-grid">
-              <label className="editor-label">
-                Name
-                <input className="editor-input" name="name" required />
-              </label>
-              <label className="editor-label">
-                Title
-                <input className="editor-input" name="title" />
-              </label>
-            </div>
-            <div className="editor-grid">
-              <label className="editor-label">
-                Email
-                <input className="editor-input" name="email" type="email" />
-              </label>
-              <label className="editor-label">
-                Phone
-                <input className="editor-input" name="phone" type="tel" />
-              </label>
-            </div>
-            <button className="button primary" type="submit">Add employee</button>
-          </form>
-        </div>
-      </section>
-
       <section className="dashboard-wrap">
         <div className="dashboard-card">
           <div className="dashboard-kicker">Employee status</div>
           <h2>View, manage, or deactivate employees.</h2>
           <p className="editor-copy">
-            Token links, assignments, and deactivation now live in this table so each employee can be managed in one place.
+            Token links, assignments, and deactivation live in this table so each employee can be managed in one place.
           </p>
           <div className="admin-table-frame business-member-table">
             <div className="admin-table-scroll">
@@ -1412,6 +1275,142 @@ export default async function BusinessDashboardPage({
               </table>
             </div>
           </div>
+        </div>
+      </section>
+
+      <section className="dashboard-wrap">
+        <div className="dashboard-card">
+          <div className="dashboard-kicker">Employees</div>
+          <h2>Create employee profiles.</h2>
+          <p className="editor-copy">
+            Employees get an email invite to create their password and open their business pass page.
+          </p>
+          <form action={addEmployee} className="editor-form" style={{ marginTop: 18 }}>
+            <input type="hidden" name="organization_id" value={organization.id} />
+            <div className="editor-grid">
+              <label className="editor-label">
+                Name
+                <input className="editor-input" name="name" required />
+              </label>
+              <label className="editor-label">
+                Title
+                <input className="editor-input" name="title" />
+              </label>
+            </div>
+            <div className="editor-grid">
+              <label className="editor-label">
+                Email
+                <input className="editor-input" name="email" type="email" />
+              </label>
+              <label className="editor-label">
+                Phone
+                <input className="editor-input" name="phone" type="tel" />
+              </label>
+            </div>
+            <button className="button primary" type="submit">Add employee</button>
+          </form>
+        </div>
+      </section>
+
+      <section className="dashboard-wrap" id="business-contacts">
+        <ContactTable contacts={contacts} members={members} showMemberFilter />
+      </section>
+
+      <AnalyticsSummary events={analyticsEvents} contacts={contacts} members={members} business />
+
+      {gamificationSummary ? <BusinessGamificationPanel summary={gamificationSummary} organizationId={organization.id} /> : null}
+
+      <section className="dashboard-wrap">
+        <div className="dashboard-grid">
+          {organization.slug ? (
+            <div className="dashboard-card">
+              <div className="dashboard-kicker">Business login</div>
+              <h2>Team login link.</h2>
+              <p className="editor-copy" style={{ wordBreak: "break-all" }}>
+                {businessLoginUrl(organization.slug)}
+              </p>
+              <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                <Link className="button secondary" href={businessLoginPath(organization.slug)}>
+                  Open business login
+                </Link>
+                <CopyLinkButton value={businessLoginUrl(organization.slug)} />
+              </div>
+            </div>
+          ) : null}
+
+          <div className="dashboard-card">
+            <div className="dashboard-kicker">Managed service</div>
+            <h2>{organization.managed_service_enabled ? "Managed service enabled." : "Managed setup available."}</h2>
+            <p className="editor-copy">
+              Add managed setup, employee changes, card routing help, and ongoing support for +$199/month.
+            </p>
+          </div>
+
+          <div className="dashboard-card">
+            <div className="dashboard-kicker">Digital pass first</div>
+            <h2>QR is the daily share method.</h2>
+            <p className="editor-copy">
+              NFC cards create the physical moment. Digital Pass QR links point at permanent /p/token URLs that survive turnover.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section className="dashboard-wrap" id="business-branding">
+        <div className="dashboard-card">
+          <div className="dashboard-kicker">Business branding</div>
+          <h2>Customize pass pages.</h2>
+            <p className="editor-copy">
+            These colors, logo, and optional links apply to business token pages like /p/token.
+          </p>
+          <form action={updateOrganizationBranding} className="editor-form" style={{ marginTop: 18 }}>
+            <input type="hidden" name="organization_id" value={organization.id} />
+            <BusinessBrandThemeFields organization={organization} />
+            <label className="editor-label">
+              Logo PNG URL
+              <input
+                className="editor-input"
+                name="brand_logo_url"
+                type="url"
+                placeholder="https://..."
+                defaultValue={organization.brand_logo_url || ""}
+              />
+            </label>
+            <div>
+              <div className="dashboard-kicker">Business web links</div>
+              <p className="editor-copy">
+                These replace the email/profile URL strip on every employee pass. Empty links stay hidden.
+              </p>
+            </div>
+            {[1, 2, 3, 4].map((index) => {
+              const titleKey = `business_link_${index}_title` as keyof OrganizationRecord;
+              const urlKey = `business_link_${index}_url` as keyof OrganizationRecord;
+              return (
+                <div className="editor-grid" key={index}>
+                  <label className="editor-label">
+                    Link {index} label
+                    <input
+                      className="editor-input"
+                      name={`business_link_${index}_title`}
+                      placeholder={index === 1 ? "Company website" : "Book a demo"}
+                      defaultValue={(organization[titleKey] as string | null) || ""}
+                    />
+                  </label>
+                  <label className="editor-label">
+                    Link {index} URL
+                    <input
+                      className="editor-input"
+                      name={`business_link_${index}_url`}
+                      type="url"
+                      placeholder="https://..."
+                      defaultValue={(organization[urlKey] as string | null) || ""}
+                    />
+                  </label>
+                </div>
+              );
+            })}
+            <button className="button primary" type="submit">Save branding</button>
+          </form>
         </div>
       </section>
     </Shell>
