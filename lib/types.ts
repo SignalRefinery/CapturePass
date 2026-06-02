@@ -98,6 +98,16 @@ export type OrganizationRecord = {
   business_link_4_url?: string | null;
   owner_user_id: string;
   managed_service_enabled?: boolean | null;
+  business_plan_key?: string | null;
+  business_billing_interval?: "monthly" | "annual" | null;
+  seat_limit?: number | null;
+  included_card_count?: number | null;
+  is_managed?: boolean | null;
+  setup_fee_paid_at?: string | null;
+  card_allotment_total?: number | null;
+  stripe_customer_id?: string | null;
+  stripe_subscription_id?: string | null;
+  subscription_status?: string | null;
   created_at?: string;
 };
 

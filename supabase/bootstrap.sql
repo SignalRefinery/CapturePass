@@ -152,7 +152,34 @@ create table if not exists public.organizations (
   business_link_4_url text,
   owner_user_id uuid not null references auth.users(id) on delete cascade,
   managed_service_enabled boolean not null default false,
+  business_plan_key text,
+  business_billing_interval text not null default 'monthly',
+  seat_limit integer,
+  included_card_count integer,
+  is_managed boolean not null default false,
+  setup_fee_paid_at timestamptz,
+  card_allotment_total integer,
+  stripe_customer_id text,
+  stripe_subscription_id text,
+  subscription_status text,
   created_at timestamptz not null default timezone('utc', now()),
+  constraint organizations_business_plan_key_check check (
+    business_plan_key is null
+    or business_plan_key in (
+      'business_starter_self',
+      'business_starter_managed',
+      'business_growth_self',
+      'business_growth_managed',
+      'business_pro_self',
+      'business_pro_managed'
+    )
+  ),
+  constraint organizations_business_billing_interval_check check (business_billing_interval in ('monthly', 'annual')),
+  constraint organizations_business_capacity_check check (
+    (seat_limit is null or seat_limit > 0)
+    and (included_card_count is null or included_card_count >= 0)
+    and (card_allotment_total is null or card_allotment_total >= 0)
+  ),
   constraint organizations_theme_key_check check (theme_key in ('executive_navy', 'modern_slate', 'executive_gold', 'clean_horizon', 'sage_professional', 'custom')),
   constraint organizations_brand_theme_check check (brand_theme in ('deep_brand', 'clean_light', 'full_color', 'custom'))
 );

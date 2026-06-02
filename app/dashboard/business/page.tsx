@@ -7,6 +7,7 @@ import { CopyLinkButton } from "@/components/business/copy-link-button";
 import { BusinessGamificationPanel } from "@/components/gamification/gamification-panels";
 import { ConfirmSubmitButton } from "@/components/shared/confirm-submit-button";
 import { Shell } from "@/components/shared/shell";
+import { BUSINESS_PLANS, getBusinessPlan, normalizeBusinessBillingInterval } from "@/lib/business/plans";
 import { claimBusinessOrganizationForUser } from "@/lib/business/organization-access";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
@@ -413,7 +414,8 @@ async function createOrganization(formData: FormData) {
   const adminEmail = String(formData.get("admin_email") || "").trim();
   const adminPhone = String(formData.get("admin_phone") || "").trim();
   const adminTitle = String(formData.get("admin_title") || "").trim();
-  const managedService = formData.get("managed_service_enabled") === "on";
+  const businessPlan = getBusinessPlan(String(formData.get("business_plan_key") || "")) || BUSINESS_PLANS.business_starter_self;
+  const businessBillingInterval = normalizeBusinessBillingInterval(String(formData.get("business_billing_interval") || ""));
 
   if (!name) redirect("/dashboard/business?error=missing_org_name");
   if (!adminName) redirect("/dashboard/business?error=missing_admin_name");
@@ -427,7 +429,13 @@ async function createOrganization(formData: FormData) {
       slug,
       theme_key: "executive_navy",
       owner_user_id: user.id,
-      managed_service_enabled: managedService
+      managed_service_enabled: businessPlan.managed,
+      business_plan_key: businessPlan.key,
+      business_billing_interval: businessBillingInterval,
+      seat_limit: businessPlan.seatLimit,
+      included_card_count: businessPlan.includedCards,
+      card_allotment_total: businessPlan.includedCards,
+      is_managed: businessPlan.managed
     })
     .select("id, name, slug")
     .single();
@@ -1215,9 +1223,23 @@ export default async function BusinessDashboardPage({
                       <input className="editor-input" name="admin_phone" type="tel" />
                     </label>
                   </div>
-                  <label className="checkbox-row">
-                    <input name="managed_service_enabled" type="checkbox" />
-                    Managed setup and service +$199/month
+                  <label className="editor-label">
+                    Business plan
+                    <select className="editor-input" name="business_plan_key" defaultValue="business_starter_self">
+                      <option value="business_starter_self">Business Starter - $199/mo or $2,149/yr self-managed, 10 seats, $149 setup</option>
+                      <option value="business_starter_managed">Business Starter Managed - $299/mo or $3,229/yr, 10 seats, $149 setup</option>
+                      <option value="business_growth_self">Business Growth - $399/mo or $4,309/yr self-managed, 25 seats, $299 setup</option>
+                      <option value="business_growth_managed">Business Growth Managed - $599/mo or $6,469/yr, 25 seats, $299 setup</option>
+                      <option value="business_pro_self">Business Pro - $699/mo or $7,549/yr self-managed, 50 seats, $499 setup</option>
+                      <option value="business_pro_managed">Business Pro Managed - $999/mo or $10,789/yr, 50 seats, $499 setup</option>
+                    </select>
+                  </label>
+                  <label className="editor-label">
+                    Billing interval
+                    <select className="editor-input" name="business_billing_interval" defaultValue="monthly">
+                      <option value="monthly">Monthly</option>
+                      <option value="annual">Annual - save 10%</option>
+                    </select>
                   </label>
                   <button className="button primary" type="submit">
                     Create account and send invite

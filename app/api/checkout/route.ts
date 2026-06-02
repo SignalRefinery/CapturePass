@@ -1,7 +1,15 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
+import {
+  getBusinessPlan,
+  getBusinessRecurringPriceId,
+  getBusinessSetupPriceId,
+  normalizeBusinessBillingInterval
+} from "@/lib/business/plans";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { normalizePlanKey } from "@/lib/plans";
+import { slugify } from "@/lib/utils";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2024-06-20"
@@ -27,8 +35,14 @@ const SETUP_FEE_PRICE_ID = process.env.STRIPE_SETUP_FEE_PRICE_ID || null;
 const SETUP_FEE_INCLUDED_PLANS = ["essential", "essential-monthly", "essential-annual"];
 
 type CheckoutPayload = {
+  billing?: string;
   plan?: string;
 };
+
+function getStringId(value: string | { id?: string } | null | undefined) {
+  if (!value) return null;
+  return typeof value === "string" ? value : value.id || null;
+}
 
 function stripeErrorDetails(error: unknown) {
   if (!error || typeof error !== "object") {
@@ -79,17 +93,108 @@ async function getPlanFromRequest(req: Request) {
   const contentType = req.headers.get("content-type") || "";
 
   if (contentType.includes("application/json")) {
-    const body = (await req.json().catch(() => ({}))) as CheckoutPayload;
+    const body = (await req.clone().json().catch(() => ({}))) as CheckoutPayload;
     return body.plan || null;
   }
 
   if (contentType.includes("application/x-www-form-urlencoded") || contentType.includes("multipart/form-data")) {
-    const formData = await req.formData().catch(() => null);
+    const formData = await req.clone().formData().catch(() => null);
     const formPlan = formData?.get("plan");
     return typeof formPlan === "string" ? formPlan : null;
   }
 
   return null;
+}
+
+async function getBillingIntervalFromRequest(req: Request) {
+  const url = new URL(req.url);
+  const queryBilling = url.searchParams.get("billing");
+
+  if (queryBilling) return normalizeBusinessBillingInterval(queryBilling);
+
+  const contentType = req.headers.get("content-type") || "";
+
+  if (contentType.includes("application/json")) {
+    const body = (await req.clone().json().catch(() => ({}))) as CheckoutPayload;
+    return normalizeBusinessBillingInterval(body.billing);
+  }
+
+  if (contentType.includes("application/x-www-form-urlencoded") || contentType.includes("multipart/form-data")) {
+    const formData = await req.clone().formData().catch(() => null);
+    const formBilling = formData?.get("billing");
+    return normalizeBusinessBillingInterval(typeof formBilling === "string" ? formBilling : null);
+  }
+
+  return "monthly" as const;
+}
+
+async function generateUniqueOrganizationSlug(name: string) {
+  const admin = createAdminClient();
+  const base = slugify(name) || `business-${Date.now()}`;
+
+  for (let attempt = 0; attempt < 20; attempt += 1) {
+    const candidate = attempt === 0 ? base : `${base}-${attempt + 1}`;
+    const { data } = await admin
+      .from("organizations")
+      .select("id")
+      .eq("slug", candidate)
+      .maybeSingle();
+
+    if (!data) return candidate;
+  }
+
+  return `${base}-${Date.now()}`;
+}
+
+async function getOrCreateCheckoutOrganization({
+  userId,
+  email,
+  fallbackName
+}: {
+  userId: string;
+  email?: string | null;
+  fallbackName?: string | null;
+}) {
+  const admin = createAdminClient();
+  const { data: existingOrganization } = await admin
+    .from("organizations")
+    .select("id, name, slug, stripe_customer_id, stripe_subscription_id")
+    .eq("owner_user_id", userId)
+    .order("created_at", { ascending: true })
+    .limit(1)
+    .maybeSingle();
+
+  if (existingOrganization) return existingOrganization;
+
+  const businessName =
+    fallbackName?.trim() ||
+    (email ? `${email.split("@")[0]}'s Business` : "TapTagg Business");
+  const slug = await generateUniqueOrganizationSlug(businessName);
+  const { data: organization, error } = await admin
+    .from("organizations")
+    .insert({
+      name: businessName,
+      slug,
+      owner_user_id: userId,
+      theme_key: "executive_navy"
+    })
+    .select("id, name, slug, stripe_customer_id, stripe_subscription_id")
+    .single();
+
+  if (error || !organization) {
+    throw new Error(error?.message || "Unable to create business organization for checkout.");
+  }
+
+  await admin.from("organization_members").insert({
+    organization_id: organization.id,
+    user_id: userId,
+    name: fallbackName?.trim() || email || "Business admin",
+    email: email || null,
+    role: "owner",
+    status: "active"
+  });
+
+  return organization;
 }
 
 async function createCheckoutOrPortal(req: Request) {
@@ -103,9 +208,13 @@ async function createCheckoutOrPortal(req: Request) {
     }
 
     const requestedPlan = await getPlanFromRequest(req);
+    const businessBillingInterval = await getBillingIntervalFromRequest(req);
+    const businessPlan = getBusinessPlan(requestedPlan);
     const isAdditionalCardsRequest = requestedPlan === "additional-cards";
     const normalizedPlan = normalizePlanKey(requestedPlan);
-    const plan = isAdditionalCardsRequest
+    const plan = businessPlan
+      ? businessPlan.key
+      : isAdditionalCardsRequest
       ? "additional-cards"
       : requestedPlan
         ? normalizedPlan === "tagg_plus"
@@ -113,9 +222,12 @@ async function createCheckoutOrPortal(req: Request) {
           : normalizedPlan
         : null;
 
-    const selectedPriceId =
+    const selectedPriceId = businessPlan
+      ? getBusinessRecurringPriceId(businessPlan, businessBillingInterval) || undefined
+      :
       (plan ? PLAN_PRICE_MAP[plan] : undefined) ||
       (requestedPlan ? PLAN_PRICE_MAP[requestedPlan] : undefined);
+    const businessSetupPriceId = businessPlan ? getBusinessSetupPriceId(businessPlan) : null;
 
     if (plan === "business") {
       const businessUrl = new URL("/business", getSiteUrl(req));
@@ -140,11 +252,13 @@ async function createCheckoutOrPortal(req: Request) {
       );
     }
 
-    if (!selectedPriceId) {
+    if (!selectedPriceId || (businessPlan && !businessSetupPriceId)) {
       console.error("Checkout price configuration missing", {
         route: "/api/checkout",
         requestedPlan,
-        plan
+        plan,
+        missingRecurringPrice: !selectedPriceId,
+        missingSetupPrice: businessPlan ? !businessSetupPriceId : false
       });
 
       if (req.method === "GET") {
@@ -182,13 +296,16 @@ async function createCheckoutOrPortal(req: Request) {
     if (!user) {
       const signupUrl = new URL("/signup", siteUrl);
       signupUrl.searchParams.set("plan", plan);
-      signupUrl.searchParams.set("next", `/api/checkout?plan=${encodeURIComponent(plan)}`);
+      signupUrl.searchParams.set(
+        "next",
+        `/api/checkout?plan=${encodeURIComponent(plan)}${businessPlan ? `&billing=${businessBillingInterval}` : ""}`
+      );
       return NextResponse.redirect(signupUrl.toString(), { status: 303 });
     }
 
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
-      .select("stripe_customer_id, stripe_subscription_id, stripe_plan_key")
+      .select("full_name, stripe_customer_id, stripe_subscription_id, stripe_plan_key")
       .eq("user_id", user.id)
       .maybeSingle();
 
@@ -212,8 +329,39 @@ async function createCheckoutOrPortal(req: Request) {
       isAdditionalCardsRequest ||
       selectedPriceId === process.env.STRIPE_ADDITIONAL_TAPTAGG_CARD_PRICE_ID;
     const isCoreCheckout = plan === "core";
+    const checkoutOrganization = businessPlan
+      ? await getOrCreateCheckoutOrganization({
+          userId: user.id,
+          email: user.email,
+          fallbackName: profile?.full_name
+        })
+      : null;
 
-    if (profile?.stripe_customer_id && profile?.stripe_subscription_id && !isAdditionalCardsCheckout && !isCoreCheckout) {
+    if (businessPlan && checkoutOrganization?.stripe_customer_id && checkoutOrganization?.stripe_subscription_id) {
+      let portal: Stripe.BillingPortal.Session;
+      try {
+        portal = await stripe.billingPortal.sessions.create({
+          customer: checkoutOrganization.stripe_customer_id,
+          return_url: `${siteUrl}/dashboard/business?org=${checkoutOrganization.id}`
+        });
+      } catch (error) {
+        console.error("Business checkout portal redirect failed", {
+          route: "/api/checkout",
+          userId: user.id,
+          organizationId: checkoutOrganization.id,
+          plan,
+          error: error instanceof Error ? error.message : "Unknown Stripe portal error"
+        });
+        if (req.method === "GET") {
+          return redirectWithParam(req, "/pricing", "checkout", "start-error");
+        }
+        return NextResponse.json({ error: "Unable to open billing management. Please try again." }, { status: 500 });
+      }
+
+      return NextResponse.redirect(portal.url, { status: 303 });
+    }
+
+    if (profile?.stripe_customer_id && profile?.stripe_subscription_id && !isAdditionalCardsCheckout && !isCoreCheckout && !businessPlan) {
       let portal: Stripe.BillingPortal.Session;
       try {
         portal = await stripe.billingPortal.sessions.create({
@@ -239,7 +387,9 @@ async function createCheckoutOrPortal(req: Request) {
 
     const mode = isAdditionalCardsCheckout || isCoreCheckout ? "payment" : "subscription";
     const collectsShipping = plan !== "digital";
-    const successUrl = `${siteUrl}/dashboard?checkout=success&session_id={CHECKOUT_SESSION_ID}`;
+    const successUrl = businessPlan && checkoutOrganization
+      ? `${siteUrl}/dashboard/business?checkout=success&session_id={CHECKOUT_SESSION_ID}&org=${checkoutOrganization.id}`
+      : `${siteUrl}/dashboard?checkout=success&session_id={CHECKOUT_SESSION_ID}`;
     const cancelUrl = `${siteUrl}/pricing`;
     const sessionParamsFor = (customerId?: string | null): CheckoutSessionCreateParams => ({
       mode,
@@ -258,6 +408,14 @@ async function createCheckoutOrPortal(req: Request) {
         : {}),
       billing_address_collection: "required",
       line_items: [
+        ...(businessPlan && businessSetupPriceId
+          ? [
+              {
+                price: businessSetupPriceId,
+                quantity: 1
+              }
+            ]
+          : []),
         ...(SETUP_FEE_PRICE_ID && SETUP_FEE_INCLUDED_PLANS.includes(plan)
           ? [
               {
@@ -286,7 +444,16 @@ async function createCheckoutOrPortal(req: Request) {
       metadata: {
         user_id: user.id,
         plan,
-        selected_plan: plan
+        selected_plan: plan,
+        ...(businessPlan && checkoutOrganization
+          ? {
+              checkout_type: "business",
+              organization_id: checkoutOrganization.id,
+              business_plan_key: businessPlan.key,
+              business_plan_tier: businessPlan.tier,
+              business_billing_interval: businessBillingInterval
+            }
+          : {})
       },
       ...(mode === "payment"
         ? {}
@@ -295,7 +462,16 @@ async function createCheckoutOrPortal(req: Request) {
               metadata: {
                 user_id: user.id,
                 plan,
-                selected_plan: plan
+                selected_plan: plan,
+                ...(businessPlan && checkoutOrganization
+                  ? {
+                      checkout_type: "business",
+                      organization_id: checkoutOrganization.id,
+                      business_plan_key: businessPlan.key,
+                      business_plan_tier: businessPlan.tier,
+                      business_billing_interval: businessBillingInterval
+                    }
+                  : {})
               }
             }
           })
@@ -304,7 +480,7 @@ async function createCheckoutOrPortal(req: Request) {
     let session: Stripe.Checkout.Session;
     try {
       session = await stripe.checkout.sessions.create(
-        sessionParamsFor(profile?.stripe_customer_id)
+        sessionParamsFor(businessPlan ? checkoutOrganization?.stripe_customer_id : profile?.stripe_customer_id)
       );
     } catch (error) {
       if (profile?.stripe_customer_id && isMissingStripeCustomerError(error)) {

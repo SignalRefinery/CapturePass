@@ -1,7 +1,20 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Shell } from "@/components/shared/shell";
+import { BUSINESS_PLANS, type BusinessPlanKey } from "@/lib/business/plans";
 import { createClient } from "@/lib/supabase/server";
+
+const businessTierKeys = [
+  ["business_starter_self", "business_starter_managed"],
+  ["business_growth_self", "business_growth_managed"],
+  ["business_pro_self", "business_pro_managed"]
+] as const satisfies readonly [BusinessPlanKey, BusinessPlanKey][];
+
+const selfManagedDescription =
+  "Self-managed gives your organization admin access to manage seats, profiles, branding, and card assignments directly.";
+
+const fullyManagedDescription =
+  "Fully managed means your team sends us new hires, departures, and profile changes. We handle setup, deactivation, card assignment, seat reassignment, and basic profile updates.";
 
 const businessUseCases = [
   "Sales teams and field reps",
@@ -255,12 +268,46 @@ export default async function BusinessPage({
 
       <section className="business-section">
         <div className="business-section-heading">
-          <div className="dashboard-kicker">Managed service</div>
-          <h2>Optional setup and ongoing changes for +$199/month.</h2>
+          <div className="dashboard-kicker">Business pricing</div>
+          <h2>Choose self-managed or fully managed.</h2>
           <p>
-            TapTagg can manage employee updates, card/pass assignment, QR setup, routing changes,
-            and turnover workflows for teams that want the system handled for them.
+            {selfManagedDescription}
           </p>
+          <p>
+            {fullyManagedDescription}
+          </p>
+        </div>
+
+        <div className="business-feature-grid">
+          {businessTierKeys.map(([selfKey, managedKey]) => {
+            const selfPlan = BUSINESS_PLANS[selfKey];
+            const managedPlan = BUSINESS_PLANS[managedKey];
+
+            return (
+              <div className="business-feature" key={selfPlan.key} style={{ display: "grid", gap: 10, alignItems: "start" }}>
+                <strong>{selfPlan.name}</strong>
+                <span>${selfPlan.monthlyPrice}/mo self-managed</span>
+                <span>${selfPlan.annualPrice}/yr self-managed, save 10%</span>
+                <span>${managedPlan.monthlyPrice}/mo fully managed</span>
+                <span>${managedPlan.annualPrice}/yr fully managed, save 10%</span>
+                <span>Up to {selfPlan.seatLimit} reusable seats</span>
+                <span>{selfPlan.includedCards} NFC cards included at setup</span>
+                <span>${selfPlan.setupFee} setup</span>
+                <Link className="button primary" href={`/api/checkout?plan=${selfPlan.key}`}>
+                  Monthly self-managed
+                </Link>
+                <Link className="button secondary" href={`/api/checkout?plan=${selfPlan.key}&billing=annual`}>
+                  Annual self-managed
+                </Link>
+                <Link className="button secondary" href={`/api/checkout?plan=${managedPlan.key}`}>
+                  Monthly managed
+                </Link>
+                <Link className="button secondary" href={`/api/checkout?plan=${managedPlan.key}&billing=annual`}>
+                  Annual managed
+                </Link>
+              </div>
+            );
+          })}
         </div>
       </section>
 

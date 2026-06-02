@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
+import { businessPlanFromRecurringPriceId, getBusinessPlan, isBusinessPlanKey } from "@/lib/business/plans";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { normalizePlanKey } from "@/lib/plans";
 import { stripe } from "@/lib/stripe";
@@ -52,6 +53,9 @@ const PLAN_BY_PRICE_ID: Record<string, string> = {
 
 function getPlanFromSubscription(subscription: Stripe.Subscription) {
   const priceId = subscription.items?.data?.[0]?.price?.id || null;
+  const businessPlanMatch = businessPlanFromRecurringPriceId(priceId);
+
+  if (businessPlanMatch) return businessPlanMatch.plan.key;
 
   if (priceId && PLAN_BY_PRICE_ID[priceId]) {
     return normalizePlanKey(PLAN_BY_PRICE_ID[priceId]);
@@ -62,6 +66,7 @@ function getPlanFromSubscription(subscription: Stripe.Subscription) {
 
 function getPlanFromCheckoutSession(session: Stripe.Checkout.Session) {
   const rawPlan = session.metadata?.plan || session.metadata?.selected_plan || null;
+  if (isBusinessPlanKey(rawPlan)) return rawPlan;
   return rawPlan === "additional-cards" ? rawPlan : normalizePlanKey(rawPlan);
 }
 
@@ -99,6 +104,170 @@ async function findUserIdByCustomer(customerId: string | null) {
     .maybeSingle();
 
   return data?.user_id || null;
+}
+
+async function findOrganizationIdByCustomer(customerId: string | null) {
+  if (!customerId) return null;
+
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from("organizations")
+    .select("id")
+    .eq("stripe_customer_id", customerId)
+    .maybeSingle();
+
+  return data?.id || null;
+}
+
+async function updateOrganizationPlan({
+  organizationId,
+  customerId,
+  subscriptionId,
+  planKey,
+  billingInterval,
+  subscriptionStatus,
+  setupFeePaid
+}: {
+  organizationId: string;
+  customerId?: string | null;
+  subscriptionId?: string | null;
+  planKey: string;
+  billingInterval?: string | null;
+  subscriptionStatus?: string | null;
+  setupFeePaid?: boolean;
+}) {
+  const businessPlan = getBusinessPlan(planKey);
+  if (!businessPlan) return;
+
+  const admin = createAdminClient();
+  const { error } = await admin
+    .from("organizations")
+    .update({
+      business_plan_key: businessPlan.key,
+      seat_limit: businessPlan.seatLimit,
+      included_card_count: businessPlan.includedCards,
+      card_allotment_total: businessPlan.includedCards,
+      is_managed: businessPlan.managed,
+      managed_service_enabled: businessPlan.managed,
+      business_billing_interval: billingInterval || "monthly",
+      stripe_customer_id: customerId || undefined,
+      stripe_subscription_id: subscriptionId || undefined,
+      subscription_status: subscriptionStatus || undefined,
+      ...(setupFeePaid ? { setup_fee_paid_at: new Date().toISOString() } : {})
+    })
+    .eq("id", organizationId);
+
+  if (error) throw error;
+}
+
+async function updateOrganizationForCheckout(session: Stripe.Checkout.Session) {
+  const plan = getPlanFromCheckoutSession(session);
+  const businessPlan = getBusinessPlan(plan);
+
+  if (!businessPlan) return false;
+
+  const organizationId = session.metadata?.organization_id || null;
+  const customerId = getStringId(session.customer);
+  const subscriptionId = getStringId(session.subscription);
+  const billingInterval = session.metadata?.business_billing_interval || "monthly";
+
+  if (!organizationId) return true;
+
+  await updateOrganizationPlan({
+    organizationId,
+    customerId,
+    subscriptionId,
+    planKey: businessPlan.key,
+    billingInterval,
+    subscriptionStatus: "active",
+    setupFeePaid:
+      session.payment_status === "paid" ||
+      session.payment_status === "no_payment_required"
+  });
+
+  console.info("Webhook checkout business organization updated", {
+    route: "/api/webhook",
+    event: "checkout.session.completed",
+    sessionId: session.id,
+    organizationId,
+    customerId,
+    subscriptionId,
+    businessPlanKey: businessPlan.key
+  });
+
+  return true;
+}
+
+async function updateOrganizationForSubscription(subscription: Stripe.Subscription) {
+  const plan = getPlanFromSubscription(subscription);
+  const businessPlan = getBusinessPlan(plan);
+
+  if (!businessPlan) return false;
+
+  const customerId = getStringId(subscription.customer);
+  const recurringPriceId = subscription.items?.data?.[0]?.price?.id || null;
+  const businessPlanMatch = businessPlanFromRecurringPriceId(recurringPriceId);
+  const billingInterval =
+    subscription.metadata?.business_billing_interval ||
+    businessPlanMatch?.billingInterval ||
+    "monthly";
+  const organizationId =
+    subscription.metadata?.organization_id ||
+    (await findOrganizationIdByCustomer(customerId));
+
+  if (!organizationId) return true;
+
+  await updateOrganizationPlan({
+    organizationId,
+    customerId,
+    subscriptionId: subscription.id,
+    planKey: businessPlan.key,
+    billingInterval,
+    subscriptionStatus: subscription.status
+  });
+
+  console.info("Webhook subscription business organization updated", {
+    route: "/api/webhook",
+    event: "customer.subscription",
+    subscriptionId: subscription.id,
+    organizationId,
+    customerId,
+    businessPlanKey: businessPlan.key,
+    subscriptionStatus: subscription.status
+  });
+
+  return true;
+}
+
+async function updateOrganizationForInvoice(
+  invoice: Stripe.Invoice,
+  status: "active" | "past_due"
+) {
+  if (!getInvoiceSubscriptionId(invoice)) return false;
+
+  const customerId = getStringId(invoice.customer);
+  const organizationId = await findOrganizationIdByCustomer(customerId);
+
+  if (!organizationId) return false;
+
+  const admin = createAdminClient();
+  const { error } = await admin
+    .from("organizations")
+    .update({ subscription_status: status })
+    .eq("id", organizationId);
+
+  if (error) throw error;
+
+  console.info("Webhook invoice business organization updated", {
+    route: "/api/webhook",
+    event: "invoice",
+    invoiceId: invoice.id,
+    organizationId,
+    customerId,
+    subscriptionStatus: status
+  });
+
+  return true;
 }
 
 async function sendCardNotification(userId: string, session?: Stripe.Checkout.Session) {
@@ -222,6 +391,10 @@ async function sendCardNotification(userId: string, session?: Stripe.Checkout.Se
 async function updateProfileForCheckout(session: Stripe.Checkout.Session) {
   const plan = getPlanFromCheckoutSession(session);
 
+  if (await updateOrganizationForCheckout(session)) {
+    return;
+  }
+
   if (session.mode === "payment" && plan === "core") {
     const admin = createAdminClient();
     const userId = session.metadata?.user_id || null;
@@ -328,6 +501,10 @@ async function updateProfileForCheckout(session: Stripe.Checkout.Session) {
 }
 
 async function updateProfileForSubscription(subscription: Stripe.Subscription) {
+  if (await updateOrganizationForSubscription(subscription)) {
+    return;
+  }
+
   const admin = createAdminClient();
 
   const customerId = getStringId(subscription.customer);
@@ -381,6 +558,10 @@ async function updateProfileForInvoice(
   // Invoice events can be emitted for one-time payments too; only subscription
   // invoices are allowed to affect subscription access state.
   if (!getInvoiceSubscriptionId(invoice)) return;
+
+  if (await updateOrganizationForInvoice(invoice, status)) {
+    return;
+  }
 
   const admin = createAdminClient();
 

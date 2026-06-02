@@ -71,6 +71,12 @@ const LEGACY_PLAN_ALIASES: Record<string, PlanKey> = {
   premium: "creator",
   founder: "creator",
   business: "business",
+  business_starter_self: "business",
+  business_starter_managed: "business",
+  business_growth_self: "business",
+  business_growth_managed: "business",
+  business_pro_self: "business",
+  business_pro_managed: "business",
   enterprise: "business",
   team: "business"
 };
