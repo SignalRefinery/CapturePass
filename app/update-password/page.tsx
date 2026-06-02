@@ -35,7 +35,10 @@ function UpdatePasswordForm() {
       const code = searchParams.get("code");
       if (code) {
         const { error: codeError } = await supabase.auth.exchangeCodeForSession(code);
-        window.history.replaceState(null, "", `${window.location.pathname}${window.location.search.replace(/[?&]code=[^&]*/, "").replace(/^&/, "?")}`);
+        const cleanParams = new URLSearchParams(window.location.search);
+        cleanParams.delete("code");
+        const cleanSearch = cleanParams.toString();
+        window.history.replaceState(null, "", `${window.location.pathname}${cleanSearch ? `?${cleanSearch}` : ""}`);
 
         if (codeError && mounted) {
           setError(codeError.message || "This password setup link could not be verified.");

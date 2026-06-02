@@ -123,11 +123,9 @@ function businessLoginUrl(slug?: string | null) {
 }
 
 function businessInviteRedirectUrl(slug?: string | null) {
-  const callbackUrl = new URL("/auth/callback", appUrl());
   const passwordUrl = new URL("/update-password", appUrl());
   passwordUrl.searchParams.set("next", businessLoginPath(slug));
-  callbackUrl.searchParams.set("next", `${passwordUrl.pathname}${passwordUrl.search}`);
-  return callbackUrl.toString();
+  return passwordUrl.toString();
 }
 
 async function getCurrentUser() {
