@@ -19,6 +19,7 @@ type ProfileLike = {
   view_name?: string | null;
   full_name?: string | null;
   organization_name?: string | null;
+  profile_image_url?: string | null;
   brand_logo_url?: string | null;
   brand_color_primary?: string | null;
   brand_color_secondary?: string | null;
@@ -422,9 +423,9 @@ export function TapTaggProfileShell({
           <div className={styles.profileStack}>
             <div className={styles.profileIdentity}>
               <div className={styles.profileAvatar} aria-hidden="true">
-                {activeProfile.brand_logo_url ? (
+                {activeProfile.profile_image_url || activeProfile.brand_logo_url ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={activeProfile.brand_logo_url} alt="" />
+                  <img src={(activeProfile.profile_image_url || activeProfile.brand_logo_url) as string} alt="" />
                 ) : (
                   <span>{initialsForName(displayName)}</span>
                 )}

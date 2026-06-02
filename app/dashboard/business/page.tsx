@@ -7,6 +7,12 @@ import { CopyLinkButton } from "@/components/business/copy-link-button";
 import { BusinessGamificationPanel } from "@/components/gamification/gamification-panels";
 import { ConfirmSubmitButton } from "@/components/shared/confirm-submit-button";
 import { Shell } from "@/components/shared/shell";
+import {
+  BUSINESS_HEADSHOT_MAX_BYTES,
+  BUSINESS_LOGO_MAX_BYTES,
+  deleteBusinessAssetUrl,
+  uploadBusinessAsset
+} from "@/lib/business/assets";
 import { BUSINESS_PLANS, getBusinessPlan, normalizeBusinessBillingInterval } from "@/lib/business/plans";
 import { claimBusinessOrganizationForUser } from "@/lib/business/organization-access";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -81,6 +87,18 @@ function businessErrorMessage(error?: string) {
       return "Branding did not save. Confirm the business branding Supabase SQL has been run, then try again.";
     case "business_links_save_failed":
       return "Colors and logo saved, but business links did not. Run phase72_business_global_links.sql in Supabase, then save again.";
+    case "logo_too_large":
+      return "Business logo must be 5 MB or smaller.";
+    case "logo_must_be_png":
+      return "Business logo must be a PNG file.";
+    case "logo_upload_failed":
+      return "Business logo could not be uploaded. Confirm phase80_business_asset_uploads.sql has been run in Supabase.";
+    case "headshot_too_large":
+      return "Employee headshot must be 2 MB or smaller.";
+    case "headshot_invalid_type":
+      return "Employee headshot must be a JPG, PNG, or WebP image.";
+    case "headshot_upload_failed":
+      return "Employee headshot could not be uploaded. Confirm phase80_business_asset_uploads.sql has been run in Supabase.";
     case "missing_member_email":
       return "That person needs an email address before a login invite can be sent.";
     case "business_invite_send_failed":
@@ -483,10 +501,33 @@ async function updateOrganizationBranding(formData: FormData) {
   const organizationId = String(formData.get("organization_id") || "");
   await requireBusinessAdmin(organizationId);
 
-  const brandLogoUrl = String(formData.get("brand_logo_url") || "").trim();
   const admin = createAdminClient();
+  const { data: currentOrganization } = await admin
+    .from("organizations")
+    .select("brand_logo_url")
+    .eq("id", organizationId)
+    .maybeSingle();
   const themeKey = normalizeThemeKey(String(formData.get("theme_key") || ""));
   const useCustomColors = themeKey === CUSTOM_THEME_KEY;
+  const logoFile = formData.get("brand_logo_file");
+  let brandLogoUrl = (currentOrganization?.brand_logo_url as string | null) || null;
+
+  if (logoFile instanceof File && logoFile.size > 0) {
+    try {
+      brandLogoUrl = await uploadBusinessAsset({
+        file: logoFile,
+        kind: "logo",
+        oldUrl: brandLogoUrl,
+        organizationId
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "logo_upload_failed";
+      const errorCode = message === "logo_too_large" || message === "logo_must_be_png"
+        ? message
+        : "logo_upload_failed";
+      redirect(`/dashboard/business?org=${organizationId}&error=${errorCode}#business-branding`);
+    }
+  }
 
   const brandingPayload = {
     theme_key: themeKey,
@@ -496,7 +537,7 @@ async function updateOrganizationBranding(formData: FormData) {
     brand_color_accent: useCustomColors ? cleanHexColor(formData.get("brand_color_accent")) : null,
     brand_color_text: useCustomColors ? cleanHexColor(formData.get("brand_color_text")) : null,
     brand_color: useCustomColors ? cleanHexColor(formData.get("brand_color_primary")) : null,
-    brand_logo_url: brandLogoUrl || null
+    brand_logo_url: brandLogoUrl
   };
 
   const linksPayload = {
@@ -539,6 +580,28 @@ async function updateOrganizationBranding(formData: FormData) {
     });
     redirect(`/dashboard/business?org=${organizationId}&error=business_links_save_failed&saved=branding#business-branding`);
   }
+
+  redirect(`/dashboard/business?org=${organizationId}&saved=branding#business-branding`);
+}
+
+async function deleteBusinessLogo(formData: FormData) {
+  "use server";
+
+  const organizationId = String(formData.get("organization_id") || "");
+  await requireBusinessAdmin(organizationId);
+
+  const admin = createAdminClient();
+  const { data: organization } = await admin
+    .from("organizations")
+    .select("brand_logo_url")
+    .eq("id", organizationId)
+    .maybeSingle();
+
+  await deleteBusinessAssetUrl((organization?.brand_logo_url as string | null) || null);
+  await admin
+    .from("organizations")
+    .update({ brand_logo_url: null })
+    .eq("id", organizationId);
 
   redirect(`/dashboard/business?org=${organizationId}&saved=branding#business-branding`);
 }
@@ -657,6 +720,85 @@ async function sendBusinessLoginInvite(formData: FormData) {
   if (!inviteResult.sent) {
     redirect(`/dashboard/business?org=${organizationId}&error=business_invite_send_failed`);
   }
+
+  redirect(`/dashboard/business?org=${organizationId}`);
+}
+
+async function updateEmployeeHeadshot(formData: FormData) {
+  "use server";
+
+  const organizationId = String(formData.get("organization_id") || "");
+  await requireBusinessAdmin(organizationId);
+
+  const memberId = String(formData.get("member_id") || "");
+  const headshotFile = formData.get("headshot_file");
+  if (!(headshotFile instanceof File) || headshotFile.size === 0) {
+    redirect(`/dashboard/business?org=${organizationId}&error=headshot_upload_failed`);
+  }
+
+  const admin = createAdminClient();
+  const { data: member } = await admin
+    .from("organization_members")
+    .select("id, email, headshot_url")
+    .eq("id", memberId)
+    .eq("organization_id", organizationId)
+    .maybeSingle();
+
+  if (!member || isPlatformAdminMember(member)) {
+    redirect(`/dashboard/business?org=${organizationId}&error=platform_admin_locked`);
+  }
+
+  let headshotUrl: string | null = null;
+  try {
+    headshotUrl = await uploadBusinessAsset({
+      file: headshotFile,
+      kind: "headshot",
+      memberId,
+      oldUrl: (member.headshot_url as string | null) || null,
+      organizationId
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "headshot_upload_failed";
+    const errorCode = message === "headshot_too_large" || message === "headshot_invalid_type"
+      ? message
+      : "headshot_upload_failed";
+    redirect(`/dashboard/business?org=${organizationId}&error=${errorCode}`);
+  }
+
+  await admin
+    .from("organization_members")
+    .update({ headshot_url: headshotUrl })
+    .eq("id", memberId)
+    .eq("organization_id", organizationId);
+
+  redirect(`/dashboard/business?org=${organizationId}`);
+}
+
+async function deleteEmployeeHeadshot(formData: FormData) {
+  "use server";
+
+  const organizationId = String(formData.get("organization_id") || "");
+  await requireBusinessAdmin(organizationId);
+
+  const memberId = String(formData.get("member_id") || "");
+  const admin = createAdminClient();
+  const { data: member } = await admin
+    .from("organization_members")
+    .select("id, email, headshot_url")
+    .eq("id", memberId)
+    .eq("organization_id", organizationId)
+    .maybeSingle();
+
+  if (!member || isPlatformAdminMember(member)) {
+    redirect(`/dashboard/business?org=${organizationId}&error=platform_admin_locked`);
+  }
+
+  await deleteBusinessAssetUrl((member.headshot_url as string | null) || null);
+  await admin
+    .from("organization_members")
+    .update({ headshot_url: null })
+    .eq("id", memberId)
+    .eq("organization_id", organizationId);
 
   redirect(`/dashboard/business?org=${organizationId}`);
 }
@@ -1367,21 +1509,10 @@ export default async function BusinessDashboardPage({
                               <div className="table-subtext">{member.title || "Business owner"}</div>
                             </div>
                           ) : (
-                            <form action={updateEmployeeRole} className="table-actions">
-                              <input type="hidden" name="organization_id" value={organization.id} />
-                              <input type="hidden" name="member_id" value={member.id} />
-                              <select
-                                className="editor-input"
-                                name="role"
-                                defaultValue={member.role === "admin" ? "admin" : "member"}
-                                aria-label={`Role for ${member.name}`}
-                              >
-                                <option value="member">Employee</option>
-                                <option value="admin">Admin</option>
-                              </select>
-                              <button className="button secondary" type="submit">Save role</button>
-                              {member.title ? <span className="table-subtext">{member.title}</span> : null}
-                            </form>
+                            <div>
+                              <strong>{member.role === "admin" ? "Admin" : "Employee"}</strong>
+                              {member.title ? <div className="table-subtext">{member.title}</div> : null}
+                            </div>
                           )}
                         </td>
                         <td>{member.email || "—"}</td>
@@ -1402,115 +1533,186 @@ export default async function BusinessDashboardPage({
                           <div className="table-actions">
                             {lockedPlatformAdmin ? (
                               <span className="editor-copy">Locked platform admin access.</span>
-                            ) : assignedToken ? (
+                            ) : (
                               <>
                                 {assignedProfileUrl ? (
                                   <Link className="button secondary" href={assignedProfileUrl} target="_blank" rel="noreferrer">
                                     View profile
                                   </Link>
                                 ) : null}
-                                <Link className="button secondary" href={`/pass/business/${assignedToken.token}`}>
-                                  View digital pass
-                                </Link>
-                                {assignedProfileUrl ? <CopyLinkButton value={assignedProfileUrl} /> : null}
-                                {member.email && member.status === "active" && assignedToken.status === "active" ? (
-                                  <form action={sendBusinessDigitalPass}>
-                                    <input type="hidden" name="organization_id" value={organization.id} />
-                                    <input type="hidden" name="member_id" value={member.id} />
-                                    <input type="hidden" name="token_id" value={assignedToken.id} />
-                                    <button className="button secondary" type="submit">Send digital pass</button>
-                                  </form>
-                                ) : (
-                                  <button className="button secondary" type="button" disabled aria-disabled="true">
-                                    Send digital pass
-                                  </button>
-                                )}
-                                <form action={updateTokenAssignment} className="table-actions">
-                                  <input type="hidden" name="organization_id" value={organization.id} />
-                                  <input type="hidden" name="token_id" value={assignedToken.id} />
-                                  <select
-                                    className="editor-input"
-                                    name="assigned_member_id"
-                                    defaultValue={assignedToken.assigned_member_id || ""}
-                                    aria-label={`Reassign ${member.name}'s token`}
-                                  >
-                                    <option value="">Unassigned</option>
-                                    {activeMembers.map((candidate) => (
-                                      <option key={candidate.id} value={candidate.id}>
-                                        {candidate.name}
-                                      </option>
-                                    ))}
-                                  </select>
-                                  <button className="button secondary" type="submit">Save</button>
-                                </form>
-                                <form action={deactivateToken}>
-                                  <input type="hidden" name="organization_id" value={organization.id} />
-                                  <input type="hidden" name="token_id" value={assignedToken.id} />
-                                  <input type="hidden" name="status" value="unassigned" />
-                                  <button className="button secondary" type="submit">Unassign token</button>
-                                </form>
-                                {assignedToken.status === "inactive" ? (
-                                  <form action={deactivateToken}>
-                                    <input type="hidden" name="organization_id" value={organization.id} />
-                                    <input type="hidden" name="token_id" value={assignedToken.id} />
-                                    <input type="hidden" name="assigned_member_id" value={member.id} />
-                                    <input type="hidden" name="status" value="active" />
-                                    <button className="button secondary" type="submit">Reactivate token</button>
-                                  </form>
-                                ) : (
-                                  <form action={deactivateToken}>
-                                    <input type="hidden" name="organization_id" value={organization.id} />
-                                    <input type="hidden" name="token_id" value={assignedToken.id} />
-                                    <button className="button secondary" type="submit">Deactivate token</button>
-                                  </form>
-                                )}
+                                <details className="employee-manage-panel">
+                                  <summary className="button secondary">Manage</summary>
+                                  <div className="employee-manage-panel-inner">
+                                    <div className="dashboard-kicker">Headshot</div>
+                                    {member.headshot_url ? (
+                                      <div className="employee-headshot-preview">
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                        <img src={member.headshot_url} alt={`${member.name} headshot`} />
+                                      </div>
+                                    ) : (
+                                      <p className="table-subtext">No headshot uploaded.</p>
+                                    )}
+                                    <form action={updateEmployeeHeadshot} className="table-actions" encType="multipart/form-data">
+                                      <input type="hidden" name="organization_id" value={organization.id} />
+                                      <input type="hidden" name="member_id" value={member.id} />
+                                      <input
+                                        className="editor-input"
+                                        name="headshot_file"
+                                        type="file"
+                                        accept="image/jpeg,image/png,image/webp"
+                                        required
+                                      />
+                                      <span className="table-subtext">
+                                        JPG, PNG, or WebP. Max {Math.round(BUSINESS_HEADSHOT_MAX_BYTES / 1024 / 1024)} MB.
+                                      </span>
+                                      <button className="button secondary" type="submit">
+                                        {member.headshot_url ? "Change headshot" : "Upload headshot"}
+                                      </button>
+                                    </form>
+                                    {member.headshot_url ? (
+                                      <form action={deleteEmployeeHeadshot}>
+                                        <input type="hidden" name="organization_id" value={organization.id} />
+                                        <input type="hidden" name="member_id" value={member.id} />
+                                        <ConfirmSubmitButton
+                                          className="button secondary"
+                                          confirmMessage={`Delete ${member.name}'s headshot?`}
+                                        >
+                                          Delete headshot
+                                        </ConfirmSubmitButton>
+                                      </form>
+                                    ) : null}
+
+                                    <div className="dashboard-kicker">Token and digital pass</div>
+                                    {assignedToken ? (
+                                      <>
+                                        <Link className="button secondary" href={`/pass/business/${assignedToken.token}`}>
+                                          View digital pass
+                                        </Link>
+                                        {assignedProfileUrl ? <CopyLinkButton value={assignedProfileUrl} /> : null}
+                                        {member.email && member.status === "active" && assignedToken.status === "active" ? (
+                                          <form action={sendBusinessDigitalPass}>
+                                            <input type="hidden" name="organization_id" value={organization.id} />
+                                            <input type="hidden" name="member_id" value={member.id} />
+                                            <input type="hidden" name="token_id" value={assignedToken.id} />
+                                            <button className="button secondary" type="submit">Send digital pass</button>
+                                          </form>
+                                        ) : (
+                                          <button className="button secondary" type="button" disabled aria-disabled="true">
+                                            Send digital pass
+                                          </button>
+                                        )}
+                                        <form action={updateTokenAssignment} className="table-actions">
+                                          <input type="hidden" name="organization_id" value={organization.id} />
+                                          <input type="hidden" name="token_id" value={assignedToken.id} />
+                                          <select
+                                            className="editor-input"
+                                            name="assigned_member_id"
+                                            defaultValue={assignedToken.assigned_member_id || ""}
+                                            aria-label={`Reassign ${member.name}'s token`}
+                                          >
+                                            <option value="">Unassigned</option>
+                                            {activeMembers.map((candidate) => (
+                                              <option key={candidate.id} value={candidate.id}>
+                                                {candidate.name}
+                                              </option>
+                                            ))}
+                                          </select>
+                                          <button className="button secondary" type="submit">Save assignment</button>
+                                        </form>
+                                        <form action={deactivateToken}>
+                                          <input type="hidden" name="organization_id" value={organization.id} />
+                                          <input type="hidden" name="token_id" value={assignedToken.id} />
+                                          <input type="hidden" name="status" value="unassigned" />
+                                          <button className="button secondary" type="submit">Unassign token</button>
+                                        </form>
+                                        {assignedToken.status === "inactive" ? (
+                                          <form action={deactivateToken}>
+                                            <input type="hidden" name="organization_id" value={organization.id} />
+                                            <input type="hidden" name="token_id" value={assignedToken.id} />
+                                            <input type="hidden" name="assigned_member_id" value={member.id} />
+                                            <input type="hidden" name="status" value="active" />
+                                            <button className="button secondary" type="submit">Reactivate token</button>
+                                          </form>
+                                        ) : (
+                                          <form action={deactivateToken}>
+                                            <input type="hidden" name="organization_id" value={organization.id} />
+                                            <input type="hidden" name="token_id" value={assignedToken.id} />
+                                            <button className="button secondary" type="submit">Deactivate token</button>
+                                          </form>
+                                        )}
+                                      </>
+                                    ) : member.status === "active" ? (
+                                      <form action={issueToken} className="table-actions">
+                                        <input type="hidden" name="organization_id" value={organization.id} />
+                                        <input type="hidden" name="assigned_member_id" value={member.id} />
+                                        <button className="button secondary" type="submit">Issue token</button>
+                                      </form>
+                                    ) : (
+                                      <span className="editor-copy">Activate employee to issue a token.</span>
+                                    )}
+
+                                    <div className="dashboard-kicker">Access</div>
+                                    {member.role === "owner" ? (
+                                      <p className="table-subtext">Owner role is locked.</p>
+                                    ) : (
+                                      <form action={updateEmployeeRole} className="table-actions">
+                                        <input type="hidden" name="organization_id" value={organization.id} />
+                                        <input type="hidden" name="member_id" value={member.id} />
+                                        <select
+                                          className="editor-input"
+                                          name="role"
+                                          defaultValue={member.role === "admin" ? "admin" : "member"}
+                                          aria-label={`Role for ${member.name}`}
+                                        >
+                                          <option value="member">Employee</option>
+                                          <option value="admin">Admin</option>
+                                        </select>
+                                        <button className="button secondary" type="submit">Save role</button>
+                                      </form>
+                                    )}
+                                    {member.status === "active" && member.email ? (
+                                      <form action={sendBusinessLoginInvite}>
+                                        <input type="hidden" name="organization_id" value={organization.id} />
+                                        <input type="hidden" name="member_id" value={member.id} />
+                                        <button className="button secondary" type="submit">Send invite</button>
+                                      </form>
+                                    ) : null}
+
+                                    <div className="dashboard-kicker">Danger zone</div>
+                                    {member.status === "active" ? (
+                                      <form action={updateEmployeeStatus}>
+                                        <input type="hidden" name="organization_id" value={organization.id} />
+                                        <input type="hidden" name="member_id" value={member.id} />
+                                        <input type="hidden" name="status" value="inactive" />
+                                        <ConfirmSubmitButton
+                                          className="button secondary"
+                                          confirmMessage={`Archive ${member.name}? Their assigned token will be deactivated.`}
+                                        >
+                                          Archive
+                                        </ConfirmSubmitButton>
+                                      </form>
+                                    ) : (
+                                      <form action={updateEmployeeStatus}>
+                                        <input type="hidden" name="organization_id" value={organization.id} />
+                                        <input type="hidden" name="member_id" value={member.id} />
+                                        <input type="hidden" name="status" value="active" />
+                                        <button className="button secondary" type="submit">Restore</button>
+                                      </form>
+                                    )}
+                                    <form action={deleteEmployee}>
+                                      <input type="hidden" name="organization_id" value={organization.id} />
+                                      <input type="hidden" name="member_id" value={member.id} />
+                                      <ConfirmSubmitButton
+                                        className="button secondary"
+                                        confirmMessage={`Permanently delete ${member.name}? This will unassign their token and remove them from the business table.`}
+                                      >
+                                        Delete
+                                      </ConfirmSubmitButton>
+                                    </form>
+                                  </div>
+                                </details>
                               </>
-                            ) : member.status === "active" ? (
-                              <form action={issueToken} className="table-actions">
-                                <input type="hidden" name="organization_id" value={organization.id} />
-                                <input type="hidden" name="assigned_member_id" value={member.id} />
-                                <button className="button secondary" type="submit">Issue token</button>
-                              </form>
-                            ) : (
-                              <span className="editor-copy">Activate employee to issue a token.</span>
                             )}
-                            {member.status === "active" && member.email ? (
-                              <form action={sendBusinessLoginInvite}>
-                                <input type="hidden" name="organization_id" value={organization.id} />
-                                <input type="hidden" name="member_id" value={member.id} />
-                                <button className="button secondary" type="submit">Invite</button>
-                              </form>
-                            ) : null}
-                            {member.status === "active" ? (
-                              <form action={updateEmployeeStatus}>
-                                <input type="hidden" name="organization_id" value={organization.id} />
-                                <input type="hidden" name="member_id" value={member.id} />
-                                <input type="hidden" name="status" value="inactive" />
-                                <ConfirmSubmitButton
-                                  className="button secondary"
-                                  confirmMessage={`Archive ${member.name}? Their assigned token will be deactivated.`}
-                                >
-                                  Archive
-                                </ConfirmSubmitButton>
-                              </form>
-                            ) : (
-                              <form action={updateEmployeeStatus}>
-                                <input type="hidden" name="organization_id" value={organization.id} />
-                                <input type="hidden" name="member_id" value={member.id} />
-                                <input type="hidden" name="status" value="active" />
-                                <button className="button secondary" type="submit">Restore</button>
-                              </form>
-                            )}
-                            <form action={deleteEmployee}>
-                              <input type="hidden" name="organization_id" value={organization.id} />
-                              <input type="hidden" name="member_id" value={member.id} />
-                              <ConfirmSubmitButton
-                                className="button secondary"
-                                confirmMessage={`Permanently delete ${member.name}? This will unassign their token and remove them from the business table.`}
-                              >
-                                Delete
-                              </ConfirmSubmitButton>
-                            </form>
                           </div>
                         </td>
                       </tr>
@@ -1642,19 +1844,30 @@ export default async function BusinessDashboardPage({
             <p className="editor-copy">
             These colors, logo, and optional links apply to business token pages like /p/token.
           </p>
-          <form action={updateOrganizationBranding} className="editor-form" style={{ marginTop: 18 }}>
+          <form action={updateOrganizationBranding} className="editor-form" encType="multipart/form-data" style={{ marginTop: 18 }}>
             <input type="hidden" name="organization_id" value={organization.id} />
             <BusinessBrandThemeFields organization={organization} />
-            <label className="editor-label">
-              Logo PNG URL
+            <div className="editor-label">
+              Logo PNG
+              {organization.brand_logo_url ? (
+                <div className="business-logo-preview">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={organization.brand_logo_url} alt={`${organization.name} logo`} />
+                  <span className="table-subtext">Current logo</span>
+                </div>
+              ) : (
+                <span className="table-subtext">No logo uploaded.</span>
+              )}
               <input
                 className="editor-input"
-                name="brand_logo_url"
-                type="url"
-                placeholder="https://..."
-                defaultValue={organization.brand_logo_url || ""}
+                name="brand_logo_file"
+                type="file"
+                accept="image/png"
               />
-            </label>
+              <span className="table-subtext">
+                PNG only. Max {Math.round(BUSINESS_LOGO_MAX_BYTES / 1024 / 1024)} MB.
+              </span>
+            </div>
             <div>
               <div className="dashboard-kicker">Business web links</div>
               <p className="editor-copy">
@@ -1690,6 +1903,17 @@ export default async function BusinessDashboardPage({
             })}
             <button className="button primary" type="submit">Save branding</button>
           </form>
+          {organization.brand_logo_url ? (
+            <form action={deleteBusinessLogo} style={{ marginTop: 12 }}>
+              <input type="hidden" name="organization_id" value={organization.id} />
+              <ConfirmSubmitButton
+                className="button secondary"
+                confirmMessage="Delete this business logo?"
+              >
+                Delete logo
+              </ConfirmSubmitButton>
+            </form>
+          ) : null}
         </div>
       </section>
     </Shell>

@@ -21,7 +21,7 @@ export async function claimBusinessMembershipForUser({
   const admin = createAdminClient();
   let query = admin
     .from("organization_members")
-    .select("id, organization_id, user_id, name, email, phone, title, role, status, organization:organizations(*)")
+    .select("id, organization_id, user_id, name, email, phone, title, role, status, headshot_url, organization:organizations(*)")
     .ilike("email", normalizedEmail)
     .eq("status", "active")
     .in("role", roles)
@@ -57,6 +57,7 @@ export async function claimBusinessMembershipForUser({
       user_id: userId,
       name: member.name,
       email: member.email,
+      headshot_url: member.headshot_url,
       phone: member.phone,
       title: member.title,
       role: member.role,

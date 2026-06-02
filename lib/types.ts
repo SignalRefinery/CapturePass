@@ -117,6 +117,7 @@ export type OrganizationMemberRecord = {
   user_id?: string | null;
   name: string;
   email?: string | null;
+  headshot_url?: string | null;
   phone?: string | null;
   title?: string | null;
   role: "owner" | "admin" | "member";

@@ -137,7 +137,7 @@ export default async function PassTokenPage({
           passToken.assigned_member_id
             ? admin
                 .from("organization_members")
-                .select("id, user_id, organization_id, name, email, phone, title, status")
+                .select("id, user_id, organization_id, name, email, phone, title, status, headshot_url")
                 .eq("id", passToken.assigned_member_id)
                 .maybeSingle()
             : Promise.resolve({ data: null, error: null }),
@@ -211,6 +211,7 @@ export default async function PassTokenPage({
     business_links: businessLinks,
     full_name: member.name,
     organization_name: organization?.name || "",
+    profile_image_url: member.headshot_url || null,
     brand_logo_url: organization?.brand_logo_url || null,
     brand_color_primary: organization?.brand_color_primary || organization?.brand_color || null,
     brand_color_secondary: organization?.brand_color_secondary || null,

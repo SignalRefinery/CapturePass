@@ -190,6 +190,7 @@ create table if not exists public.organization_members (
   user_id uuid references auth.users(id) on delete set null,
   name text not null default '',
   email text,
+  headshot_url text,
   phone text,
   title text,
   role text not null default 'member',

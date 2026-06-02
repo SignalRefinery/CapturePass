@@ -1,14 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Shell } from "@/components/shared/shell";
-import { BUSINESS_PLANS, type BusinessPlanKey } from "@/lib/business/plans";
 import { createClient } from "@/lib/supabase/server";
-
-const businessTierKeys = [
-  ["business_starter_self", "business_starter_managed"],
-  ["business_growth_self", "business_growth_managed"],
-  ["business_pro_self", "business_pro_managed"]
-] as const satisfies readonly [BusinessPlanKey, BusinessPlanKey][];
 
 const selfManagedDescription =
   "Self-managed gives your organization admin access to manage seats, profiles, branding, and card assignments directly.";
@@ -282,36 +275,13 @@ export default async function BusinessPage({
         </div>
 
         <div className="business-feature-grid">
-          {businessTierKeys.map(([selfKey, managedKey]) => {
-            const selfPlan = BUSINESS_PLANS[selfKey];
-            const managedPlan = BUSINESS_PLANS[managedKey];
-
-            return (
-              <div className="business-feature" key={selfPlan.key} style={{ display: "grid", gap: 10, alignItems: "start" }}>
-                <strong>{selfPlan.name}</strong>
-                <span>${selfPlan.monthlyPrice}/mo self-managed</span>
-                <span>${selfPlan.annualPrice}/yr self-managed, save 10%</span>
-                <span>${managedPlan.monthlyPrice}/mo fully managed</span>
-                <span>${managedPlan.annualPrice}/yr fully managed, save 10%</span>
-                <span>Up to {selfPlan.seatLimit} reusable seats</span>
-                <span>{selfPlan.includedCards} NFC cards included at setup</span>
-                <span>${selfPlan.setupFee} setup</span>
-                <Link className="button primary" href={`/api/checkout?plan=${selfPlan.key}`}>
-                  Monthly self-managed
-                </Link>
-                <Link className="button secondary" href={`/api/checkout?plan=${selfPlan.key}&billing=annual`}>
-                  Annual self-managed
-                </Link>
-                <Link className="button secondary" href={`/api/checkout?plan=${managedPlan.key}`}>
-                  Monthly managed
-                </Link>
-                <Link className="button secondary" href={`/api/checkout?plan=${managedPlan.key}&billing=annual`}>
-                  Annual managed
-                </Link>
-              </div>
-            );
-          })}
+          <div className="business-feature">Starter: 10 seats, 10 NFC cards, $149 setup</div>
+          <div className="business-feature">Growth: 25 seats, 25 NFC cards, $299 setup</div>
+          <div className="business-feature">Pro: 50 seats, 50 NFC cards, $499 setup</div>
         </div>
+        <Link className="button primary" href="/business/pricing">
+          View Business Pricing
+        </Link>
       </section>
 
       <section className="business-section business-request" id="business-request">

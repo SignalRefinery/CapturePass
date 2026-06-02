@@ -1,6 +1,6 @@
-import Link from "next/link";
 import { BUSINESS_PLANS, type BusinessPlanKey } from "@/lib/business/plans";
 import { Shell } from "@/components/shared/shell";
+import { BusinessPricingPlans } from "./business-pricing-plans";
 
 const businessTierKeys = [
   ["business_starter_self", "business_starter_managed"],
@@ -28,6 +28,31 @@ const businessFeatures = [
   "CSV/export-ready contact data",
   "Optional fully managed operations"
 ];
+
+const businessTiers = businessTierKeys.map(([selfKey, managedKey]) => {
+  const selfPlan = BUSINESS_PLANS[selfKey];
+  const managedPlan = BUSINESS_PLANS[managedKey];
+
+  return {
+    cards: selfPlan.includedCards,
+    managed: {
+      annualPrice: managedPlan.annualPrice,
+      key: managedPlan.key,
+      label: "Fully Managed",
+      monthlyPrice: managedPlan.monthlyPrice
+    },
+    name: selfPlan.name,
+    seats: selfPlan.seatLimit,
+    self: {
+      annualPrice: selfPlan.annualPrice,
+      key: selfPlan.key,
+      label: "Self-Managed",
+      monthlyPrice: selfPlan.monthlyPrice
+    },
+    setupFee: selfPlan.setupFee,
+    tier: selfPlan.tier
+  };
+});
 
 export default function BusinessPricingPage() {
   return (
@@ -78,55 +103,7 @@ export default function BusinessPricingPage() {
             </div>
           </div>
 
-          <div style={businessTierGrid}>
-            {businessTierKeys.map(([selfKey, managedKey]) => {
-              const selfPlan = BUSINESS_PLANS[selfKey];
-              const managedPlan = BUSINESS_PLANS[managedKey];
-
-              return (
-                <article style={businessTierCard} key={selfPlan.tier}>
-                  <div>
-                    <div style={quoteLabel}>{selfPlan.name}</div>
-                    <div style={quotePrice}>{selfPlan.seatLimit} reusable seats</div>
-                  </div>
-
-                  <div style={businessTierDetails}>
-                    <div>{selfPlan.includedCards} NFC cards included at setup</div>
-                    <div>${selfPlan.setupFee} one-time setup</div>
-                    <div>Business console, branding, token reassignment, contacts, and analytics</div>
-                  </div>
-
-                  <div style={businessPlanOptions}>
-                    <div style={businessPlanOption}>
-                      <div>
-                        <strong>${selfPlan.monthlyPrice}/mo</strong>
-                        <span>Self-managed</span>
-                      </div>
-                      <Link className="button primary" href={`/api/checkout?plan=${selfPlan.key}`}>
-                        Monthly self-managed
-                      </Link>
-                      <Link className="button secondary" href={`/api/checkout?plan=${selfPlan.key}&billing=annual`}>
-                        ${selfPlan.annualPrice}/yr · Save 10%
-                      </Link>
-                    </div>
-
-                    <div style={businessPlanOption}>
-                      <div>
-                        <strong>${managedPlan.monthlyPrice}/mo</strong>
-                        <span>Fully managed</span>
-                      </div>
-                      <Link className="button secondary" href={`/api/checkout?plan=${managedPlan.key}`}>
-                        Monthly managed
-                      </Link>
-                      <Link className="button secondary" href={`/api/checkout?plan=${managedPlan.key}&billing=annual`}>
-                        ${managedPlan.annualPrice}/yr · Save 10%
-                      </Link>
-                    </div>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
+          <BusinessPricingPlans tiers={businessTiers} />
 
           <div style={businessFeatureGrid}>
             {businessFeatures.map((feature) => (
@@ -213,46 +190,6 @@ const quoteCopy = {
   color: "#b6bcc8",
   fontSize: 14,
   lineHeight: 1.55
-};
-
-const businessTierGrid = {
-  gridColumn: "1 / -1",
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 280px), 1fr))",
-  gap: 16
-};
-
-const businessTierCard = {
-  display: "grid",
-  gap: 18,
-  padding: 22,
-  borderRadius: 22,
-  border: "1px solid rgba(167,139,250,.28)",
-  background:
-    "linear-gradient(180deg, rgba(255,255,255,.052), rgba(255,255,255,.018)), rgba(8,8,10,.72)"
-};
-
-const businessTierDetails = {
-  display: "grid",
-  gap: 8,
-  color: "#e5e7eb",
-  fontSize: 14,
-  lineHeight: 1.45,
-  fontWeight: 700
-};
-
-const businessPlanOptions = {
-  display: "grid",
-  gap: 10
-};
-
-const businessPlanOption = {
-  display: "grid",
-  gap: 10,
-  padding: 14,
-  borderRadius: 16,
-  border: "1px solid rgba(255,255,255,.1)",
-  background: "rgba(255,255,255,.026)"
 };
 
 const businessFeatureGrid = {

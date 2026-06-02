@@ -4,6 +4,7 @@ import { AuthForm } from "@/components/auth/auth-form";
 import { ContactTable } from "@/components/contacts/contact-table";
 import { CopyLinkButton } from "@/components/business/copy-link-button";
 import { Shell } from "@/components/shared/shell";
+import { BUSINESS_HEADSHOT_MAX_BYTES, uploadBusinessAsset } from "@/lib/business/assets";
 import { claimBusinessMembershipForUser } from "@/lib/business/organization-access";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
@@ -23,6 +24,65 @@ function tokenUrl(token: string) {
 
 function businessLoginPath(slug: string) {
   return `/${slug}/login`;
+}
+
+async function uploadEmployeeHeadshot(formData: FormData) {
+  "use server";
+
+  const organizationId = String(formData.get("organization_id") || "");
+  const memberId = String(formData.get("member_id") || "");
+  const slug = String(formData.get("slug") || "");
+  const supabase = await createClient();
+  const {
+    data: { user }
+  } = await supabase.auth.getUser();
+
+  if (!user) redirect("/login");
+
+  const membership = await claimBusinessMembershipForUser({
+    userId: user.id,
+    email: user.email,
+    organizationId,
+    roles: ["member"]
+  });
+
+  if (!membership || membership.member.id !== memberId) {
+    redirect(slug ? businessLoginPath(slug) : "/dashboard");
+  }
+
+  const headshotFile = formData.get("headshot_file");
+  if (!(headshotFile instanceof File) || headshotFile.size === 0) {
+    redirect(businessLoginPath(slug));
+  }
+
+  const admin = createAdminClient();
+  let headshotUrl: string | null = null;
+
+  try {
+    headshotUrl = await uploadBusinessAsset({
+      file: headshotFile,
+      kind: "headshot",
+      memberId,
+      oldUrl: membership.member.headshot_url || null,
+      organizationId
+    });
+  } catch (error) {
+    console.error("Employee headshot upload failed", {
+      organizationId,
+      memberId,
+      error: error instanceof Error ? error.message : "Unknown error"
+    });
+    redirect(businessLoginPath(slug));
+  }
+
+  await admin
+    .from("organization_members")
+    .update({ headshot_url: headshotUrl })
+    .eq("id", memberId)
+    .eq("organization_id", organizationId)
+    .eq("user_id", user.id);
+
+  redirect(businessLoginPath(slug));
 }
 
 export default async function BusinessSlugLoginPage({ params }: PageProps) {
@@ -132,6 +192,37 @@ export default async function BusinessSlugLoginPage({ params }: PageProps) {
         <h1>{member.name}</h1>
         <p>{member.title || org.name}</p>
       </section>
+
+      {!member.headshot_url ? (
+        <section className="dashboard-wrap">
+          <div className="dashboard-card">
+            <div className="dashboard-kicker">Profile photo</div>
+            <h2>Add your headshot.</h2>
+            <p className="editor-copy">
+              This optional photo appears on your public TapTagg employee profile.
+            </p>
+            <form action={uploadEmployeeHeadshot} className="editor-form" encType="multipart/form-data" style={{ marginTop: 18 }}>
+              <input type="hidden" name="organization_id" value={org.id} />
+              <input type="hidden" name="member_id" value={member.id} />
+              <input type="hidden" name="slug" value={org.slug || normalizedSlug} />
+              <label className="editor-label">
+                Headshot
+                <input
+                  className="editor-input"
+                  name="headshot_file"
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  required
+                />
+                <span className="table-subtext">
+                  JPG, PNG, or WebP. Max {Math.round(BUSINESS_HEADSHOT_MAX_BYTES / 1024 / 1024)} MB.
+                </span>
+              </label>
+              <button className="button secondary" type="submit">Upload headshot</button>
+            </form>
+          </div>
+        </section>
+      ) : null}
 
       <section className="dashboard-wrap">
         <div className="dashboard-card">
