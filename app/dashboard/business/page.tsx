@@ -5,6 +5,7 @@ import { ContactTable } from "@/components/contacts/contact-table";
 import { BusinessBrandThemeFields } from "@/components/business/business-brand-theme-fields";
 import { CopyLinkButton } from "@/components/business/copy-link-button";
 import { BusinessGamificationPanel } from "@/components/gamification/gamification-panels";
+import { ConfirmSubmitButton } from "@/components/shared/confirm-submit-button";
 import { Shell } from "@/components/shared/shell";
 import { claimBusinessOrganizationForUser } from "@/lib/business/organization-access";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -75,6 +76,10 @@ function businessErrorMessage(error?: string) {
       return "That person needs an email address before a login invite can be sent.";
     case "digital_pass_send_failed":
       return "Digital pass email could not be sent. Confirm the employee has an active assigned token and email address, then try again.";
+    case "cannot_remove_self":
+      return "You cannot archive or delete your own active admin access from this table.";
+    case "member_delete_failed":
+      return "That business user could not be deleted. Try archiving them instead.";
     case "missing_org_name":
       return "Company name is required.";
     case "missing_admin_name":
@@ -856,32 +861,114 @@ async function deactivateToken(formData: FormData) {
   redirect(`/dashboard/business?org=${organizationId}`);
 }
 
-async function deactivateEmployee(formData: FormData) {
+async function updateEmployeeRole(formData: FormData) {
   "use server";
 
   const organizationId = String(formData.get("organization_id") || "");
   await requireBusinessAdmin(organizationId);
 
   const memberId = String(formData.get("member_id") || "");
+  const requestedRole = String(formData.get("role") || "member");
+  const role = requestedRole === "admin" ? "admin" : "member";
   const admin = createAdminClient();
 
   await admin
     .from("organization_members")
-    .update({ status: "inactive" })
+    .update({ role })
+    .eq("id", memberId)
+    .eq("organization_id", organizationId)
+    .neq("role", "owner");
+
+  redirect(`/dashboard/business?org=${organizationId}`);
+}
+
+async function updateEmployeeStatus(formData: FormData) {
+  "use server";
+
+  const organizationId = String(formData.get("organization_id") || "");
+  const user = await requireBusinessAdmin(organizationId);
+
+  const memberId = String(formData.get("member_id") || "");
+  const requestedStatus = String(formData.get("status") || "inactive");
+  const status = requestedStatus === "active" ? "active" : "inactive";
+  const admin = createAdminClient();
+
+  const { data: member } = await admin
+    .from("organization_members")
+    .select("id, user_id, role, status")
+    .eq("id", memberId)
+    .eq("organization_id", organizationId)
+    .maybeSingle();
+
+  if (member?.user_id === user.id && member.status === "active" && (member.role === "owner" || member.role === "admin")) {
+    redirect(`/dashboard/business?org=${organizationId}&error=cannot_remove_self`);
+  }
+
+  await admin
+    .from("organization_members")
+    .update({ status })
     .eq("id", memberId)
     .eq("organization_id", organizationId);
 
   await insertBusinessAnalyticsEvent({
     organizationId,
     memberId,
-    eventType: "employee_deactivated"
+    eventType: status === "active" ? "employee_activated" : "employee_deactivated"
   });
+
+  if (status === "inactive") {
+    await admin
+      .from("pass_tokens")
+      .update({ status: "inactive" })
+      .eq("assigned_member_id", memberId)
+      .eq("organization_id", organizationId);
+  }
+
+  redirect(`/dashboard/business?org=${organizationId}`);
+}
+
+async function deleteEmployee(formData: FormData) {
+  "use server";
+
+  const organizationId = String(formData.get("organization_id") || "");
+  const user = await requireBusinessAdmin(organizationId);
+
+  const memberId = String(formData.get("member_id") || "");
+  const admin = createAdminClient();
+  const { data: member } = await admin
+    .from("organization_members")
+    .select("id, user_id, role, status")
+    .eq("id", memberId)
+    .eq("organization_id", organizationId)
+    .maybeSingle();
+
+  if (member?.user_id === user.id && member.status === "active" && (member.role === "owner" || member.role === "admin")) {
+    redirect(`/dashboard/business?org=${organizationId}&error=cannot_remove_self`);
+  }
 
   await admin
     .from("pass_tokens")
-    .update({ status: "inactive" })
+    .update({
+      assigned_member_id: null,
+      status: "unassigned"
+    })
     .eq("assigned_member_id", memberId)
     .eq("organization_id", organizationId);
+
+  const { error } = await admin
+    .from("organization_members")
+    .delete()
+    .eq("id", memberId)
+    .eq("organization_id", organizationId);
+
+  if (error) {
+    console.error("Business member delete failed", {
+      organizationId,
+      memberId,
+      error: error.message
+    });
+    redirect(`/dashboard/business?org=${organizationId}&error=member_delete_failed`);
+  }
 
   redirect(`/dashboard/business?org=${organizationId}`);
 }
@@ -1110,7 +1197,7 @@ export default async function BusinessDashboardPage({
       <section className="dashboard-wrap">
         <div className="dashboard-card">
           <div className="dashboard-kicker">Employee status</div>
-          <h2>View, manage, or deactivate employees.</h2>
+          <h2>View, manage, archive, or delete employees.</h2>
           <p className="editor-copy">
             Token links, assignments, and deactivation live in this table so each employee can be managed in one place.
           </p>
@@ -1136,7 +1223,30 @@ export default async function BusinessDashboardPage({
                         <td>
                           <strong>{member.name}</strong>
                         </td>
-                        <td>{member.role === "admin" ? "Business admin" : member.title || "Member"}</td>
+                        <td>
+                          {member.role === "owner" ? (
+                            <div>
+                              <strong>Owner</strong>
+                              <div className="table-subtext">{member.title || "Business owner"}</div>
+                            </div>
+                          ) : (
+                            <form action={updateEmployeeRole} className="table-actions">
+                              <input type="hidden" name="organization_id" value={organization.id} />
+                              <input type="hidden" name="member_id" value={member.id} />
+                              <select
+                                className="editor-input"
+                                name="role"
+                                defaultValue={member.role === "admin" ? "admin" : "member"}
+                                aria-label={`Role for ${member.name}`}
+                              >
+                                <option value="member">Employee</option>
+                                <option value="admin">Admin</option>
+                              </select>
+                              <button className="button secondary" type="submit">Save role</button>
+                              {member.title ? <span className="table-subtext">{member.title}</span> : null}
+                            </form>
+                          )}
+                        </td>
                         <td>{member.email || "—"}</td>
                         <td>
                           {assignedToken && assignedProfileUrl ? (
@@ -1212,12 +1322,35 @@ export default async function BusinessDashboardPage({
                               </form>
                             ) : null}
                             {member.status === "active" ? (
-                              <form action={deactivateEmployee}>
+                              <form action={updateEmployeeStatus}>
                                 <input type="hidden" name="organization_id" value={organization.id} />
                                 <input type="hidden" name="member_id" value={member.id} />
-                                <button className="button secondary" type="submit">Deactivate</button>
+                                <input type="hidden" name="status" value="inactive" />
+                                <ConfirmSubmitButton
+                                  className="button secondary"
+                                  confirmMessage={`Archive ${member.name}? Their assigned token will be deactivated.`}
+                                >
+                                  Archive
+                                </ConfirmSubmitButton>
                               </form>
-                            ) : null}
+                            ) : (
+                              <form action={updateEmployeeStatus}>
+                                <input type="hidden" name="organization_id" value={organization.id} />
+                                <input type="hidden" name="member_id" value={member.id} />
+                                <input type="hidden" name="status" value="active" />
+                                <button className="button secondary" type="submit">Restore</button>
+                              </form>
+                            )}
+                            <form action={deleteEmployee}>
+                              <input type="hidden" name="organization_id" value={organization.id} />
+                              <input type="hidden" name="member_id" value={member.id} />
+                              <ConfirmSubmitButton
+                                className="button secondary"
+                                confirmMessage={`Permanently delete ${member.name}? This will unassign their token and remove them from the business table.`}
+                              >
+                                Delete
+                              </ConfirmSubmitButton>
+                            </form>
                           </div>
                         </td>
                       </tr>
