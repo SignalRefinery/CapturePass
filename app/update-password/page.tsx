@@ -32,6 +32,16 @@ function UpdatePasswordForm() {
     let mounted = true;
 
     async function hydrateInviteSession() {
+      const code = searchParams.get("code");
+      if (code) {
+        const { error: codeError } = await supabase.auth.exchangeCodeForSession(code);
+        window.history.replaceState(null, "", `${window.location.pathname}${window.location.search.replace(/[?&]code=[^&]*/, "").replace(/^&/, "?")}`);
+
+        if (codeError && mounted) {
+          setError(codeError.message || "This password setup link could not be verified.");
+        }
+      }
+
       const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ""));
       const accessToken = hashParams.get("access_token");
       const refreshToken = hashParams.get("refresh_token");
@@ -66,7 +76,7 @@ function UpdatePasswordForm() {
     return () => {
       mounted = false;
     };
-  }, [supabase]);
+  }, [searchParams, supabase]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
