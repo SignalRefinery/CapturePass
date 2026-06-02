@@ -39,6 +39,14 @@ type BusinessSummary = {
 
 const ADMIN_EMAILS = ["john@signalrefinery.pro"];
 
+function isPlatformAdminEmail(email?: string | null) {
+  return !!email && ADMIN_EMAILS.includes(email.toLowerCase());
+}
+
+function isPlatformAdminMember(member?: { email?: string | null } | null) {
+  return isPlatformAdminEmail(member?.email);
+}
+
 function appUrl() {
   return (process.env.NEXT_PUBLIC_APP_URL || "https://taptagg.app").replace(/\/$/, "");
 }
@@ -82,6 +90,8 @@ function businessErrorMessage(error?: string) {
       return "You cannot archive or delete your own active admin access from this table.";
     case "member_delete_failed":
       return "That business user could not be deleted. Try archiving them instead.";
+    case "platform_admin_locked":
+      return "Platform admin access is locked and cannot be changed from the business user table.";
     case "missing_org_name":
       return "Company name is required.";
     case "missing_admin_name":
@@ -627,6 +637,10 @@ async function sendBusinessLoginInvite(formData: FormData) {
     redirect(`/dashboard/business?org=${organizationId}&error=missing_member_email`);
   }
 
+  if (isPlatformAdminMember(member)) {
+    redirect(`/dashboard/business?org=${organizationId}&error=platform_admin_locked`);
+  }
+
   const inviteResult = await sendBusinessInviteEmail({
     organization,
     member: member as Pick<OrganizationMemberRecord, "id" | "name" | "email" | "role">
@@ -677,6 +691,10 @@ async function sendBusinessDigitalPass(formData: FormData) {
     token.assigned_member_id !== member.id
   ) {
     redirect(`/dashboard/business?org=${organizationId}&error=digital_pass_send_failed`);
+  }
+
+  if (isPlatformAdminMember(member)) {
+    redirect(`/dashboard/business?org=${organizationId}&error=platform_admin_locked`);
   }
 
   const resendApiKey = process.env.RESEND_API_KEY;
@@ -799,6 +817,19 @@ async function issueToken(formData: FormData) {
   const token = await generateUniqueToken();
   const admin = createAdminClient();
 
+  if (assignedMemberId) {
+    const { data: assignedMember } = await admin
+      .from("organization_members")
+      .select("id, email")
+      .eq("id", assignedMemberId)
+      .eq("organization_id", organizationId)
+      .maybeSingle();
+
+    if (!assignedMember || isPlatformAdminMember(assignedMember)) {
+      redirect(`/dashboard/business?org=${organizationId}&error=platform_admin_locked`);
+    }
+  }
+
   const { data: insertedToken } = await admin.from("pass_tokens").insert({
     organization_id: organizationId,
     token,
@@ -829,6 +860,19 @@ async function updateTokenAssignment(formData: FormData) {
   const tokenId = String(formData.get("token_id") || "");
   const assignedMemberId = String(formData.get("assigned_member_id") || "") || null;
   const admin = createAdminClient();
+
+  if (assignedMemberId) {
+    const { data: assignedMember } = await admin
+      .from("organization_members")
+      .select("id, email")
+      .eq("id", assignedMemberId)
+      .eq("organization_id", organizationId)
+      .maybeSingle();
+
+    if (!assignedMember || isPlatformAdminMember(assignedMember)) {
+      redirect(`/dashboard/business?org=${organizationId}&error=platform_admin_locked`);
+    }
+  }
 
   await admin
     .from("pass_tokens")
@@ -875,6 +919,17 @@ async function deactivateToken(formData: FormData) {
   }
 
   if (status === "active" && assignedMemberId) {
+    const { data: assignedMember } = await admin
+      .from("organization_members")
+      .select("id, email")
+      .eq("id", assignedMemberId)
+      .eq("organization_id", organizationId)
+      .maybeSingle();
+
+    if (!assignedMember || isPlatformAdminMember(assignedMember)) {
+      redirect(`/dashboard/business?org=${organizationId}&error=platform_admin_locked`);
+    }
+
     await admin
       .from("pass_tokens")
       .update({
@@ -907,6 +962,17 @@ async function updateEmployeeRole(formData: FormData) {
   const role = requestedRole === "admin" ? "admin" : "member";
   const admin = createAdminClient();
 
+  const { data: member } = await admin
+    .from("organization_members")
+    .select("id, email")
+    .eq("id", memberId)
+    .eq("organization_id", organizationId)
+    .maybeSingle();
+
+  if (isPlatformAdminMember(member)) {
+    redirect(`/dashboard/business?org=${organizationId}&error=platform_admin_locked`);
+  }
+
   await admin
     .from("organization_members")
     .update({ role })
@@ -930,10 +996,14 @@ async function updateEmployeeStatus(formData: FormData) {
 
   const { data: member } = await admin
     .from("organization_members")
-    .select("id, user_id, role, status")
+    .select("id, user_id, email, role, status")
     .eq("id", memberId)
     .eq("organization_id", organizationId)
     .maybeSingle();
+
+  if (isPlatformAdminMember(member)) {
+    redirect(`/dashboard/business?org=${organizationId}&error=platform_admin_locked`);
+  }
 
   if (member?.user_id === user.id && member.status === "active" && (member.role === "owner" || member.role === "admin")) {
     redirect(`/dashboard/business?org=${organizationId}&error=cannot_remove_self`);
@@ -972,10 +1042,14 @@ async function deleteEmployee(formData: FormData) {
   const admin = createAdminClient();
   const { data: member } = await admin
     .from("organization_members")
-    .select("id, user_id, role, status")
+    .select("id, user_id, email, role, status")
     .eq("id", memberId)
     .eq("organization_id", organizationId)
     .maybeSingle();
+
+  if (isPlatformAdminMember(member)) {
+    redirect(`/dashboard/business?org=${organizationId}&error=platform_admin_locked`);
+  }
 
   if (member?.user_id === user.id && member.status === "active" && (member.role === "owner" || member.role === "admin")) {
     redirect(`/dashboard/business?org=${organizationId}&error=cannot_remove_self`);
@@ -1177,7 +1251,7 @@ export default async function BusinessDashboardPage({
     );
   }
 
-  const activeMembers = members.filter((member) => member.status === "active");
+  const activeMembers = members.filter((member) => member.status === "active" && !isPlatformAdminMember(member));
   const memberById = new Map(members.map((member) => [member.id, member]));
   const unassignedTokens = tokens.filter((token) => !token.assigned_member_id || !memberById.has(token.assigned_member_id));
 
@@ -1253,13 +1327,19 @@ export default async function BusinessDashboardPage({
                   {members.map((member) => {
                     const assignedToken = tokens.find((token) => token.assigned_member_id === member.id);
                     const assignedProfileUrl = assignedToken ? tokenUrl(assignedToken.token) : null;
+                    const lockedPlatformAdmin = isPlatformAdminMember(member);
                     return (
                       <tr key={member.id}>
                         <td>
                           <strong>{member.name}</strong>
                         </td>
                         <td>
-                          {member.role === "owner" ? (
+                          {lockedPlatformAdmin ? (
+                            <div>
+                              <strong>Platform admin</strong>
+                              <div className="table-subtext">Locked TapTagg support access</div>
+                            </div>
+                          ) : member.role === "owner" ? (
                             <div>
                               <strong>Owner</strong>
                               <div className="table-subtext">{member.title || "Business owner"}</div>
@@ -1298,8 +1378,15 @@ export default async function BusinessDashboardPage({
                         </td>
                         <td>
                           <div className="table-actions">
-                            {assignedToken ? (
+                            {lockedPlatformAdmin ? (
+                              <span className="editor-copy">Locked platform admin access.</span>
+                            ) : assignedToken ? (
                               <>
+                                {assignedProfileUrl ? (
+                                  <Link className="button secondary" href={assignedProfileUrl} target="_blank" rel="noreferrer">
+                                    View profile
+                                  </Link>
+                                ) : null}
                                 <Link className="button secondary" href={`/pass/business/${assignedToken.token}`}>
                                   View digital pass
                                 </Link>
