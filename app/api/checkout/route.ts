@@ -22,17 +22,11 @@ type CheckoutSessionCreateParams = Parameters<
 const PLAN_PRICE_MAP: Record<string, string | undefined> = {
   digital: process.env.STRIPE_DIGITAL_PRICE_ID,
   core: process.env.STRIPE_CORE_PRICE_ID,
-  tagg_plus: process.env.STRIPE_TAGG_PLUS_PRICE_ID || process.env.STRIPE_TAGG_PLUS_ANNUAL_PRICE_ID,
-  "tagg-plus": process.env.STRIPE_TAGG_PLUS_PRICE_ID || process.env.STRIPE_TAGG_PLUS_ANNUAL_PRICE_ID,
-  creator: process.env.STRIPE_CREATOR_PRICE_ID || process.env.STRIPE_CREATOR_ANNUAL_PRICE_ID,
-  essential: process.env.STRIPE_ESSENTIAL_MONTHLY_PRICE_ID,
-  "essential-monthly": process.env.STRIPE_ESSENTIAL_MONTHLY_PRICE_ID,
-  "essential-annual": process.env.STRIPE_ESSENTIAL_ANNUAL_PRICE_ID,
+  tagg_plus: process.env.STRIPE_TAGG_PLUS_PRICE_ID,
+  "tagg-plus": process.env.STRIPE_TAGG_PLUS_PRICE_ID,
+  creator: process.env.STRIPE_CREATOR_PRICE_ID,
   "additional-cards": process.env.STRIPE_ADDITIONAL_TAPTAGG_CARD_PRICE_ID
 };
-
-const SETUP_FEE_PRICE_ID = process.env.STRIPE_SETUP_FEE_PRICE_ID || null;
-const SETUP_FEE_INCLUDED_PLANS = ["essential", "essential-monthly", "essential-annual"];
 
 type CheckoutPayload = {
   billing?: string;
@@ -328,7 +322,6 @@ async function createCheckoutOrPortal(req: Request) {
     const isAdditionalCardsCheckout =
       isAdditionalCardsRequest ||
       selectedPriceId === process.env.STRIPE_ADDITIONAL_TAPTAGG_CARD_PRICE_ID;
-    const isCoreCheckout = plan === "core";
     const checkoutOrganization = businessPlan
       ? await getOrCreateCheckoutOrganization({
           userId: user.id,
@@ -361,7 +354,7 @@ async function createCheckoutOrPortal(req: Request) {
       return NextResponse.redirect(portal.url, { status: 303 });
     }
 
-    if (profile?.stripe_customer_id && profile?.stripe_subscription_id && !isAdditionalCardsCheckout && !isCoreCheckout && !businessPlan) {
+    if (profile?.stripe_customer_id && profile?.stripe_subscription_id && !isAdditionalCardsCheckout && !businessPlan) {
       let portal: Stripe.BillingPortal.Session;
       try {
         portal = await stripe.billingPortal.sessions.create({
@@ -385,7 +378,7 @@ async function createCheckoutOrPortal(req: Request) {
       return NextResponse.redirect(portal.url, { status: 303 });
     }
 
-    const mode = isAdditionalCardsCheckout || isCoreCheckout ? "payment" : "subscription";
+    const mode = isAdditionalCardsCheckout ? "payment" : "subscription";
     const collectsShipping = plan !== "digital";
     const successUrl = businessPlan && checkoutOrganization
       ? `${siteUrl}/dashboard/business?checkout=success&session_id={CHECKOUT_SESSION_ID}&org=${checkoutOrganization.id}`
@@ -412,14 +405,6 @@ async function createCheckoutOrPortal(req: Request) {
           ? [
               {
                 price: businessSetupPriceId,
-                quantity: 1
-              }
-            ]
-          : []),
-        ...(SETUP_FEE_PRICE_ID && SETUP_FEE_INCLUDED_PLANS.includes(plan)
-          ? [
-              {
-                price: SETUP_FEE_PRICE_ID,
                 quantity: 1
               }
             ]

@@ -1,18 +1,5 @@
 import Link from "next/link";
-import { BUSINESS_PLANS, type BusinessPlanKey } from "@/lib/business/plans";
 import { Shell } from "@/components/shared/shell";
-
-const businessTierKeys = [
-  ["business_starter_self", "business_starter_managed"],
-  ["business_growth_self", "business_growth_managed"],
-  ["business_pro_self", "business_pro_managed"]
-] as const satisfies readonly [BusinessPlanKey, BusinessPlanKey][];
-
-const selfManagedDescription =
-  "Self-managed gives your organization admin access to manage seats, profiles, branding, and card assignments directly.";
-
-const fullyManagedDescription =
-  "Fully managed means your team sends us new hires, departures, and profile changes. We handle setup, deactivation, card assignment, seat reassignment, and basic profile updates.";
 
 const individualPlans = [
   {
@@ -35,7 +22,7 @@ const individualPlans = [
   {
     name: "Core",
     price: "$29",
-    cadence: "one-time",
+    cadence: "/ year",
     purpose: "Activate your TapTagg with a physical card and start sharing in the real world.",
     cta: "Get Your Tagg",
     href: "/api/checkout?plan=core",
@@ -87,21 +74,6 @@ const individualPlans = [
   }
 ];
 
-const businessFeatures = [
-  "Business-branded profile pages",
-  "Business cards with company logo",
-  "Team dashboard",
-  "Employee activation/deactivation",
-  "Card/profile reassignment",
-  "Shared company templates",
-  "Contact sharing",
-  "Review links",
-  "Analytics",
-  "CRM/export-ready contact data",
-  "Onboarding and setup support",
-  "Replacement/new hire card management"
-];
-
 const faqItems = [
   {
     question: "Can I build a profile before buying?",
@@ -138,7 +110,7 @@ const faqItems = [
 function checkoutNoticeFor(value?: string | null) {
   switch (value) {
     case "choose-plan":
-      return "Choose Digital, Core, Tagg+, Creator, or a Business tier to start checkout.";
+      return "Choose Digital, Core, Tagg+, or Creator to start checkout.";
     case "unavailable":
       return "Checkout is temporarily unavailable. Please try again in a few minutes.";
     case "start-error":
@@ -165,7 +137,7 @@ export default async function PricingPage({
       navLinks={[
         { href: "/", label: "Home" },
         { href: "/how-it-works", label: "How it works" },
-        { href: "/business", label: "Business" }
+        { href: "/business/pricing", label: "Business Pricing" }
       ]}
     >
       <section className="simple-hero" style={{ paddingBottom: 36 }}>
@@ -223,96 +195,19 @@ export default async function PricingPage({
           ))}
         </div>
 
-        <section className="card tagg-card tagg-card-feature" style={businessPanel} id="business-pricing">
-          <div style={{ display: "grid", gap: 16 }}>
-            <div className="kicker" style={{ width: "fit-content" }}>
-              <span className="mini-star">✦</span>
-              <span>Business</span>
-            </div>
-
-            <div>
-              <h2 style={sectionHeading}>TapTagg Business</h2>
-              <p style={sectionCopy}>
-                Reusable seats, included setup cards, branded employee profiles, and card/pass
-                assignment built for teams that connect in person.
-              </p>
-            </div>
-
-            <p style={businessIntro}>
-              Cards are included based on purchased plan capacity, not currently filled seats.
-              If a Growth customer has 14 active employees at signup, they still receive 25 NFC
-              cards because they purchased 25 reusable seats.
-            </p>
+        <section className="card tagg-card tagg-card-feature" style={businessPanel}>
+          <div className="kicker" style={{ width: "fit-content" }}>
+            <span className="mini-star">✦</span>
+            <span>Business</span>
           </div>
-
-          <div style={managementCopyGrid}>
-            <div style={businessQuoteCard}>
-              <div style={quoteLabel}>Self-managed</div>
-              <p style={quoteCopy}>{selfManagedDescription}</p>
-            </div>
-            <div style={businessQuoteCard}>
-              <div style={quoteLabel}>Fully managed</div>
-              <p style={quoteCopy}>{fullyManagedDescription}</p>
-            </div>
-          </div>
-
-          <div style={businessTierGrid}>
-            {businessTierKeys.map(([selfKey, managedKey]) => {
-              const selfPlan = BUSINESS_PLANS[selfKey];
-              const managedPlan = BUSINESS_PLANS[managedKey];
-
-              return (
-                <article style={businessTierCard} key={selfPlan.tier}>
-                  <div>
-                    <div style={quoteLabel}>{selfPlan.name}</div>
-                    <div style={quotePrice}>{selfPlan.seatLimit} reusable seats</div>
-                  </div>
-
-                  <div style={businessTierDetails}>
-                    <div>{selfPlan.includedCards} NFC cards included at setup</div>
-                    <div>${selfPlan.setupFee} one-time setup</div>
-                    <div>Business console, branding, token reassignment, contacts, and analytics</div>
-                  </div>
-
-                  <div style={businessPlanOptions}>
-                    <div style={businessPlanOption}>
-                      <div>
-                        <strong>${selfPlan.monthlyPrice}/mo</strong>
-                        <span>Self-managed</span>
-                      </div>
-                      <Link className="button primary" href={`/api/checkout?plan=${selfPlan.key}`}>
-                        Monthly self-managed
-                      </Link>
-                      <Link className="button secondary" href={`/api/checkout?plan=${selfPlan.key}&billing=annual`}>
-                        ${selfPlan.annualPrice}/yr · Save 10%
-                      </Link>
-                    </div>
-
-                    <div style={businessPlanOption}>
-                      <div>
-                        <strong>${managedPlan.monthlyPrice}/mo</strong>
-                        <span>Fully managed</span>
-                      </div>
-                      <Link className="button secondary" href={`/api/checkout?plan=${managedPlan.key}`}>
-                        Monthly managed
-                      </Link>
-                      <Link className="button secondary" href={`/api/checkout?plan=${managedPlan.key}&billing=annual`}>
-                        ${managedPlan.annualPrice}/yr · Save 10%
-                      </Link>
-                    </div>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
-
-          <div style={businessFeatureGrid}>
-            {businessFeatures.map((feature) => (
-              <div key={feature} style={businessFeature}>
-                {feature}
-              </div>
-            ))}
-          </div>
+          <h2 style={sectionHeading}>Need team pricing?</h2>
+          <p style={sectionCopy}>
+            Business pricing now lives on its own page with Starter, Growth, and Pro
+            options for self-managed or fully managed teams.
+          </p>
+          <Link className="button primary" href="/business/pricing" style={{ width: "fit-content" }}>
+            View Business Pricing
+          </Link>
         </section>
 
         <section style={faqSection}>

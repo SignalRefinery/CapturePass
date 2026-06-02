@@ -173,12 +173,15 @@ export default async function BusinessPage({
             businesses that need every employee, event, or location ready to share.
           </p>
           <div className="business-hero-actions">
-            <a className="button primary" href="#business-request">
-              Request Business Quote
-            </a>
+            <Link className="button primary" href="/business/pricing">
+              View Business Pricing
+            </Link>
             <Link className="button secondary" href="/pricing">
               Compare Individual Plans
             </Link>
+            <a className="button secondary" href="#business-request">
+              Request Business Quote
+            </a>
           </div>
         </div>
       </section>

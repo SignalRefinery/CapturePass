@@ -24,30 +24,8 @@ const PLAN_BY_PRICE_ID: Record<string, string> = {
   ...(process.env.STRIPE_TAGG_PLUS_PRICE_ID
     ? { [process.env.STRIPE_TAGG_PLUS_PRICE_ID]: "tagg_plus" }
     : {}),
-  ...(process.env.STRIPE_TAGG_PLUS_ANNUAL_PRICE_ID
-    ? { [process.env.STRIPE_TAGG_PLUS_ANNUAL_PRICE_ID]: "tagg_plus" }
-    : {}),
   ...(process.env.STRIPE_CREATOR_PRICE_ID
     ? { [process.env.STRIPE_CREATOR_PRICE_ID]: "creator" }
-    : {}),
-  ...(process.env.STRIPE_CREATOR_ANNUAL_PRICE_ID
-    ? { [process.env.STRIPE_CREATOR_ANNUAL_PRICE_ID]: "creator" }
-    : {}),
-  ...(process.env.STRIPE_ESSENTIAL_MONTHLY_PRICE_ID
-    ? { [process.env.STRIPE_ESSENTIAL_MONTHLY_PRICE_ID]: "essential-monthly" }
-    : {}),
-  ...(process.env.STRIPE_ESSENTIAL_ANNUAL_PRICE_ID
-    ? { [process.env.STRIPE_ESSENTIAL_ANNUAL_PRICE_ID]: "essential-annual" }
-    : {}),
-  // Legacy fallbacks kept for existing Stripe products that may still emit events.
-  ...(process.env.STRIPE_ESSENTIAL_PRICE_ID
-    ? { [process.env.STRIPE_ESSENTIAL_PRICE_ID]: "essential" }
-    : {}),
-  ...(process.env.STRIPE_PROFESSIONAL_PRICE_ID
-    ? { [process.env.STRIPE_PROFESSIONAL_PRICE_ID]: "professional" }
-    : {}),
-  ...(process.env.STRIPE_PREMIUM_PRICE_ID
-    ? { [process.env.STRIPE_PREMIUM_PRICE_ID]: "premium" }
     : {})
 };
 
@@ -76,8 +54,7 @@ function isSubscriptionCheckoutSession(session: Stripe.Checkout.Session) {
   return (
     session.mode === "subscription" &&
     !!session.subscription &&
-    plan !== "additional-cards" &&
-    plan !== "core"
+    plan !== "additional-cards"
   );
 }
 
@@ -392,51 +369,6 @@ async function updateProfileForCheckout(session: Stripe.Checkout.Session) {
   const plan = getPlanFromCheckoutSession(session);
 
   if (await updateOrganizationForCheckout(session)) {
-    return;
-  }
-
-  if (session.mode === "payment" && plan === "core") {
-    const admin = createAdminClient();
-    const userId = session.metadata?.user_id || null;
-    const customerId = getStringId(session.customer);
-
-    if (!userId) return;
-
-    console.info("Webhook checkout core activation received", {
-      route: "/api/webhook",
-      event: "checkout.session.completed",
-      sessionId: session.id,
-      userId,
-      customerId,
-      plan
-    });
-
-    const { error } = await admin
-      .from("profiles")
-      .update({
-        is_active: true,
-        stripe_customer_id: customerId,
-        stripe_subscription_id: null,
-        stripe_plan_key: "core",
-        subscription_status: "active",
-      })
-      .or(`user_id.eq.${userId},id.eq.${userId}`);
-
-    if (error) throw error;
-
-    console.info("Webhook checkout profile updated", {
-      route: "/api/webhook",
-      event: "checkout.session.completed",
-      sessionId: session.id,
-      userId,
-      customerId,
-      subscriptionId: null,
-      stripePlanKey: "core",
-      isActive: true,
-      subscriptionStatus: "active"
-    });
-
-    await sendCardNotification(userId, session);
     return;
   }
 
