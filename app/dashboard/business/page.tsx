@@ -74,6 +74,8 @@ function businessErrorMessage(error?: string) {
       return "Colors and logo saved, but business links did not. Run phase72_business_global_links.sql in Supabase, then save again.";
     case "missing_member_email":
       return "That person needs an email address before a login invite can be sent.";
+    case "business_invite_send_failed":
+      return "The login invite could not be sent. Check Supabase Auth email settings, allowed redirect URLs, and the member email address.";
     case "digital_pass_send_failed":
       return "Digital pass email could not be sent. Confirm the employee has an active assigned token and email address, then try again.";
     case "cannot_remove_self":
@@ -583,7 +585,7 @@ async function addEmployee(formData: FormData) {
   ]);
 
   if (organization && member) {
-    await sendBusinessInviteEmail({
+    const inviteResult = await sendBusinessInviteEmail({
       organization,
       member: member as Pick<OrganizationMemberRecord, "id" | "name" | "email" | "role">
     });
@@ -593,6 +595,9 @@ async function addEmployee(formData: FormData) {
       eventType: "employee_activated",
       label: member.role
     });
+    if (!inviteResult.sent && email) {
+      redirect(`/dashboard/business?org=${organizationId}&error=business_invite_send_failed`);
+    }
   }
 
   redirect(`/dashboard/business?org=${organizationId}`);
@@ -624,10 +629,14 @@ async function sendBusinessLoginInvite(formData: FormData) {
     redirect(`/dashboard/business?org=${organizationId}&error=missing_member_email`);
   }
 
-  await sendBusinessInviteEmail({
+  const inviteResult = await sendBusinessInviteEmail({
     organization,
     member: member as Pick<OrganizationMemberRecord, "id" | "name" | "email" | "role">
   });
+
+  if (!inviteResult.sent) {
+    redirect(`/dashboard/business?org=${organizationId}&error=business_invite_send_failed`);
+  }
 
   redirect(`/dashboard/business?org=${organizationId}`);
 }
