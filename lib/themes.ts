@@ -7,6 +7,12 @@ export type ThemeKey =
   | "executive_gold"
   | "clean_horizon"
   | "sage_professional"
+  | "arctic_white"
+  | "ivory_executive"
+  | "coastal_blue"
+  | "emerald_executive"
+  | "sandstone"
+  | "modern_rose"
   | "custom";
 
 export type ThemeColors = {
@@ -83,27 +89,105 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
   },
   clean_horizon: {
     key: "clean_horizon",
-    name: "Clean Horizon",
-    description: "A clean light profile with blue action emphasis.",
+    name: "Arctic White",
+    description: "A crisp white profile with clean blue action emphasis.",
     colors: {
       primary: "#FFFFFF",
-      secondary: "#E5E7EB",
+      secondary: "#F3F4F6",
       accent: "#2563EB",
-      text: "#1F2937",
-      background: "#F8FAFC"
+      text: "#111827",
+      background: "#FAFAFA"
     },
     allowedPlans: ["core", "tagg_plus", "creator", "business"]
   },
   sage_professional: {
     key: "sage_professional",
-    name: "Sage Professional",
-    description: "A calm light profile with organic professional color.",
+    name: "Emerald Executive",
+    description: "A fresh light profile with confident green professional accents.",
     colors: {
-      primary: "#F7F7F2",
-      secondary: "#DDE5D8",
-      accent: "#5C7C5A",
-      text: "#2D3748",
-      background: "#FFFFFF"
+      primary: "#FFFFFF",
+      secondary: "#ECFDF5",
+      accent: "#059669",
+      text: "#1F2937",
+      background: "#FAFFFC"
+    },
+    allowedPlans: ["tagg_plus", "creator", "business"]
+  },
+  arctic_white: {
+    key: "arctic_white",
+    name: "Arctic White",
+    description: "A crisp white profile with clean blue action emphasis.",
+    colors: {
+      primary: "#FFFFFF",
+      secondary: "#F3F4F6",
+      accent: "#2563EB",
+      text: "#111827",
+      background: "#FAFAFA"
+    },
+    allowedPlans: ["core", "tagg_plus", "creator", "business"]
+  },
+  ivory_executive: {
+    key: "ivory_executive",
+    name: "Ivory Executive",
+    description: "A warm premium light profile with understated executive accents.",
+    colors: {
+      primary: "#FFFEFC",
+      secondary: "#F7F3ED",
+      accent: "#B45309",
+      text: "#2C241D",
+      background: "#FFFDF9"
+    },
+    allowedPlans: ["tagg_plus", "creator", "business"]
+  },
+  coastal_blue: {
+    key: "coastal_blue",
+    name: "Coastal Blue",
+    description: "A bright approachable profile with polished blue accents.",
+    colors: {
+      primary: "#FFFFFF",
+      secondary: "#EAF4FF",
+      accent: "#0284C7",
+      text: "#0F172A",
+      background: "#F8FBFF"
+    },
+    allowedPlans: ["core", "tagg_plus", "creator", "business"]
+  },
+  emerald_executive: {
+    key: "emerald_executive",
+    name: "Emerald Executive",
+    description: "A fresh light profile with confident green professional accents.",
+    colors: {
+      primary: "#FFFFFF",
+      secondary: "#ECFDF5",
+      accent: "#059669",
+      text: "#1F2937",
+      background: "#FAFFFC"
+    },
+    allowedPlans: ["tagg_plus", "creator", "business"]
+  },
+  sandstone: {
+    key: "sandstone",
+    name: "Sandstone",
+    description: "A warm refined profile for real estate, lending, and boutique brands.",
+    colors: {
+      primary: "#FFFFFF",
+      secondary: "#F5F1E8",
+      accent: "#C08457",
+      text: "#3A312A",
+      background: "#FDFBF8"
+    },
+    allowedPlans: ["tagg_plus", "creator", "business"]
+  },
+  modern_rose: {
+    key: "modern_rose",
+    name: "Modern Rose",
+    description: "A clean expressive light profile with boutique rose accents.",
+    colors: {
+      primary: "#FFFFFF",
+      secondary: "#FFF1F2",
+      accent: "#E11D48",
+      text: "#1F2937",
+      background: "#FFFDFD"
     },
     allowedPlans: ["tagg_plus", "creator", "business"]
   },
