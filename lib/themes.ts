@@ -34,11 +34,11 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
     name: "TapTagg Brand",
     description: "The TapTagg purple palette for personal profiles.",
     colors: {
-      primary: "#6D28D9",
+      primary: "#030304",
       secondary: "#8B5CF6",
       accent: "#C084FC",
       text: "#FFFFFF",
-      background: "#120B24"
+      background: "#6D28D9"
     },
     allowedPlans: ["free", "digital", "core", "tagg_plus", "creator", "business"]
   },
