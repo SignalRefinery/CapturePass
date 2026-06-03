@@ -1326,6 +1326,31 @@ async function updateEmployeeEmail(formData: FormData) {
     redirect(`/dashboard/business?org=${organizationId}&error=platform_admin_locked`);
   }
 
+  const { data: organization } = await admin
+    .from("organizations")
+    .select("id, name, slug")
+    .eq("id", organizationId)
+    .maybeSingle();
+
+  if (!organization) {
+    redirect(`/dashboard/business?org=${organizationId}&error=member_email_failed`);
+  }
+
+  const { error } = await admin
+    .from("organization_members")
+    .update({ email: nextEmail })
+    .eq("id", memberId)
+    .eq("organization_id", organizationId);
+
+  if (error) {
+    console.error("Business member email update failed", {
+      organizationId,
+      memberId,
+      error: error.message
+    });
+    redirect(`/dashboard/business?org=${organizationId}&error=member_email_failed`);
+  }
+
   if (member.user_id) {
     const { error: authError } = await admin.auth.admin.updateUserById(member.user_id, {
       email: nextEmail,
@@ -1343,19 +1368,18 @@ async function updateEmployeeEmail(formData: FormData) {
     }
   }
 
-  const { error } = await admin
-    .from("organization_members")
-    .update({ email: nextEmail })
-    .eq("id", memberId)
-    .eq("organization_id", organizationId);
+  const inviteResult = await sendBusinessInviteEmail({
+    organization,
+    member: {
+      id: member.id,
+      name: member.name,
+      email: nextEmail,
+      role: member.role
+    }
+  });
 
-  if (error) {
-    console.error("Business member email update failed", {
-      organizationId,
-      memberId,
-      error: error.message
-    });
-    redirect(`/dashboard/business?org=${organizationId}&error=member_email_failed`);
+  if (!inviteResult.sent) {
+    redirect(`/dashboard/business?org=${organizationId}&error=business_invite_send_failed`);
   }
 
   redirect(`/dashboard/business?org=${organizationId}&saved=member_email`);

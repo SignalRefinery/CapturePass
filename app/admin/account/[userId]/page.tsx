@@ -9,6 +9,16 @@ import { normalizeUrl } from "@/lib/utils";
 
 const ADMIN_EMAILS = ["john@signalrefinery.pro"];
 
+function appUrl() {
+  return (process.env.NEXT_PUBLIC_APP_URL || "https://taptagg.app").replace(/\/$/, "");
+}
+
+function passwordSetupUrl(nextPath: string) {
+  const url = new URL("/update-password", appUrl());
+  url.searchParams.set("next", nextPath);
+  return url.toString();
+}
+
 type PageProps = {
   params: Promise<{ userId: string }>;
 };
@@ -64,6 +74,14 @@ async function updateUserAction(formData: FormData) {
 
         if (authError) {
           throw new Error(authError.message);
+        }
+
+        const { error: resetError } = await admin.auth.resetPasswordForEmail(nextEmail, {
+          redirectTo: passwordSetupUrl(`/admin/account/${userId}`)
+        });
+
+        if (resetError) {
+          throw new Error(resetError.message);
         }
 
         updates.email = nextEmail;
