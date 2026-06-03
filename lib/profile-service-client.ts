@@ -19,7 +19,7 @@ export async function saveProfileClient(record: ProfileRecord, userId: string) {
 
   const { data: currentProfile, error: currentProfileError } = await supabase
     .from("profiles")
-    .select("slug, slug_status")
+    .select("slug, slug_status, is_active, stripe_plan_key, billing_exempt, lifetime_free, promo_code_used, is_admin")
     .eq("user_id", userId)
     .maybeSingle();
 
@@ -31,6 +31,16 @@ export async function saveProfileClient(record: ProfileRecord, userId: string) {
     currentProfile?.slug && currentSlugModeration.state !== "blocked"
       ? currentSlugModeration.normalized
       : safeFallbackSlugForUser(userId);
+
+  const effectivePlanRecord: ProfileRecord = {
+    ...record,
+    is_active: currentProfile?.is_active ?? record.is_active,
+    stripe_plan_key: currentProfile?.stripe_plan_key ?? record.stripe_plan_key,
+    billing_exempt: currentProfile?.billing_exempt ?? record.billing_exempt,
+    lifetime_free: currentProfile?.lifetime_free ?? record.lifetime_free,
+    promo_code_used: currentProfile?.promo_code_used ?? record.promo_code_used,
+    is_admin: currentProfile?.is_admin ?? record.is_admin
+  };
 
   if (moderation.normalized !== currentSlugModeration.normalized) {
     const slugTaken = await isSlugTakenClient(moderation.normalized, userId);
@@ -61,7 +71,7 @@ export async function saveProfileClient(record: ProfileRecord, userId: string) {
           slug_status: "approved",
           slug_review_reason: null
       };
-  const themeKey = coerceThemeForPlan(record.theme_key, getProfilePlan(record));
+  const themeKey = coerceThemeForPlan(effectivePlanRecord.theme_key, getProfilePlan(effectivePlanRecord));
   const useCustomColors = themeKey === "custom";
 
   const profilePayload = {
@@ -77,6 +87,7 @@ export async function saveProfileClient(record: ProfileRecord, userId: string) {
     brand_color_primary: useCustomColors && isHexColor(record.brand_color_primary) ? record.brand_color_primary : null,
     brand_color_secondary: useCustomColors && isHexColor(record.brand_color_secondary) ? record.brand_color_secondary : null,
     brand_color_accent: useCustomColors && isHexColor(record.brand_color_accent) ? record.brand_color_accent : null,
+    brand_color_background: useCustomColors && isHexColor(record.brand_color_background) ? record.brand_color_background : null,
     brand_color_text: useCustomColors && isHexColor(record.brand_color_text) ? record.brand_color_text : null,
     profile_badge_1: record.profile_badge_1 || "",
     profile_badge_2: record.profile_badge_2 || "",
