@@ -53,7 +53,7 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
     name: "Executive Navy",
     description: "A confident navy palette for polished professional profiles.",
     colors: {
-      primary: "#0F172A",
+      primary: "#2563EB",
       secondary: "#1E293B",
       accent: "#2563EB",
       text: "#FFFFFF",
@@ -66,7 +66,7 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
     name: "Modern Slate",
     description: "A crisp slate theme with a bright cyan accent.",
     colors: {
-      primary: "#111827",
+      primary: "#06B6D4",
       secondary: "#374151",
       accent: "#06B6D4",
       text: "#FFFFFF",
@@ -79,7 +79,7 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
     name: "Executive Gold",
     description: "A premium dark executive palette with warm gold accents.",
     colors: {
-      primary: "#1C2431",
+      primary: "#D4A017",
       secondary: "#334155",
       accent: "#D4A017",
       text: "#FFFAF0",
@@ -92,7 +92,7 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
     name: "Arctic White",
     description: "A crisp white profile with clean blue action emphasis.",
     colors: {
-      primary: "#FFFFFF",
+      primary: "#2563EB",
       secondary: "#F3F4F6",
       accent: "#2563EB",
       text: "#111827",
@@ -105,7 +105,7 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
     name: "Emerald Executive",
     description: "A fresh light profile with confident green professional accents.",
     colors: {
-      primary: "#FFFFFF",
+      primary: "#059669",
       secondary: "#ECFDF5",
       accent: "#059669",
       text: "#1F2937",
@@ -118,7 +118,7 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
     name: "Arctic White",
     description: "A crisp white profile with clean blue action emphasis.",
     colors: {
-      primary: "#FFFFFF",
+      primary: "#2563EB",
       secondary: "#F3F4F6",
       accent: "#2563EB",
       text: "#111827",
@@ -131,7 +131,7 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
     name: "Ivory Executive",
     description: "A warm premium light profile with understated executive accents.",
     colors: {
-      primary: "#FFFEFC",
+      primary: "#B45309",
       secondary: "#F7F3ED",
       accent: "#B45309",
       text: "#2C241D",
@@ -144,7 +144,7 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
     name: "Coastal Blue",
     description: "A bright approachable profile with polished blue accents.",
     colors: {
-      primary: "#FFFFFF",
+      primary: "#0284C7",
       secondary: "#EAF4FF",
       accent: "#0284C7",
       text: "#0F172A",
@@ -157,7 +157,7 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
     name: "Emerald Executive",
     description: "A fresh light profile with confident green professional accents.",
     colors: {
-      primary: "#FFFFFF",
+      primary: "#059669",
       secondary: "#ECFDF5",
       accent: "#059669",
       text: "#1F2937",
@@ -170,7 +170,7 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
     name: "Sandstone",
     description: "A warm refined profile for real estate, lending, and boutique brands.",
     colors: {
-      primary: "#FFFFFF",
+      primary: "#C08457",
       secondary: "#F5F1E8",
       accent: "#C08457",
       text: "#3A312A",
@@ -183,7 +183,7 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
     name: "Modern Rose",
     description: "A clean expressive light profile with boutique rose accents.",
     colors: {
-      primary: "#FFFFFF",
+      primary: "#E11D48",
       secondary: "#FFF1F2",
       accent: "#E11D48",
       text: "#1F2937",
