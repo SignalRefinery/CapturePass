@@ -25,6 +25,7 @@ create table if not exists public.profiles (
   brand_color_primary text,
   brand_color_secondary text,
   brand_color_accent text,
+  brand_color_background text,
   brand_color_text text,
   profile_badge_1 text not null default '',
   profile_badge_2 text not null default '',
@@ -138,6 +139,7 @@ create table if not exists public.organizations (
   brand_color_primary text,
   brand_color_secondary text,
   brand_color_accent text,
+  brand_color_background text,
   brand_color_text text,
   theme_key text not null default 'executive_navy',
   brand_theme text not null default 'full_color',
@@ -1025,6 +1027,7 @@ begin
     new.brand_color_primary := null;
     new.brand_color_secondary := null;
     new.brand_color_accent := null;
+    new.brand_color_background := null;
     new.brand_color_text := null;
   end if;
 
@@ -1034,7 +1037,7 @@ $$;
 
 drop trigger if exists enforce_profile_theme_entitlement on public.profiles;
 create trigger enforce_profile_theme_entitlement
-before insert or update of theme_key, brand_color_primary, brand_color_secondary, brand_color_accent, brand_color_text, stripe_plan_key, is_active, billing_exempt, lifetime_free, promo_code_used, is_admin
+before insert or update of theme_key, brand_color_primary, brand_color_secondary, brand_color_accent, brand_color_background, brand_color_text, stripe_plan_key, is_active, billing_exempt, lifetime_free, promo_code_used, is_admin
 on public.profiles
 for each row
 execute function public.enforce_profile_theme_entitlement();

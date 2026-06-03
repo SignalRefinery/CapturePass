@@ -199,7 +199,7 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
   custom: {
     key: "custom",
     name: "Custom Brand Colors",
-    description: "Use your own CTA, icon, glow, and text colors.",
+    description: "Use your own CTA, icon, glow, background, and text colors.",
     colors: {
       primary: "#0F172A",
       secondary: "#1E293B",
@@ -255,12 +255,14 @@ export function resolveThemeColors({
   customPrimary,
   customSecondary,
   customAccent,
+  customBackground,
   customText
 }: {
   themeKey?: string | null;
   customPrimary?: string | null;
   customSecondary?: string | null;
   customAccent?: string | null;
+  customBackground?: string | null;
   customText?: string | null;
 }): ThemeColors {
   const normalized = normalizeThemeKey(themeKey);
@@ -275,6 +277,7 @@ export function resolveThemeColors({
     primary: isHexColor(customPrimary) ? customPrimary : preset.colors.primary,
     secondary: isHexColor(customSecondary) ? customSecondary : preset.colors.secondary,
     accent: isHexColor(customAccent) ? customAccent : preset.colors.accent,
+    background: isHexColor(customBackground) ? customBackground : preset.colors.background,
     text: isHexColor(customText) ? customText : preset.colors.text
   };
 }

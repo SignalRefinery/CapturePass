@@ -254,6 +254,14 @@ export function ProfileEditor({
   const plan = getProfilePlan(form);
   const selectedThemeKey = coerceThemeForPlan(form.theme_key, plan);
   const showCustomThemeColors = selectedThemeKey === CUSTOM_THEME_KEY;
+  const customThemeColors = resolveThemeColors({
+    themeKey: CUSTOM_THEME_KEY,
+    customPrimary: form.brand_color_primary,
+    customSecondary: form.brand_color_secondary,
+    customAccent: form.brand_color_accent,
+    customBackground: form.brand_color_background,
+    customText: form.brand_color_text
+  });
 
   const slugModeration = useMemo(() => classifySlug(slugInput || ""), [slugInput]);
   const activeSlugModeration = useMemo(() => classifySlug(form.slug || ""), [form.slug]);
@@ -758,15 +766,7 @@ export function ProfileEditor({
             <div className="theme-choice-list" role="radiogroup" aria-label="Profile theme">
               {PROFILE_THEME_OPTIONS.map((theme) => {
                 const allowed = themeIsAllowedForPlan(theme.key, plan.key);
-                const colors = theme.key === CUSTOM_THEME_KEY
-                  ? resolveThemeColors({
-                      themeKey: CUSTOM_THEME_KEY,
-                      customPrimary: form.brand_color_primary,
-                      customSecondary: form.brand_color_secondary,
-                      customAccent: form.brand_color_accent,
-                      customText: form.brand_color_text
-                    })
-                  : theme.colors;
+                const colors = theme.key === CUSTOM_THEME_KEY ? customThemeColors : theme.colors;
 
                 return (
                   <label className={`theme-choice-card${allowed ? "" : " is-disabled"}`} key={theme.key}>
@@ -833,6 +833,14 @@ export function ProfileEditor({
                   />
                 </label>
                 <label className="auth-field">
+                  <span>{THEME_COLOR_ROLE_LABELS.background}</span>
+                  <input
+                    type="color"
+                    value={form.brand_color_background || customThemeColors.background}
+                    onChange={(event) => update("brand_color_background", event.target.value)}
+                  />
+                </label>
+                <label className="auth-field">
                   <span>{THEME_COLOR_ROLE_LABELS.text}</span>
                   <input
                     type="color"
@@ -840,9 +848,6 @@ export function ProfileEditor({
                     onChange={(event) => update("brand_color_text", event.target.value)}
                   />
                 </label>
-                <small className="auth-message">
-                  {THEME_COLOR_ROLE_LABELS.background} is controlled by the selected theme preset.
-                </small>
               </div>
             ) : null}
           </div>

@@ -41,6 +41,7 @@ export type ProfileRecord = {
   brand_color_primary?: string | null;
   brand_color_secondary?: string | null;
   brand_color_accent?: string | null;
+  brand_color_background?: string | null;
   brand_color_text?: string | null;
   profile_badge_1?: string | null;
   profile_badge_2?: string | null;
@@ -84,6 +85,7 @@ export type OrganizationRecord = {
   brand_color_primary?: string | null;
   brand_color_secondary?: string | null;
   brand_color_accent?: string | null;
+  brand_color_background?: string | null;
   brand_color_text?: string | null;
   theme_key?: string | null;
   brand_theme?: "deep_brand" | "clean_light" | "full_color" | "custom" | null;

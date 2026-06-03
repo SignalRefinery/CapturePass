@@ -24,6 +24,7 @@ type ProfileLike = {
   brand_color_primary?: string | null;
   brand_color_secondary?: string | null;
   brand_color_accent?: string | null;
+  brand_color_background?: string | null;
   brand_color_text?: string | null;
   theme_key?: string | null;
   brand_theme?: string | null;
@@ -330,6 +331,7 @@ export function TapTaggProfileShell({
     customPrimary: activeProfile.brand_color_primary,
     customSecondary: activeProfile.brand_color_secondary,
     customAccent: activeProfile.brand_color_accent,
+    customBackground: activeProfile.brand_color_background,
     customText: activeProfile.brand_color_text
   });
   const brandStyle = {

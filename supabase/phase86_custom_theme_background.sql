@@ -1,13 +1,13 @@
--- Custom theme text color.
+-- Custom theme background color.
 --
--- Adds a text color for custom profile/business themes so light custom
--- palettes can remain readable.
+-- Adds background color support for custom profile and business themes while
+-- keeping the existing primary/secondary/accent storage shape intact.
 
 alter table public.profiles
-  add column if not exists brand_color_text text;
+  add column if not exists brand_color_background text;
 
 alter table public.organizations
-  add column if not exists brand_color_text text;
+  add column if not exists brand_color_background text;
 
 create or replace function public.enforce_profile_theme_entitlement()
 returns trigger
@@ -52,8 +52,8 @@ on public.profiles
 for each row
 execute function public.enforce_profile_theme_entitlement();
 
-comment on column public.profiles.brand_color_text
-is 'Custom theme text color. Used only when theme_key is custom.';
+comment on column public.profiles.brand_color_background
+is 'Custom theme background color. Used only when theme_key is custom.';
 
-comment on column public.organizations.brand_color_text
-is 'Custom business theme text color. Used only when theme_key is custom.';
+comment on column public.organizations.brand_color_background
+is 'Custom business theme background color. Used only when theme_key is custom.';

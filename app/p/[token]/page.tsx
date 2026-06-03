@@ -16,6 +16,7 @@ type BusinessPassOrganization = {
   brand_color_primary?: string | null;
   brand_color_secondary?: string | null;
   brand_color_accent?: string | null;
+  brand_color_background?: string | null;
   brand_color_text?: string | null;
   theme_key?: string | null;
   brand_theme?: "deep_brand" | "clean_light" | "full_color" | "custom" | null;
@@ -44,6 +45,7 @@ async function getPassOrganization(
       brand_color_primary,
       brand_color_secondary,
       brand_color_accent,
+      brand_color_background,
       brand_color_text,
       theme_key,
       brand_theme,
@@ -224,6 +226,7 @@ export default async function PassTokenPage({
     brand_color_primary: organization?.brand_color_primary || organization?.brand_color || null,
     brand_color_secondary: organization?.brand_color_secondary || null,
     brand_color_accent: organization?.brand_color_accent || null,
+    brand_color_background: organization?.brand_color_background || null,
     brand_color_text: organization?.brand_color_text || null,
     theme_key: organization?.theme_key || null,
     brand_theme: organization?.brand_theme || "full_color",

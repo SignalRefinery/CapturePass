@@ -62,6 +62,7 @@ begin
     new.brand_color_primary := null;
     new.brand_color_secondary := null;
     new.brand_color_accent := null;
+    new.brand_color_background := null;
     new.brand_color_text := null;
   end if;
 
@@ -71,7 +72,7 @@ $$;
 
 drop trigger if exists enforce_profile_theme_entitlement on public.profiles;
 create trigger enforce_profile_theme_entitlement
-before insert or update of theme_key, brand_color_primary, brand_color_secondary, brand_color_accent, brand_color_text, stripe_plan_key, is_active, billing_exempt, lifetime_free, promo_code_used, is_admin
+before insert or update of theme_key, brand_color_primary, brand_color_secondary, brand_color_accent, brand_color_background, brand_color_text, stripe_plan_key, is_active, billing_exempt, lifetime_free, promo_code_used, is_admin
 on public.profiles
 for each row
 execute function public.enforce_profile_theme_entitlement();

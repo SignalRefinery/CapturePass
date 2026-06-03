@@ -14,6 +14,7 @@ type BusinessBrandThemeFieldsProps = {
     | "brand_color_primary"
     | "brand_color_secondary"
     | "brand_color_accent"
+    | "brand_color_background"
     | "brand_color_text"
   >;
 };
@@ -39,6 +40,14 @@ export function BusinessBrandThemeFields({ organization }: BusinessBrandThemeFie
   const initialThemeKey = themeKeyForOrganization(organization);
   const [themeKey, setThemeKey] = useState(initialThemeKey);
   const showCustomColors = themeKey === CUSTOM_THEME_KEY;
+  const customThemeColors = resolveThemeColors({
+    themeKey: CUSTOM_THEME_KEY,
+    customPrimary: organization.brand_color_primary || organization.brand_color,
+    customSecondary: organization.brand_color_secondary,
+    customAccent: organization.brand_color_accent,
+    customBackground: organization.brand_color_background,
+    customText: organization.brand_color_text
+  });
 
   return (
     <div className="brand-theme-section">
@@ -46,15 +55,7 @@ export function BusinessBrandThemeFields({ organization }: BusinessBrandThemeFie
       <input type="hidden" name="theme_key" value={themeKey} />
       <div className="theme-choice-list" role="radiogroup" aria-label="Business brand theme">
         {BUSINESS_THEME_OPTIONS.map((theme) => {
-          const colors = theme.key === CUSTOM_THEME_KEY
-            ? resolveThemeColors({
-                themeKey: CUSTOM_THEME_KEY,
-                customPrimary: organization.brand_color_primary || organization.brand_color,
-                customSecondary: organization.brand_color_secondary,
-                customAccent: organization.brand_color_accent,
-                customText: organization.brand_color_text
-              })
-            : theme.colors;
+          const colors = theme.key === CUSTOM_THEME_KEY ? customThemeColors : theme.colors;
 
           return (
             <label className="theme-choice-card" key={theme.key}>
@@ -121,6 +122,15 @@ export function BusinessBrandThemeFields({ organization }: BusinessBrandThemeFie
             />
           </label>
           <label className="editor-label">
+            {THEME_COLOR_ROLE_LABELS.background}
+            <input
+              className="editor-input"
+              name="brand_color_background"
+              type="color"
+              defaultValue={organization.brand_color_background || customThemeColors.background}
+            />
+          </label>
+          <label className="editor-label">
             {THEME_COLOR_ROLE_LABELS.text}
             <input
               className="editor-input"
@@ -129,9 +139,6 @@ export function BusinessBrandThemeFields({ organization }: BusinessBrandThemeFie
               defaultValue={organization.brand_color_text || "#FFFFFF"}
             />
           </label>
-          <small className="auth-message">
-            {THEME_COLOR_ROLE_LABELS.background} is controlled by the selected theme preset.
-          </small>
         </div>
       ) : null}
     </div>
