@@ -73,6 +73,27 @@
   --chip-bg:color-mix(in srgb, var(--profile-primary) 10%, rgba(255,255,255,.035));
 }
 
+.themeTapTaggBrand{
+  --text:#fffafc;
+  --muted:color-mix(in srgb, var(--profile-secondary) 22%, #ddd6fe);
+  --muted-2:color-mix(in srgb, var(--profile-primary) 30%, #c4b5fd);
+  --shell-bg:
+    radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--profile-primary) 36%, transparent) 0%, transparent 42%),
+    linear-gradient(145deg, color-mix(in srgb, var(--profile-primary) 50%, #09060f) 0%, color-mix(in srgb, var(--profile-secondary) 26%, #10081b) 50%, color-mix(in srgb, var(--profile-accent) 18%, #09060f) 100%);
+  --topbar-bg:color-mix(in srgb, var(--profile-primary) 18%, rgba(0,0,0,.5));
+  --brand-copy:#fffafc;
+  --hero-wash:
+    radial-gradient(circle at 50% 12%, color-mix(in srgb, var(--profile-secondary) 40%, transparent) 0%, transparent 42%),
+    radial-gradient(circle at 16% 34%, color-mix(in srgb, var(--profile-primary) 30%, transparent) 0%, transparent 36%),
+    radial-gradient(circle at 82% 28%, color-mix(in srgb, var(--profile-accent) 24%, transparent) 0%, transparent 34%);
+  --panel-bg:
+    linear-gradient(180deg, color-mix(in srgb, var(--profile-secondary) 12%, rgba(255,255,255,.045)), rgba(255,255,255,.02)),
+    linear-gradient(145deg, color-mix(in srgb, var(--profile-primary) 34%, #0b0712) 0%, color-mix(in srgb, var(--profile-accent) 14%, #08050d) 100%);
+  --link-bg:color-mix(in srgb, var(--profile-primary) 12%, rgba(255,255,255,.04));
+  --link-hover-bg:color-mix(in srgb, var(--profile-secondary) 18%, rgba(255,255,255,.06));
+  --chip-bg:color-mix(in srgb, var(--profile-primary) 10%, rgba(255,255,255,.04));
+}
+
 .themeExecutiveGold{
   --text:#fffaf0;
   --muted:#e6dcc4;

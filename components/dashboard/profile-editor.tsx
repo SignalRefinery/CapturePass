@@ -5,7 +5,7 @@ import type { ProfileRecord, ProfileViewRecord } from "@/lib/types";
 import { getProfilePlan } from "@/lib/plans";
 import { normalizeUrl } from "@/lib/utils";
 import { classifySlug } from "@/lib/slug-moderation";
-import { CUSTOM_THEME_KEY, THEME_OPTIONS, coerceThemeForPlan, resolveThemeColors, themeIsAllowedForPlan } from "@/lib/themes";
+import { CUSTOM_THEME_KEY, PROFILE_THEME_OPTIONS, coerceThemeForPlan, resolveThemeColors, themeIsAllowedForPlan } from "@/lib/themes";
 import {
   deleteProfileViewClient,
   getProfileIdForUserClient,
@@ -756,7 +756,7 @@ export function ProfileEditor({
               themes are available.
             </p>
             <div className="theme-choice-list" role="radiogroup" aria-label="Profile theme">
-              {THEME_OPTIONS.map((theme) => {
+              {PROFILE_THEME_OPTIONS.map((theme) => {
                 const allowed = themeIsAllowedForPlan(theme.key, plan.key);
                 const colors = theme.key === CUSTOM_THEME_KEY
                   ? resolveThemeColors({

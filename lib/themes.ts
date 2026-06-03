@@ -34,11 +34,11 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
     name: "TapTagg Brand",
     description: "The TapTagg purple palette for personal profiles.",
     colors: {
-      primary: "#8B5CF6",
-      secondary: "#A78BFA",
-      accent: "#6D28D9",
-      text: "#1F2937",
-      background: "#F5F3FF"
+      primary: "#6D28D9",
+      secondary: "#8B5CF6",
+      accent: "#C084FC",
+      text: "#FFFFFF",
+      background: "#120B24"
     },
     allowedPlans: ["free", "digital", "core", "tagg_plus", "creator", "business"]
   },
@@ -124,6 +124,7 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
 export const THEME_OPTIONS = Object.values(THEME_PRESETS);
 export const PRESET_THEME_OPTIONS = THEME_OPTIONS.filter((theme) => theme.key !== CUSTOM_THEME_KEY);
 export const BUSINESS_THEME_OPTIONS = THEME_OPTIONS.filter((theme) => theme.key !== "taptagg_brand");
+export const PROFILE_THEME_OPTIONS = THEME_OPTIONS.filter((theme) => theme.key !== "executive_navy");
 
 export function normalizeThemeKey(value?: string | null): ThemeKey {
   return value && value in THEME_PRESETS ? (value as ThemeKey) : DEFAULT_THEME_KEY;
@@ -141,6 +142,10 @@ export function allowedThemesForPlan(plan: PlanFeatures | PlanKey) {
 export function coerceThemeForPlan(themeKey: string | null | undefined, plan: PlanFeatures | PlanKey) {
   const normalized = normalizeThemeKey(themeKey);
   const key = typeof plan === "string" ? plan : plan.key;
+  if (normalized === "executive_navy" && key !== "business") {
+    return DEFAULT_THEME_KEY;
+  }
+
   return themeIsAllowedForPlan(normalized, key) ? normalized : DEFAULT_THEME_KEY;
 }
 

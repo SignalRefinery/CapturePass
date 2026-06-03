@@ -150,6 +150,10 @@ function initialsForName(name?: string | null) {
 function themeClassName(theme?: string | null) {
   const themeKey = normalizeThemeKey(theme);
 
+  if (themeKey === "taptagg_brand") {
+    return styles.themeTapTaggBrand;
+  }
+
   if (themeKey === "clean_horizon" || themeKey === "sage_professional") {
     return themeKey === "sage_professional"
       ? `${styles.themeCleanLight} ${styles.themeSageProfessional}`
@@ -307,7 +311,11 @@ export function TapTaggProfileShell({
   const descriptor = activeProfile.role_line && activeProfile.organization_name
     ? `${activeProfile.role_line} at ${activeProfile.organization_name}`
     : activeProfile.role_line || activeProfile.organization_name || "Digital contact card";
-  const resolvedThemeKey = activeProfile.theme_key || (activeProfile.brand_theme === "custom" ? "custom" : null);
+  const isBusinessProfile = activeProfile.is_business_profile === true;
+  const resolvedThemeKey =
+    activeProfile.theme_key && !isBusinessProfile && normalizeThemeKey(activeProfile.theme_key) === "executive_navy"
+      ? "taptagg_brand"
+      : activeProfile.theme_key || (activeProfile.brand_theme === "custom" ? "custom" : null);
   const resolvedThemeColors = resolveThemeColors({
     themeKey: resolvedThemeKey,
     customPrimary: activeProfile.brand_color_primary,
@@ -324,9 +332,8 @@ export function TapTaggProfileShell({
   } as CSSProperties;
   const pageClassName = [
     styles.page,
-    activeProfile.theme_key ? themeClassName(activeProfile.theme_key) : legacyThemeClassName(activeProfile.brand_theme)
+    resolvedThemeKey ? themeClassName(resolvedThemeKey) : legacyThemeClassName(activeProfile.brand_theme)
   ].filter(Boolean).join(" ");
-  const isBusinessProfile = activeProfile.is_business_profile === true;
   const homeHref = isBusinessProfile ? activeProfile.business_home_url || readableUrl : "/";
   const businessLinks = isBusinessProfile
     ? (activeProfile.business_links || []).filter((item) => item.title && item.url)
