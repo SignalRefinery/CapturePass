@@ -27,6 +27,32 @@ function safeVcardFilename(slug: string) {
   return `${safeSlug || "taptagg-contact"}.vcf`;
 }
 
+function cleanValue(value?: string | null) {
+  const trimmed = (value || "").trim();
+  return trimmed.length ? trimmed : null;
+}
+
+async function getAuthFullName(userId?: string | null) {
+  if (!userId) return null;
+
+  const admin = createAdminClient();
+  const { data, error } = await admin.auth.admin.getUserById(userId);
+
+  if (error || !data?.user) {
+    return null;
+  }
+
+  const meta = data.user.user_metadata || {};
+  return (
+    cleanValue(typeof meta.full_name === "string" ? meta.full_name : null) ||
+    cleanValue(
+      `${typeof meta.first_name === "string" ? meta.first_name : ""} ${
+        typeof meta.last_name === "string" ? meta.last_name : ""
+      }`
+    )
+  );
+}
+
 function profileToVcardContact(profile: ProfileRecord) {
   return {
     full_name: profile.full_name,
@@ -61,6 +87,8 @@ export async function GET(request: Request, context: RouteContext) {
   }
 
   const contact = profileToVcardContact(profile);
+  const authFullName = await getAuthFullName(profile.user_id || null);
+  const displayName = authFullName || contact.full_name;
   const publicProfileUrl = getProfileUrl(request, slug);
   const websiteUrl = contact.website_url || "";
   const profileUrlLine = websiteUrl === publicProfileUrl ? "" : `URL:${escapeVcf(publicProfileUrl)}`;
@@ -68,7 +96,8 @@ export async function GET(request: Request, context: RouteContext) {
   const vcard = [
     "BEGIN:VCARD",
     "VERSION:3.0",
-    `FN:${escapeVcf(contact.full_name)}`,
+    `FN:${escapeVcf(displayName)}`,
+    `N:${escapeVcf(displayName)}`,
     contact.organization_name ? `ORG:${escapeVcf(contact.organization_name)}` : "",
     contact.role_line ? `TITLE:${escapeVcf(contact.role_line)}` : "",
     contact.show_email && contact.email ? `EMAIL;TYPE=INTERNET:${escapeVcf(contact.email)}` : "",

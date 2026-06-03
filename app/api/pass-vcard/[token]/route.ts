@@ -27,6 +27,32 @@ function safeVcardFilename(name?: string | null) {
   return `${safeName || "taptagg-contact"}.vcf`;
 }
 
+function cleanValue(value?: string | null) {
+  const trimmed = (value || "").trim();
+  return trimmed.length ? trimmed : null;
+}
+
+async function getAuthFullName(userId?: string | null) {
+  if (!userId) return null;
+
+  const admin = createAdminClient();
+  const { data, error } = await admin.auth.admin.getUserById(userId);
+
+  if (error || !data?.user) {
+    return null;
+  }
+
+  const meta = data.user.user_metadata || {};
+  return (
+    cleanValue(typeof meta.full_name === "string" ? meta.full_name : null) ||
+    cleanValue(
+      `${typeof meta.first_name === "string" ? meta.first_name : ""} ${
+        typeof meta.last_name === "string" ? meta.last_name : ""
+      }`
+    )
+  );
+}
+
 function getPassUrl(request: Request, token: string) {
   const configuredOrigin = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL;
   const origin = configuredOrigin || new URL(request.url).origin;
@@ -68,7 +94,8 @@ export async function GET(request: Request, context: RouteContext) {
         .eq("user_id", member.user_id)
         .maybeSingle()
     : { data: null };
-  const memberName = memberProfile?.full_name?.trim() || member?.name || "";
+  const authFullName = await getAuthFullName(member?.user_id || null);
+  const memberName = authFullName || memberProfile?.full_name?.trim() || member?.name || "";
 
   if (!member || member.status !== "active" || !memberName) {
     return new NextResponse("Not found", { status: 404, headers: PROFILE_CACHE_HEADERS });
@@ -79,6 +106,7 @@ export async function GET(request: Request, context: RouteContext) {
     "BEGIN:VCARD",
     "VERSION:3.0",
     `FN:${escapeVcf(memberName)}`,
+    `N:${escapeVcf(memberName)}`,
     organization?.name ? `ORG:${escapeVcf(organization.name)}` : "",
     member.title ? `TITLE:${escapeVcf(member.title)}` : "",
     member.email ? `EMAIL;TYPE=INTERNET:${escapeVcf(member.email)}` : "",
