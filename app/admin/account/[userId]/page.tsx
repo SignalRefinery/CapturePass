@@ -49,7 +49,25 @@ async function updateUserAction(formData: FormData) {
       updates.full_name = value.trim() || null;
       break;
     case "email":
-      updates.email = value.trim() || null;
+      {
+        const nextEmail = value.trim().toLowerCase();
+
+        if (!nextEmail) {
+          updates.email = null;
+          break;
+        }
+
+        const { error: authError } = await admin.auth.admin.updateUserById(userId, {
+          email: nextEmail,
+          email_confirm: true
+        });
+
+        if (authError) {
+          throw new Error(authError.message);
+        }
+
+        updates.email = nextEmail;
+      }
       break;
     case "slug": {
       const moderation = classifySlug(value);

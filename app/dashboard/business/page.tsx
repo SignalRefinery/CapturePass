@@ -107,6 +107,8 @@ function businessErrorMessage(error?: string) {
       return "Employee headshot could not be uploaded. Confirm phase80_business_asset_uploads.sql has been run in Supabase.";
     case "missing_member_email":
       return "That person needs an email address before a login invite can be sent.";
+    case "member_email_failed":
+      return "The member email could not be updated. Check the address and try again.";
     case "business_invite_send_failed":
       return "The login invite could not be sent. Check Supabase Auth email settings, allowed redirect URLs, and the member email address.";
     case "digital_pass_send_failed":
@@ -1295,6 +1297,70 @@ async function updateEmployeeRole(formData: FormData) {
   redirect(`/dashboard/business?org=${organizationId}`);
 }
 
+async function updateEmployeeEmail(formData: FormData) {
+  "use server";
+
+  const organizationId = String(formData.get("organization_id") || "");
+  await requireBusinessAdmin(organizationId);
+
+  const memberId = String(formData.get("member_id") || "");
+  const nextEmail = String(formData.get("email") || "").trim().toLowerCase();
+  const admin = createAdminClient();
+
+  if (!nextEmail) {
+    redirect(`/dashboard/business?org=${organizationId}&error=missing_member_email`);
+  }
+
+  const { data: member } = await admin
+    .from("organization_members")
+    .select("id, user_id, name, email, role, status")
+    .eq("id", memberId)
+    .eq("organization_id", organizationId)
+    .maybeSingle();
+
+  if (!member) {
+    redirect(`/dashboard/business?org=${organizationId}&error=member_not_found`);
+  }
+
+  if (isPlatformAdminMember(member)) {
+    redirect(`/dashboard/business?org=${organizationId}&error=platform_admin_locked`);
+  }
+
+  if (member.user_id) {
+    const { error: authError } = await admin.auth.admin.updateUserById(member.user_id, {
+      email: nextEmail,
+      email_confirm: true
+    });
+
+    if (authError) {
+      console.error("Business member auth email update failed", {
+        organizationId,
+        memberId,
+        userId: member.user_id,
+        error: authError.message
+      });
+      redirect(`/dashboard/business?org=${organizationId}&error=member_email_failed`);
+    }
+  }
+
+  const { error } = await admin
+    .from("organization_members")
+    .update({ email: nextEmail })
+    .eq("id", memberId)
+    .eq("organization_id", organizationId);
+
+  if (error) {
+    console.error("Business member email update failed", {
+      organizationId,
+      memberId,
+      error: error.message
+    });
+    redirect(`/dashboard/business?org=${organizationId}&error=member_email_failed`);
+  }
+
+  redirect(`/dashboard/business?org=${organizationId}&saved=member_email`);
+}
+
 async function updateEmployeeStatus(formData: FormData) {
   "use server";
 
@@ -1676,6 +1742,14 @@ export default async function BusinessDashboardPage({
           </div>
         </section>
       ) : null}
+      {params?.saved === "member_email" ? (
+        <section className="dashboard-wrap">
+          <div className="dashboard-card pass-alert">
+            <div className="dashboard-kicker">Updated</div>
+            <p className="editor-copy">Member email was updated.</p>
+          </div>
+        </section>
+      ) : null}
 
       <section className="dashboard-wrap">
         <div className="dashboard-card">
@@ -1791,6 +1865,24 @@ export default async function BusinessDashboardPage({
                                         </ConfirmSubmitButton>
                                       </form>
                                     ) : null}
+
+                                    <div className="dashboard-kicker">Email</div>
+                                    <form action={updateEmployeeEmail} className="table-actions">
+                                      <input type="hidden" name="organization_id" value={organization.id} />
+                                      <input type="hidden" name="member_id" value={member.id} />
+                                      <input
+                                        className="editor-input"
+                                        name="email"
+                                        type="email"
+                                        defaultValue={member.email || ""}
+                                        placeholder="name@example.com"
+                                        autoComplete="email"
+                                      />
+                                      <button className="button secondary" type="submit">Save email</button>
+                                    </form>
+                                    <p className="table-subtext">
+                                      Updates the business member email used for invites and digital pass delivery.
+                                    </p>
 
                                     <div className="dashboard-kicker">Token and digital pass</div>
                                     {assignedToken ? (
