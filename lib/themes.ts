@@ -75,7 +75,7 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
       secondary: "#374151",
       accent: "#06B6D4",
       text: "#FFFFFF",
-      background: "#F9FAFB"
+      background: "#374151"
     },
     allowedPlans: ["core", "tagg_plus", "creator", "business"]
   },
@@ -88,7 +88,7 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
       secondary: "#334155",
       accent: "#D4A017",
       text: "#FFFAF0",
-      background: "#FAF8F3"
+      background: "#334155"
     },
     allowedPlans: ["tagg_plus", "creator", "business"]
   },
@@ -113,8 +113,8 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
       primary: "#059669",
       secondary: "#ECFDF5",
       accent: "#059669",
-      text: "#1F2937",
-      background: "#FAFFFC"
+      text: "#FAFFFC",
+      background: "#003014"
     },
     allowedPlans: ["tagg_plus", "creator", "business"]
   },
