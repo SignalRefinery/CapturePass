@@ -40,7 +40,7 @@ export default async function BusinessDigitalPassPage({ params, searchParams }: 
   const [{ data: member }, { data: organization }] = await Promise.all([
     admin
       .from("organization_members")
-      .select("id, name, title, status")
+      .select("id, user_id, name, title, status")
       .eq("id", passToken.assigned_member_id)
       .maybeSingle(),
     passToken.organization_id
@@ -52,7 +52,16 @@ export default async function BusinessDigitalPassPage({ params, searchParams }: 
       : Promise.resolve({ data: null })
   ]);
 
-  if (!member || member.status !== "active" || !member.name) {
+  const { data: memberProfile } = member?.user_id
+    ? await admin
+        .from("profiles")
+        .select("full_name")
+        .eq("user_id", member.user_id)
+        .maybeSingle()
+    : { data: null };
+  const memberName = memberProfile?.full_name?.trim() || member?.name || "";
+
+  if (!member || member.status !== "active" || !memberName) {
     notFound();
   }
 
@@ -69,7 +78,7 @@ export default async function BusinessDigitalPassPage({ params, searchParams }: 
   return (
     <main className="public-pass-page">
       <DigitalPassCard
-        name={member.name}
+        name={memberName}
         roleLine={member.title || ""}
         organizationName={organization?.name || null}
         defaultViewId="business"

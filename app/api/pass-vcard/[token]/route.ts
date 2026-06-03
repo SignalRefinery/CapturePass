@@ -49,7 +49,7 @@ export async function GET(request: Request, context: RouteContext) {
   const [{ data: member }, { data: organization }] = await Promise.all([
     admin
       .from("organization_members")
-      .select("name, email, phone, title, status")
+      .select("id, user_id, name, email, phone, title, status")
       .eq("id", passToken.assigned_member_id)
       .maybeSingle(),
     passToken.organization_id
@@ -61,7 +61,16 @@ export async function GET(request: Request, context: RouteContext) {
       : Promise.resolve({ data: null })
   ]);
 
-  if (!member || member.status !== "active" || !member.name) {
+  const { data: memberProfile } = member?.user_id
+    ? await admin
+        .from("profiles")
+        .select("full_name")
+        .eq("user_id", member.user_id)
+        .maybeSingle()
+    : { data: null };
+  const memberName = memberProfile?.full_name?.trim() || member?.name || "";
+
+  if (!member || member.status !== "active" || !memberName) {
     return new NextResponse("Not found", { status: 404, headers: PROFILE_CACHE_HEADERS });
   }
 
@@ -69,7 +78,7 @@ export async function GET(request: Request, context: RouteContext) {
   const vcard = [
     "BEGIN:VCARD",
     "VERSION:3.0",
-    `FN:${escapeVcf(member.name)}`,
+    `FN:${escapeVcf(memberName)}`,
     organization?.name ? `ORG:${escapeVcf(organization.name)}` : "",
     member.title ? `TITLE:${escapeVcf(member.title)}` : "",
     member.email ? `EMAIL;TYPE=INTERNET:${escapeVcf(member.email)}` : "",
@@ -79,7 +88,7 @@ export async function GET(request: Request, context: RouteContext) {
   ]
     .filter(Boolean)
     .join("\r\n");
-  const filename = safeVcardFilename(member.name);
+  const filename = safeVcardFilename(memberName);
 
   admin.from("analytics_events").insert({
     event_type: "vcard_download",

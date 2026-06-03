@@ -149,12 +149,20 @@ export default async function PassTokenPage({
         ];
   const organization = organizationResult.organization;
   const organizationError = organizationResult.error;
+  const { data: memberProfile } = member?.user_id
+    ? await admin
+        .from("profiles")
+        .select("full_name")
+        .eq("user_id", member.user_id)
+        .maybeSingle()
+    : { data: null };
+  const memberName = memberProfile?.full_name?.trim() || member?.name || "";
   const canRender =
     !tokenError &&
     !memberError &&
     passToken?.status === "active" &&
     member?.status === "active" &&
-    !!member?.name;
+    !!memberName;
 
   if (!canRender) {
     console.info("Business pass token inactive or unresolved", {
@@ -209,7 +217,7 @@ export default async function PassTokenPage({
     analytics_organization_member_id: member.id,
     analytics_card_id: passToken.id,
     business_links: businessLinks,
-    full_name: member.name,
+    full_name: memberName,
     organization_name: organization?.name || "",
     profile_image_url: member.headshot_url || null,
     brand_logo_url: organization?.brand_logo_url || null,
@@ -220,7 +228,7 @@ export default async function PassTokenPage({
     theme_key: organization?.theme_key || null,
     brand_theme: organization?.brand_theme || "full_color",
     role_line: member.title || "",
-    intro: `Connect with ${member.name}${organization?.name ? ` at ${organization.name}` : ""}.`,
+    intro: `Connect with ${memberName}${organization?.name ? ` at ${organization.name}` : ""}.`,
     email: member.email || "",
     phone: member.phone || "",
     website_url: "",
