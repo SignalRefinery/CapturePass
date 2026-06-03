@@ -21,6 +21,7 @@ function passwordSetupUrl(nextPath: string) {
 
 type PageProps = {
   params: Promise<{ userId: string }>;
+  searchParams?: Promise<{ saved?: string; error?: string }>;
 };
 
 async function requireAdmin() {
@@ -230,6 +231,10 @@ async function updateUserAction(formData: FormData) {
 
   revalidatePath("/admin");
   revalidatePath(`/admin/account/${userId}`);
+
+  if (field === "email") {
+    redirect(`/admin/account/${userId}?saved=email`);
+  }
 }
 
 async function getInitialAuth() {
@@ -253,10 +258,11 @@ async function getInitialAuth() {
   };
 }
 
-export default async function AdminUserPage({ params }: PageProps) {
+export default async function AdminUserPage({ params, searchParams }: PageProps) {
   const { userId } = await params;
   await requireAdmin();
   const supabase = await createClient();
+  const query = searchParams ? await searchParams : {};
 
   const initialAuth = await getInitialAuth();
   const myProfileHref = initialAuth?.slug ? `/${initialAuth.slug}` : null;
@@ -295,6 +301,14 @@ export default async function AdminUserPage({ params }: PageProps) {
     >
       <section className="section-wrap">
         <div style={{ display: "grid", gap: 18 }}>
+          {query.saved === "email" ? (
+            <div className="card" style={{ padding: 20 }}>
+              <div className="dashboard-kicker">Updated</div>
+              <p className="editor-copy">
+                Email updated. A password setup link was sent to the new address.
+              </p>
+            </div>
+          ) : null}
           <div>
             <div className="dashboard-kicker">Admin account detail</div>
             <h1 className="section-title" style={{ marginTop: 6 }}>
