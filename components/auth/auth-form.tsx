@@ -11,6 +11,7 @@ type AuthFormProps = {
   mode: "login" | "signup";
   nextPath?: string | null;
   plan?: string | null;
+  initialPromoCode?: string | null;
 };
 
 type SlugAvailabilityResponse = {
@@ -20,7 +21,7 @@ type SlugAvailabilityResponse = {
   error?: string;
 };
 
-export function AuthForm({ mode, nextPath, plan }: AuthFormProps) {
+export function AuthForm({ mode, nextPath, plan, initialPromoCode }: AuthFormProps) {
   const router = useRouter();
   const supabase = useMemo(() => createClient(), []);
   const redirectTo = safeInternalRedirect(nextPath);
@@ -33,7 +34,7 @@ export function AuthForm({ mode, nextPath, plan }: AuthFormProps) {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [referral, setReferral] = useState("");
-  const [promoCode, setPromoCode] = useState("");
+  const [promoCode, setPromoCode] = useState((initialPromoCode || "").toUpperCase());
 
   const [loading, setLoading] = useState(false);
   const [resetLoading, setResetLoading] = useState(false);

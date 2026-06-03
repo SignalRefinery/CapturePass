@@ -496,6 +496,8 @@ async function createOrganization(formData: FormData) {
   const adminTitle = String(formData.get("admin_title") || "").trim();
   const businessPlan = getBusinessPlan(String(formData.get("business_plan_key") || "")) || BUSINESS_PLANS.business_starter_self;
   const businessBillingInterval = normalizeBusinessBillingInterval(String(formData.get("business_billing_interval") || ""));
+  const promoCode = String(formData.get("promo_code") || "").trim().toUpperCase();
+  const isFounderDemo = promoCode === "FOUNDERS";
 
   if (!name) redirect("/dashboard/business?error=missing_org_name");
   if (!adminName) redirect("/dashboard/business?error=missing_admin_name");
@@ -515,7 +517,13 @@ async function createOrganization(formData: FormData) {
       seat_limit: businessPlan.seatLimit,
       included_card_count: businessPlan.includedCards,
       card_allotment_total: businessPlan.includedCards,
-      is_managed: businessPlan.managed
+      is_managed: businessPlan.managed,
+      ...(isFounderDemo
+        ? {
+            subscription_status: "active",
+            setup_fee_paid_at: new Date().toISOString()
+          }
+        : {})
     })
     .select("id, name, slug")
     .single();
@@ -1542,6 +1550,14 @@ export default async function BusinessDashboardPage({
                       <input className="editor-input" name="admin_phone" type="tel" />
                     </label>
                   </div>
+                  <label className="editor-label">
+                    Promo code
+                    <input
+                      className="editor-input"
+                      name="promo_code"
+                      placeholder="Optional, use FOUNDERS for a demo-ready business"
+                    />
+                  </label>
                   <label className="editor-label">
                     Business plan
                     <select className="editor-input" name="business_plan_key" defaultValue="business_starter_self">

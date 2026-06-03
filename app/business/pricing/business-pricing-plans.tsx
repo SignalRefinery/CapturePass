@@ -24,6 +24,7 @@ type BusinessPricingTier = {
 
 export function BusinessPricingPlans({ tiers }: { tiers: BusinessPricingTier[] }) {
   const [billingInterval, setBillingInterval] = useState<BillingInterval>("monthly");
+  const [promoCode, setPromoCode] = useState("");
   const isAnnual = billingInterval === "annual";
 
   return (
@@ -53,6 +54,23 @@ export function BusinessPricingPlans({ tiers }: { tiers: BusinessPricingTier[] }
         {isAnnual ? <div style={billingSaveNote}>Annual billing uses discounted yearly Stripe prices.</div> : null}
       </div>
 
+      <div style={promoWrap}>
+        <label style={promoLabel}>
+          <span style={promoLabelText}>Promo code</span>
+          <input
+            style={promoInput}
+            type="text"
+            value={promoCode}
+            onChange={(event) => setPromoCode(event.target.value)}
+            placeholder="Optional"
+            autoComplete="off"
+          />
+        </label>
+        <div style={promoHint}>
+          Use <strong>FOUNDERS</strong> to route a business demo through the founder access flow.
+        </div>
+      </div>
+
       <div style={businessTierGrid}>
         {tiers.map((tier) => (
           <article style={businessTierCard} key={tier.tier}>
@@ -69,8 +87,18 @@ export function BusinessPricingPlans({ tiers }: { tiers: BusinessPricingTier[] }
             </div>
 
             <div style={businessPlanOptions}>
-              <PlanChoice option={tier.self} billingInterval={billingInterval} buttonClassName="button primary" />
-              <PlanChoice option={tier.managed} billingInterval={billingInterval} buttonClassName="button secondary" />
+              <PlanChoice
+                option={tier.self}
+                billingInterval={billingInterval}
+                buttonClassName="button primary"
+                promoCode={promoCode}
+              />
+              <PlanChoice
+                option={tier.managed}
+                billingInterval={billingInterval}
+                buttonClassName="button secondary"
+                promoCode={promoCode}
+              />
             </div>
           </article>
         ))}
@@ -82,15 +110,22 @@ export function BusinessPricingPlans({ tiers }: { tiers: BusinessPricingTier[] }
 function PlanChoice({
   billingInterval,
   buttonClassName,
-  option
+  option,
+  promoCode
 }: {
   billingInterval: BillingInterval;
   buttonClassName: string;
   option: PlanOption;
+  promoCode: string;
 }) {
   const isAnnual = billingInterval === "annual";
   const price = isAnnual ? `$${option.annualPrice.toLocaleString()}/yr` : `$${option.monthlyPrice}/mo`;
-  const href = `/api/checkout?plan=${encodeURIComponent(option.key)}${isAnnual ? "&billing=annual" : ""}`;
+  const hrefParams = new URLSearchParams({ plan: option.key });
+
+  if (isAnnual) hrefParams.set("billing", "annual");
+  if (promoCode.trim()) hrefParams.set("promo_code", promoCode.trim().toUpperCase());
+
+  const href = `/api/checkout?${hrefParams.toString()}`;
 
   return (
     <div style={businessPlanOption}>
@@ -157,6 +192,48 @@ const billingSaveNote = {
   color: "#d8ccff",
   fontSize: 13,
   fontWeight: 800
+};
+
+const promoWrap = {
+  gridColumn: "1 / -1",
+  display: "grid",
+  gap: 10,
+  justifyItems: "center",
+  padding: "8px 0 2px"
+};
+
+const promoLabel = {
+  display: "grid",
+  gap: 8,
+  width: "min(100%, 360px)"
+};
+
+const promoLabelText = {
+  color: "#d8ccff",
+  fontSize: 13,
+  fontWeight: 900,
+  letterSpacing: "0.08em",
+  textTransform: "uppercase" as const,
+  textAlign: "center" as const
+};
+
+const promoInput = {
+  width: "100%",
+  borderRadius: 14,
+  border: "1px solid rgba(167,139,250,.28)",
+  background: "rgba(8,8,10,.72)",
+  color: "#fff",
+  padding: "12px 14px",
+  font: "inherit",
+  fontSize: 15,
+  fontWeight: 700
+};
+
+const promoHint = {
+  color: "#b6bcc8",
+  fontSize: 13,
+  fontWeight: 600,
+  textAlign: "center" as const
 };
 
 const businessTierGrid = {

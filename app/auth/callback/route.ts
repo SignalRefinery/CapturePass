@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getBusinessPlan } from "@/lib/business/plans";
 import { safeInternalRedirect } from "@/lib/auth/redirect";
 import { claimBusinessOrganizationForUser } from "@/lib/business/organization-access";
 import { createClient } from "@/lib/supabase/server";
@@ -202,7 +203,10 @@ export async function GET(req: Request) {
   const promoCode = cleanValue(meta.promo_code)?.toUpperCase() || null;
   const referralCode = cleanValue(meta.referral_code_used);
   const isPublicOfficial = Boolean(meta.is_public_official);
-  const finalNextPath = promoCode === "FOUNDERS" ? "/dashboard" : nextPath;
+  const requestedBusinessPlan = requestedPlan ? getBusinessPlan(requestedPlan) : null;
+  const isBusinessCheckoutContinuation =
+    !!requestedBusinessPlan || (/^\/api\/checkout\?/.test(nextPath) && nextPath.includes("plan=business"));
+  const finalNextPath = promoCode === "FOUNDERS" && !isBusinessCheckoutContinuation ? "/dashboard" : nextPath;
 
   if (meta.business_only === true || meta.business_only === "true") {
     await claimBusinessOrganizationForUser({

@@ -31,11 +31,17 @@ const PLAN_PRICE_MAP: Record<string, string | undefined> = {
 type CheckoutPayload = {
   billing?: string;
   plan?: string;
+  promo_code?: string;
 };
 
 function getStringId(value: string | { id?: string } | null | undefined) {
   if (!value) return null;
   return typeof value === "string" ? value : value.id || null;
+}
+
+function normalizePromoCode(value?: string | null) {
+  const normalized = (value || "").trim().toUpperCase();
+  return normalized || null;
 }
 
 function stripeErrorDetails(error: unknown) {
@@ -122,6 +128,28 @@ async function getBillingIntervalFromRequest(req: Request) {
   return "monthly" as const;
 }
 
+async function getPromoCodeFromRequest(req: Request) {
+  const url = new URL(req.url);
+  const queryPromo = url.searchParams.get("promo_code");
+
+  if (queryPromo) return queryPromo;
+
+  const contentType = req.headers.get("content-type") || "";
+
+  if (contentType.includes("application/json")) {
+    const body = (await req.clone().json().catch(() => ({}))) as CheckoutPayload;
+    return body.promo_code || null;
+  }
+
+  if (contentType.includes("application/x-www-form-urlencoded") || contentType.includes("multipart/form-data")) {
+    const formData = await req.clone().formData().catch(() => null);
+    const formPromo = formData?.get("promo_code");
+    return typeof formPromo === "string" ? formPromo : null;
+  }
+
+  return null;
+}
+
 async function generateUniqueOrganizationSlug(name: string) {
   const admin = createAdminClient();
   const base = slugify(name) || `business-${Date.now()}`;
@@ -191,6 +219,37 @@ async function getOrCreateCheckoutOrganization({
   return organization;
 }
 
+async function activateFounderBusinessCheckout({
+  organizationId,
+  businessPlan,
+  billingInterval
+}: {
+  organizationId: string;
+  businessPlan: ReturnType<typeof getBusinessPlan>;
+  billingInterval: ReturnType<typeof normalizeBusinessBillingInterval>;
+}) {
+  if (!businessPlan) return;
+
+  const admin = createAdminClient();
+  const { error } = await admin
+    .from("organizations")
+    .update({
+      business_plan_key: businessPlan.key,
+      business_billing_interval: billingInterval,
+      seat_limit: businessPlan.seatLimit,
+      included_card_count: businessPlan.includedCards,
+      card_allotment_total: businessPlan.includedCards,
+      is_managed: businessPlan.managed,
+      managed_service_enabled: businessPlan.managed,
+      subscription_status: "active"
+    })
+    .eq("id", organizationId);
+
+  if (error) {
+    throw new Error(error.message || "Unable to activate founder business checkout.");
+  }
+}
+
 async function createCheckoutOrPortal(req: Request) {
   try {
     if (!process.env.STRIPE_SECRET_KEY) {
@@ -203,6 +262,7 @@ async function createCheckoutOrPortal(req: Request) {
 
     const requestedPlan = await getPlanFromRequest(req);
     const businessBillingInterval = await getBillingIntervalFromRequest(req);
+    const promoCode = normalizePromoCode(await getPromoCodeFromRequest(req));
     const businessPlan = getBusinessPlan(requestedPlan);
     const isAdditionalCardsRequest = requestedPlan === "additional-cards";
     const normalizedPlan = normalizePlanKey(requestedPlan);
@@ -246,25 +306,6 @@ async function createCheckoutOrPortal(req: Request) {
       );
     }
 
-    if (!selectedPriceId || (businessPlan && !businessSetupPriceId)) {
-      console.error("Checkout price configuration missing", {
-        route: "/api/checkout",
-        requestedPlan,
-        plan,
-        missingRecurringPrice: !selectedPriceId,
-        missingSetupPrice: businessPlan ? !businessSetupPriceId : false
-      });
-
-      if (req.method === "GET") {
-        return redirectWithParam(req, "/pricing", "checkout", "unavailable");
-      }
-
-      return NextResponse.json(
-        { error: "Checkout is temporarily unavailable for this TapTagg plan." },
-        { status: 500 }
-      );
-    }
-
     const siteUrl = getSiteUrl(req);
 
     const supabase = await createClient();
@@ -290,16 +331,19 @@ async function createCheckoutOrPortal(req: Request) {
     if (!user) {
       const signupUrl = new URL("/signup", siteUrl);
       signupUrl.searchParams.set("plan", plan);
+      if (promoCode) {
+        signupUrl.searchParams.set("promo_code", promoCode);
+      }
       signupUrl.searchParams.set(
         "next",
-        `/api/checkout?plan=${encodeURIComponent(plan)}${businessPlan ? `&billing=${businessBillingInterval}` : ""}`
+        `/api/checkout?plan=${encodeURIComponent(plan)}${businessPlan ? `&billing=${businessBillingInterval}` : ""}${promoCode ? `&promo_code=${encodeURIComponent(promoCode)}` : ""}`
       );
       return NextResponse.redirect(signupUrl.toString(), { status: 303 });
     }
 
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
-      .select("full_name, stripe_customer_id, stripe_subscription_id, stripe_plan_key")
+      .select("full_name, stripe_customer_id, stripe_subscription_id, stripe_plan_key, promo_code_used")
       .eq("user_id", user.id)
       .maybeSingle();
 
@@ -329,6 +373,42 @@ async function createCheckoutOrPortal(req: Request) {
           fallbackName: profile?.full_name
         })
       : null;
+
+    const isFounderPromo =
+      promoCode === "FOUNDERS" || normalizePromoCode(profile?.promo_code_used) === "FOUNDERS";
+
+    if (businessPlan && checkoutOrganization && isFounderPromo) {
+      await activateFounderBusinessCheckout({
+        organizationId: checkoutOrganization.id,
+        businessPlan,
+        billingInterval: businessBillingInterval
+      });
+
+      const founderBusinessUrl = new URL("/dashboard/business", siteUrl);
+      founderBusinessUrl.searchParams.set("org", checkoutOrganization.id);
+      founderBusinessUrl.searchParams.set("checkout", "success");
+
+      return NextResponse.redirect(founderBusinessUrl.toString(), { status: 303 });
+    }
+
+    if (!selectedPriceId || (businessPlan && !businessSetupPriceId)) {
+      console.error("Checkout price configuration missing", {
+        route: "/api/checkout",
+        requestedPlan,
+        plan,
+        missingRecurringPrice: !selectedPriceId,
+        missingSetupPrice: businessPlan ? !businessSetupPriceId : false
+      });
+
+      if (req.method === "GET") {
+        return redirectWithParam(req, "/pricing", "checkout", "unavailable");
+      }
+
+      return NextResponse.json(
+        { error: "Checkout is temporarily unavailable for this TapTagg plan." },
+        { status: 500 }
+      );
+    }
 
     if (businessPlan && checkoutOrganization?.stripe_customer_id && checkoutOrganization?.stripe_subscription_id) {
       let portal: Stripe.BillingPortal.Session;

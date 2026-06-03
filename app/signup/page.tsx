@@ -31,12 +31,14 @@ export default async function SignupPage({
   searchParams?: Promise<{
     plan?: string;
     next?: string;
+    promo_code?: string;
   }>;
 }) {
   const initialAuth = await getInitialAuth();
   const params = searchParams ? await searchParams : {};
   const plan = params?.plan || null;
   const nextPath = safeInternalRedirect(params?.next);
+  const promoCode = params?.promo_code || null;
   const loginHref = new URLSearchParams();
 
   if (plan) loginHref.set("plan", plan);
@@ -67,7 +69,7 @@ export default async function SignupPage({
 
       <section className="auth-wrap">
         <div className="auth-card">
-          <AuthForm mode="signup" nextPath={nextPath} plan={plan} />
+          <AuthForm mode="signup" nextPath={nextPath} plan={plan} initialPromoCode={promoCode} />
 
           <div className="card" style={{ marginTop: 18, padding: 16 }}>
             <div className="dashboard-kicker">Already signed up?</div>
