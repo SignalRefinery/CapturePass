@@ -125,6 +125,27 @@ export type OrganizationMemberRecord = {
   created_at?: string;
 };
 
+export type OrganizationWebhookRecord = {
+  id: string;
+  organization_id: string;
+  enabled: boolean;
+  webhook_url?: string | null;
+  webhook_secret?: string | null;
+  created_at?: string;
+  updated_at?: string;
+};
+
+export type WebhookDeliveryRecord = {
+  id: string;
+  organization_id: string;
+  event_type: string;
+  status_code?: number | null;
+  success: boolean;
+  attempted_at?: string;
+  response_body?: string | null;
+  error_message?: string | null;
+};
+
 export type PassTokenRecord = {
   id: string;
   organization_id?: string | null;

@@ -27,6 +27,7 @@ const platformFeatures = [
   "Team-ready profile templates",
   "QR and NFC sharing",
   "Contact sharing and export workflows",
+  "CRM Ready - Send new TapTagg leads to Zapier, Make, your CRM, email tools, SMS workflows, or custom business systems using outbound webhooks.",
   "Review, booking, menu, and form links",
   "Setup, onboarding, and support"
 ];
@@ -192,6 +193,10 @@ export default async function BusinessPage({
           <div>
             <span>Operations</span>
             <strong>Activate, update, reassign</strong>
+          </div>
+          <div>
+            <span>CRM Ready</span>
+            <strong>Outbound webhooks for TapTagg leads</strong>
           </div>
         </div>
       </section>

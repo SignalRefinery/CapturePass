@@ -4,10 +4,14 @@ import { useState } from "react";
 
 export function CopyLinkButton({
   value,
-  className = "button secondary"
+  className = "button secondary",
+  label = "Copy link",
+  copiedLabel = "Copied"
 }: {
   value: string;
   className?: string;
+  label?: string;
+  copiedLabel?: string;
 }) {
   const [copied, setCopied] = useState(false);
 
@@ -19,7 +23,7 @@ export function CopyLinkButton({
 
   return (
     <button className={className} type="button" onClick={copyLink}>
-      {copied ? "Copied" : "Copy link"}
+      {copied ? copiedLabel : label}
     </button>
   );
 }

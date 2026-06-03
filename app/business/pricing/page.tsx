@@ -23,6 +23,7 @@ const businessFeatures = [
   "Card/profile reassignment",
   "Business contacts dashboard",
   "Business analytics",
+  "CRM Ready - Send new TapTagg leads to Zapier, Make, your CRM, email tools, SMS workflows, or custom business systems using outbound webhooks.",
   "Team leaderboard",
   "Review, booking, menu, and form links",
   "CSV/export-ready contact data",
@@ -74,6 +75,9 @@ export default function BusinessPricingPage() {
         <p style={heroCopy}>
           Pick a seat capacity, choose self-managed or fully managed, and launch with
           NFC cards included based on purchased capacity, not currently filled seats.
+        </p>
+        <p style={{ ...heroCopy, marginTop: 14, fontSize: "clamp(15px, 1.6vw, 17px)", color: "#d8ccff" }}>
+          CRM Ready: Send new TapTagg leads to Zapier, Make, your CRM, email tools, SMS workflows, or custom business systems using outbound webhooks.
         </p>
       </section>
 

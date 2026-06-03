@@ -21,7 +21,7 @@ create table if not exists public.profiles (
   email text not null default '',
   phone text not null default '',
   website_url text not null default '',
-  theme_key text not null default 'executive_navy',
+  theme_key text not null default 'taptagg_brand',
   brand_color_primary text,
   brand_color_secondary text,
   brand_color_accent text,
@@ -74,7 +74,7 @@ create table if not exists public.profiles (
   constraint profiles_page_mode_check check (page_mode in ('single', 'multi')),
   constraint profiles_multi_view_display_mode_check check (multi_view_display_mode in ('landing', 'favorite')),
   constraint profiles_slug_status_check check (slug_status in ('approved', 'pending_review', 'rejected')),
-  constraint profiles_theme_key_check check (theme_key in ('executive_navy', 'modern_slate', 'executive_gold', 'clean_horizon', 'sage_professional', 'custom'))
+  constraint profiles_theme_key_check check (theme_key in ('taptagg_brand', 'executive_navy', 'modern_slate', 'executive_gold', 'clean_horizon', 'sage_professional', 'custom'))
 );
 
 create unique index if not exists profiles_user_id_idx on public.profiles (user_id);
@@ -985,7 +985,8 @@ returns boolean
 language sql
 stable
 as $$
-  select case coalesce(theme_key, 'executive_navy')
+  select case coalesce(theme_key, 'taptagg_brand')
+    when 'taptagg_brand' then true
     when 'executive_navy' then true
     when 'modern_slate' then plan_key in ('core', 'tagg_plus', 'creator', 'business')
     when 'clean_horizon' then plan_key in ('core', 'tagg_plus', 'creator', 'business')
@@ -1005,7 +1006,7 @@ as $$
 declare
   resolved_plan text;
 begin
-  new.theme_key := coalesce(nullif(new.theme_key, ''), 'executive_navy');
+  new.theme_key := coalesce(nullif(new.theme_key, ''), 'taptagg_brand');
   resolved_plan := public.profile_theme_plan_key(
     new.stripe_plan_key,
     new.is_active,

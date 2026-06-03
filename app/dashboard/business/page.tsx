@@ -4,6 +4,7 @@ import { AnalyticsSummary } from "@/components/analytics/analytics-summary";
 import { ContactTable } from "@/components/contacts/contact-table";
 import { BusinessBrandThemeFields } from "@/components/business/business-brand-theme-fields";
 import { CopyLinkButton } from "@/components/business/copy-link-button";
+import { WebhookTestButton } from "@/components/business/webhook-test-button";
 import { BusinessGamificationPanel } from "@/components/gamification/gamification-panels";
 import { ConfirmSubmitButton } from "@/components/shared/confirm-submit-button";
 import { Shell } from "@/components/shared/shell";
@@ -18,12 +19,15 @@ import { claimBusinessOrganizationForUser } from "@/lib/business/organization-ac
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { getOrganizationGamificationSummary } from "@/lib/gamification/server";
+import { buildEmployeeWebhookPayload, generateWebhookSecret, normalizeWebhookUrl, queueOrganizationWebhook } from "@/lib/webhooks/sendWebhook";
 import { slugify } from "@/lib/utils";
 import { generatePrivateToken } from "@/lib/utils/generate-token";
 import { CUSTOM_THEME_KEY, normalizeThemeKey, isHexColor } from "@/lib/themes";
 import type {
   OrganizationMemberRecord,
   OrganizationRecord,
+  OrganizationWebhookRecord,
+  WebhookDeliveryRecord,
   ContactSubmissionRecord,
   AnalyticsEventRecord,
   PassTokenRecord
@@ -35,6 +39,8 @@ type BusinessData = {
   tokens: PassTokenRecord[];
   contacts: ContactSubmissionRecord[];
   analyticsEvents: AnalyticsEventRecord[];
+  webhookSettings: OrganizationWebhookRecord | null;
+  webhookDeliveries: WebhookDeliveryRecord[];
 };
 
 type BusinessSummary = {
@@ -105,6 +111,12 @@ function businessErrorMessage(error?: string) {
       return "The login invite could not be sent. Check Supabase Auth email settings, allowed redirect URLs, and the member email address.";
     case "digital_pass_send_failed":
       return "Digital pass email could not be sent. Confirm the employee has an active assigned token and email address, then try again.";
+    case "webhook_save_failed":
+      return "Webhook settings could not be saved. Check the webhook URL and try again.";
+    case "webhook_secret_failed":
+      return "Webhook secret could not be regenerated. Please try again.";
+    case "webhook_url_required":
+      return "Webhook URL is required when webhooks are enabled.";
     case "cannot_remove_self":
       return "You cannot archive or delete your own active admin access from this table.";
     case "member_delete_failed":
@@ -274,7 +286,15 @@ async function getBusinessData(
       .maybeSingle();
 
     if (!requestedOrg) {
-      return { organization: null, members: [], tokens: [], contacts: [], analyticsEvents: [] };
+      return {
+        organization: null,
+        members: [],
+        tokens: [],
+        contacts: [],
+        analyticsEvents: [],
+        webhookSettings: null,
+        webhookDeliveries: []
+      };
     }
 
     if (!isPlatformAdmin) {
@@ -288,11 +308,19 @@ async function getBusinessData(
         .maybeSingle();
 
       if (requestedOrg.owner_user_id !== userId && !allowedMember) {
-        return { organization: null, members: [], tokens: [], contacts: [], analyticsEvents: [] };
+        return {
+          organization: null,
+          members: [],
+          tokens: [],
+          contacts: [],
+          analyticsEvents: [],
+          webhookSettings: null,
+          webhookDeliveries: []
+        };
       }
     }
 
-    const [{ data: members }, { data: tokens }, { data: contacts }, { data: analyticsEvents }] = await Promise.all([
+    const [{ data: members }, { data: tokens }, { data: contacts }, { data: analyticsEvents }, { data: webhookSettings }, { data: webhookDeliveries }] = await Promise.all([
       admin
         .from("organization_members")
         .select("*")
@@ -312,7 +340,18 @@ async function getBusinessData(
         .from("analytics_events")
         .select("*")
         .eq("organization_id", requestedOrg.id)
-        .order("created_at", { ascending: false })
+        .order("created_at", { ascending: false }),
+      admin
+        .from("organization_webhooks")
+        .select("id, organization_id, enabled, webhook_url, webhook_secret, created_at, updated_at")
+        .eq("organization_id", requestedOrg.id)
+        .maybeSingle(),
+      admin
+        .from("webhook_deliveries")
+        .select("*")
+        .eq("organization_id", requestedOrg.id)
+        .order("attempted_at", { ascending: false })
+        .limit(25)
     ]);
 
     return {
@@ -320,7 +359,9 @@ async function getBusinessData(
       members: (members || []) as OrganizationMemberRecord[],
       tokens: (tokens || []) as PassTokenRecord[],
       contacts: (contacts || []) as ContactSubmissionRecord[],
-      analyticsEvents: (analyticsEvents || []) as AnalyticsEventRecord[]
+      analyticsEvents: (analyticsEvents || []) as AnalyticsEventRecord[],
+      webhookSettings: (webhookSettings as OrganizationWebhookRecord | null) || null,
+      webhookDeliveries: (webhookDeliveries || []) as WebhookDeliveryRecord[]
     };
   }
 
@@ -355,10 +396,18 @@ async function getBusinessData(
   }
 
   if (!organization) {
-    return { organization: null, members: [], tokens: [], contacts: [], analyticsEvents: [] };
+    return {
+      organization: null,
+      members: [],
+      tokens: [],
+      contacts: [],
+      analyticsEvents: [],
+      webhookSettings: null,
+      webhookDeliveries: []
+    };
   }
 
-  const [{ data: members }, { data: tokens }, { data: contacts }, { data: analyticsEvents }] = await Promise.all([
+  const [{ data: members }, { data: tokens }, { data: contacts }, { data: analyticsEvents }, { data: webhookSettings }, { data: webhookDeliveries }] = await Promise.all([
     admin
       .from("organization_members")
       .select("*")
@@ -378,7 +427,18 @@ async function getBusinessData(
       .from("analytics_events")
       .select("*")
       .eq("organization_id", organization.id)
-      .order("created_at", { ascending: false })
+      .order("created_at", { ascending: false }),
+    admin
+      .from("organization_webhooks")
+      .select("id, organization_id, enabled, webhook_url, webhook_secret, created_at, updated_at")
+      .eq("organization_id", organization.id)
+      .maybeSingle(),
+    admin
+      .from("webhook_deliveries")
+      .select("*")
+      .eq("organization_id", organization.id)
+      .order("attempted_at", { ascending: false })
+      .limit(25)
   ]);
 
   return {
@@ -386,7 +446,9 @@ async function getBusinessData(
     members: (members || []) as OrganizationMemberRecord[],
     tokens: (tokens || []) as PassTokenRecord[],
     contacts: (contacts || []) as ContactSubmissionRecord[],
-    analyticsEvents: (analyticsEvents || []) as AnalyticsEventRecord[]
+    analyticsEvents: (analyticsEvents || []) as AnalyticsEventRecord[],
+    webhookSettings: (webhookSettings as OrganizationWebhookRecord | null) || null,
+    webhookDeliveries: (webhookDeliveries || []) as WebhookDeliveryRecord[]
   };
 }
 
@@ -674,6 +736,16 @@ async function addEmployee(formData: FormData) {
       eventType: "employee_activated",
       label: member.role
     });
+    queueOrganizationWebhook({
+      organizationId,
+      event: "employee.activated",
+      payload: buildEmployeeWebhookPayload({
+        event: "employee.activated",
+        organization,
+        employee: member,
+        status: "active"
+      })
+    });
     if (!inviteResult.sent && email) {
       redirect(`/dashboard/business?org=${organizationId}&error=business_invite_send_failed`);
     }
@@ -956,6 +1028,87 @@ async function insertBusinessAnalyticsEvent({
   });
 }
 
+async function saveOrganizationWebhooks(formData: FormData) {
+  "use server";
+
+  const organizationId = String(formData.get("organization_id") || "");
+  await requireBusinessAdmin(organizationId);
+
+  const enabled = formData.get("enabled") === "on";
+  const webhookUrl = normalizeWebhookUrl(formData.get("webhook_url") as string | null);
+
+  if (enabled && !webhookUrl) {
+    redirect(`/dashboard/business?org=${organizationId}&error=webhook_url_required#business-automations`);
+  }
+
+  const admin = createAdminClient();
+  const { data: existingSettings } = await admin
+    .from("organization_webhooks")
+    .select("id, webhook_secret")
+    .eq("organization_id", organizationId)
+    .maybeSingle();
+
+  const { error } = await admin.from("organization_webhooks").upsert(
+    {
+      organization_id: organizationId,
+      enabled,
+      webhook_url: webhookUrl,
+      webhook_secret: (existingSettings?.webhook_secret as string | null) || generateWebhookSecret()
+    },
+    {
+      onConflict: "organization_id"
+    }
+  );
+
+  if (error) {
+    console.error("Business webhook settings save failed", {
+      organizationId,
+      error: error.message,
+      enabled,
+      webhookUrl
+    });
+    redirect(`/dashboard/business?org=${organizationId}&error=webhook_save_failed#business-automations`);
+  }
+
+  redirect(`/dashboard/business?org=${organizationId}&saved=webhooks#business-automations`);
+}
+
+async function regenerateOrganizationWebhookSecret(formData: FormData) {
+  "use server";
+
+  const organizationId = String(formData.get("organization_id") || "");
+  await requireBusinessAdmin(organizationId);
+
+  const admin = createAdminClient();
+  const { data: existingSettings } = await admin
+    .from("organization_webhooks")
+    .select("enabled, webhook_url")
+    .eq("organization_id", organizationId)
+    .maybeSingle();
+
+  const { error } = await admin.from("organization_webhooks").upsert(
+    {
+      organization_id: organizationId,
+      enabled: existingSettings?.enabled ?? false,
+      webhook_url: existingSettings?.webhook_url || null,
+      webhook_secret: generateWebhookSecret()
+    },
+    {
+      onConflict: "organization_id"
+    }
+  );
+
+  if (error) {
+    console.error("Business webhook secret regeneration failed", {
+      organizationId,
+      error: error.message
+    });
+    redirect(`/dashboard/business?org=${organizationId}&error=webhook_secret_failed#business-automations`);
+  }
+
+  redirect(`/dashboard/business?org=${organizationId}&saved=webhook_secret#business-automations`);
+}
+
 async function issueToken(formData: FormData) {
   "use server";
 
@@ -1146,7 +1299,7 @@ async function updateEmployeeStatus(formData: FormData) {
 
   const { data: member } = await admin
     .from("organization_members")
-    .select("id, user_id, email, role, status")
+    .select("id, user_id, name, email, role, status")
     .eq("id", memberId)
     .eq("organization_id", organizationId)
     .maybeSingle();
@@ -1170,6 +1323,22 @@ async function updateEmployeeStatus(formData: FormData) {
     memberId,
     eventType: status === "active" ? "employee_activated" : "employee_deactivated"
   });
+
+  if (member) {
+    const { data: organization } = await admin.from("organizations").select("id, name").eq("id", organizationId).maybeSingle();
+    if (organization) {
+      queueOrganizationWebhook({
+        organizationId,
+        event: status === "active" ? "employee.activated" : "employee.deactivated",
+        payload: buildEmployeeWebhookPayload({
+          event: status === "active" ? "employee.activated" : "employee.deactivated",
+          organization,
+          employee: member,
+          status
+        })
+      });
+    }
+  }
 
   if (status === "inactive") {
     await admin
@@ -1245,8 +1414,16 @@ export default async function BusinessDashboardPage({
   const selectedOrganizationId = params?.org || null;
   const showOnboarding = isPlatformAdmin && params?.onboard === "1";
   const businessIndex = isPlatformAdmin ? await getBusinessIndex() : [];
-  const { organization, members, tokens, contacts, analyticsEvents } = showOnboarding
-    ? { organization: null, members: [], tokens: [], contacts: [], analyticsEvents: [] }
+  const { organization, members, tokens, contacts, analyticsEvents, webhookSettings, webhookDeliveries } = showOnboarding
+    ? {
+        organization: null,
+        members: [],
+        tokens: [],
+        contacts: [],
+        analyticsEvents: [],
+        webhookSettings: null,
+        webhookDeliveries: []
+      }
     : await getBusinessData(user.id, user.email, selectedOrganizationId, isPlatformAdmin);
   const gamificationSummary = organization
     ? await getOrganizationGamificationSummary({ organizationId: organization.id })
@@ -1463,6 +1640,22 @@ export default async function BusinessDashboardPage({
           <div className="dashboard-card pass-alert">
             <div className="dashboard-kicker">Sent</div>
             <p className="editor-copy">Digital pass email was sent.</p>
+          </div>
+        </section>
+      ) : null}
+      {params?.saved === "webhooks" ? (
+        <section className="dashboard-wrap">
+          <div className="dashboard-card pass-alert">
+            <div className="dashboard-kicker">Saved</div>
+            <p className="editor-copy">Webhook settings were saved.</p>
+          </div>
+        </section>
+      ) : null}
+      {params?.saved === "webhook_secret" ? (
+        <section className="dashboard-wrap">
+          <div className="dashboard-card pass-alert">
+            <div className="dashboard-kicker">Updated</div>
+            <p className="editor-copy">Webhook secret was regenerated.</p>
           </div>
         </section>
       ) : null}
@@ -1768,6 +1961,112 @@ export default async function BusinessDashboardPage({
                       </tr>
                     );
                   })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="dashboard-wrap" id="business-automations">
+        <div className="dashboard-card">
+          <div className="dashboard-kicker">Automations</div>
+          <h2>Send TapTagg events to your workflows.</h2>
+          <p className="editor-copy">
+            Connect TapTagg Business to Zapier, Make, HubSpot workflows, Salesforce workflows, GoHighLevel, custom CRMs, or any system that accepts webhooks.
+          </p>
+
+          <form action={saveOrganizationWebhooks} className="editor-form" style={{ marginTop: 18 }}>
+            <input type="hidden" name="organization_id" value={organization.id} />
+            <label className="editor-label">
+              <span style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center" }}>
+                <span>Enable Webhooks</span>
+                <input
+                  name="enabled"
+                  type="checkbox"
+                  defaultChecked={webhookSettings?.enabled ?? false}
+                  aria-label="Enable webhooks"
+                />
+              </span>
+            </label>
+            <label className="editor-label">
+              Webhook URL
+              <input
+                className="editor-input"
+                name="webhook_url"
+                placeholder="https://example.com/webhooks/taptagg"
+                defaultValue={webhookSettings?.webhook_url || ""}
+              />
+            </label>
+            <button className="button primary" type="submit">
+              Save Webhook Settings
+            </button>
+          </form>
+
+          <form action={regenerateOrganizationWebhookSecret} className="table-actions" style={{ marginTop: 12 }}>
+            <input type="hidden" name="organization_id" value={organization.id} />
+            <ConfirmSubmitButton
+              className="button secondary"
+              confirmMessage="Regenerate the webhook secret? Existing integrations will need the updated secret."
+            >
+              Regenerate Secret
+            </ConfirmSubmitButton>
+          </form>
+
+          <div className="dashboard-card" style={{ marginTop: 18 }}>
+            <div className="dashboard-kicker">Webhook Secret</div>
+            {webhookSettings?.webhook_secret ? (
+              <div className="table-actions">
+                <code style={{ wordBreak: "break-all" }}>{webhookSettings.webhook_secret}</code>
+                <CopyLinkButton
+                  className="button secondary"
+                  value={webhookSettings.webhook_secret}
+                  label="Copy Secret"
+                  copiedLabel="Secret Copied"
+                />
+              </div>
+            ) : (
+              <p className="editor-copy">Save or regenerate settings to create a webhook secret.</p>
+            )}
+            <p className="table-subtext">
+              Signature format: HMAC_SHA256(secret, timestamp + &quot;.&quot; + raw_json_payload)
+            </p>
+            <WebhookTestButton
+              organizationId={organization.id}
+              disabled={!webhookSettings?.enabled}
+            />
+          </div>
+
+          <div className="admin-table-frame business-member-table" style={{ marginTop: 18 }}>
+            <div className="admin-table-scroll">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Event</th>
+                    <th>Success</th>
+                    <th>Status Code</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {webhookDeliveries.length > 0 ? (
+                    webhookDeliveries.map((delivery) => (
+                      <tr key={delivery.id}>
+                        <td>{delivery.attempted_at ? new Date(delivery.attempted_at).toLocaleString() : "—"}</td>
+                        <td>{delivery.event_type}</td>
+                        <td>
+                          <span className="status-pill">{delivery.success ? "true" : "false"}</span>
+                        </td>
+                        <td>{delivery.status_code ?? "—"}</td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={4}>
+                        <p className="editor-copy">No webhook deliveries yet.</p>
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>

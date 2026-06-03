@@ -65,6 +65,7 @@ export function BusinessPricingPlans({ tiers }: { tiers: BusinessPricingTier[] }
               <div>{tier.cards} NFC cards included at setup</div>
               <div>${tier.setupFee} one-time setup</div>
               <div>Business console, branding, token reassignment, contacts, and analytics</div>
+              <div>CRM Ready outbound webhooks for TapTagg leads</div>
             </div>
 
             <div style={businessPlanOptions}>

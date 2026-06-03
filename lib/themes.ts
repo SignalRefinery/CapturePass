@@ -1,6 +1,7 @@
 import type { PlanKey, PlanFeatures } from "@/lib/plans";
 
 export type ThemeKey =
+  | "taptagg_brand"
   | "executive_navy"
   | "modern_slate"
   | "executive_gold"
@@ -24,10 +25,23 @@ export type ThemeDefinition = {
   allowedPlans: PlanKey[];
 };
 
-export const DEFAULT_THEME_KEY: ThemeKey = "executive_navy";
+export const DEFAULT_THEME_KEY: ThemeKey = "taptagg_brand";
 export const CUSTOM_THEME_KEY: ThemeKey = "custom";
 
 export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
+  taptagg_brand: {
+    key: "taptagg_brand",
+    name: "TapTagg Brand",
+    description: "The TapTagg purple palette for personal profiles.",
+    colors: {
+      primary: "#8B5CF6",
+      secondary: "#A78BFA",
+      accent: "#6D28D9",
+      text: "#1F2937",
+      background: "#F5F3FF"
+    },
+    allowedPlans: ["free", "digital", "core", "tagg_plus", "creator", "business"]
+  },
   executive_navy: {
     key: "executive_navy",
     name: "Executive Navy",
@@ -109,7 +123,7 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
 
 export const THEME_OPTIONS = Object.values(THEME_PRESETS);
 export const PRESET_THEME_OPTIONS = THEME_OPTIONS.filter((theme) => theme.key !== CUSTOM_THEME_KEY);
-export const BUSINESS_THEME_OPTIONS = THEME_OPTIONS;
+export const BUSINESS_THEME_OPTIONS = THEME_OPTIONS.filter((theme) => theme.key !== "taptagg_brand");
 
 export function normalizeThemeKey(value?: string | null): ThemeKey {
   return value && value in THEME_PRESETS ? (value as ThemeKey) : DEFAULT_THEME_KEY;

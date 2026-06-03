@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { buildContactSharedWebhookPayload, queueOrganizationWebhook } from "@/lib/webhooks/sendWebhook";
 
 type ContactPayload = {
   profileId?: string | null;
@@ -256,13 +257,14 @@ export async function POST(request: Request) {
   let resolvedProfileId = profileId;
   let resolvedOrganizationId = organizationId;
   let submittedToUserId: string | null = null;
+  let resolvedMember: { id: string; name: string } | null = null;
   let notificationEmail: string | null = null;
   let dashboardUrl = `${appUrl()}/dashboard/contacts`;
 
   if (resolvedOrganizationId && resolvedProfileId) {
     const { data: member } = await admin
       .from("organization_members")
-      .select("id, organization_id, user_id, email, status")
+      .select("id, organization_id, user_id, name, email, status")
       .eq("id", resolvedProfileId)
       .eq("organization_id", resolvedOrganizationId)
       .maybeSingle();
@@ -273,6 +275,7 @@ export async function POST(request: Request) {
 
     submittedToUserId = member.user_id || null;
     notificationEmail = member.email || null;
+    resolvedMember = member ? { id: member.id, name: member.name } : null;
 
     const { data: organization } = await admin
       .from("organizations")
@@ -369,6 +372,32 @@ export async function POST(request: Request) {
       });
     }
   });
+
+  if (resolvedOrganizationId && resolvedProfileId && resolvedMember) {
+    const { data: organization } = await admin
+      .from("organizations")
+      .select("id, name")
+      .eq("id", resolvedOrganizationId)
+      .maybeSingle();
+
+    if (organization) {
+      queueOrganizationWebhook({
+        organizationId: resolvedOrganizationId,
+        event: "contact.shared",
+        payload: buildContactSharedWebhookPayload({
+          organization,
+          employee: resolvedMember,
+          contact: {
+            name,
+            email,
+            phone,
+            company,
+            note
+          }
+        })
+      });
+    }
+  }
 
   await sendNotificationEmail({
     to: notificationEmail,
