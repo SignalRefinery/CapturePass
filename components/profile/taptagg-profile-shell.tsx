@@ -323,16 +323,13 @@ export function TapTaggProfileShell({
     customAccent: activeProfile.brand_color_accent,
     customText: activeProfile.brand_color_text
   });
-  const brandStyle =
-    resolvedThemeKey && resolvedThemeKey !== "taptagg_brand"
-      ? ({
-          "--profile-primary": resolvedThemeColors.primary,
-          "--profile-secondary": resolvedThemeColors.secondary,
-          "--profile-accent": resolvedThemeColors.accent,
-          "--profile-background": resolvedThemeColors.background,
-          ...(resolvedThemeColors.text ? { "--profile-text": resolvedThemeColors.text } : {})
-        } as CSSProperties)
-      : undefined;
+  const brandStyle = {
+    "--profile-primary": resolvedThemeColors.primary,
+    "--profile-secondary": resolvedThemeColors.secondary,
+    "--profile-accent": resolvedThemeColors.accent,
+    "--profile-background": resolvedThemeColors.background,
+    ...(resolvedThemeColors.text ? { "--profile-text": resolvedThemeColors.text } : {})
+  } as CSSProperties;
   const pageClassName = [
     styles.page,
     resolvedThemeKey ? themeClassName(resolvedThemeKey) : legacyThemeClassName(activeProfile.brand_theme)
