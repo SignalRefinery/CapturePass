@@ -207,7 +207,7 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
 
 export const THEME_OPTIONS = Object.values(THEME_PRESETS);
 export const PRESET_THEME_OPTIONS = THEME_OPTIONS.filter((theme) => theme.key !== CUSTOM_THEME_KEY);
-export const BUSINESS_THEME_OPTIONS = THEME_OPTIONS.filter((theme) => theme.key !== "taptagg_brand");
+export const BUSINESS_THEME_OPTIONS = THEME_OPTIONS;
 export const PROFILE_THEME_OPTIONS = THEME_OPTIONS.filter((theme) => theme.key !== "executive_navy");
 
 export function normalizeThemeKey(value?: string | null): ThemeKey {

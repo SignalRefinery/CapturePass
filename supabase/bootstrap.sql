@@ -180,7 +180,7 @@ create table if not exists public.organizations (
     and (included_card_count is null or included_card_count >= 0)
     and (card_allotment_total is null or card_allotment_total >= 0)
   ),
-  constraint organizations_theme_key_check check (theme_key in ('executive_navy', 'modern_slate', 'executive_gold', 'clean_horizon', 'sage_professional', 'custom')),
+  constraint organizations_theme_key_check check (theme_key in ('taptagg_brand', 'executive_navy', 'modern_slate', 'executive_gold', 'clean_horizon', 'sage_professional', 'custom')),
   constraint organizations_brand_theme_check check (brand_theme in ('deep_brand', 'clean_light', 'full_color', 'custom'))
 );
 
