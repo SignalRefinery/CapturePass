@@ -10,7 +10,7 @@ import {
 } from "@/lib/profile-service-server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
-import { getProfilePlan, normalizePlanKey } from "@/lib/plans";
+import { applyFounderAccess, getProfilePlan, normalizePlanKey } from "@/lib/plans";
 import { stripe } from "@/lib/stripe";
 import { slugify } from "@/lib/utils";
 import { getPersonalGamificationSummary } from "@/lib/gamification/server";
@@ -265,7 +265,7 @@ export default async function DashboardPage({
   const fullName = `${firstName} ${lastName}`.trim();
   const email = user.email || "";
 
-  const initialProfile =
+  const baseProfile =
     existing ?? {
       user_id: user.id,
       full_name: fullName,
@@ -306,6 +306,7 @@ export default async function DashboardPage({
       is_public_official: !!user.user_metadata?.is_public_official,
       consent_public_visibility: true
     };
+  const initialProfile = applyFounderAccess(baseProfile, user.user_metadata?.promo_code) || baseProfile;
   const initialProfileViews = initialProfile.id
     ? await getProfileViewsForProfileServer(initialProfile.id)
     : [];

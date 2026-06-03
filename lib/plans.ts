@@ -153,6 +153,31 @@ export function getProfilePlan(profile?: ProfileRecord | null): PlanFeatures {
   return getPlanFeatures(accessPlan, isActivated);
 }
 
+export function applyFounderAccess(
+  profile?: ProfileRecord | null,
+  promoCode?: string | null
+): ProfileRecord | null {
+  if (!profile) {
+    return null;
+  }
+
+  const normalizedPromo = (promoCode || profile.promo_code_used || "").trim().toUpperCase();
+
+  if (normalizedPromo !== "FOUNDERS") {
+    return profile;
+  }
+
+  return {
+    ...profile,
+    promo_code_used: "FOUNDERS",
+    billing_exempt: true,
+    lifetime_free: true,
+    is_active: true,
+    stripe_plan_key: "creator",
+    subscription_status: profile.subscription_status || "active"
+  };
+}
+
 export function profileCanRenderPublicly(profile?: ProfileRecord | null) {
   return !!profile && canUseDigitalProfile(getProfilePlan(profile));
 }

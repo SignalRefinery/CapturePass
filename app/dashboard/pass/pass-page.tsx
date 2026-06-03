@@ -5,7 +5,7 @@ import { DigitalPassCard } from "@/components/dashboard/digital-pass-card";
 import { getProfileForUserServer } from "@/lib/profile-service-server";
 import { createClient } from "@/lib/supabase/server";
 import { getPreferredProfileShareUrl } from "@/lib/urls/profile-url";
-import { getProfilePlan } from "@/lib/plans";
+import { applyFounderAccess, getProfilePlan } from "@/lib/plans";
 import type { ProfileRecord } from "@/lib/types";
 
 function publicPassPathFor(profile: ProfileRecord) {
@@ -42,7 +42,10 @@ export async function DashboardPassPageContent({
     redirect("/dashboard/pass");
   }
 
-  const profile = (await getProfileForUserServer(user.id)) as ProfileRecord | null;
+  const profile = applyFounderAccess(
+    (await getProfileForUserServer(user.id)) as ProfileRecord | null,
+    user.user_metadata?.promo_code
+  );
   const initialAuth = await getInitialAuth(user.id, user.email);
 
   if (!profile) {

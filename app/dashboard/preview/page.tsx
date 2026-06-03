@@ -8,7 +8,7 @@ import {
 } from "@/lib/profile-service-server";
 import { buildPublicProfileViews, profileRecordToPublicProfile } from "@/lib/profiles/public-view";
 import { createClient } from "@/lib/supabase/server";
-import { getProfilePlan } from "@/lib/plans";
+import { applyFounderAccess, getProfilePlan } from "@/lib/plans";
 import type { ProfileRecord } from "@/lib/types";
 
 export default async function DashboardPreviewPage() {
@@ -21,7 +21,10 @@ export default async function DashboardPreviewPage() {
     redirect(`/login?next=${encodeURIComponent("/dashboard/preview")}`);
   }
 
-  const profile = (await getProfileForUserServer(user.id)) as ProfileRecord | null;
+  const profile = applyFounderAccess(
+    (await getProfileForUserServer(user.id)) as ProfileRecord | null,
+    user.user_metadata?.promo_code
+  );
 
   if (!profile) {
     redirect("/dashboard");
