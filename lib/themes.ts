@@ -16,10 +16,15 @@ export type ThemeKey =
   | "custom";
 
 export type ThemeColors = {
+  /** CTA color used for primary buttons like Add to Contacts. */
   primary: string;
+  /** Icon/avatar badge color. */
   secondary: string;
+  /** Glow, highlights, borders, and decorative detail color. */
   accent: string;
+  /** Background color for the page or profile shell. */
   background: string;
+  /** Readable text color. */
   text?: string;
 };
 
@@ -41,8 +46,8 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
     description: "The TapTagg purple palette for personal profiles.",
     colors: {
       primary: "#8B5CF6",
-      secondary: "#ffffff",
-      accent: "#5cf6b8",
+      secondary: "#A78BFA",
+      accent: "#C084FC",
       text: "#FFFFFF",
       background: "#030304"
     },
@@ -194,7 +199,7 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
   custom: {
     key: "custom",
     name: "Custom Brand Colors",
-    description: "Use your own primary, secondary, and accent colors.",
+    description: "Use your own CTA, icon, glow, and text colors.",
     colors: {
       primary: "#0F172A",
       secondary: "#1E293B",
@@ -209,6 +214,14 @@ export const THEME_OPTIONS = Object.values(THEME_PRESETS);
 export const PRESET_THEME_OPTIONS = THEME_OPTIONS.filter((theme) => theme.key !== CUSTOM_THEME_KEY);
 export const BUSINESS_THEME_OPTIONS = THEME_OPTIONS;
 export const PROFILE_THEME_OPTIONS = THEME_OPTIONS.filter((theme) => theme.key !== "executive_navy");
+
+export const THEME_COLOR_ROLE_LABELS = {
+  primary: "CTA Color",
+  secondary: "Icon Color",
+  accent: "Accent / Glow Color",
+  background: "Background Color",
+  text: "Text Color"
+} as const;
 
 export function normalizeThemeKey(value?: string | null): ThemeKey {
   return value && value in THEME_PRESETS ? (value as ThemeKey) : DEFAULT_THEME_KEY;

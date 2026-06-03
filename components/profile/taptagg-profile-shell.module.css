@@ -11,12 +11,12 @@
   --purple-light:#A78BFA;
   --profile-primary:#8B5CF6;
   --profile-secondary:#A78BFA;
-  --profile-accent:#A78BFA;
+  --profile-accent:#C084FC;
   --profile-background:#030304;
   --profile-text:#ffffff;
   --text:var(--profile-text);
-  --button-start:var(--profile-primary);
-  --button-end:var(--profile-secondary);
+  --button-start:var(--profile-cta, var(--profile-primary));
+  --button-end:var(--profile-glow, var(--profile-accent));
   --button-text:#ffffff;
   --muted:#a1a1aa;
   --muted-2:#71717a;
@@ -48,26 +48,26 @@
 
 .themeDeepBrand{
   --text:#fffaf5;
-  --muted:color-mix(in srgb, var(--profile-secondary) 18%, #d6d3d1);
-  --muted-2:color-mix(in srgb, var(--profile-primary) 28%, #a8a29e);
+  --muted:color-mix(in srgb, var(--profile-icon) 18%, #d6d3d1);
+  --muted-2:color-mix(in srgb, var(--profile-cta) 28%, #a8a29e);
   --shell-bg:var(--profile-background, #030304);
-  --topbar-bg:color-mix(in srgb, var(--profile-primary) 16%, rgba(0,0,0,.46));
+  --topbar-bg:color-mix(in srgb, var(--profile-glow) 16%, rgba(0,0,0,.46));
   --brand-copy:#fffaf5;
   --hero-wash:none;
   --panel-bg:
-    linear-gradient(180deg, color-mix(in srgb, var(--profile-secondary) 10%, rgba(255,255,255,.04)), rgba(255,255,255,.018)),
-    linear-gradient(145deg, color-mix(in srgb, var(--profile-primary) 30%, #090909) 0%, color-mix(in srgb, var(--profile-accent) 18%, #080808) 100%);
-  --link-bg:color-mix(in srgb, var(--profile-primary) 12%, rgba(255,255,255,.035));
-  --link-hover-bg:color-mix(in srgb, var(--profile-secondary) 16%, rgba(255,255,255,.055));
-  --chip-bg:color-mix(in srgb, var(--profile-primary) 10%, rgba(255,255,255,.035));
+    linear-gradient(180deg, color-mix(in srgb, var(--profile-glow) 10%, rgba(255,255,255,.04)), rgba(255,255,255,.018)),
+    linear-gradient(145deg, color-mix(in srgb, var(--profile-glow) 28%, #090909) 0%, color-mix(in srgb, var(--profile-glow) 18%, #080808) 100%);
+  --link-bg:color-mix(in srgb, var(--profile-glow) 12%, rgba(255,255,255,.035));
+  --link-hover-bg:color-mix(in srgb, var(--profile-glow) 16%, rgba(255,255,255,.055));
+  --chip-bg:color-mix(in srgb, var(--profile-glow) 10%, rgba(255,255,255,.035));
 }
 
 .themeExecutiveGold{
   --text:#fffaf0;
   --muted:#e6dcc4;
   --muted-2:#cdbd95;
-  --button-start:#D4A017;
-  --button-end:#b98612;
+  --button-start:var(--profile-cta);
+  --button-end:var(--profile-glow);
   --button-text:#141820;
   --shadow:0 26px 86px rgba(0,0,0,.45);
   --shell-bg:var(--profile-background, #030304);
@@ -87,8 +87,8 @@
   --text:var(--profile-text, #111827);
   --muted:#475569;
   --muted-2:#64748b;
-  --button-start:var(--profile-accent);
-  --button-end:color-mix(in srgb, var(--profile-accent) 82%, var(--profile-secondary));
+  --button-start:var(--profile-cta);
+  --button-end:var(--profile-glow);
   --button-text:#ffffff;
   --shadow:0 22px 70px rgba(15,23,42,.18);
   --shell-bg:var(--profile-background, #ffffff);
@@ -100,7 +100,7 @@
   --grid-line-2:rgba(15,23,42,.045);
   --eyebrow-bg:rgba(255,255,255,.62);
   --chip-bg:rgba(255,255,255,.58);
-  --panel-bg:color-mix(in srgb, var(--profile-primary) 8%, #ffffff);
+  --panel-bg:color-mix(in srgb, var(--profile-glow) 8%, #ffffff);
   --link-bg:rgba(255,255,255,.62);
   --link-hover-bg:rgba(255,255,255,.82);
   --subtle-button-bg:rgba(255,255,255,.62);
@@ -113,8 +113,8 @@
 }
 
 .themeSageProfessional{
-  --button-start:#456b45;
-  --button-end:#2f5631;
+  --button-start:var(--profile-cta);
+  --button-end:var(--profile-glow);
   --button-text:#ffffff;
   --shell-bg:var(--profile-background, #ffffff);
   --hero-wash:none;
@@ -129,8 +129,8 @@
   --text:var(--profile-text, #ffffff);
   --muted:color-mix(in srgb, var(--text) 78%, transparent);
   --muted-2:color-mix(in srgb, var(--text) 58%, transparent);
-  --button-start:var(--profile-accent);
-  --button-end:color-mix(in srgb, var(--profile-accent) 70%, var(--profile-secondary));
+  --button-start:var(--profile-cta);
+  --button-end:var(--profile-glow);
   --button-text:var(--profile-text, #ffffff);
   --shell-bg:var(--profile-background, #030304);
   --topbar-bg:rgba(0,0,0,.2);
@@ -138,7 +138,7 @@
   --hero-wash:none;
   --panel-bg:
     linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.075)),
-    color-mix(in srgb, var(--profile-primary) 28%, rgba(0,0,0,.42));
+    color-mix(in srgb, var(--profile-glow) 28%, rgba(0,0,0,.42));
   --link-bg:rgba(255,255,255,.12);
   --link-hover-bg:rgba(255,255,255,.18);
   --chip-bg:rgba(255,255,255,.12);
@@ -184,10 +184,10 @@
   place-items:center;
   border-radius:7px;
   color:#ffffff;
-  background:var(--profile-primary);
-  border:1px solid color-mix(in srgb, var(--profile-secondary) 34%, transparent);
+  background:var(--profile-icon, var(--profile-secondary));
+  border:1px solid color-mix(in srgb, var(--profile-icon, var(--profile-secondary)) 34%, transparent);
   font-size:13px;
-  box-shadow:0 10px 24px rgba(139,92,246,.2);
+  box-shadow:0 10px 24px color-mix(in srgb, var(--profile-glow) 20%, transparent);
 }
 
 .nav{display:none}
@@ -272,8 +272,8 @@
   margin-top:6px;
   border-radius:16px;
   color:#ffffff;
-  background:linear-gradient(180deg, #A78BFA 0%, #8B5CF6 100%);
-  box-shadow:0 10px 28px rgba(139,92,246,.18), inset 0 1px 0 rgba(255,255,255,.35);
+  background:linear-gradient(180deg, var(--button-start), var(--button-end));
+  box-shadow:0 10px 28px color-mix(in srgb, var(--profile-cta) 18%, transparent), inset 0 1px 0 rgba(255,255,255,.35);
   font-size:15px;
   font-weight:600;
   text-align:center;
@@ -281,7 +281,7 @@
 }
 .profileUpgradeCta:hover{
   transform:translateY(-1px);
-  box-shadow:0 12px 30px rgba(139,92,246,.22), inset 0 1px 0 rgba(255,255,255,.35);
+  box-shadow:0 12px 30px color-mix(in srgb, var(--profile-cta) 22%, transparent), inset 0 1px 0 rgba(255,255,255,.35);
   filter:brightness(1.02);
 }
 
@@ -299,7 +299,7 @@
   text-transform:uppercase;
 }
 
-.miniStar{color:var(--profile-secondary)}
+.miniStar{color:var(--profile-glow)}
 
 .profileHero{
   position:relative;
@@ -336,7 +336,7 @@
   height:230px;
   transform:translateX(-50%);
   border-radius:999px;
-  background:radial-gradient(ellipse at center, color-mix(in srgb, var(--profile-secondary) 18%, transparent) 0%, color-mix(in srgb, var(--profile-primary) 7%, transparent) 42%, transparent 72%);
+  background:radial-gradient(ellipse at center, color-mix(in srgb, var(--profile-glow) 18%, transparent) 0%, color-mix(in srgb, var(--profile-glow) 7%, transparent) 42%, transparent 72%);
   filter:blur(34px);
   opacity:.9;
   pointer-events:none;
@@ -364,12 +364,12 @@
   place-items:center;
   border-radius:22px;
   color:#ffffff;
-  background:var(--profile-primary);
+  background:var(--profile-icon, var(--profile-secondary));
   border:1px solid rgba(255,255,255,.22);
   box-shadow:
-    0 0 0 10px color-mix(in srgb, var(--profile-secondary) 5%, transparent),
-    0 24px 70px color-mix(in srgb, var(--profile-primary) 36%, transparent),
-    0 0 86px color-mix(in srgb, var(--profile-secondary) 22%, transparent),
+    0 0 0 10px color-mix(in srgb, var(--profile-glow) 5%, transparent),
+    0 24px 70px color-mix(in srgb, var(--profile-glow) 36%, transparent),
+    0 0 86px color-mix(in srgb, var(--profile-glow) 22%, transparent),
     inset 0 1px 0 rgba(255,255,255,.35);
 }
 
@@ -471,7 +471,7 @@
   width:5px;
   height:5px;
   border-radius:999px;
-  background:var(--profile-secondary);
+  background:var(--profile-glow);
 }
 
 .ctaRow{
@@ -504,7 +504,7 @@
 .profilePrimaryButton{
   color:var(--button-text);
   background:var(--button-start);
-  box-shadow:0 18px 44px color-mix(in srgb, var(--profile-primary) 34%, transparent), 0 0 60px color-mix(in srgb, var(--profile-secondary) 18%, transparent), inset 0 1px 0 rgba(255,255,255,.26);
+  box-shadow:0 18px 44px color-mix(in srgb, var(--profile-cta) 34%, transparent), 0 0 60px color-mix(in srgb, var(--profile-glow) 18%, transparent), inset 0 1px 0 rgba(255,255,255,.26);
 }
 
 .profileSubtleButton{
@@ -567,7 +567,7 @@
   right:34px;
   height:180px;
   border-radius:999px;
-  background:radial-gradient(ellipse at center, color-mix(in srgb, var(--profile-secondary) 12%, transparent) 0%, color-mix(in srgb, var(--profile-primary) 4%, transparent) 48%, transparent 72%);
+  background:radial-gradient(ellipse at center, color-mix(in srgb, var(--profile-glow) 12%, transparent) 0%, color-mix(in srgb, var(--profile-glow) 4%, transparent) 48%, transparent 72%);
   filter:blur(34px);
   pointer-events:none;
 }
@@ -611,8 +611,8 @@
 .linkCard:hover{
   transform:translateY(-1px);
   background:var(--link-hover-bg);
-  border-color:color-mix(in srgb, var(--profile-secondary) 30%, transparent);
-  box-shadow:0 0 0 1px color-mix(in srgb, var(--profile-secondary) 10%, transparent) inset, 0 14px 28px rgba(0,0,0,.16);
+  border-color:color-mix(in srgb, var(--profile-glow) 30%, transparent);
+  box-shadow:0 0 0 1px color-mix(in srgb, var(--profile-glow) 10%, transparent) inset, 0 14px 28px rgba(0,0,0,.16);
 }
 
 .linkTitle{
@@ -634,7 +634,7 @@
   display:grid;
   place-items:center;
   border-radius:999px;
-  color:var(--profile-secondary);
+  color:var(--profile-glow);
   background:rgba(255,255,255,.024);
   border:1px solid rgba(255,255,255,.07);
   font-size:17px;
@@ -710,7 +710,7 @@
   border-radius:22px;
   border:1px solid rgba(255,255,255,.12);
   background:
-    linear-gradient(180deg, color-mix(in srgb, var(--profile-primary, #8B5CF6) 12%, transparent), transparent 44%),
+    linear-gradient(180deg, color-mix(in srgb, var(--profile-glow, #8B5CF6) 12%, transparent), transparent 44%),
     rgba(18,18,21,.98);
   box-shadow:0 28px 90px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.06);
   animation:contactPanelIn .16s cubic-bezier(.16, 1, .3, 1) both;
@@ -811,7 +811,7 @@
   width:18px;
   height:18px;
   margin-top:1px;
-  accent-color:var(--profile-primary, #8B5CF6);
+  accent-color:var(--profile-cta, #8B5CF6);
 }
 
 .contactHoneypot{
@@ -829,9 +829,9 @@
   margin-top:18px;
   padding:18px;
   border-radius:18px;
-  border:1px solid color-mix(in srgb, var(--profile-secondary, #A78BFA) 42%, transparent);
+  border:1px solid color-mix(in srgb, var(--profile-glow, #A78BFA) 42%, transparent);
   color:var(--text, #ffffff);
-  background:color-mix(in srgb, var(--profile-primary, #8B5CF6) 14%, transparent);
+  background:color-mix(in srgb, var(--profile-glow, #8B5CF6) 14%, transparent);
   font-weight:700;
 }
 

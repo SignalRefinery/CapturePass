@@ -5,7 +5,7 @@ import type { ProfileRecord, ProfileViewRecord } from "@/lib/types";
 import { getProfilePlan } from "@/lib/plans";
 import { normalizeUrl } from "@/lib/utils";
 import { classifySlug } from "@/lib/slug-moderation";
-import { CUSTOM_THEME_KEY, PROFILE_THEME_OPTIONS, coerceThemeForPlan, resolveThemeColors, themeIsAllowedForPlan } from "@/lib/themes";
+import { CUSTOM_THEME_KEY, PROFILE_THEME_OPTIONS, THEME_COLOR_ROLE_LABELS, coerceThemeForPlan, resolveThemeColors, themeIsAllowedForPlan } from "@/lib/themes";
 import {
   deleteProfileViewClient,
   getProfileIdForUserClient,
@@ -809,7 +809,7 @@ export function ProfileEditor({
             {showCustomThemeColors ? (
               <div className="editor-grid theme-custom-grid">
                 <label className="auth-field">
-                  <span>Primary color</span>
+                  <span>{THEME_COLOR_ROLE_LABELS.primary}</span>
                   <input
                     type="color"
                     value={form.brand_color_primary || "#0F172A"}
@@ -817,7 +817,7 @@ export function ProfileEditor({
                   />
                 </label>
                 <label className="auth-field">
-                  <span>Secondary color</span>
+                  <span>{THEME_COLOR_ROLE_LABELS.secondary}</span>
                   <input
                     type="color"
                     value={form.brand_color_secondary || "#1E293B"}
@@ -825,7 +825,7 @@ export function ProfileEditor({
                   />
                 </label>
                 <label className="auth-field">
-                  <span>Accent color</span>
+                  <span>{THEME_COLOR_ROLE_LABELS.accent}</span>
                   <input
                     type="color"
                     value={form.brand_color_accent || "#2563EB"}
@@ -833,13 +833,16 @@ export function ProfileEditor({
                   />
                 </label>
                 <label className="auth-field">
-                  <span>Text color</span>
+                  <span>{THEME_COLOR_ROLE_LABELS.text}</span>
                   <input
                     type="color"
                     value={form.brand_color_text || "#FFFFFF"}
                     onChange={(event) => update("brand_color_text", event.target.value)}
                   />
                 </label>
+                <small className="auth-message">
+                  {THEME_COLOR_ROLE_LABELS.background} is controlled by the selected theme preset.
+                </small>
               </div>
             ) : null}
           </div>

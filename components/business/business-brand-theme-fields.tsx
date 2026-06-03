@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { CSSProperties } from "react";
-import { BUSINESS_THEME_OPTIONS, CUSTOM_THEME_KEY, normalizeThemeKey, resolveThemeColors } from "@/lib/themes";
+import { BUSINESS_THEME_OPTIONS, CUSTOM_THEME_KEY, THEME_COLOR_ROLE_LABELS, normalizeThemeKey, resolveThemeColors } from "@/lib/themes";
 import type { OrganizationRecord } from "@/lib/types";
 
 type BusinessBrandThemeFieldsProps = {
@@ -94,7 +94,7 @@ export function BusinessBrandThemeFields({ organization }: BusinessBrandThemeFie
       {showCustomColors ? (
         <div className="editor-grid theme-custom-grid">
           <label className="editor-label">
-            Primary color
+            {THEME_COLOR_ROLE_LABELS.primary}
             <input
               className="editor-input"
               name="brand_color_primary"
@@ -103,7 +103,7 @@ export function BusinessBrandThemeFields({ organization }: BusinessBrandThemeFie
             />
           </label>
           <label className="editor-label">
-            Secondary color
+            {THEME_COLOR_ROLE_LABELS.secondary}
             <input
               className="editor-input"
               name="brand_color_secondary"
@@ -112,7 +112,7 @@ export function BusinessBrandThemeFields({ organization }: BusinessBrandThemeFie
             />
           </label>
           <label className="editor-label">
-            Accent color
+            {THEME_COLOR_ROLE_LABELS.accent}
             <input
               className="editor-input"
               name="brand_color_accent"
@@ -121,7 +121,7 @@ export function BusinessBrandThemeFields({ organization }: BusinessBrandThemeFie
             />
           </label>
           <label className="editor-label">
-            Text color
+            {THEME_COLOR_ROLE_LABELS.text}
             <input
               className="editor-input"
               name="brand_color_text"
@@ -129,6 +129,9 @@ export function BusinessBrandThemeFields({ organization }: BusinessBrandThemeFie
               defaultValue={organization.brand_color_text || "#FFFFFF"}
             />
           </label>
+          <small className="auth-message">
+            {THEME_COLOR_ROLE_LABELS.background} is controlled by the selected theme preset.
+          </small>
         </div>
       ) : null}
     </div>

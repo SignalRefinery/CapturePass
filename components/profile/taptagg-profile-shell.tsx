@@ -333,6 +333,9 @@ export function TapTaggProfileShell({
     customText: activeProfile.brand_color_text
   });
   const brandStyle = {
+    "--profile-cta": resolvedThemeColors.primary,
+    "--profile-icon": resolvedThemeColors.secondary,
+    "--profile-glow": resolvedThemeColors.accent,
     "--profile-primary": resolvedThemeColors.primary,
     "--profile-secondary": resolvedThemeColors.secondary,
     "--profile-accent": resolvedThemeColors.accent,
