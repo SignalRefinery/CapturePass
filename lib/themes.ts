@@ -41,7 +41,7 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
     description: "The TapTagg purple palette for personal profiles.",
     colors: {
       primary: "#8B5CF6",
-      secondary: "#8B5CF6",
+      secondary: "#ffffff",
       accent: "#8B5CF6",
       text: "#FFFFFF",
       background: "#030304"
