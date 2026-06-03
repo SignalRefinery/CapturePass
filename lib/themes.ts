@@ -215,6 +215,10 @@ export function normalizeThemeKey(value?: string | null): ThemeKey {
 }
 
 export function themeIsAllowedForPlan(themeKey: ThemeKey, plan: PlanKey) {
+  if (themeKey === DEFAULT_THEME_KEY) {
+    return true;
+  }
+
   return THEME_PRESETS[themeKey].allowedPlans.includes(plan);
 }
 
