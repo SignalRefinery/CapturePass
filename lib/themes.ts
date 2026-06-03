@@ -42,7 +42,7 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
     colors: {
       primary: "#8B5CF6",
       secondary: "#ffffff",
-      accent: "#8B5CF6",
+      accent: "#5cf6b8",
       text: "#FFFFFF",
       background: "#030304"
     },
