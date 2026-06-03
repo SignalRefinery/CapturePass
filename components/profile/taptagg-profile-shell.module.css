@@ -184,7 +184,7 @@
   place-items:center;
   border-radius:7px;
   color:#ffffff;
-  background:linear-gradient(135deg, var(--profile-primary), var(--profile-secondary));
+  background:var(--profile-primary);
   border:1px solid color-mix(in srgb, var(--profile-secondary) 34%, transparent);
   font-size:13px;
   box-shadow:0 10px 24px rgba(139,92,246,.2);
@@ -364,9 +364,7 @@
   place-items:center;
   border-radius:22px;
   color:#ffffff;
-  background:
-    linear-gradient(145deg, rgba(255,255,255,.22), rgba(255,255,255,0) 34%),
-    linear-gradient(135deg, var(--profile-primary) 0%, var(--profile-secondary) 100%);
+  background:var(--profile-primary);
   border:1px solid rgba(255,255,255,.22);
   box-shadow:
     0 0 0 10px color-mix(in srgb, var(--profile-secondary) 5%, transparent),
@@ -490,7 +488,7 @@
 
 .profilePrimaryButton{
   color:var(--button-text);
-  background:linear-gradient(135deg, var(--button-start) 0%, var(--button-end) 100%);
+  background:var(--button-start);
   box-shadow:0 18px 44px color-mix(in srgb, var(--profile-primary) 34%, transparent), 0 0 60px color-mix(in srgb, var(--profile-secondary) 18%, transparent), inset 0 1px 0 rgba(255,255,255,.26);
 }
 
