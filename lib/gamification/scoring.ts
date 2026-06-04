@@ -2,7 +2,6 @@ import type { AnalyticsEventRecord, GamificationMetricKey, GamificationScoreBrea
 import { normalizeGamificationEventType, normalizeGamificationMetricKey } from "@/lib/gamification/event-normalizer";
 
 const POINT_VALUES: Partial<Record<GamificationMetricKey | string, number>> = {
-  profile_view: 1,
   qr_scan: 2,
   vcard_download: 3,
   email_click: 4,
