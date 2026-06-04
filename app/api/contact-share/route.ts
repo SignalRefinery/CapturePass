@@ -257,14 +257,14 @@ export async function POST(request: Request) {
   let resolvedProfileId = profileId;
   let resolvedOrganizationId = organizationId;
   let submittedToUserId: string | null = null;
-  let resolvedMember: { id: string; name: string } | null = null;
+  let resolvedMember: { id: string; name: string; locationId?: string | null; regionId?: string | null } | null = null;
   let notificationEmail: string | null = null;
   let dashboardUrl = `${appUrl()}/dashboard/contacts`;
 
   if (resolvedOrganizationId && resolvedProfileId) {
     const { data: member } = await admin
       .from("organization_members")
-      .select("id, organization_id, user_id, name, email, status")
+      .select("id, organization_id, user_id, name, email, status, location_id")
       .eq("id", resolvedProfileId)
       .eq("organization_id", resolvedOrganizationId)
       .maybeSingle();
@@ -275,7 +275,18 @@ export async function POST(request: Request) {
 
     submittedToUserId = member.user_id || null;
     notificationEmail = member.email || null;
-    resolvedMember = member ? { id: member.id, name: member.name } : null;
+    resolvedMember = member
+      ? { id: member.id, name: member.name, locationId: member.location_id || null }
+      : null;
+
+    if (resolvedMember?.locationId) {
+      const { data: location } = await admin
+        .from("business_locations")
+        .select("id, region_id")
+        .eq("id", resolvedMember.locationId)
+        .maybeSingle();
+      resolvedMember.regionId = location?.region_id || null;
+    }
 
     const { data: organization } = await admin
       .from("organizations")
@@ -355,6 +366,8 @@ export async function POST(request: Request) {
     profile_id: resolvedOrganizationId ? null : resolvedProfileId,
     organization_id: resolvedOrganizationId,
     organization_member_id: resolvedOrganizationId ? resolvedProfileId : null,
+    location_id: resolvedMember?.locationId || null,
+    region_id: resolvedMember?.regionId || null,
     profile_view_id: viewId,
     user_id: submittedToUserId,
     source: sourceFor(source),

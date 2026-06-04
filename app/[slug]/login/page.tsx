@@ -136,10 +136,13 @@ export default async function BusinessSlugLoginPage({ params }: PageProps) {
     userId: user.id,
     email: user.email,
     organizationId: org.id,
-    roles: ["owner", "admin", "member"]
+    roles: ["owner", "admin", "super_admin", "business_admin", "location_admin"]
   });
 
-  if (membership?.member.role === "owner" || membership?.member.role === "admin" || user.id === org.owner_user_id) {
+  if (
+    ["owner", "admin", "super_admin", "business_admin"].includes(String(membership?.member.role || "")) ||
+    user.id === org.owner_user_id
+  ) {
     redirect(`/dashboard/business?org=${org.id}`);
   }
 

@@ -75,7 +75,7 @@ export async function GET(request: Request, context: RouteContext) {
   const [{ data: member }, { data: organization }] = await Promise.all([
     admin
       .from("organization_members")
-      .select("id, user_id, name, email, phone, title, status")
+      .select("id, user_id, name, email, phone, title, status, location_id")
       .eq("id", passToken.assigned_member_id)
       .maybeSingle(),
     passToken.organization_id
@@ -96,6 +96,18 @@ export async function GET(request: Request, context: RouteContext) {
     : { data: null };
   const authFullName = await getAuthFullName(member?.user_id || null);
   const memberName = authFullName || memberProfile?.full_name?.trim() || member?.name || "";
+  let locationId: string | null = member?.location_id || null;
+  let regionId: string | null = null;
+
+  if (locationId) {
+    const { data: location } = await admin
+      .from("business_locations")
+      .select("id, region_id")
+      .eq("id", locationId)
+      .maybeSingle();
+    locationId = location?.id || null;
+    regionId = location?.region_id || null;
+  }
 
   if (!member || member.status !== "active" || !memberName) {
     return new NextResponse("Not found", { status: 404, headers: PROFILE_CACHE_HEADERS });
@@ -122,6 +134,8 @@ export async function GET(request: Request, context: RouteContext) {
     event_type: "vcard_download",
     organization_id: passToken.organization_id,
     organization_member_id: passToken.assigned_member_id,
+    location_id: locationId,
+    region_id: regionId,
     card_id: passToken.id,
     source: "unknown",
     action_type: "custom_button",

@@ -93,7 +93,7 @@ async function getBusinessHomeUrl(
     .from("organization_members")
     .select("id, email")
     .eq("organization_id", organizationId)
-    .eq("role", "admin")
+    .in("role", ["owner", "admin", "super_admin", "business_admin"])
     .eq("status", "active")
     .order("created_at", { ascending: true });
 

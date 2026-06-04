@@ -12,7 +12,11 @@ async function getUser() {
 }
 
 function isActiveAdmin(orgMember: { role?: string | null; status?: string | null } | null) {
-  return !!orgMember && orgMember.status === "active" && (orgMember.role === "owner" || orgMember.role === "admin");
+  return (
+    !!orgMember &&
+    orgMember.status === "active" &&
+    ["owner", "admin", "super_admin", "business_admin"].includes(String(orgMember.role || ""))
+  );
 }
 
 export async function GET(request: Request) {

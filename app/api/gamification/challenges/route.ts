@@ -45,7 +45,7 @@ async function requireOrgAdmin(admin: ReturnType<typeof createAdminClient>, orga
     .eq("status", "active")
     .maybeSingle();
 
-  return !!member && (member.role === "owner" || member.role === "admin");
+  return !!member && ["owner", "admin", "super_admin", "business_admin"].includes(String(member.role || ""));
 }
 
 export async function GET(request: Request) {

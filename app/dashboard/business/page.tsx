@@ -16,6 +16,7 @@ import {
 } from "@/lib/business/assets";
 import { BUSINESS_PLANS, getBusinessPlan, normalizeBusinessBillingInterval } from "@/lib/business/plans";
 import { claimBusinessOrganizationForUser } from "@/lib/business/organization-access";
+import { businessRoleLabel, buildBusinessPermissionScope, normalizeBusinessRole } from "@/lib/business/roles";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { getOrganizationGamificationSummary } from "@/lib/gamification/server";
@@ -25,6 +26,8 @@ import { generatePrivateToken } from "@/lib/utils/generate-token";
 import { CUSTOM_THEME_KEY, normalizeThemeKey, isHexColor } from "@/lib/themes";
 import type {
   OrganizationMemberRecord,
+  BusinessLocationRecord,
+  BusinessRegionRecord,
   OrganizationRecord,
   OrganizationWebhookRecord,
   WebhookDeliveryRecord,
@@ -35,7 +38,10 @@ import type {
 
 type BusinessData = {
   organization: OrganizationRecord | null;
+  viewerAccess: ReturnType<typeof buildBusinessPermissionScope> | null;
   members: OrganizationMemberRecord[];
+  locations: BusinessLocationRecord[];
+  regions: BusinessRegionRecord[];
   tokens: PassTokenRecord[];
   contacts: ContactSubmissionRecord[];
   analyticsEvents: AnalyticsEventRecord[];
@@ -80,6 +86,13 @@ function cleanText(value: FormDataEntryValue | null) {
   return String(value || "").trim() || null;
 }
 
+function cleanStateCodes(value: FormDataEntryValue | null) {
+  return String(value || "")
+    .split(",")
+    .map((code) => code.trim().toUpperCase())
+    .filter((code) => /^[A-Z]{2}$/.test(code));
+}
+
 function cleanUrl(value: FormDataEntryValue | null) {
   const url = String(value || "").trim();
   if (!url) return null;
@@ -109,6 +122,14 @@ function businessErrorMessage(error?: string) {
       return "That person needs an email address before a login invite can be sent.";
     case "member_email_failed":
       return "The member email could not be updated. Check the address and try again.";
+    case "location_name_required":
+      return "Location name is required.";
+    case "region_name_required":
+      return "Region name is required.";
+    case "location_save_failed":
+      return "The location could not be saved. Please try again.";
+    case "region_save_failed":
+      return "The region could not be saved. Please try again.";
     case "business_invite_send_failed":
       return "The login invite could not be sent. Check Supabase Auth email settings, allowed redirect URLs, and the member email address.";
     case "digital_pass_send_failed":
@@ -165,6 +186,11 @@ function businessLoginUrl(slug?: string | null) {
   return `${appUrl()}${businessLoginPath(slug)}`;
 }
 
+function businessLocationUrl(organizationSlug?: string | null, locationSlug?: string | null) {
+  if (!organizationSlug || !locationSlug) return null;
+  return `${appUrl()}/business/${organizationSlug}/${locationSlug}`;
+}
+
 function businessInviteRedirectUrl(slug?: string | null) {
   const passwordUrl = new URL("/update-password", appUrl());
   passwordUrl.searchParams.set("next", businessLoginPath(slug));
@@ -178,6 +204,61 @@ async function getCurrentUser() {
   } = await supabase.auth.getUser();
 
   return user;
+}
+
+async function getBusinessAccessScope({
+  organizationId,
+  allowLocationAdmin = false
+}: {
+  organizationId: string;
+  allowLocationAdmin?: boolean;
+}) {
+  const user = await getCurrentUser();
+  if (!user) redirect("/login");
+  const isPlatformAdmin = !!user.email && ADMIN_EMAILS.includes(user.email.toLowerCase());
+
+  const admin = createAdminClient();
+  const { data: organization } = await admin
+    .from("organizations")
+    .select("id, owner_user_id")
+    .eq("id", organizationId)
+    .maybeSingle();
+
+  if (!organization) redirect("/dashboard/business");
+  if (organization.owner_user_id === user.id || isPlatformAdmin) {
+    return {
+      user,
+      organization,
+      member: null,
+      scope: buildBusinessPermissionScope({ role: "super_admin" })
+    };
+  }
+
+  const { data: member } = await admin
+    .from("organization_members")
+    .select("id, role, location_id, status, user_id, name, email")
+    .eq("organization_id", organizationId)
+    .eq("user_id", user.id)
+    .eq("status", "active")
+    .in(
+      "role",
+      allowLocationAdmin
+        ? ["owner", "admin", "super_admin", "business_admin", "location_admin"]
+        : ["owner", "admin", "super_admin", "business_admin"]
+    )
+    .maybeSingle();
+
+  if (!member) redirect("/dashboard/business");
+
+  return {
+    user,
+    organization,
+    member,
+    scope: buildBusinessPermissionScope({
+      role: member.role,
+      locationId: member.location_id || null
+    })
+  };
 }
 
 async function sendBusinessInviteEmail({
@@ -279,6 +360,7 @@ async function getBusinessData(
   isPlatformAdmin = false
 ): Promise<BusinessData> {
   const admin = createAdminClient();
+  let viewerAccess: ReturnType<typeof buildBusinessPermissionScope> | null = null;
 
   if (organizationId) {
     const { data: requestedOrg } = await admin
@@ -290,6 +372,9 @@ async function getBusinessData(
     if (!requestedOrg) {
       return {
         organization: null,
+        viewerAccess: null,
+        locations: [],
+        regions: [],
         members: [],
         tokens: [],
         contacts: [],
@@ -302,16 +387,19 @@ async function getBusinessData(
     if (!isPlatformAdmin) {
       const { data: allowedMember } = await admin
         .from("organization_members")
-        .select("id")
+        .select("id, role, location_id")
         .eq("organization_id", organizationId)
         .eq("user_id", userId)
         .eq("status", "active")
-        .in("role", ["owner", "admin"])
+        .in("role", ["owner", "admin", "super_admin", "business_admin", "location_admin"])
         .maybeSingle();
 
       if (requestedOrg.owner_user_id !== userId && !allowedMember) {
         return {
           organization: null,
+          viewerAccess: null,
+          locations: [],
+          regions: [],
           members: [],
           tokens: [],
           contacts: [],
@@ -320,9 +408,39 @@ async function getBusinessData(
           webhookDeliveries: []
         };
       }
+
+      viewerAccess = allowedMember
+        ? buildBusinessPermissionScope({
+            role: allowedMember.role,
+            locationId: allowedMember.location_id || null
+          })
+        : null;
     }
 
-    const [{ data: members }, { data: tokens }, { data: contacts }, { data: analyticsEvents }, { data: webhookSettings }, { data: webhookDeliveries }] = await Promise.all([
+    if (!viewerAccess && requestedOrg.owner_user_id === userId) {
+      viewerAccess = buildBusinessPermissionScope({ role: "super_admin" });
+    }
+
+    const [
+      { data: locations },
+      { data: regions },
+      { data: members },
+      { data: tokens },
+      { data: contacts },
+      { data: analyticsEvents },
+      { data: webhookSettings },
+      { data: webhookDeliveries }
+    ] = await Promise.all([
+      admin
+        .from("business_locations")
+        .select("*")
+        .eq("business_id", requestedOrg.id)
+        .order("created_at", { ascending: true }),
+      admin
+        .from("business_regions")
+        .select("*")
+        .eq("business_id", requestedOrg.id)
+        .order("created_at", { ascending: true }),
       admin
         .from("organization_members")
         .select("*")
@@ -358,6 +476,9 @@ async function getBusinessData(
 
     return {
       organization: requestedOrg as OrganizationRecord,
+      viewerAccess: isPlatformAdmin ? buildBusinessPermissionScope({ role: "super_admin" }) : viewerAccess,
+      locations: (locations || []) as BusinessLocationRecord[],
+      regions: (regions || []) as BusinessRegionRecord[],
       members: (members || []) as OrganizationMemberRecord[],
       tokens: (tokens || []) as PassTokenRecord[],
       contacts: (contacts || []) as ContactSubmissionRecord[],
@@ -383,7 +504,7 @@ async function getBusinessData(
       .select("organization:organizations(*)")
       .eq("user_id", userId)
       .eq("status", "active")
-      .in("role", ["owner", "admin"])
+      .in("role", ["owner", "admin", "super_admin", "business_admin"])
       .limit(1)
       .maybeSingle();
 
@@ -400,6 +521,9 @@ async function getBusinessData(
   if (!organization) {
     return {
       organization: null,
+      viewerAccess: null,
+      locations: [],
+      regions: [],
       members: [],
       tokens: [],
       contacts: [],
@@ -409,7 +533,26 @@ async function getBusinessData(
     };
   }
 
-  const [{ data: members }, { data: tokens }, { data: contacts }, { data: analyticsEvents }, { data: webhookSettings }, { data: webhookDeliveries }] = await Promise.all([
+  const [
+    { data: locations },
+    { data: regions },
+    { data: members },
+    { data: tokens },
+    { data: contacts },
+    { data: analyticsEvents },
+    { data: webhookSettings },
+    { data: webhookDeliveries }
+  ] = await Promise.all([
+    admin
+      .from("business_locations")
+      .select("*")
+      .eq("business_id", organization.id)
+      .order("created_at", { ascending: true }),
+    admin
+      .from("business_regions")
+      .select("*")
+      .eq("business_id", organization.id)
+      .order("created_at", { ascending: true }),
     admin
       .from("organization_members")
       .select("*")
@@ -443,8 +586,28 @@ async function getBusinessData(
       .limit(25)
   ]);
 
+  const { data: viewerMember } = await admin
+    .from("organization_members")
+    .select("id, role, location_id, status")
+    .eq("organization_id", organization.id)
+    .eq("user_id", userId)
+    .eq("status", "active")
+    .maybeSingle();
+
+  viewerAccess = viewerMember
+    ? buildBusinessPermissionScope({
+        role: viewerMember.role,
+        locationId: viewerMember.location_id || null
+      })
+    : buildBusinessPermissionScope({
+        role: organization.owner_user_id === userId ? "super_admin" : "employee"
+      });
+
   return {
     organization,
+    viewerAccess,
+    locations: (locations || []) as BusinessLocationRecord[],
+    regions: (regions || []) as BusinessRegionRecord[],
     members: (members || []) as OrganizationMemberRecord[],
     tokens: (tokens || []) as PassTokenRecord[],
     contacts: (contacts || []) as ContactSubmissionRecord[],
@@ -454,33 +617,15 @@ async function getBusinessData(
   };
 }
 
-async function requireBusinessAdmin(organizationId: string) {
+async function requireBusinessAdmin(organizationId: string, allowLocationAdmin = false) {
   "use server";
 
-  const user = await getCurrentUser();
-  if (!user) redirect("/login");
-  const isPlatformAdmin = !!user.email && ADMIN_EMAILS.includes(user.email.toLowerCase());
+  const access = await getBusinessAccessScope({ organizationId, allowLocationAdmin });
+  if (access.scope.role === "location_admin" && !allowLocationAdmin) {
+    redirect("/dashboard/business");
+  }
 
-  const admin = createAdminClient();
-  const { data: organization } = await admin
-    .from("organizations")
-    .select("id, owner_user_id")
-    .eq("id", organizationId)
-    .maybeSingle();
-
-  if (organization?.owner_user_id === user.id || isPlatformAdmin) return user;
-
-  const { data: member } = await admin
-    .from("organization_members")
-    .select("id")
-    .eq("organization_id", organizationId)
-    .eq("user_id", user.id)
-    .eq("status", "active")
-    .in("role", ["owner", "admin"])
-    .maybeSingle();
-
-  if (!member) redirect("/dashboard/business");
-  return user;
+  return access.user;
 }
 
 async function createOrganization(formData: FormData) {
@@ -540,7 +685,7 @@ async function createOrganization(formData: FormData) {
       email: adminEmail || null,
       phone: adminPhone || null,
       title: adminTitle || null,
-      role: "admin",
+      role: "business_admin",
       status: "active"
     })
     .select("id, name, email, role")
@@ -559,12 +704,193 @@ async function createOrganization(formData: FormData) {
       name: "TapTagg Admin",
       email: ADMIN_EMAILS[0],
       title: "Platform admin",
-      role: "admin",
+      role: "super_admin",
       status: "active"
     });
   }
 
   redirect(`/dashboard/business?org=${organization.id}`);
+}
+
+async function generateUniqueBusinessLocationSlug(businessId: string, name: string) {
+  const admin = createAdminClient();
+  const base = slugify(name) || `location-${generatePrivateToken(6)}`;
+
+  for (let attempt = 0; attempt < 8; attempt += 1) {
+    const candidate = attempt === 0 ? base : `${base}-${attempt + 1}`;
+    const { data: existingLocation } = await admin
+      .from("business_locations")
+      .select("id")
+      .eq("business_id", businessId)
+      .eq("slug", candidate)
+      .maybeSingle();
+
+    if (!existingLocation) return candidate;
+  }
+
+  return `${base}-${generatePrivateToken(6)}`;
+}
+
+async function saveBusinessRegion(formData: FormData) {
+  "use server";
+
+  const businessId = String(formData.get("organization_id") || "");
+  await requireBusinessAdmin(businessId);
+
+  const regionId = String(formData.get("region_id") || "");
+  const name = String(formData.get("name") || "").trim();
+  const description = cleanText(formData.get("description"));
+  const stateCodes = cleanStateCodes(formData.get("state_codes"));
+  const admin = createAdminClient();
+
+  if (!name) redirect(`/dashboard/business?org=${businessId}&error=region_name_required#business-locations`);
+
+  const payload = {
+    business_id: businessId,
+    name,
+    description,
+    state_codes: stateCodes.length ? stateCodes : null
+  };
+
+  const { error } = regionId
+    ? await admin.from("business_regions").update(payload).eq("id", regionId).eq("business_id", businessId)
+    : await admin.from("business_regions").insert(payload);
+
+  if (error) {
+    console.error("Business region save failed", { businessId, regionId, error: error.message });
+    redirect(`/dashboard/business?org=${businessId}&error=region_save_failed#business-locations`);
+  }
+
+  redirect(`/dashboard/business?org=${businessId}&saved=region#business-locations`);
+}
+
+async function saveBusinessLocation(formData: FormData) {
+  "use server";
+
+  const businessId = String(formData.get("organization_id") || "");
+  const locationId = String(formData.get("location_id") || "");
+  const name = String(formData.get("name") || "").trim();
+  const slug = String(formData.get("slug") || "").trim().toLowerCase();
+  const address = cleanText(formData.get("address"));
+  const city = cleanText(formData.get("city"));
+  const state = cleanText(formData.get("state"));
+  const phone = cleanText(formData.get("phone"));
+  const regionId = String(formData.get("region_id") || "") || null;
+  const admin = createAdminClient();
+  const access = await getBusinessAccessScope({ organizationId: businessId, allowLocationAdmin: true });
+
+  if (!name) redirect(`/dashboard/business?org=${businessId}&error=location_name_required#business-locations`);
+  const { data: currentLocation } = locationId
+    ? await admin
+        .from("business_locations")
+        .select("id, region_id")
+        .eq("id", locationId)
+        .eq("business_id", businessId)
+        .maybeSingle()
+    : { data: null };
+
+  if (access.scope.role === "location_admin") {
+    if (!locationId || access.scope.locationId !== locationId) {
+      redirect(`/dashboard/business?org=${businessId}&error=platform_admin_locked#business-locations`);
+    }
+    if (regionId) {
+      redirect(`/dashboard/business?org=${businessId}&error=platform_admin_locked#business-locations`);
+    }
+  }
+
+  const resolvedSlug = slug || (locationId ? null : await generateUniqueBusinessLocationSlug(businessId, name));
+  const payload = {
+    business_id: businessId,
+    name,
+    slug: resolvedSlug,
+    address,
+    city,
+    state,
+    phone,
+    region_id:
+      access.scope.role === "location_admin"
+        ? (currentLocation?.region_id || null)
+        : regionId || null
+  };
+
+  const { error } = locationId
+    ? await admin.from("business_locations").update(payload).eq("id", locationId).eq("business_id", businessId)
+    : await admin.from("business_locations").insert(payload);
+
+  if (error) {
+    console.error("Business location save failed", { businessId, locationId, error: error.message });
+    redirect(`/dashboard/business?org=${businessId}&error=location_save_failed#business-locations`);
+  }
+
+  redirect(`/dashboard/business?org=${businessId}&saved=location#business-locations`);
+}
+
+async function deleteBusinessLocation(formData: FormData) {
+  "use server";
+
+  const businessId = String(formData.get("organization_id") || "");
+  await requireBusinessAdmin(businessId);
+
+  const locationId = String(formData.get("location_id") || "");
+  const admin = createAdminClient();
+
+  await admin.from("organization_members").update({ location_id: null }).eq("location_id", locationId).eq("organization_id", businessId);
+
+  const { error } = await admin.from("business_locations").delete().eq("id", locationId).eq("business_id", businessId);
+  if (error) {
+    console.error("Business location delete failed", { businessId, locationId, error: error.message });
+    redirect(`/dashboard/business?org=${businessId}&error=location_save_failed#business-locations`);
+  }
+
+  redirect(`/dashboard/business?org=${businessId}&saved=location_deleted#business-locations`);
+}
+
+async function updateEmployeeLocation(formData: FormData) {
+  "use server";
+
+  const organizationId = String(formData.get("organization_id") || "");
+  await requireBusinessAdmin(organizationId);
+
+  const memberId = String(formData.get("member_id") || "");
+  const locationId = String(formData.get("location_id") || "") || null;
+  const admin = createAdminClient();
+
+  const { data: member } = await admin
+    .from("organization_members")
+    .select("id, email")
+    .eq("id", memberId)
+    .eq("organization_id", organizationId)
+    .maybeSingle();
+
+  if (isPlatformAdminMember(member)) {
+    redirect(`/dashboard/business?org=${organizationId}&error=platform_admin_locked`);
+  }
+
+  if (locationId) {
+    const { data: location } = await admin
+      .from("business_locations")
+      .select("id")
+      .eq("id", locationId)
+      .eq("business_id", organizationId)
+      .maybeSingle();
+
+    if (!location) {
+      redirect(`/dashboard/business?org=${organizationId}&error=location_save_failed#business-locations`);
+    }
+  }
+
+  const { error } = await admin
+    .from("organization_members")
+    .update({ location_id: locationId })
+    .eq("id", memberId)
+    .eq("organization_id", organizationId);
+
+  if (error) {
+    console.error("Business employee location update failed", { organizationId, memberId, error: error.message });
+    redirect(`/dashboard/business?org=${organizationId}&error=location_save_failed#business-employees`);
+  }
+
+  redirect(`/dashboard/business?org=${organizationId}&saved=member_location#business-employees`);
 }
 
 async function updateOrganizationBranding(formData: FormData) {
@@ -769,7 +1095,7 @@ async function sendBusinessLoginInvite(formData: FormData) {
   "use server";
 
   const organizationId = String(formData.get("organization_id") || "");
-  await requireBusinessAdmin(organizationId);
+  const access = await getBusinessAccessScope({ organizationId, allowLocationAdmin: true });
 
   const memberId = String(formData.get("member_id") || "");
   const admin = createAdminClient();
@@ -781,7 +1107,7 @@ async function sendBusinessLoginInvite(formData: FormData) {
       .maybeSingle(),
     admin
       .from("organization_members")
-      .select("id, name, email, role")
+      .select("id, name, email, role, location_id")
       .eq("id", memberId)
       .eq("organization_id", organizationId)
       .maybeSingle()
@@ -789,6 +1115,10 @@ async function sendBusinessLoginInvite(formData: FormData) {
 
   if (!organization || !member?.email) {
     redirect(`/dashboard/business?org=${organizationId}&error=missing_member_email`);
+  }
+
+  if (access.scope.role === "location_admin" && member.location_id !== access.scope.locationId) {
+    redirect(`/dashboard/business?org=${organizationId}&error=platform_admin_locked`);
   }
 
   if (isPlatformAdminMember(member)) {
@@ -811,7 +1141,7 @@ async function updateEmployeeHeadshot(formData: FormData) {
   "use server";
 
   const organizationId = String(formData.get("organization_id") || "");
-  await requireBusinessAdmin(organizationId);
+  const access = await getBusinessAccessScope({ organizationId, allowLocationAdmin: true });
 
   const memberId = String(formData.get("member_id") || "");
   const headshotFile = formData.get("headshot_file");
@@ -822,12 +1152,16 @@ async function updateEmployeeHeadshot(formData: FormData) {
   const admin = createAdminClient();
   const { data: member } = await admin
     .from("organization_members")
-    .select("id, email, headshot_url")
+    .select("id, email, headshot_url, location_id")
     .eq("id", memberId)
     .eq("organization_id", organizationId)
     .maybeSingle();
 
   if (!member || isPlatformAdminMember(member)) {
+    redirect(`/dashboard/business?org=${organizationId}&error=platform_admin_locked`);
+  }
+
+  if (access.scope.role === "location_admin" && member.location_id !== access.scope.locationId) {
     redirect(`/dashboard/business?org=${organizationId}&error=platform_admin_locked`);
   }
 
@@ -861,18 +1195,22 @@ async function deleteEmployeeHeadshot(formData: FormData) {
   "use server";
 
   const organizationId = String(formData.get("organization_id") || "");
-  await requireBusinessAdmin(organizationId);
+  const access = await getBusinessAccessScope({ organizationId, allowLocationAdmin: true });
 
   const memberId = String(formData.get("member_id") || "");
   const admin = createAdminClient();
   const { data: member } = await admin
     .from("organization_members")
-    .select("id, email, headshot_url")
+    .select("id, email, headshot_url, location_id")
     .eq("id", memberId)
     .eq("organization_id", organizationId)
     .maybeSingle();
 
   if (!member || isPlatformAdminMember(member)) {
+    redirect(`/dashboard/business?org=${organizationId}&error=platform_admin_locked`);
+  }
+
+  if (access.scope.role === "location_admin" && member.location_id !== access.scope.locationId) {
     redirect(`/dashboard/business?org=${organizationId}&error=platform_admin_locked`);
   }
 
@@ -1019,10 +1357,35 @@ async function insertBusinessAnalyticsEvent({
   label?: string | null;
 }) {
   const admin = createAdminClient();
+  let locationId: string | null = null;
+  let regionId: string | null = null;
+
+  if (memberId) {
+    const { data: member } = await admin
+      .from("organization_members")
+      .select("location_id")
+      .eq("id", memberId)
+      .maybeSingle();
+
+    locationId = member?.location_id || null;
+
+    if (locationId) {
+      const { data: location } = await admin
+        .from("business_locations")
+        .select("id, region_id")
+        .eq("id", locationId)
+        .maybeSingle();
+      locationId = location?.id || null;
+      regionId = location?.region_id || null;
+    }
+  }
+
   await admin.from("analytics_events").insert({
     event_type: eventType,
     organization_id: organizationId,
     organization_member_id: memberId || null,
+    location_id: locationId,
+    region_id: regionId,
     card_id: cardId || null,
     source: "dashboard_preview",
     action_label: label || null,
@@ -1273,7 +1636,7 @@ async function updateEmployeeRole(formData: FormData) {
 
   const memberId = String(formData.get("member_id") || "");
   const requestedRole = String(formData.get("role") || "member");
-  const role = requestedRole === "admin" ? "admin" : "member";
+  const normalizedRole = normalizeBusinessRole(requestedRole);
   const admin = createAdminClient();
 
   const { data: member } = await admin
@@ -1289,7 +1652,7 @@ async function updateEmployeeRole(formData: FormData) {
 
   await admin
     .from("organization_members")
-    .update({ role })
+    .update({ role: normalizedRole })
     .eq("id", memberId)
     .eq("organization_id", organizationId)
     .neq("role", "owner");
@@ -1301,7 +1664,7 @@ async function updateEmployeeEmail(formData: FormData) {
   "use server";
 
   const organizationId = String(formData.get("organization_id") || "");
-  await requireBusinessAdmin(organizationId);
+  const access = await getBusinessAccessScope({ organizationId, allowLocationAdmin: true });
 
   const memberId = String(formData.get("member_id") || "");
   const nextEmail = String(formData.get("email") || "").trim().toLowerCase();
@@ -1313,13 +1676,17 @@ async function updateEmployeeEmail(formData: FormData) {
 
   const { data: member } = await admin
     .from("organization_members")
-    .select("id, user_id, name, email, role, status")
+    .select("id, user_id, name, email, role, status, location_id")
     .eq("id", memberId)
     .eq("organization_id", organizationId)
     .maybeSingle();
 
   if (!member) {
     redirect(`/dashboard/business?org=${organizationId}&error=member_not_found`);
+  }
+
+  if (access.scope.role === "location_admin" && member.location_id !== access.scope.locationId) {
+    redirect(`/dashboard/business?org=${organizationId}&error=platform_admin_locked`);
   }
 
   if (isPlatformAdminMember(member)) {
@@ -1389,7 +1756,8 @@ async function updateEmployeeStatus(formData: FormData) {
   "use server";
 
   const organizationId = String(formData.get("organization_id") || "");
-  const user = await requireBusinessAdmin(organizationId);
+  const access = await getBusinessAccessScope({ organizationId, allowLocationAdmin: true });
+  const user = access.user;
 
   const memberId = String(formData.get("member_id") || "");
   const requestedStatus = String(formData.get("status") || "inactive");
@@ -1398,7 +1766,7 @@ async function updateEmployeeStatus(formData: FormData) {
 
   const { data: member } = await admin
     .from("organization_members")
-    .select("id, user_id, name, email, role, status")
+    .select("id, user_id, name, email, role, status, location_id")
     .eq("id", memberId)
     .eq("organization_id", organizationId)
     .maybeSingle();
@@ -1407,7 +1775,15 @@ async function updateEmployeeStatus(formData: FormData) {
     redirect(`/dashboard/business?org=${organizationId}&error=platform_admin_locked`);
   }
 
-  if (member?.user_id === user.id && member.status === "active" && (member.role === "owner" || member.role === "admin")) {
+  if (access.scope.role === "location_admin" && member?.location_id !== access.scope.locationId) {
+    redirect(`/dashboard/business?org=${organizationId}&error=platform_admin_locked`);
+  }
+
+  if (
+    member?.user_id === user.id &&
+    member.status === "active" &&
+    ["super_admin", "business_admin"].includes(normalizeBusinessRole(member.role))
+  ) {
     redirect(`/dashboard/business?org=${organizationId}&error=cannot_remove_self`);
   }
 
@@ -1469,7 +1845,11 @@ async function deleteEmployee(formData: FormData) {
     redirect(`/dashboard/business?org=${organizationId}&error=platform_admin_locked`);
   }
 
-  if (member?.user_id === user.id && member.status === "active" && (member.role === "owner" || member.role === "admin")) {
+  if (
+    member?.user_id === user.id &&
+    member.status === "active" &&
+    ["super_admin", "business_admin"].includes(normalizeBusinessRole(member.role))
+  ) {
     redirect(`/dashboard/business?org=${organizationId}&error=cannot_remove_self`);
   }
 
@@ -1513,9 +1893,22 @@ export default async function BusinessDashboardPage({
   const selectedOrganizationId = params?.org || null;
   const showOnboarding = isPlatformAdmin && params?.onboard === "1";
   const businessIndex = isPlatformAdmin ? await getBusinessIndex() : [];
-  const { organization, members, tokens, contacts, analyticsEvents, webhookSettings, webhookDeliveries } = showOnboarding
+  const {
+    organization,
+    viewerAccess,
+    locations,
+    regions,
+    members,
+    tokens,
+    contacts,
+    analyticsEvents,
+    webhookSettings,
+    webhookDeliveries
+  } = showOnboarding
     ? {
         organization: null,
+        locations: [],
+        regions: [],
         members: [],
         tokens: [],
         contacts: [],
@@ -1539,6 +1932,38 @@ export default async function BusinessDashboardPage({
     { href: "/dashboard/business#challenges", label: "Challenges" },
     { href: "/dashboard/business#competitions", label: "Competitions" }
   ];
+
+  const normalizedViewerRole = normalizeBusinessRole(viewerAccess?.role || null);
+  const isLocationScopedViewer = normalizedViewerRole === "location_admin" && !!viewerAccess?.locationId;
+  const viewerLocation = isLocationScopedViewer
+    ? locations.find((location) => location.id === viewerAccess.locationId) || null
+    : null;
+  const scopedMemberIds = new Set(
+    isLocationScopedViewer ? members.filter((member) => member.location_id === viewerAccess.locationId).map((member) => member.id) : members.map((member) => member.id)
+  );
+  const scopedLocations = isLocationScopedViewer ? (viewerLocation ? [viewerLocation] : []) : locations;
+  const scopedRegions = isLocationScopedViewer
+    ? regions.filter((region) => scopedLocations.some((location) => location.region_id === region.id))
+    : regions;
+  const scopedMembers = isLocationScopedViewer ? members.filter((member) => scopedMemberIds.has(member.id)) : members;
+  const scopedActiveMembers = scopedMembers.filter((member) => member.status === "active" && !isPlatformAdminMember(member));
+  const scopedContacts = isLocationScopedViewer
+    ? contacts.filter(
+        (contact) =>
+          scopedMemberIds.has(contact.profile_id) || scopedMemberIds.has(contact.submitted_to_user_id || "")
+      )
+    : contacts;
+  const scopedAnalyticsEvents = isLocationScopedViewer
+    ? analyticsEvents.filter(
+        (event) =>
+          event.location_id === viewerLocation?.id ||
+          (event.organization_member_id && scopedMemberIds.has(event.organization_member_id))
+      )
+    : analyticsEvents;
+  const scopedTokens = isLocationScopedViewer
+    ? tokens.filter((token) => token.assigned_member_id && scopedMemberIds.has(token.assigned_member_id))
+    : tokens;
+  const canManageBusinessWide = !isLocationScopedViewer;
 
   if (isPlatformAdmin && !selectedOrganizationId && !showOnboarding) {
     return (
@@ -1699,9 +2124,288 @@ export default async function BusinessDashboardPage({
     );
   }
 
-  const activeMembers = members.filter((member) => member.status === "active" && !isPlatformAdminMember(member));
-  const memberById = new Map(members.map((member) => [member.id, member]));
-  const unassignedTokens = tokens.filter((token) => !token.assigned_member_id || !memberById.has(token.assigned_member_id));
+  const activeMembers = scopedActiveMembers;
+  const memberById = new Map(scopedMembers.map((member) => [member.id, member]));
+  const locationById = new Map(scopedLocations.map((location) => [location.id, location]));
+  const regionById = new Map(scopedRegions.map((region) => [region.id, region]));
+  const viewerLocationRegion = viewerLocation?.region_id ? regionById.get(viewerLocation.region_id) || null : null;
+  const unassignedTokens = canManageBusinessWide
+    ? scopedTokens.filter((token) => !token.assigned_member_id || !memberById.has(token.assigned_member_id))
+    : [];
+  const dashboardFooterLeft = isLocationScopedViewer ? "Location dashboard" : "Business dashboard";
+  const locationEmployeeCount = scopedMembers.length;
+  const locationActiveCount = scopedActiveMembers.length;
+  const locationContactCount = scopedContacts.length;
+  const locationActivityCount = scopedAnalyticsEvents.length;
+
+  if (isLocationScopedViewer) {
+    return (
+      <Shell footerLeft={dashboardFooterLeft} footerRight="TapTagg" initialAuth={initialAuth} navLinks={businessNavLinks}>
+        <section className="simple-hero location-hero">
+          <div className="kicker">
+            <span className="mini-star">✦</span>
+            <span>Location admin</span>
+          </div>
+          <h1>{viewerLocation?.name || "Your assigned location"}</h1>
+          <p>
+            Manage this location&apos;s details, assigned employees, and local activity for {organization.name}.
+          </p>
+          <div className="location-hero-panel">
+            <div className="location-hero-panel-copy">
+              <div className="dashboard-kicker">Local workspace</div>
+              <h2>{viewerLocation?.name || "Unassigned location"}</h2>
+              <p>
+                This view only includes the employees, contacts, and activity for this location. Business-wide settings stay in the parent business dashboard.
+              </p>
+              <div className="location-hero-tag-row">
+                <span className="button secondary" aria-disabled="true">
+                  {viewerLocationRegion?.name || "No region assigned"}
+                </span>
+                {viewerLocation?.address || viewerLocation?.city || viewerLocation?.state ? (
+                  <span className="button secondary" aria-disabled="true">
+                    {[viewerLocation.address, viewerLocation.city, viewerLocation.state].filter(Boolean).join(", ")}
+                  </span>
+                ) : null}
+              </div>
+            </div>
+            <div className="location-hero-stats" aria-label="Location summary">
+              <div className="location-hero-stat">
+                <span>Employees</span>
+                <strong>{locationEmployeeCount}</strong>
+              </div>
+              <div className="location-hero-stat">
+                <span>Active</span>
+                <strong>{locationActiveCount}</strong>
+              </div>
+              <div className="location-hero-stat">
+                <span>Contacts</span>
+                <strong>{locationContactCount}</strong>
+              </div>
+              <div className="location-hero-stat">
+                <span>Events</span>
+                <strong>{locationActivityCount}</strong>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="dashboard-wrap">
+          <div className="dashboard-card">
+            <div className="dashboard-kicker">Location details</div>
+            <h2>Edit this location.</h2>
+            {viewerLocation ? (
+              <>
+                <p className="editor-copy">
+                  {viewerLocation.address || viewerLocation.city || viewerLocation.state
+                    ? [viewerLocation.address, viewerLocation.city, viewerLocation.state].filter(Boolean).join(", ")
+                    : "No address has been added yet."}
+                </p>
+                <form action={saveBusinessLocation} className="editor-form" style={{ marginTop: 18 }}>
+                  <input type="hidden" name="organization_id" value={organization.id} />
+                  <input type="hidden" name="location_id" value={viewerLocation.id} />
+                  <label className="editor-label">
+                    Location name
+                    <input className="editor-input" name="name" defaultValue={viewerLocation.name} required />
+                  </label>
+                  <div className="editor-grid">
+                    <label className="editor-label">
+                      Slug
+                      <input className="editor-input" name="slug" defaultValue={viewerLocation.slug || ""} />
+                    </label>
+                    <label className="editor-label">
+                      Phone
+                      <input className="editor-input" name="phone" defaultValue={viewerLocation.phone || ""} />
+                    </label>
+                  </div>
+                  <div className="editor-grid">
+                    <label className="editor-label">
+                      Address
+                      <input className="editor-input" name="address" defaultValue={viewerLocation.address || ""} />
+                    </label>
+                    <label className="editor-label">
+                      City
+                      <input className="editor-input" name="city" defaultValue={viewerLocation.city || ""} />
+                    </label>
+                  </div>
+                  <div className="editor-grid">
+                    <label className="editor-label">
+                      State
+                      <input className="editor-input" name="state" defaultValue={viewerLocation.state || ""} maxLength={2} />
+                    </label>
+                    <label className="editor-label">
+                      Region
+                      <input className="editor-input" value={viewerLocationRegion?.name || "No region assigned"} readOnly />
+                    </label>
+                  </div>
+                  <button className="button primary" type="submit">
+                    Save location
+                  </button>
+                </form>
+              </>
+            ) : (
+              <p className="editor-copy">No location has been assigned to your account yet.</p>
+            )}
+          </div>
+        </section>
+
+        <section className="dashboard-wrap">
+          <div className="dashboard-card">
+            <div className="dashboard-kicker">Location employees</div>
+            <h2>Manage your local team.</h2>
+            <p className="editor-copy">
+              Update profile details, email, and active status for employees assigned to this location.
+            </p>
+            <div className="admin-table-frame business-member-table">
+              <div className="admin-table-scroll">
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Role / title</th>
+                      <th>Email</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {scopedMembers.map((member) => {
+                      const lockedPlatformAdmin = isPlatformAdminMember(member);
+                      return (
+                        <tr key={member.id}>
+                          <td>
+                            <strong>{member.name}</strong>
+                          </td>
+                          <td>
+                            {lockedPlatformAdmin ? (
+                              <div>
+                                <strong>Platform admin</strong>
+                                <div className="table-subtext">Locked TapTagg support access</div>
+                              </div>
+                            ) : (
+                              <div>
+                                <strong>{businessRoleLabel(member.role)}</strong>
+                                {member.title ? <div className="table-subtext">{member.title}</div> : null}
+                              </div>
+                            )}
+                          </td>
+                          <td>{member.email || "—"}</td>
+                          <td>
+                            <span className="status-pill">{member.status}</span>
+                          </td>
+                          <td>
+                            <div className="table-actions">
+                              {lockedPlatformAdmin ? (
+                                <span className="editor-copy">Locked platform admin access.</span>
+                              ) : (
+                                <details className="employee-manage-panel">
+                                  <summary className="button secondary">Manage</summary>
+                                  <div className="employee-manage-panel-inner">
+                                    <div className="dashboard-kicker">Headshot</div>
+                                    {member.headshot_url ? (
+                                      <div className="employee-headshot-preview">
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                        <img src={member.headshot_url} alt={`${member.name} headshot`} />
+                                      </div>
+                                    ) : (
+                                      <p className="table-subtext">No headshot uploaded.</p>
+                                    )}
+                                    <form action={updateEmployeeHeadshot} className="table-actions" encType="multipart/form-data">
+                                      <input type="hidden" name="organization_id" value={organization.id} />
+                                      <input type="hidden" name="member_id" value={member.id} />
+                                      <input
+                                        className="editor-input"
+                                        name="headshot_file"
+                                        type="file"
+                                        accept="image/jpeg,image/png,image/webp"
+                                        required
+                                      />
+                                      <button className="button secondary" type="submit">
+                                        {member.headshot_url ? "Change headshot" : "Upload headshot"}
+                                      </button>
+                                    </form>
+                                    {member.headshot_url ? (
+                                      <form action={deleteEmployeeHeadshot}>
+                                        <input type="hidden" name="organization_id" value={organization.id} />
+                                        <input type="hidden" name="member_id" value={member.id} />
+                                        <ConfirmSubmitButton
+                                          className="button secondary"
+                                          confirmMessage={`Delete ${member.name}'s headshot?`}
+                                        >
+                                          Delete headshot
+                                        </ConfirmSubmitButton>
+                                      </form>
+                                    ) : null}
+
+                                    <div className="dashboard-kicker">Email</div>
+                                    <form action={updateEmployeeEmail} className="table-actions">
+                                      <input type="hidden" name="organization_id" value={organization.id} />
+                                      <input type="hidden" name="member_id" value={member.id} />
+                                      <input
+                                        className="editor-input"
+                                        name="email"
+                                        type="email"
+                                        defaultValue={member.email || ""}
+                                        placeholder="name@example.com"
+                                        autoComplete="email"
+                                      />
+                                      <button className="button secondary" type="submit">Save email</button>
+                                    </form>
+
+                                    {member.status === "active" && member.email ? (
+                                      <form action={sendBusinessLoginInvite}>
+                                        <input type="hidden" name="organization_id" value={organization.id} />
+                                        <input type="hidden" name="member_id" value={member.id} />
+                                        <button className="button secondary" type="submit">Send invite</button>
+                                      </form>
+                                    ) : null}
+
+                                    <div className="dashboard-kicker">Status</div>
+                                    {member.status === "active" ? (
+                                      <form action={updateEmployeeStatus}>
+                                        <input type="hidden" name="organization_id" value={organization.id} />
+                                        <input type="hidden" name="member_id" value={member.id} />
+                                        <input type="hidden" name="status" value="inactive" />
+                                        <ConfirmSubmitButton
+                                          className="button secondary"
+                                          confirmMessage={`Archive ${member.name}?`}
+                                        >
+                                          Archive
+                                        </ConfirmSubmitButton>
+                                      </form>
+                                    ) : (
+                                      <form action={updateEmployeeStatus}>
+                                        <input type="hidden" name="organization_id" value={organization.id} />
+                                        <input type="hidden" name="member_id" value={member.id} />
+                                        <input type="hidden" name="status" value="active" />
+                                        <button className="button secondary" type="submit">Restore</button>
+                                      </form>
+                                    )}
+                                  </div>
+                                </details>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <ContactTable contacts={scopedContacts} members={scopedMembers} showMemberFilter />
+        <AnalyticsSummary
+          events={scopedAnalyticsEvents}
+          contacts={scopedContacts}
+          members={scopedMembers}
+          business
+          scopeLabel="Location"
+        />
+      </Shell>
+    );
+  }
 
   return (
     <Shell footerLeft="Business dashboard" footerRight="TapTagg" initialAuth={initialAuth} navLinks={businessNavLinks}>
@@ -1774,6 +2478,289 @@ export default async function BusinessDashboardPage({
           </div>
         </section>
       ) : null}
+      {params?.saved === "location" ? (
+        <section className="dashboard-wrap">
+          <div className="dashboard-card pass-alert">
+            <div className="dashboard-kicker">Saved</div>
+            <p className="editor-copy">Location was saved.</p>
+          </div>
+        </section>
+      ) : null}
+      {params?.saved === "location_deleted" ? (
+        <section className="dashboard-wrap">
+          <div className="dashboard-card pass-alert">
+            <div className="dashboard-kicker">Deleted</div>
+            <p className="editor-copy">Location was deleted.</p>
+          </div>
+        </section>
+      ) : null}
+      {params?.saved === "region" ? (
+        <section className="dashboard-wrap">
+          <div className="dashboard-card pass-alert">
+            <div className="dashboard-kicker">Saved</div>
+            <p className="editor-copy">Region was saved.</p>
+          </div>
+        </section>
+      ) : null}
+
+      <section className="dashboard-wrap" id="business-locations">
+        <div className="dashboard-grid">
+          <div className="dashboard-card">
+            <div className="dashboard-kicker">Locations</div>
+            <h2>Keep every office, rooftop, or market location organized.</h2>
+            <p className="editor-copy">
+              Locations are optional at first, so businesses with no offices continue to work exactly as they do today.
+            </p>
+
+            <form action={saveBusinessLocation} className="editor-form" style={{ marginTop: 18 }}>
+              <input type="hidden" name="organization_id" value={organization.id} />
+              <label className="editor-label">
+                Location name
+                <input className="editor-input" name="name" placeholder="Springfield Office" required />
+              </label>
+              <div className="editor-grid">
+                <label className="editor-label">
+                  Slug
+                  <input className="editor-input" name="slug" placeholder="springfield-office" />
+                </label>
+                <label className="editor-label">
+                  Phone
+                  <input className="editor-input" name="phone" placeholder="(555) 555-5555" />
+                </label>
+              </div>
+              <div className="editor-grid">
+                <label className="editor-label">
+                  Address
+                  <input className="editor-input" name="address" placeholder="123 Main St" />
+                </label>
+                <label className="editor-label">
+                  City
+                  <input className="editor-input" name="city" placeholder="Springfield" />
+                </label>
+              </div>
+              <div className="editor-grid">
+                <label className="editor-label">
+                  State
+                  <input className="editor-input" name="state" placeholder="IL" maxLength={2} />
+                </label>
+                <label className="editor-label">
+                  Region
+                  <select className="editor-input" name="region_id" defaultValue="">
+                    <option value="">No region</option>
+                    {regions.map((region) => (
+                      <option key={region.id} value={region.id}>
+                        {region.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+              <button className="button primary" type="submit">
+                Create location
+              </button>
+            </form>
+
+            <div className="admin-table-frame business-member-table" style={{ marginTop: 18 }}>
+              <div className="admin-table-scroll">
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Location</th>
+                      <th>Region</th>
+                      <th>Employees</th>
+                      <th>Details</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {locations.map((location) => {
+                      const region = location.region_id ? regionById.get(location.region_id) : null;
+                      const assignedEmployees = members.filter((member) => member.location_id === location.id && member.status === "active");
+                      return (
+                        <tr key={location.id}>
+                          <td>
+                            <strong>{location.name}</strong>
+                            <div className="table-subtext">
+                              {[location.address, location.city, location.state].filter(Boolean).join(", ") || "No address yet"}
+                            </div>
+                          </td>
+                          <td>{region?.name || "No region"}</td>
+                          <td>{assignedEmployees.length}</td>
+                          <td>
+                            <details className="employee-manage-panel">
+                              <summary className="button secondary">Edit</summary>
+                              <div className="employee-manage-panel-inner">
+                                <form action={saveBusinessLocation} className="editor-form">
+                                  <input type="hidden" name="organization_id" value={organization.id} />
+                                  <input type="hidden" name="location_id" value={location.id} />
+                                  <label className="editor-label">
+                                    Location name
+                                    <input className="editor-input" name="name" defaultValue={location.name} required />
+                                  </label>
+                                  <div className="editor-grid">
+                                    <label className="editor-label">
+                                      Slug
+                                      <input className="editor-input" name="slug" defaultValue={location.slug || ""} />
+                                    </label>
+                                    <label className="editor-label">
+                                      Phone
+                                      <input className="editor-input" name="phone" defaultValue={location.phone || ""} />
+                                    </label>
+                                  </div>
+                                  <div className="editor-grid">
+                                    <label className="editor-label">
+                                      Address
+                                      <input className="editor-input" name="address" defaultValue={location.address || ""} />
+                                    </label>
+                                    <label className="editor-label">
+                                      City
+                                      <input className="editor-input" name="city" defaultValue={location.city || ""} />
+                                    </label>
+                                  </div>
+                                  <div className="editor-grid">
+                                    <label className="editor-label">
+                                      State
+                                      <input className="editor-input" name="state" defaultValue={location.state || ""} maxLength={2} />
+                                    </label>
+                                    <label className="editor-label">
+                                      Region
+                                      <select className="editor-input" name="region_id" defaultValue={location.region_id || ""}>
+                                        <option value="">No region</option>
+                                        {regions.map((region) => (
+                                          <option key={region.id} value={region.id}>
+                                            {region.name}
+                                          </option>
+                                        ))}
+                                      </select>
+                                    </label>
+                                  </div>
+                                  <button className="button secondary" type="submit">
+                                    Save location
+                                  </button>
+                                </form>
+                                <form action={deleteBusinessLocation}>
+                                  <input type="hidden" name="organization_id" value={organization.id} />
+                                  <input type="hidden" name="location_id" value={location.id} />
+                                  <ConfirmSubmitButton
+                                    className="button secondary"
+                                    confirmMessage={`Delete ${location.name}? Employees assigned to it will revert to no location.`}
+                                  >
+                                    Delete location
+                                  </ConfirmSubmitButton>
+                                </form>
+                              </div>
+                            </details>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                    {locations.length === 0 ? (
+                      <tr>
+                        <td colSpan={4}>
+                          <p className="editor-copy">No locations yet. Add one above when you are ready.</p>
+                        </td>
+                      </tr>
+                    ) : null}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div className="dashboard-card">
+            <div className="dashboard-kicker">Regions</div>
+            <h2>Future-ready territory groups.</h2>
+            <p className="editor-copy">
+              Regions are intentionally simple for now. They let locations be grouped later by state codes or custom territory rules.
+            </p>
+
+            <form action={saveBusinessRegion} className="editor-form" style={{ marginTop: 18 }}>
+              <input type="hidden" name="organization_id" value={organization.id} />
+              <label className="editor-label">
+                Region name
+                <input className="editor-input" name="name" placeholder="Central Illinois" required />
+              </label>
+              <label className="editor-label">
+                Description
+                <textarea className="editor-input" name="description" rows={3} placeholder="Optional notes about the territory." />
+              </label>
+              <label className="editor-label">
+                State codes
+                <input className="editor-input" name="state_codes" placeholder="IL,MO,IN" />
+              </label>
+              <button className="button primary" type="submit">
+                Create region
+              </button>
+            </form>
+
+            <div className="admin-table-frame business-member-table" style={{ marginTop: 18 }}>
+              <div className="admin-table-scroll">
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Region</th>
+                      <th>State codes</th>
+                      <th>Locations</th>
+                      <th>Details</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {regions.map((region) => {
+                      const regionLocations = locations.filter((location) => location.region_id === region.id);
+                      return (
+                        <tr key={region.id}>
+                          <td>
+                            <strong>{region.name}</strong>
+                            {region.description ? <div className="table-subtext">{region.description}</div> : null}
+                          </td>
+                          <td>{region.state_codes?.length ? region.state_codes.join(", ") : "—"}</td>
+                          <td>{regionLocations.length}</td>
+                          <td>
+                            <details className="employee-manage-panel">
+                              <summary className="button secondary">Edit</summary>
+                              <div className="employee-manage-panel-inner">
+                                <form action={saveBusinessRegion} className="editor-form">
+                                  <input type="hidden" name="organization_id" value={organization.id} />
+                                  <input type="hidden" name="region_id" value={region.id} />
+                                  <label className="editor-label">
+                                    Region name
+                                    <input className="editor-input" name="name" defaultValue={region.name} required />
+                                  </label>
+                                  <label className="editor-label">
+                                    Description
+                                    <textarea className="editor-input" name="description" rows={3} defaultValue={region.description || ""} />
+                                  </label>
+                                  <label className="editor-label">
+                                    State codes
+                                    <input
+                                      className="editor-input"
+                                      name="state_codes"
+                                      defaultValue={region.state_codes?.join(", ") || ""}
+                                    />
+                                  </label>
+                                  <button className="button secondary" type="submit">
+                                    Save region
+                                  </button>
+                                </form>
+                              </div>
+                            </details>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                    {regions.length === 0 ? (
+                      <tr>
+                        <td colSpan={4}>
+                          <p className="editor-copy">No regions yet. Add one when you want to group locations by territory.</p>
+                        </td>
+                      </tr>
+                    ) : null}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <section className="dashboard-wrap">
         <div className="dashboard-card">
@@ -1789,6 +2776,7 @@ export default async function BusinessDashboardPage({
                   <tr>
                     <th>Name</th>
                     <th>Role / title</th>
+                    <th>Location</th>
                     <th>Email</th>
                     <th>Token</th>
                     <th>Status</th>
@@ -1800,6 +2788,7 @@ export default async function BusinessDashboardPage({
                     const assignedToken = tokens.find((token) => token.assigned_member_id === member.id);
                     const assignedProfileUrl = assignedToken ? tokenUrl(assignedToken.token) : null;
                     const lockedPlatformAdmin = isPlatformAdminMember(member);
+                    const memberLocation = member.location_id ? locationById.get(member.location_id) : null;
                     return (
                       <tr key={member.id}>
                         <td>
@@ -1811,18 +2800,19 @@ export default async function BusinessDashboardPage({
                               <strong>Platform admin</strong>
                               <div className="table-subtext">Locked TapTagg support access</div>
                             </div>
-                          ) : member.role === "owner" ? (
+                          ) : normalizeBusinessRole(member.role) === "super_admin" ? (
                             <div>
                               <strong>Owner</strong>
                               <div className="table-subtext">{member.title || "Business owner"}</div>
                             </div>
                           ) : (
                             <div>
-                              <strong>{member.role === "admin" ? "Admin" : "Employee"}</strong>
+                              <strong>{businessRoleLabel(member.role)}</strong>
                               {member.title ? <div className="table-subtext">{member.title}</div> : null}
                             </div>
                           )}
                         </td>
+                        <td>{memberLocation ? memberLocation.name : "No location"}</td>
                         <td>{member.email || "—"}</td>
                         <td>
                           {assignedToken && assignedProfileUrl ? (
@@ -1908,6 +2898,31 @@ export default async function BusinessDashboardPage({
                                       Updates the business member email used for invites and digital pass delivery.
                                     </p>
 
+                                    <div className="dashboard-kicker">Location</div>
+                                    <form action={updateEmployeeLocation} className="table-actions">
+                                      <input type="hidden" name="organization_id" value={organization.id} />
+                                      <input type="hidden" name="member_id" value={member.id} />
+                                      <select
+                                        className="editor-input"
+                                        name="location_id"
+                                        defaultValue={member.location_id || ""}
+                                        aria-label={`Location for ${member.name}`}
+                                      >
+                                        <option value="">No location</option>
+                                        {locations.map((location) => (
+                                          <option key={location.id} value={location.id}>
+                                            {location.name}
+                                          </option>
+                                        ))}
+                                      </select>
+                                      <button className="button secondary" type="submit">
+                                        Save location
+                                      </button>
+                                    </form>
+                                    <p className="table-subtext">
+                                      Assign the employee to a location so future location-level reporting can filter cleanly.
+                                    </p>
+
                                     <div className="dashboard-kicker">Token and digital pass</div>
                                     {assignedToken ? (
                                       <>
@@ -1978,7 +2993,7 @@ export default async function BusinessDashboardPage({
                                     )}
 
                                     <div className="dashboard-kicker">Access</div>
-                                    {member.role === "owner" ? (
+                                    {normalizeBusinessRole(member.role) === "super_admin" ? (
                                       <p className="table-subtext">Owner role is locked.</p>
                                     ) : (
                                       <form action={updateEmployeeRole} className="table-actions">
@@ -1987,11 +3002,13 @@ export default async function BusinessDashboardPage({
                                         <select
                                           className="editor-input"
                                           name="role"
-                                          defaultValue={member.role === "admin" ? "admin" : "member"}
+                                          defaultValue={normalizeBusinessRole(member.role)}
                                           aria-label={`Role for ${member.name}`}
                                         >
-                                          <option value="member">Employee</option>
-                                          <option value="admin">Admin</option>
+                                          <option value="employee">Employee</option>
+                                          <option value="location_admin">Location admin</option>
+                                          <option value="business_admin">Business admin</option>
+                                          <option value="super_admin">Super admin</option>
                                         </select>
                                         <button className="button secondary" type="submit">Save role</button>
                                       </form>

@@ -148,6 +148,8 @@ export async function POST(request: Request) {
 
   let resolvedProfileId = profileId;
   let submittedUserId: string | null = null;
+  let locationId: string | null = null;
+  let regionId: string | null = null;
   const admin = createAdminClient();
 
   if (!resolvedProfileId && slug) {
@@ -172,10 +174,20 @@ export async function POST(request: Request) {
   if (organizationMemberId && !submittedUserId) {
     const { data: member } = await admin
       .from("organization_members")
-      .select("user_id")
+      .select("user_id, location_id")
       .eq("id", organizationMemberId)
       .maybeSingle();
     submittedUserId = member?.user_id || null;
+    locationId = member?.location_id || null;
+  }
+
+  if (locationId) {
+    const { data: location } = await admin
+      .from("business_locations")
+      .select("id, region_id")
+      .eq("id", locationId)
+      .maybeSingle();
+    regionId = location?.region_id || null;
   }
 
   const actionType = cleanText((payload as { action_type?: unknown }).action_type, 80);
@@ -187,6 +199,8 @@ export async function POST(request: Request) {
     profile_id: resolvedProfileId,
     organization_id: organizationId,
     organization_member_id: organizationMemberId,
+    location_id: locationId,
+    region_id: regionId,
     profile_view_id: profileViewId,
     user_id: submittedUserId,
     card_id: cardId,

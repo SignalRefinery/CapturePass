@@ -5,6 +5,7 @@ type AnalyticsSummaryProps = {
   contacts?: ContactSubmissionRecord[];
   members?: Pick<OrganizationMemberRecord, "id" | "name">[];
   business?: boolean;
+  scopeLabel?: string;
 };
 
 function uniqueVisitors(events: AnalyticsEventRecord[]) {
@@ -44,15 +45,16 @@ function percent(numerator: number, denominator: number) {
   return `${Math.round((numerator / denominator) * 100)}%`;
 }
 
-export function AnalyticsSummary({ events, contacts = [], members = [], business = false }: AnalyticsSummaryProps) {
+export function AnalyticsSummary({ events, contacts = [], members = [], business = false, scopeLabel }: AnalyticsSummaryProps) {
+  const labelPrefix = scopeLabel || (business ? "Organization" : "Profile");
   const profileViews = count(events, "profile_view");
   const visitors = uniqueVisitors(events);
   const contactsReceived = contacts.length || count(events, "contact_shared") || count(events, "contact_submission");
   const contactSaves = count(events, "contact_save");
   const buttonClicks = count(events, "button_click");
   const summaryCards = [
-    { label: business ? "Organization Views" : "Profile Views", value: profileViews },
-    { label: business ? "Organization Unique Visitors" : "Unique Visitors", value: visitors },
+    { label: `${labelPrefix} Views`, value: profileViews },
+    { label: `${labelPrefix} Unique Visitors`, value: visitors },
     { label: "NFC Taps", value: count(events, "nfc_tap") },
     { label: "QR Scans", value: count(events, "qr_scan") },
     { label: "Contacts Received", value: contactsReceived },
@@ -123,8 +125,8 @@ export function AnalyticsSummary({ events, contacts = [], members = [], business
       {business ? (
         <section className="dashboard-wrap">
           <div className="dashboard-card">
-            <div className="dashboard-kicker">Team Leaderboard</div>
-            <h2>Team engagement.</h2>
+            <div className="dashboard-kicker">{scopeLabel ? `${scopeLabel} leaderboard` : "Team Leaderboard"}</div>
+            <h2>{scopeLabel ? `${scopeLabel} engagement.` : "Team engagement."}</h2>
             <div className="admin-table-frame business-member-table">
               <div className="admin-table-scroll">
                 <table className="admin-table">
@@ -162,7 +164,7 @@ export function AnalyticsSummary({ events, contacts = [], members = [], business
       <section className="dashboard-wrap">
         <div className="dashboard-card">
           <div className="dashboard-kicker">Recent Activity</div>
-          <h2>Latest events.</h2>
+          <h2>{scopeLabel ? `Latest ${scopeLabel.toLowerCase()} activity.` : "Latest events."}</h2>
           <div className="admin-table-frame business-member-table">
             <div className="admin-table-scroll">
               <table className="admin-table">

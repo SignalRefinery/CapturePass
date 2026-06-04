@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { businessRoleSet } from "@/lib/business/roles";
 import type { OrganizationMemberRecord, OrganizationRecord } from "@/lib/types";
 
 type BusinessRole = OrganizationMemberRecord["role"];
@@ -7,7 +8,7 @@ export async function claimBusinessMembershipForUser({
   userId,
   email,
   organizationId,
-  roles = ["owner", "admin", "member"]
+  roles = ["owner", "admin", "super_admin", "business_admin", "location_admin"]
 }: {
   userId: string;
   email?: string | null;
@@ -21,10 +22,12 @@ export async function claimBusinessMembershipForUser({
   const admin = createAdminClient();
   let query = admin
     .from("organization_members")
-    .select("id, organization_id, user_id, name, email, phone, title, role, status, headshot_url, organization:organizations(*)")
+    .select(
+      "id, organization_id, user_id, name, email, phone, title, role, location_id, status, headshot_url, organization:organizations(*)"
+    )
     .ilike("email", normalizedEmail)
     .eq("status", "active")
-    .in("role", roles)
+    .in("role", roles.length ? roles : businessRoleSet())
     .limit(1);
 
   if (organizationId) {
@@ -61,6 +64,7 @@ export async function claimBusinessMembershipForUser({
       phone: member.phone,
       title: member.title,
       role: member.role,
+      location_id: member.location_id || null,
       status: member.status
     } as OrganizationMemberRecord
   };
@@ -70,7 +74,7 @@ export async function claimBusinessOrganizationForUser({
   userId,
   email,
   organizationId,
-  roles = ["owner", "admin"]
+  roles = ["owner", "admin", "super_admin", "business_admin", "location_admin"]
 }: {
   userId: string;
   email?: string | null;

@@ -33,7 +33,7 @@ async function requireBusinessAdmin(organizationId: string) {
     .eq("organization_id", organizationId)
     .eq("user_id", user.id)
     .eq("status", "active")
-    .in("role", ["owner", "admin"])
+    .in("role", ["owner", "admin", "super_admin", "business_admin"])
     .maybeSingle();
 
   return member ? user : null;

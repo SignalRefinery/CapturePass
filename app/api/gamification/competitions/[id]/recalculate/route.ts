@@ -47,7 +47,7 @@ async function requireOrgAdmin(admin: ReturnType<typeof createAdminClient>, comp
     .eq("status", "active")
     .maybeSingle();
 
-  return !!member && (member.role === "owner" || member.role === "admin") ? competition : null;
+  return !!member && ["owner", "admin", "super_admin", "business_admin"].includes(String(member.role || "")) ? competition : null;
 }
 
 export async function POST(_: Request, context: { params: Promise<{ id: string }> }) {

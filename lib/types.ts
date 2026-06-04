@@ -113,6 +113,32 @@ export type OrganizationRecord = {
   created_at?: string;
 };
 
+export type BusinessRole = "super_admin" | "business_admin" | "location_admin" | "employee";
+
+export type BusinessLocationRecord = {
+  id: string;
+  business_id: string;
+  name: string;
+  slug?: string | null;
+  address?: string | null;
+  city?: string | null;
+  state?: string | null;
+  phone?: string | null;
+  region_id?: string | null;
+  created_at?: string;
+  updated_at?: string;
+};
+
+export type BusinessRegionRecord = {
+  id: string;
+  business_id: string;
+  name: string;
+  description?: string | null;
+  state_codes?: string[] | null;
+  created_at?: string;
+  updated_at?: string;
+};
+
 export type OrganizationMemberRecord = {
   id: string;
   organization_id: string;
@@ -122,7 +148,8 @@ export type OrganizationMemberRecord = {
   headshot_url?: string | null;
   phone?: string | null;
   title?: string | null;
-  role: "owner" | "admin" | "member";
+  role: "owner" | "admin" | "member" | BusinessRole;
+  location_id?: string | null;
   status: "active" | "inactive";
   created_at?: string;
 };
@@ -214,6 +241,8 @@ export type AnalyticsEventRecord = {
   profile_id?: string | null;
   organization_id?: string | null;
   organization_member_id?: string | null;
+  location_id?: string | null;
+  region_id?: string | null;
   profile_view_id?: string | null;
   user_id?: string | null;
   card_id?: string | null;

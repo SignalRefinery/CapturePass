@@ -43,7 +43,7 @@ async function requireOrgAdmin(admin: ReturnType<typeof createAdminClient>, chal
     .eq("status", "active")
     .maybeSingle();
 
-  return !!member && (member.role === "owner" || member.role === "admin");
+  return !!member && ["owner", "admin", "super_admin", "business_admin"].includes(String(member.role || ""));
 }
 
 export async function PATCH(request: Request, context: { params: Promise<{ id: string }> }) {
