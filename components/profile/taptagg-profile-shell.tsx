@@ -8,7 +8,7 @@ import { getReadableProfileUrl } from "@/lib/urls/profile-url";
 import { CUSTOM_THEME_KEY, normalizeThemeKey, resolveThemeColors } from "@/lib/themes";
 import { ContactShareModal } from "@/components/profile/contact-share-modal";
 import { ReportIssueForm } from "@/components/profile/report-issue-form";
-import { buildProfileButtons } from "@/lib/profile-buttons";
+import { buildProfileButtons, getProfileButtonAnalyticsContext } from "@/lib/profile-buttons";
 import styles from "./taptagg-profile-shell.module.css";
 
 type ProfileLike = {
@@ -456,12 +456,18 @@ export function TapTaggProfileShell({
           <div className={styles.card}>
               <h2>CTA buttons</h2>
               <div className={styles.links}>
-                {links.map((item) => (
+                {links.map((item, index) => (
                   <a
                     className={styles.linkCard}
                     href={item.href || "#"}
                     key={`${activeProfile.view_id || activeProfile.view_key || "profile"}-${item.title}-${item.href}`}
-                    onClick={() => trackProfileAction(analyticsTarget, item)}
+                    onClick={() =>
+                      trackProfileAction(
+                        analyticsTarget,
+                        item,
+                        getProfileButtonAnalyticsContext(item, index + 1)
+                      )
+                    }
                   >
                     <div>
                       <div className={styles.linkTitle}>{item.title}</div>

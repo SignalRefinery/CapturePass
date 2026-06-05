@@ -1,6 +1,11 @@
 "use client";
 
 import { useEffect } from "react";
+import {
+  inferProfileButtonType,
+  normalizeProfileButtonType,
+  type ProfileButtonAnalyticsContext
+} from "@/lib/profile-buttons";
 
 type AnalyticsTarget = {
   profileId?: string | null;
@@ -61,20 +66,43 @@ function actionTypeFor(label?: string | null, href?: string | null) {
   return "custom_button";
 }
 
+function buildButtonMetadata(context?: ProfileButtonAnalyticsContext | null) {
+  if (!context) return {};
+
+  return {
+    button_type: context.button_type,
+    button_label: context.button_label,
+    button_position: context.button_position,
+    button_event_type: context.button_event_type
+  };
+}
+
 export function trackProfileAction(
   target: AnalyticsTarget,
-  item: { title?: string | null; href?: string | null }
+  item: { title?: string | null; href?: string | null },
+  buttonContext?: ProfileButtonAnalyticsContext | null
 ) {
   const href = item.href || "";
   const label = item.title || "";
   const actionType = actionTypeFor(label, href);
+  const buttonType = normalizeProfileButtonType(
+    buttonContext?.button_type || inferProfileButtonType(href, label)
+  );
+  const metadata = {
+    ...(buttonContext ? buildButtonMetadata(buttonContext) : {}),
+    button_type: buttonType,
+    button_label: buttonContext?.button_label || label,
+    button_position: buttonContext?.button_position ?? null,
+    button_event_type: buttonContext?.button_event_type || `${buttonType}_click`
+  };
 
   postAnalytics(target, {
     event_type: "button_click",
     source: sourceFromLocation().source,
     action_type: actionType,
     action_label: label,
-    action_url: href
+    action_url: href,
+    metadata
   });
 
   if (href.includes("/api/vcard/") || href.includes("/api/pass-vcard/")) {

@@ -20,14 +20,32 @@ set
   primary_link_1_type = coalesce(primary_link_1_type, 'website'),
   primary_link_2_type = coalesce(primary_link_2_type, 'website'),
   primary_link_3_type = coalesce(primary_link_3_type, 'website'),
-  primary_link_4_type = coalesce(primary_link_4_type, 'website');
+  primary_link_4_type = coalesce(primary_link_4_type, 'website')
+where
+  primary_link_1_type is null
+  or primary_link_2_type is null
+  or primary_link_3_type is null
+  or primary_link_4_type is null
+  or primary_link_1_type not in ('website', 'email', 'phone', 'text', 'booking', 'directions', 'pdf', 'payment', 'custom')
+  or primary_link_2_type not in ('website', 'email', 'phone', 'text', 'booking', 'directions', 'pdf', 'payment', 'custom')
+  or primary_link_3_type not in ('website', 'email', 'phone', 'text', 'booking', 'directions', 'pdf', 'payment', 'custom')
+  or primary_link_4_type not in ('website', 'email', 'phone', 'text', 'booking', 'directions', 'pdf', 'payment', 'custom');
 
 update public.profile_views
 set
   primary_link_1_type = coalesce(primary_link_1_type, 'website'),
   primary_link_2_type = coalesce(primary_link_2_type, 'website'),
   primary_link_3_type = coalesce(primary_link_3_type, 'website'),
-  primary_link_4_type = coalesce(primary_link_4_type, 'website');
+  primary_link_4_type = coalesce(primary_link_4_type, 'website')
+where
+  primary_link_1_type is null
+  or primary_link_2_type is null
+  or primary_link_3_type is null
+  or primary_link_4_type is null
+  or primary_link_1_type not in ('website', 'email', 'phone', 'text', 'booking', 'directions', 'pdf', 'payment', 'custom')
+  or primary_link_2_type not in ('website', 'email', 'phone', 'text', 'booking', 'directions', 'pdf', 'payment', 'custom')
+  or primary_link_3_type not in ('website', 'email', 'phone', 'text', 'booking', 'directions', 'pdf', 'payment', 'custom')
+  or primary_link_4_type not in ('website', 'email', 'phone', 'text', 'booking', 'directions', 'pdf', 'payment', 'custom');
 
 alter table public.profiles
   alter column primary_link_1_type set default 'website',

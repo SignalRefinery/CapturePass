@@ -75,6 +75,13 @@ export type ProfileButton = {
   subtitle: string;
 };
 
+export type ProfileButtonAnalyticsContext = {
+  button_type: ProfileButtonType;
+  button_label: string;
+  button_position: number;
+  button_event_type: `${ProfileButtonType}_click`;
+};
+
 function digitsOnly(value?: string | null) {
   return (value || "").replace(/\D/g, "");
 }
@@ -312,4 +319,19 @@ export function buildProfileButtons(source: ProfileButtonRecordLike, options?: {
     })
     .filter((button): button is ProfileButton => !!button)
     .slice(0, limit);
+}
+
+export function getProfileButtonAnalyticsContext(
+  button: Pick<ProfileButton, "title" | "type">,
+  position: number
+): ProfileButtonAnalyticsContext {
+  const buttonType = normalizeProfileButtonType(button.type);
+  const buttonLabel = normalizeProfileButtonLabel(button.title, buttonType);
+
+  return {
+    button_type: buttonType,
+    button_label: buttonLabel,
+    button_position: position,
+    button_event_type: `${buttonType}_click`
+  };
 }
