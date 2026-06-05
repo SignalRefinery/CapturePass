@@ -15,6 +15,11 @@ import { stripe } from "@/lib/stripe";
 import { slugify } from "@/lib/utils";
 import { getPersonalGamificationSummary } from "@/lib/gamification/server";
 import type { ProfileRecord } from "@/lib/types";
+import {
+  applyBusinessTypePrimaryLinkDefaults,
+  getBusinessTypePrimaryLinkDefaults
+} from "@/lib/business-types";
+import { getBusinessTypeForUser } from "@/lib/business/organization-access";
 
 function passHrefFor(profile: ProfileRecord) {
   if (!profile.private_token) {
@@ -259,6 +264,8 @@ export default async function DashboardPage({
 
   const initialAuth = await getInitialAuth();
   const existing = await getProfileForUserServer(user.id);
+  const businessType = await getBusinessTypeForUser(user.id);
+  const businessPrimaryLinkDefaults = getBusinessTypePrimaryLinkDefaults(businessType);
 
   const firstName = user.user_metadata?.first_name || "";
   const lastName = user.user_metadata?.last_name || "";
@@ -266,50 +273,54 @@ export default async function DashboardPage({
   const email = user.email || "";
 
   const baseProfile =
-    existing ?? {
-      user_id: user.id,
-      full_name: fullName,
-      organization_name: "",
-      slug:
-        user.user_metadata?.suggested_slug ||
-        slugify(fullName) ||
-        slugify(email.split("@")[0] || "") ||
-        `profile-${user.id.slice(0, 8)}`,
-      role_line: "",
-      intro: "",
-      email,
-      phone: "",
-      website_url: "",
-      theme_key: "taptagg_brand",
-      profile_badge_1: "",
-      profile_badge_2: "",
-      profile_badge_3: "",
-      primary_link_1_title: "Call",
-      primary_link_1_url: "",
-      primary_link_1_type: "phone",
-      primary_link_2_title: "Email",
-      primary_link_2_url: "",
-      primary_link_2_type: "email",
-      primary_link_3_title: "Website 1",
-      primary_link_3_url: "",
-      primary_link_3_type: "website",
-      primary_link_4_title: "Website",
-      primary_link_4_url: "",
-      primary_link_4_type: "website",
-      page_mode: "single",
-      multi_view_display_mode: "favorite",
-      default_view_id: null,
-      is_active: false,
-      referral_code: null,
-      referred_by: user.user_metadata?.referral_code_used || null,
-      is_affiliate: false,
-      affiliate_tier: null,
-      billing_exempt: false,
-      lifetime_free: false,
-      promo_code_used: user.user_metadata?.promo_code || null,
-      is_public_official: !!user.user_metadata?.is_public_official,
-      consent_public_visibility: true
-    };
+    existing
+      ? applyBusinessTypePrimaryLinkDefaults(existing, businessType)
+      : {
+          user_id: user.id,
+          full_name: fullName,
+          organization_name: "",
+          slug:
+            user.user_metadata?.suggested_slug ||
+            slugify(fullName) ||
+            slugify(email.split("@")[0] || "") ||
+            `profile-${user.id.slice(0, 8)}`,
+          role_line: "",
+          intro: "",
+          email,
+          phone: "",
+          website_url: "",
+          theme_key: "taptagg_brand",
+          profile_badge_1: "",
+          profile_badge_2: "",
+          profile_badge_3: "",
+          ...(businessPrimaryLinkDefaults || {
+            primary_link_1_title: "Call",
+            primary_link_1_url: "",
+            primary_link_1_type: "phone",
+            primary_link_2_title: "Email",
+            primary_link_2_url: "",
+            primary_link_2_type: "email",
+            primary_link_3_title: "Website 1",
+            primary_link_3_url: "",
+            primary_link_3_type: "website",
+            primary_link_4_title: "Website",
+            primary_link_4_url: "",
+            primary_link_4_type: "website"
+          }),
+          page_mode: "single",
+          multi_view_display_mode: "favorite",
+          default_view_id: null,
+          is_active: false,
+          referral_code: null,
+          referred_by: user.user_metadata?.referral_code_used || null,
+          is_affiliate: false,
+          affiliate_tier: null,
+          billing_exempt: false,
+          lifetime_free: false,
+          promo_code_used: user.user_metadata?.promo_code || null,
+          is_public_official: !!user.user_metadata?.is_public_official,
+          consent_public_visibility: true
+        };
   const initialProfile = applyFounderAccess(baseProfile, user.user_metadata?.promo_code) || baseProfile;
   const initialProfileViews = initialProfile.id
     ? await getProfileViewsForProfileServer(initialProfile.id)

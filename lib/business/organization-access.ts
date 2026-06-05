@@ -1,5 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { businessRoleSet } from "@/lib/business/roles";
+import { normalizeBusinessType } from "@/lib/business-types";
 import type { OrganizationMemberRecord, OrganizationRecord } from "@/lib/types";
 
 type BusinessRole = OrganizationMemberRecord["role"];
@@ -89,4 +90,24 @@ export async function claimBusinessOrganizationForUser({
   });
 
   return result?.organization || null;
+}
+
+export async function getBusinessTypeForUser(userId: string) {
+  const admin = createAdminClient();
+  const { data, error } = await admin
+    .from("organization_members")
+    .select("organization:organizations(business_type)")
+    .eq("user_id", userId)
+    .eq("status", "active")
+    .in("role", businessRoleSet())
+    .order("created_at", { ascending: true })
+    .limit(1)
+    .maybeSingle();
+
+  if (error || !data) {
+    return normalizeBusinessType(null);
+  }
+
+  const organization = Array.isArray(data.organization) ? data.organization[0] : data.organization;
+  return normalizeBusinessType(organization?.business_type);
 }

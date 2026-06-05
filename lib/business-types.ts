@@ -1,3 +1,5 @@
+import type { ProfileButtonType } from "@/lib/profile-buttons";
+
 export const BUSINESS_TYPES = [
   "automotive_dealership",
   "real_estate_brokerage",
@@ -75,4 +77,66 @@ export function isFinancialAdvisorBusiness(value?: string | null) {
 
 export function isGeneralBusiness(value?: string | null) {
   return normalizeBusinessType(value) === "general_business";
+}
+
+export type BusinessPrimaryLinkDefaults = {
+  primary_link_1_title: string;
+  primary_link_1_url: string;
+  primary_link_1_type: ProfileButtonType;
+  primary_link_2_title: string;
+  primary_link_2_url: string;
+  primary_link_2_type: ProfileButtonType;
+  primary_link_3_title: string;
+  primary_link_3_url: string;
+  primary_link_3_type: ProfileButtonType;
+  primary_link_4_title: string;
+  primary_link_4_url: string;
+  primary_link_4_type: ProfileButtonType;
+};
+
+export function getBusinessTypePrimaryLinkDefaults(value?: string | null): BusinessPrimaryLinkDefaults | null {
+  if (!isAutomotiveBusiness(value)) return null;
+
+  return {
+    primary_link_1_title: "View Inventory",
+    primary_link_1_url: "",
+    primary_link_1_type: "website",
+    primary_link_2_title: "Get Pre-Approved",
+    primary_link_2_url: "",
+    primary_link_2_type: "website",
+    primary_link_3_title: "Value My Trade",
+    primary_link_3_url: "",
+    primary_link_3_type: "website",
+    primary_link_4_title: "Schedule Test Drive",
+    primary_link_4_url: "",
+    primary_link_4_type: "booking"
+  };
+}
+
+export function applyBusinessTypePrimaryLinkDefaults<T extends {
+  primary_link_1_title?: string | null;
+  primary_link_1_url?: string | null;
+  primary_link_2_title?: string | null;
+  primary_link_2_url?: string | null;
+  primary_link_3_title?: string | null;
+  primary_link_3_url?: string | null;
+  primary_link_4_title?: string | null;
+  primary_link_4_url?: string | null;
+}>(record: T, businessType?: string | null) {
+  const defaults = getBusinessTypePrimaryLinkDefaults(businessType);
+  if (!defaults) return record;
+
+  const hasAnyPrimaryLinkContent = [
+    [record.primary_link_1_title, record.primary_link_1_url],
+    [record.primary_link_2_title, record.primary_link_2_url],
+    [record.primary_link_3_title, record.primary_link_3_url],
+    [record.primary_link_4_title, record.primary_link_4_url]
+  ].some(([title, url]) => !!(String(title || "").trim() || String(url || "").trim()));
+
+  if (hasAnyPrimaryLinkContent) return record;
+
+  return {
+    ...record,
+    ...defaults
+  };
 }

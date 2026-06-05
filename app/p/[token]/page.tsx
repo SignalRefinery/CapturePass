@@ -1,6 +1,7 @@
 import { Shell } from "@/components/shared/shell";
 import { TapTaggProfileShell } from "@/components/profile/taptagg-profile-shell";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getBusinessTypePrimaryLinkDefaults } from "@/lib/business-types";
 import { unstable_noStore as noStore } from "next/cache";
 
 export const dynamic = "force-dynamic";
@@ -21,6 +22,7 @@ type BusinessPassOrganization = {
   theme_key?: string | null;
   brand_theme?: "deep_brand" | "clean_light" | "full_color" | "custom" | null;
   brand_logo_url?: string | null;
+  business_type?: string | null;
   business_link_1_title?: string | null;
   business_link_1_url?: string | null;
   business_link_2_title?: string | null;
@@ -50,6 +52,7 @@ async function getPassOrganization(
       theme_key,
       brand_theme,
       brand_logo_url,
+      business_type,
       business_link_1_title,
       business_link_1_url,
       business_link_2_title,
@@ -223,6 +226,7 @@ export default async function PassTokenPage({
     organization_name: organization?.name || "",
     profile_image_url: member.headshot_url || null,
     brand_logo_url: organization?.brand_logo_url || null,
+    business_type: organization?.business_type || null,
     brand_color_primary: organization?.brand_color_primary || organization?.brand_color || null,
     brand_color_secondary: organization?.brand_color_secondary || null,
     brand_color_accent: organization?.brand_color_accent || null,
@@ -238,18 +242,20 @@ export default async function PassTokenPage({
     show_email: !!member.email,
     show_phone: !!member.phone,
     show_text: !!member.phone,
-    primary_link_1_title: member.phone ? "Call" : "",
-    primary_link_1_url: member.phone ? `tel:${member.phone.replace(/\D/g, "")}` : "",
-    primary_link_1_type: member.phone ? "phone" : "website",
-    primary_link_2_title: member.email ? "Email" : "",
-    primary_link_2_url: member.email ? `mailto:${member.email}` : "",
-    primary_link_2_type: member.email ? "email" : "website",
-    primary_link_3_title: "",
-    primary_link_3_url: "",
-    primary_link_3_type: "website",
-    primary_link_4_title: "",
-    primary_link_4_url: "",
-    primary_link_4_type: "website"
+    ...(getBusinessTypePrimaryLinkDefaults(organization?.business_type) || {
+      primary_link_1_title: member.phone ? "Call" : "",
+      primary_link_1_url: member.phone ? `tel:${member.phone.replace(/\D/g, "")}` : "",
+      primary_link_1_type: member.phone ? "phone" : "website",
+      primary_link_2_title: member.email ? "Email" : "",
+      primary_link_2_url: member.email ? `mailto:${member.email}` : "",
+      primary_link_2_type: member.email ? "email" : "website",
+      primary_link_3_title: "",
+      primary_link_3_url: "",
+      primary_link_3_type: "website",
+      primary_link_4_title: "",
+      primary_link_4_url: "",
+      primary_link_4_type: "website"
+    })
   };
 
   return (
