@@ -15,6 +15,7 @@ type ProfileLike = {
   id?: string | null;
   slug?: string | null;
   private_token?: string | null;
+  business_type?: string | null;
   view_id?: string | null;
   view_key?: string | null;
   view_name?: string | null;
@@ -398,7 +399,9 @@ export function TapTaggProfileShell({
                   <span>{initialsForName(displayName)}</span>
                 )}
               </div>
-              <div className={styles.profileEyebrow}>TapTagg profile</div>
+              <div className={styles.profileEyebrow}>
+                {activeProfile.business_type === "real_estate_brokerage" ? "Live property" : "TapTagg profile"}
+              </div>
             </div>
 
             <h1 className={styles.profileName}>{displayName}</h1>

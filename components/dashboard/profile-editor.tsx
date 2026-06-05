@@ -1230,14 +1230,16 @@ export function ProfileEditor({
 
                 <div className="editor-grid" style={{ marginTop: 14 }}>
                   <label className="auth-field">
-                    <span>{isRealEstateBusinessProfile ? "Property Description" : "Organization or business name"}</span>
+                    <span>{isRealEstateBusinessProfile ? "Property Name" : "Organization or business name"}</span>
                     <input
                       value={activeView.organization_name || ""}
                       onChange={(event) => updateView("organization_name", event.target.value)}
                       placeholder="Optional"
                     />
                     <small className="auth-message">
-                      Included in this view contact card.
+                      {isRealEstateBusinessProfile
+                        ? "Included in this property contact card."
+                        : "Included in this view contact card."}
                     </small>
                   </label>
 

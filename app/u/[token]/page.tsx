@@ -75,7 +75,7 @@ export default async function PrivateTokenProfilePage({ params, searchParams }: 
       pageMode={profile.page_mode || "single"}
       multiViewDisplayMode={profile.multi_view_display_mode || "favorite"}
       initialView={requestedView}
-      heroLabel="Live profile"
+      heroLabel={defaultPublicView.business_type === "real_estate_brokerage" ? "Live property" : "Live profile"}
     />
   );
 }
