@@ -2,6 +2,13 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import Link from "next/link";
 import { Shell } from "@/components/shared/shell";
+import {
+  PROFILE_BUTTON_TYPES,
+  getProfileButtonEditorValue,
+  normalizeProfileButtonHref,
+  normalizeProfileButtonLabel,
+  normalizeProfileButtonType
+} from "@/lib/profile-buttons";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { classifySlug } from "@/lib/slug-moderation";
@@ -136,6 +143,29 @@ async function updateUserAction(formData: FormData) {
           : normalizeUrl(trimmed || "") || null;
       break;
     }
+    case "primary_link_1":
+    case "primary_link_2":
+    case "primary_link_3":
+    case "primary_link_4": {
+      const suffix = field.slice(-1);
+      const titleKey = `primary_link_${suffix}_title`;
+      const urlKey = `primary_link_${suffix}_url`;
+      const typeKey = `primary_link_${suffix}_type`;
+      const buttonType = normalizeProfileButtonType(String(formData.get("type") || ""));
+      const buttonTitle = String(formData.get("title") || "");
+      const buttonValue = String(formData.get("value") || "");
+
+      updates[titleKey] = normalizeProfileButtonLabel(buttonTitle, buttonType);
+      updates[typeKey] = buttonType;
+      updates[urlKey] = normalizeProfileButtonHref(buttonType, buttonValue);
+      break;
+    }
+    case "primary_link_1_type":
+    case "primary_link_2_type":
+    case "primary_link_3_type":
+    case "primary_link_4_type":
+      updates[field] = normalizeProfileButtonType(value);
+      break;
     case "promo_code_used": {
       const promo = value.trim().toUpperCase();
       updates.promo_code_used = promo || null;
@@ -557,47 +587,140 @@ export default async function AdminUserPage({ params, searchParams }: PageProps)
 
               <div className="card" style={{ padding: 14, marginTop: 12 }}>
                 <h4 className="section-title" style={{ fontSize: 16 }}>
-                  Primary links
+                  CTA buttons
                 </h4>
 
                 {[
-                  ["primary_link_1_title", "Link 1 title", profile.primary_link_1_title || "", "Call"],
-                  ["primary_link_1_url", "Link 1 URL", profile.primary_link_1_url || "", "tel:15551234567"],
-                  ["primary_link_2_title", "Link 2 title", profile.primary_link_2_title || "", "Email"],
-                  ["primary_link_2_url", "Link 2 URL", profile.primary_link_2_url || "", "mailto:you@example.com"],
-                  ["primary_link_3_title", "Link 3 title", profile.primary_link_3_title || "", "Website 1"],
-                  ["primary_link_3_url", "Link 3 URL", profile.primary_link_3_url || "", "https://example.com"],
-                  ["primary_link_4_title", "Link 4 title", profile.primary_link_4_title || "", "Website"],
-                  ["primary_link_4_url", "Link 4 URL", profile.primary_link_4_url || "", "https://example.com"],
-                ].map(([fieldName, label, defaultValue, placeholder]) => (
+                  {
+                    field: "primary_link_1",
+                    titleKey: "primary_link_1_title",
+                    urlKey: "primary_link_1_url",
+                    typeKey: "primary_link_1_type",
+                    label: "Button 1"
+                  },
+                  {
+                    field: "primary_link_2",
+                    titleKey: "primary_link_2_title",
+                    urlKey: "primary_link_2_url",
+                    typeKey: "primary_link_2_type",
+                    label: "Button 2"
+                  },
+                  {
+                    field: "primary_link_3",
+                    titleKey: "primary_link_3_title",
+                    urlKey: "primary_link_3_url",
+                    typeKey: "primary_link_3_type",
+                    label: "Button 3"
+                  },
+                  {
+                    field: "primary_link_4",
+                    titleKey: "primary_link_4_title",
+                    urlKey: "primary_link_4_url",
+                    typeKey: "primary_link_4_type",
+                    label: "Button 4"
+                  }
+                ].map(({ field, titleKey, urlKey, typeKey, label }) => {
+                  const buttonType = normalizeProfileButtonType(
+                    profile[typeKey] ||
+                      (field === "primary_link_1"
+                        ? profile.primary_link_1_type
+                        : field === "primary_link_2"
+                          ? profile.primary_link_2_type
+                          : field === "primary_link_3"
+                            ? profile.primary_link_3_type
+                            : profile.primary_link_4_type) ||
+                      "website"
+                  );
+
+                  return (
                   <form
-                    key={fieldName}
+                    key={field}
                     action={updateUserAction}
                     style={{
                       display: "grid",
-                      gridTemplateColumns: "minmax(150px, 220px) 1fr auto",
+                      gridTemplateColumns: "minmax(180px, 1.2fr) minmax(180px, 0.9fr) minmax(220px, 1.3fr) auto",
                       gap: 10,
                       alignItems: "end",
-                      marginTop: 10,
+                      marginTop: 10
                     }}
                   >
                     <input type="hidden" name="userId" value={profile.user_id} />
-                    <input type="hidden" name="field" value={fieldName} />
-                    <label className="label" htmlFor={`profile-${fieldName}`}>
-                      {label}
+                    <input type="hidden" name="field" value={field} />
+                    <label className="label" htmlFor={`profile-${titleKey}`}>
+                      {label} label
                     </label>
                     <input
-                      id={`profile-${fieldName}`}
-                      name="value"
-                      defaultValue={defaultValue}
-                      placeholder={placeholder}
+                      id={`profile-${titleKey}`}
+                      name="title"
+                      defaultValue={profile[titleKey] || ""}
+                      placeholder="Call, Email, Website"
                       style={{ width: "100%", padding: 10 }}
                     />
+                    <div>
+                      <label className="label" htmlFor={`profile-${typeKey}`}>
+                        Type
+                      </label>
+                      <select
+                        id={`profile-${typeKey}`}
+                        name="type"
+                        defaultValue={buttonType}
+                        style={{ width: "100%", padding: 10, marginTop: 8 }}
+                      >
+                        {PROFILE_BUTTON_TYPES.map((buttonTypeOption) => (
+                          <option key={buttonTypeOption} value={buttonTypeOption}>
+                            {buttonTypeOption === "website"
+                              ? "Website"
+                              : buttonTypeOption === "email"
+                                ? "Email"
+                                : buttonTypeOption === "phone"
+                                  ? "Phone"
+                                  : buttonTypeOption === "text"
+                                    ? "Text"
+                                    : buttonTypeOption === "booking"
+                                      ? "Booking"
+                                      : buttonTypeOption === "directions"
+                                        ? "Directions"
+                                        : buttonTypeOption === "pdf"
+                                          ? "PDF"
+                                          : buttonTypeOption === "payment"
+                                            ? "Payment"
+                                            : "Custom"}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="label" htmlFor={`profile-${urlKey}`}>
+                        Value
+                      </label>
+                      <input
+                        id={`profile-${urlKey}`}
+                        name="value"
+                        defaultValue={getProfileButtonEditorValue(buttonType, profile[urlKey] || "")}
+                        placeholder={
+                          buttonType === "phone"
+                            ? "15551234567"
+                            : buttonType === "email"
+                              ? "you@example.com"
+                              : buttonType === "directions"
+                                ? "1600 Amphitheatre Parkway"
+                                : buttonType === "text"
+                                  ? "15551234567"
+                                  : buttonType === "pdf"
+                                    ? "https://example.com/file.pdf"
+                                    : buttonType === "payment"
+                                      ? "https://checkout.example.com"
+                                      : "https://example.com"
+                        }
+                        style={{ width: "100%", padding: 10, marginTop: 8 }}
+                      />
+                    </div>
                     <button className="button secondary" type="submit">
                       Save
                     </button>
                   </form>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </div>

@@ -12,12 +12,22 @@ create table if not exists public.profiles (
   website_url text not null default '',
   primary_link_1_title text not null default 'Call',
   primary_link_1_url text not null default '',
+  primary_link_1_type text not null default 'website',
   primary_link_2_title text not null default 'Email',
   primary_link_2_url text not null default '',
+  primary_link_2_type text not null default 'website',
   primary_link_3_title text not null default 'Website',
   primary_link_3_url text not null default '',
+  primary_link_3_type text not null default 'website',
   primary_link_4_title text not null default 'Website',
   primary_link_4_url text not null default '',
+  primary_link_4_type text not null default 'website',
+  constraint profiles_primary_link_types_check check (
+    primary_link_1_type in ('website', 'email', 'phone', 'text', 'booking', 'directions', 'pdf', 'payment', 'custom')
+    and primary_link_2_type in ('website', 'email', 'phone', 'text', 'booking', 'directions', 'pdf', 'payment', 'custom')
+    and primary_link_3_type in ('website', 'email', 'phone', 'text', 'booking', 'directions', 'pdf', 'payment', 'custom')
+    and primary_link_4_type in ('website', 'email', 'phone', 'text', 'booking', 'directions', 'pdf', 'payment', 'custom')
+  ),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );

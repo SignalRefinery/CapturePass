@@ -5,6 +5,15 @@ import type { ProfileRecord, ProfileViewRecord } from "@/lib/types";
 import { getProfilePlan } from "@/lib/plans";
 import { normalizeUrl } from "@/lib/utils";
 import { classifySlug } from "@/lib/slug-moderation";
+import {
+  PROFILE_BUTTON_TYPE_DESCRIPTIONS,
+  PROFILE_BUTTON_TYPE_LABELS,
+  PROFILE_BUTTON_TYPE_PLACEHOLDERS,
+  PROFILE_BUTTON_TYPES,
+  getProfileButtonEditorValue,
+  inferProfileButtonType,
+  normalizeProfileButtonType
+} from "@/lib/profile-buttons";
 import { CUSTOM_THEME_KEY, PROFILE_THEME_OPTIONS, THEME_COLOR_ROLE_LABELS, coerceThemeForPlan, resolveThemeColors, themeIsAllowedForPlan } from "@/lib/themes";
 import {
   deleteProfileViewClient,
@@ -24,35 +33,43 @@ type ProfileEditorProps = {
 
 const LINK_FIELD_CONFIG = [
   {
+    typeKey: "primary_link_1_type" as const,
     titleKey: "primary_link_1_title" as const,
     urlKey: "primary_link_1_url" as const,
-    titleLabel: "Link 1 title",
-    urlLabel: "Link 1 URL",
+    titleLabel: "Button label",
+    typeLabel: "Button type",
+    urlLabel: "Button value",
     titlePlaceholder: "Call",
-    urlPlaceholder: "tel:15551234567"
+    urlPlaceholder: "5551234567"
   },
   {
+    typeKey: "primary_link_2_type" as const,
     titleKey: "primary_link_2_title" as const,
     urlKey: "primary_link_2_url" as const,
-    titleLabel: "Link 2 title",
-    urlLabel: "Link 2 URL",
+    titleLabel: "Button label",
+    typeLabel: "Button type",
+    urlLabel: "Button value",
     titlePlaceholder: "Email",
-    urlPlaceholder: "mailto:you@example.com"
+    urlPlaceholder: "you@example.com"
   },
   {
+    typeKey: "primary_link_3_type" as const,
     titleKey: "primary_link_3_title" as const,
     urlKey: "primary_link_3_url" as const,
-    titleLabel: "Link 3 title",
-    urlLabel: "Link 3 URL",
-    titlePlaceholder: "Optional link",
+    titleLabel: "Button label",
+    typeLabel: "Button type",
+    urlLabel: "Button value",
+    titlePlaceholder: "Website",
     urlPlaceholder: "https://your-link.com"
   },
   {
+    typeKey: "primary_link_4_type" as const,
     titleKey: "primary_link_4_title" as const,
     urlKey: "primary_link_4_url" as const,
-    titleLabel: "Link 4 title",
-    urlLabel: "Link 4 URL",
-    titlePlaceholder: "Optional link",
+    titleLabel: "Button label",
+    typeLabel: "Button type",
+    urlLabel: "Button value",
+    titlePlaceholder: "Custom link",
     urlPlaceholder: "https://your-link.com"
   }
 ];
@@ -116,21 +133,6 @@ function emailToMailto(value?: string | null) {
   return `mailto:${email}`;
 }
 
-function normalizeActionUrl(value?: string | null) {
-  const trimmed = (value || "").trim();
-  if (
-    !trimmed ||
-    trimmed.startsWith("tel:") ||
-    trimmed.startsWith("sms:") ||
-    trimmed.startsWith("mailto:") ||
-    trimmed.startsWith("/")
-  ) {
-    return trimmed;
-  }
-
-  return normalizeUrl(trimmed);
-}
-
 function friendlySlugReviewReason(reason?: string | null) {
   if (!reason) return null;
 
@@ -185,12 +187,20 @@ function createViewFromProfile(profile: ProfileRecord, profileId: string, index:
     show_in_public_nav: true,
     primary_link_1_title: profile.primary_link_1_title || "Call",
     primary_link_1_url: profile.primary_link_1_url || phoneToTel(profile.phone),
+    primary_link_1_type: normalizeProfileButtonType(
+      profile.primary_link_1_type || inferProfileButtonType(profile.primary_link_1_url, profile.primary_link_1_title)
+    ),
     primary_link_2_title: profile.primary_link_2_title || "Email",
     primary_link_2_url: profile.primary_link_2_url || emailToMailto(profile.email),
+    primary_link_2_type: normalizeProfileButtonType(
+      profile.primary_link_2_type || inferProfileButtonType(profile.primary_link_2_url, profile.primary_link_2_title)
+    ),
     primary_link_3_title: "",
     primary_link_3_url: "",
+    primary_link_3_type: "website",
     primary_link_4_title: "",
-    primary_link_4_url: ""
+    primary_link_4_url: "",
+    primary_link_4_type: "website"
   };
 }
 
@@ -208,10 +218,18 @@ function normalizeViewForSave(view: ProfileViewRecord): ProfileViewRecord {
     profile_badge_1: (view.profile_badge_1 || "").trim(),
     profile_badge_2: (view.profile_badge_2 || "").trim(),
     profile_badge_3: (view.profile_badge_3 || "").trim(),
-    primary_link_1_url: normalizeActionUrl(view.primary_link_1_url),
-    primary_link_2_url: normalizeActionUrl(view.primary_link_2_url),
-    primary_link_3_url: normalizeActionUrl(view.primary_link_3_url),
-    primary_link_4_url: normalizeActionUrl(view.primary_link_4_url),
+    primary_link_1_type: normalizeProfileButtonType(
+      view.primary_link_1_type || inferProfileButtonType(view.primary_link_1_url, view.primary_link_1_title)
+    ),
+    primary_link_2_type: normalizeProfileButtonType(
+      view.primary_link_2_type || inferProfileButtonType(view.primary_link_2_url, view.primary_link_2_title)
+    ),
+    primary_link_3_type: normalizeProfileButtonType(
+      view.primary_link_3_type || inferProfileButtonType(view.primary_link_3_url, view.primary_link_3_title)
+    ),
+    primary_link_4_type: normalizeProfileButtonType(
+      view.primary_link_4_type || inferProfileButtonType(view.primary_link_4_url, view.primary_link_4_title)
+    ),
     updated_at: new Date().toISOString()
   };
 }
@@ -248,9 +266,6 @@ export function ProfileEditor({
   const [slugTaken, setSlugTaken] = useState(false);
   const [slugCheckError, setSlugCheckError] = useState("");
   const slugCheckRequestRef = useRef(0);
-
-  const callLink = phoneToTel(form.phone);
-  const emailLink = emailToMailto(form.email);
   const plan = getProfilePlan(form);
   const selectedThemeKey = coerceThemeForPlan(form.theme_key, plan);
   const showCustomThemeColors = selectedThemeKey === CUSTOM_THEME_KEY;
@@ -469,18 +484,6 @@ export function ProfileEditor({
         profile_badge_1: (form.profile_badge_1 || "").trim(),
         profile_badge_2: (form.profile_badge_2 || "").trim(),
         profile_badge_3: (form.profile_badge_3 || "").trim(),
-        primary_link_1_url: callLink,
-        primary_link_2_url: emailLink,
-        primary_link_3_url:
-          form.primary_link_3_url?.startsWith("tel:") || form.primary_link_3_url?.startsWith("sms:")
-            ? form.primary_link_3_url
-            : normalizeUrl(form.primary_link_3_url || ""),
-        primary_link_4_url:
-          form.primary_link_4_url?.startsWith("tel:") ||
-          form.primary_link_4_url?.startsWith("sms:") ||
-          form.primary_link_4_url?.startsWith("/")
-            ? form.primary_link_4_url
-            : normalizeUrl(form.primary_link_4_url || ""),
         updated_at: new Date().toISOString()
       };
 
@@ -963,13 +966,13 @@ export function ProfileEditor({
           </div>
 
           <div className="card" style={{ marginTop: 24, padding: 22 }}>
-            <div className="dashboard-kicker">Primary links</div>
+            <div className="dashboard-kicker">CTA buttons</div>
             <h3 style={{ margin: "6px 0 10px", fontSize: "1.25rem", lineHeight: 1.1 }}>
               Put your most useful next steps first.
             </h3>
             <p className="editor-copy" style={{ marginBottom: 18 }}>
               These are the core actions people should see first. On your public profile, only
-              completed links should appear.
+              completed buttons should appear.
             </p>
 
             {LINK_FIELD_CONFIG.map((field, index) => (
@@ -989,25 +992,55 @@ export function ProfileEditor({
                 </label>
 
                 <label className="auth-field">
+                  <span>{field.typeLabel}</span>
+                  <select
+                    value={normalizeProfileButtonType(
+                      (form[field.typeKey] as string) ||
+                        inferProfileButtonType(form[field.urlKey] as string, form[field.titleKey] as string)
+                    )}
+                    onChange={(event) => update(field.typeKey, event.target.value as ProfileRecord[typeof field.typeKey])}
+                    disabled={!plan.hasExpandedLinks && index > 1}
+                  >
+                    {PROFILE_BUTTON_TYPES.map((buttonType) => (
+                      <option key={buttonType} value={buttonType}>
+                        {PROFILE_BUTTON_TYPE_LABELS[buttonType]}
+                      </option>
+                    ))}
+                  </select>
+                  <small className="auth-message">
+                    {PROFILE_BUTTON_TYPE_DESCRIPTIONS[
+                      normalizeProfileButtonType(
+                        (form[field.typeKey] as string) ||
+                          inferProfileButtonType(form[field.urlKey] as string, form[field.titleKey] as string)
+                      )
+                    ]}
+                  </small>
+                </label>
+
+                <label className="auth-field">
                   <span>{field.urlLabel}</span>
                   <input
                     value={
-                      field.urlKey === "primary_link_1_url"
-                        ? callLink
-                        : field.urlKey === "primary_link_2_url"
-                          ? emailLink
-                          : ((form[field.urlKey] as string) || "")
+                      getProfileButtonEditorValue(
+                        (form[field.typeKey] as string) ||
+                          inferProfileButtonType(form[field.urlKey] as string, form[field.titleKey] as string),
+                        (form[field.urlKey] as string) || ""
+                      )
                     }
                     onChange={(event) => update(field.urlKey, event.target.value)}
-                    placeholder={field.urlPlaceholder}
-                    readOnly={field.urlKey === "primary_link_1_url" || field.urlKey === "primary_link_2_url"}
+                    placeholder={PROFILE_BUTTON_TYPE_PLACEHOLDERS[
+                      normalizeProfileButtonType(
+                        (form[field.typeKey] as string) ||
+                          inferProfileButtonType(form[field.urlKey] as string, form[field.titleKey] as string)
+                      )
+                    ]}
                     disabled={!plan.hasExpandedLinks && index > 1}
                   />
                 </label>
               </div>
             ))}
             {!plan.hasExpandedLinks ? (
-              <UpgradeNotice>Free / Reserved profiles include basic Call, Email, and Website fields. Expanded links unlock with Digital.</UpgradeNotice>
+              <UpgradeNotice>Free / Reserved profiles include basic CTA buttons. Expanded buttons unlock with Digital.</UpgradeNotice>
             ) : null}
           </div>
 
@@ -1321,7 +1354,7 @@ export function ProfileEditor({
                 </div>
 
                 <div className="card view-subsection link-fields-card" style={{ marginTop: 18 }}>
-                  <div className="dashboard-kicker">View primary links</div>
+                  <div className="dashboard-kicker">View CTA buttons</div>
                   {LINK_FIELD_CONFIG.map((field, index) => (
                     <div
                       className="editor-grid link-field-row"
@@ -1338,11 +1371,47 @@ export function ProfileEditor({
                       </label>
 
                       <label className="auth-field">
+                        <span>{field.typeLabel}</span>
+                        <select
+                          value={normalizeProfileButtonType(
+                            (activeView[field.typeKey] as string) ||
+                              inferProfileButtonType(activeView[field.urlKey] as string, activeView[field.titleKey] as string)
+                          )}
+                          onChange={(event) =>
+                            updateView(field.typeKey, event.target.value as ProfileViewRecord[typeof field.typeKey])
+                          }
+                        >
+                          {PROFILE_BUTTON_TYPES.map((buttonType) => (
+                            <option key={buttonType} value={buttonType}>
+                              {PROFILE_BUTTON_TYPE_LABELS[buttonType]}
+                            </option>
+                          ))}
+                        </select>
+                        <small className="auth-message">
+                          {PROFILE_BUTTON_TYPE_DESCRIPTIONS[
+                            normalizeProfileButtonType(
+                              (activeView[field.typeKey] as string) ||
+                                inferProfileButtonType(activeView[field.urlKey] as string, activeView[field.titleKey] as string)
+                            )
+                          ]}
+                        </small>
+                      </label>
+
+                      <label className="auth-field">
                         <span>{field.urlLabel}</span>
                         <input
-                          value={(activeView[field.urlKey] as string) || ""}
+                          value={getProfileButtonEditorValue(
+                            (activeView[field.typeKey] as string) ||
+                              inferProfileButtonType(activeView[field.urlKey] as string, activeView[field.titleKey] as string),
+                            (activeView[field.urlKey] as string) || ""
+                          )}
                           onChange={(event) => updateView(field.urlKey, event.target.value)}
-                          placeholder={field.urlPlaceholder}
+                          placeholder={PROFILE_BUTTON_TYPE_PLACEHOLDERS[
+                            normalizeProfileButtonType(
+                              (activeView[field.typeKey] as string) ||
+                                inferProfileButtonType(activeView[field.urlKey] as string, activeView[field.titleKey] as string)
+                            )
+                          ]}
                         />
                       </label>
                     </div>

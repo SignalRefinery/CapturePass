@@ -8,6 +8,7 @@ import { getReadableProfileUrl } from "@/lib/urls/profile-url";
 import { CUSTOM_THEME_KEY, normalizeThemeKey, resolveThemeColors } from "@/lib/themes";
 import { ContactShareModal } from "@/components/profile/contact-share-modal";
 import { ReportIssueForm } from "@/components/profile/report-issue-form";
+import { buildProfileButtons } from "@/lib/profile-buttons";
 import styles from "./taptagg-profile-shell.module.css";
 
 type ProfileLike = {
@@ -42,12 +43,16 @@ type ProfileLike = {
   show_in_public_nav?: boolean | null;
   primary_link_1_title?: string | null;
   primary_link_1_url?: string | null;
+  primary_link_1_type?: string | null;
   primary_link_2_title?: string | null;
   primary_link_2_url?: string | null;
+  primary_link_2_type?: string | null;
   primary_link_3_title?: string | null;
   primary_link_3_url?: string | null;
+  primary_link_3_type?: string | null;
   primary_link_4_title?: string | null;
   primary_link_4_url?: string | null;
+  primary_link_4_type?: string | null;
   public_url?: string | null;
   vcard_url?: string | null;
   business_home_url?: string | null;
@@ -69,17 +74,6 @@ type InitialAuth = {
 
 function digitsOnly(value?: string | null) {
   return (value || "").replace(/\D/g, "");
-}
-
-function formatPhone(value?: string | null) {
-  const digits = digitsOnly(value);
-  if (digits.length === 10) {
-    return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
-  }
-  if (digits.length === 11 && digits.startsWith("1")) {
-    return `(${digits.slice(1, 4)}) ${digits.slice(4, 7)}-${digits.slice(7)}`;
-  }
-  return value || "";
 }
 
 function textHref(phone?: string | null) {
@@ -187,87 +181,6 @@ function legacyThemeClassName(theme?: string | null) {
   }
 }
 
-function subtitleForLink(item: { title?: string | null; href?: string | null }, profile: ProfileLike) {
-  const title = (item.title || "").toLowerCase();
-  const href = item.href || "";
-
-  if (href.startsWith("tel:") || title.includes("call")) {
-    return `${formatPhone(profile.phone)} · Direct line`;
-  }
-  if (href.startsWith("sms:") || title.includes("text")) {
-    return "Send a quick message directly";
-  }
-  if (href.startsWith("mailto:") || title.includes("email")) {
-    return "Send an email";
-  }
-  if (title.includes("website") || href.startsWith("http")) {
-    return "Visit website";
-  }
-  if (title.includes("add to contacts") || href.includes("/api/vcard/")) {
-    return "Save to iPhone, Android, Outlook, or desktop contacts";
-  }
-  if (href.includes("taptagg")) {
-    return "TapTagg profile destination";
-  }
-  return "Open link";
-}
-
-function isMeaningfulHref(href?: string | null) {
-  const normalized = (href || "").trim().toLowerCase().replace(/\/+$/, "");
-
-  return (
-    !!normalized &&
-    normalized !== "www." &&
-    normalized !== "https://www." &&
-    normalized !== "http://www." &&
-    normalized !== "example.com" &&
-    normalized !== "http://example.com" &&
-    normalized !== "https://example.com" &&
-    normalized !== "www.example.com" &&
-    normalized !== "http://www.example.com" &&
-    normalized !== "https://www.example.com"
-  );
-}
-
-function primaryLinks(profile: ProfileLike, options: { hideEmailLink?: boolean } = {}) {
-  const showEmail = profile.show_email !== false;
-  const showPhone = profile.show_phone !== false;
-  const showText = profile.show_text === true;
-  const hasVisibleContact = (showEmail && !!profile.email) || (showPhone && !!profile.phone);
-  const items = [
-    { title: profile.primary_link_1_title, href: profile.primary_link_1_url },
-    { title: profile.primary_link_2_title, href: profile.primary_link_2_url },
-    { title: profile.primary_link_3_title, href: profile.primary_link_3_url },
-    { title: profile.primary_link_4_title, href: profile.primary_link_4_url }
-  ].map((item) => ({
-    title: (item.title || "").trim(),
-    href: (item.href || "").trim()
-  })).filter((item) => {
-    const href = item.href;
-
-    if (!item.title || !href || !isMeaningfulHref(href)) return false;
-    if (!showEmail && href.startsWith("mailto:")) return false;
-    if (options.hideEmailLink && href.startsWith("mailto:")) return false;
-    if (!showPhone && href.startsWith("tel:")) return false;
-    if (!showText && href.startsWith("sms:")) return false;
-
-    return true;
-  });
-
-  if (
-    contactHref(profile) !== "#" &&
-    hasVisibleContact &&
-    !items.some((item) => (item.href || "").includes("/api/vcard/") || (item.href || "").includes("/api/pass-vcard/"))
-  ) {
-    items.push({
-      title: "Add to contacts",
-      href: contactHref(profile)
-    });
-  }
-
-  return items.slice(0, 4);
-}
-
 export function TapTaggProfileShell({
   profile,
   views: _views = [profile],
@@ -308,7 +221,9 @@ export function TapTaggProfileShell({
   const intro =
     activeProfile.intro ||
     "A cleaner way to connect, save contact details, and move the right information forward without clutter.";
-  const links = primaryLinks(activeProfile, { hideEmailLink: secondaryAction?.label === "Email" });
+  const links = buildProfileButtons(activeProfile, {
+    hideEmail: secondaryAction?.label === "Email"
+  });
   const displayName = activeProfile.full_name || "TapTagg";
   const descriptor = activeProfile.role_line && activeProfile.organization_name
     ? `${activeProfile.role_line} at ${activeProfile.organization_name}`
@@ -539,23 +454,23 @@ export function TapTaggProfileShell({
 
         <section className={styles.profileGrid}>
           <div className={styles.card}>
-            <h2>Primary links</h2>
-            <div className={styles.links}>
-              {links.map((item) => (
-                <a
-                  className={styles.linkCard}
-                  href={item.href || "#"}
-                  key={`${activeProfile.view_id || activeProfile.view_key || "profile"}-${item.title}-${item.href}`}
-                  onClick={() => trackProfileAction(analyticsTarget, item)}
-                >
-                  <div>
-                    <div className={styles.linkTitle}>{item.title}</div>
-                    <div className={styles.linkSub}>{subtitleForLink(item, activeProfile)}</div>
-                  </div>
-                  <div className={styles.arrow}>↗</div>
-                </a>
-              ))}
-            </div>
+              <h2>CTA buttons</h2>
+              <div className={styles.links}>
+                {links.map((item) => (
+                  <a
+                    className={styles.linkCard}
+                    href={item.href || "#"}
+                    key={`${activeProfile.view_id || activeProfile.view_key || "profile"}-${item.title}-${item.href}`}
+                    onClick={() => trackProfileAction(analyticsTarget, item)}
+                  >
+                    <div>
+                      <div className={styles.linkTitle}>{item.title}</div>
+                      <div className={styles.linkSub}>{item.subtitle}</div>
+                    </div>
+                    <div className={styles.arrow}>↗</div>
+                  </a>
+                ))}
+              </div>
 
             {isBusinessProfile ? (
               businessLinks.length ? (

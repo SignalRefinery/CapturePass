@@ -1,5 +1,9 @@
 import type { ProfileRecord, ProfileViewRecord } from "@/lib/types";
 import { getProfilePlan } from "@/lib/plans";
+import {
+  inferProfileButtonType,
+  normalizeProfileButtonType
+} from "@/lib/profile-buttons";
 
 export function profileViewToPublicProfile(profile: ProfileRecord, view: ProfileViewRecord) {
   const plan = getProfilePlan(profile);
@@ -35,12 +39,28 @@ export function profileViewToPublicProfile(profile: ProfileRecord, view: Profile
     show_in_public_nav: view.show_in_public_nav !== false,
     primary_link_1_title: view.primary_link_1_title,
     primary_link_1_url: view.primary_link_1_url,
+    primary_link_1_type: normalizeProfileButtonType(
+      view.primary_link_1_type || inferProfileButtonType(view.primary_link_1_url, view.primary_link_1_title)
+    ),
     primary_link_2_title: view.primary_link_2_title,
     primary_link_2_url: view.primary_link_2_url,
+    primary_link_2_type: normalizeProfileButtonType(
+      view.primary_link_2_type || inferProfileButtonType(view.primary_link_2_url, view.primary_link_2_title)
+    ),
     primary_link_3_title: plan.hasExpandedLinks ? view.primary_link_3_title : "",
     primary_link_3_url: plan.hasExpandedLinks ? view.primary_link_3_url : "",
+    primary_link_3_type: plan.hasExpandedLinks
+      ? normalizeProfileButtonType(
+          view.primary_link_3_type || inferProfileButtonType(view.primary_link_3_url, view.primary_link_3_title)
+        )
+      : "website",
     primary_link_4_title: plan.hasExpandedLinks ? view.primary_link_4_title : "",
-    primary_link_4_url: plan.hasExpandedLinks ? view.primary_link_4_url : ""
+    primary_link_4_url: plan.hasExpandedLinks ? view.primary_link_4_url : "",
+    primary_link_4_type: plan.hasExpandedLinks
+      ? normalizeProfileButtonType(
+          view.primary_link_4_type || inferProfileButtonType(view.primary_link_4_url, view.primary_link_4_title)
+        )
+      : "website"
   };
 }
 
@@ -76,12 +96,28 @@ export function profileRecordToPublicProfile(profile: ProfileRecord) {
     show_in_public_nav: true,
     primary_link_1_title: profile.primary_link_1_title,
     primary_link_1_url: profile.primary_link_1_url,
+    primary_link_1_type: normalizeProfileButtonType(
+      profile.primary_link_1_type || inferProfileButtonType(profile.primary_link_1_url, profile.primary_link_1_title)
+    ),
     primary_link_2_title: profile.primary_link_2_title,
     primary_link_2_url: profile.primary_link_2_url,
+    primary_link_2_type: normalizeProfileButtonType(
+      profile.primary_link_2_type || inferProfileButtonType(profile.primary_link_2_url, profile.primary_link_2_title)
+    ),
     primary_link_3_title: plan.hasExpandedLinks ? profile.primary_link_3_title : "",
     primary_link_3_url: plan.hasExpandedLinks ? profile.primary_link_3_url : "",
+    primary_link_3_type: plan.hasExpandedLinks
+      ? normalizeProfileButtonType(
+          profile.primary_link_3_type || inferProfileButtonType(profile.primary_link_3_url, profile.primary_link_3_title)
+        )
+      : "website",
     primary_link_4_title: plan.hasExpandedLinks ? profile.primary_link_4_title : "",
-    primary_link_4_url: plan.hasExpandedLinks ? profile.primary_link_4_url : ""
+    primary_link_4_url: plan.hasExpandedLinks ? profile.primary_link_4_url : "",
+    primary_link_4_type: plan.hasExpandedLinks
+      ? normalizeProfileButtonType(
+          profile.primary_link_4_type || inferProfileButtonType(profile.primary_link_4_url, profile.primary_link_4_title)
+        )
+      : "website"
   };
 }
 

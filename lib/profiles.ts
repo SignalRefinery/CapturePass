@@ -1,6 +1,10 @@
 import { site } from "@/lib/site";
 import type { Profile, ProfileRecord, PrimaryLink } from "@/lib/types";
-import { normalizeUrl } from "@/lib/utils";
+import {
+  buildProfileButtons,
+  inferProfileButtonType,
+  normalizeProfileButtonType
+} from "@/lib/profile-buttons";
 
 const demoProfile: Profile = {
   slug: "demo-profile",
@@ -22,6 +26,11 @@ export function getSeedProfileBySlug(slug: string): Profile | null {
   return null;
 }
 export function seedProfileToRecord(profile: Profile): ProfileRecord {
+  const firstLinkType = inferProfileButtonType(profile.primaryLinks[0]?.href, profile.primaryLinks[0]?.title);
+  const secondLinkType = inferProfileButtonType(profile.primaryLinks[1]?.href, profile.primaryLinks[1]?.title);
+  const thirdLinkType = inferProfileButtonType(profile.primaryLinks[2]?.href, profile.primaryLinks[2]?.title);
+  const fourthLinkType = inferProfileButtonType(profile.primaryLinks[3]?.href, profile.primaryLinks[3]?.title);
+
   return {
     slug: profile.slug,
     full_name: profile.name,
@@ -32,45 +41,26 @@ export function seedProfileToRecord(profile: Profile): ProfileRecord {
     website_url: profile.primaryLinks[0]?.href ?? "",
     primary_link_1_title: profile.primaryLinks[0]?.title ?? "",
     primary_link_1_url: profile.primaryLinks[0]?.href ?? "",
+    primary_link_1_type: normalizeProfileButtonType(firstLinkType),
     primary_link_2_title: profile.primaryLinks[1]?.title ?? "",
     primary_link_2_url: profile.primaryLinks[1]?.href ?? "",
+    primary_link_2_type: normalizeProfileButtonType(secondLinkType),
     primary_link_3_title: profile.primaryLinks[2]?.title ?? "",
     primary_link_3_url: profile.primaryLinks[2]?.href ?? "",
+    primary_link_3_type: normalizeProfileButtonType(thirdLinkType),
     primary_link_4_title: profile.primaryLinks[3]?.title ?? "",
-    primary_link_4_url: profile.primaryLinks[3]?.href ?? ""
+    primary_link_4_url: profile.primaryLinks[3]?.href ?? "",
+    primary_link_4_type: normalizeProfileButtonType(fourthLinkType)
   };
 }
 export function profileRecordToPublicProfile(record: ProfileRecord): Profile {
-  const primaryLinks: PrimaryLink[] = [
-    record.primary_link_1_url
-      ? {
-          title: record.primary_link_1_title || "Link",
-          subtitle: record.phone ? `${record.phone} · Direct line` : "Primary action",
-          href: normalizeUrl(record.primary_link_1_url)
-        }
-      : null,
-    record.primary_link_2_url
-      ? {
-          title: record.primary_link_2_title || "Link",
-          subtitle: "Primary website",
-          href: normalizeUrl(record.primary_link_2_url || record.website_url || "")
-        }
-      : null,
-    record.primary_link_3_url
-      ? {
-          title: record.primary_link_3_title || "Link",
-          subtitle: "Direct action",
-          href: record.primary_link_3_url
-        }
-      : null,
-    record.primary_link_4_url
-      ? {
-          title: record.primary_link_4_title || "Link",
-          subtitle: "Additional resource",
-          href: record.primary_link_4_url
-        }
-      : null
-  ].filter(Boolean) as PrimaryLink[];
+  const primaryLinks: PrimaryLink[] = buildProfileButtons(record)
+    .map((button) => ({
+      title: button.title,
+      subtitle: button.subtitle,
+      href: button.href
+    }))
+    .filter((button) => !!button.href);
   return {
     slug: record.slug,
     name: record.full_name,

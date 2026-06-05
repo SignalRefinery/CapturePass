@@ -240,12 +240,16 @@ export default async function PassTokenPage({
     show_text: !!member.phone,
     primary_link_1_title: member.phone ? "Call" : "",
     primary_link_1_url: member.phone ? `tel:${member.phone.replace(/\D/g, "")}` : "",
+    primary_link_1_type: member.phone ? "phone" : "website",
     primary_link_2_title: member.email ? "Email" : "",
     primary_link_2_url: member.email ? `mailto:${member.email}` : "",
+    primary_link_2_type: member.email ? "email" : "website",
     primary_link_3_title: "",
     primary_link_3_url: "",
+    primary_link_3_type: "website",
     primary_link_4_title: "",
-    primary_link_4_url: ""
+    primary_link_4_url: "",
+    primary_link_4_type: "website"
   };
 
   return (

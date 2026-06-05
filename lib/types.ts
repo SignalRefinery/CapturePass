@@ -1,4 +1,5 @@
 import type { BusinessType } from "@/lib/business-types";
+import type { ProfileButtonType } from "@/lib/profile-buttons";
 
 export type NavLink = {
   href: string;
@@ -50,12 +51,16 @@ export type ProfileRecord = {
   profile_badge_3?: string | null;
   primary_link_1_title: string;
   primary_link_1_url: string;
+  primary_link_1_type?: ProfileButtonType | null;
   primary_link_2_title: string;
   primary_link_2_url: string;
+  primary_link_2_type?: ProfileButtonType | null;
   primary_link_3_title: string;
   primary_link_3_url: string;
+  primary_link_3_type?: ProfileButtonType | null;
   primary_link_4_title: string;
   primary_link_4_url: string;
+  primary_link_4_type?: ProfileButtonType | null;
   is_active?: boolean;
   is_admin?: boolean;
   stripe_customer_id?: string | null;
@@ -284,12 +289,16 @@ export type ProfileViewRecord = {
   show_in_public_nav?: boolean;
   primary_link_1_title: string;
   primary_link_1_url: string;
+  primary_link_1_type?: ProfileButtonType | null;
   primary_link_2_title: string;
   primary_link_2_url: string;
+  primary_link_2_type?: ProfileButtonType | null;
   primary_link_3_title: string;
   primary_link_3_url: string;
+  primary_link_3_type?: ProfileButtonType | null;
   primary_link_4_title: string;
   primary_link_4_url: string;
+  primary_link_4_type?: ProfileButtonType | null;
   created_at?: string;
   updated_at?: string;
 };
