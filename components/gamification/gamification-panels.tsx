@@ -89,7 +89,6 @@ export function PersonalPerformancePanel({ summary }: { summary: PersonalGamific
           <div className="status-list">
             <div className="status-row"><span>Current month</span><strong>{summary.monthlyScore}</strong></div>
             <div className="status-row"><span>All time</span><strong>{summary.taptaggScore}</strong></div>
-            <div className="status-row"><span>Revenue assisted</span><strong>${summary.revenueLogged.toLocaleString()}</strong></div>
           </div>
         </article>
 
