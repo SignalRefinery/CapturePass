@@ -54,6 +54,7 @@ type BusinessSummary = {
   memberCount: number;
   tokenCount: number;
   activeTokenCount: number;
+  locationCount: number;
 };
 
 const ADMIN_EMAILS = ["john@signalrefinery.pro"];
@@ -334,21 +335,24 @@ async function sendBusinessInviteEmail({
 
 async function getBusinessIndex(): Promise<BusinessSummary[]> {
   const admin = createAdminClient();
-  const [{ data: organizations }, { data: members }, { data: tokens }] = await Promise.all([
+  const [{ data: organizations }, { data: members }, { data: tokens }, { data: locations }] = await Promise.all([
     admin.from("organizations").select("*").order("created_at", { ascending: false }),
     admin.from("organization_members").select("organization_id, status"),
-    admin.from("pass_tokens").select("organization_id, status")
+    admin.from("pass_tokens").select("organization_id, status"),
+    admin.from("business_locations").select("business_id")
   ]);
 
   return ((organizations || []) as OrganizationRecord[]).map((organization) => {
     const orgMembers = (members || []).filter((member) => member.organization_id === organization.id);
     const orgTokens = (tokens || []).filter((token) => token.organization_id === organization.id);
+    const orgLocations = (locations || []).filter((location) => location.business_id === organization.id);
 
     return {
       organization,
       memberCount: orgMembers.length,
       tokenCount: orgTokens.length,
-      activeTokenCount: orgTokens.filter((token) => token.status === "active").length
+      activeTokenCount: orgTokens.filter((token) => token.status === "active").length,
+      locationCount: orgLocations.length
     };
   });
 }
@@ -641,6 +645,12 @@ async function createOrganization(formData: FormData) {
   const adminEmail = String(formData.get("admin_email") || "").trim();
   const adminPhone = String(formData.get("admin_phone") || "").trim();
   const adminTitle = String(formData.get("admin_title") || "").trim();
+  const locationName = String(formData.get("location_name") || "").trim();
+  const locationSlug = String(formData.get("location_slug") || "").trim().toLowerCase();
+  const locationAddress = cleanText(formData.get("location_address"));
+  const locationCity = cleanText(formData.get("location_city"));
+  const locationState = cleanText(formData.get("location_state"));
+  const locationPhone = cleanText(formData.get("location_phone"));
   const businessPlan = getBusinessPlan(String(formData.get("business_plan_key") || "")) || BUSINESS_PLANS.business_starter_self;
   const businessBillingInterval = normalizeBusinessBillingInterval(String(formData.get("business_billing_interval") || ""));
   const promoCode = String(formData.get("promo_code") || "").trim().toUpperCase();
@@ -707,6 +717,28 @@ async function createOrganization(formData: FormData) {
       role: "super_admin",
       status: "active"
     });
+  }
+
+  if (locationName) {
+    const resolvedLocationSlug = locationSlug || (await generateUniqueBusinessLocationSlug(organization.id, locationName));
+    const { error: locationError } = await admin.from("business_locations").insert({
+      business_id: organization.id,
+      name: locationName,
+      slug: resolvedLocationSlug,
+      address: locationAddress,
+      city: locationCity,
+      state: locationState,
+      phone: locationPhone,
+      region_id: null
+    });
+
+    if (locationError) {
+      console.error("Initial business location create failed", {
+        organizationId: organization.id,
+        error: locationError.message
+      });
+      redirect("/dashboard/business?error=location_save_failed");
+    }
   }
 
   redirect(`/dashboard/business?org=${organization.id}`);
@@ -1987,12 +2019,12 @@ export default async function BusinessDashboardPage({
 
         <section className="dashboard-wrap">
           <div className="dashboard-grid">
-            {businessIndex.map(({ organization: org, memberCount, tokenCount, activeTokenCount }) => (
+            {businessIndex.map(({ organization: org, memberCount, tokenCount, activeTokenCount, locationCount }) => (
               <article className="dashboard-card" key={org.id}>
                 <div className="dashboard-kicker">Business account</div>
                 <h2>{org.name}</h2>
                 <p className="editor-copy">
-                  {memberCount} member{memberCount === 1 ? "" : "s"} · {activeTokenCount}/{tokenCount} active token{tokenCount === 1 ? "" : "s"}
+                  {memberCount} member{memberCount === 1 ? "" : "s"} · {locationCount} location{locationCount === 1 ? "" : "s"} · {activeTokenCount}/{tokenCount} active token{tokenCount === 1 ? "" : "s"}
                 </p>
                 <p className="editor-copy" style={{ wordBreak: "break-all" }}>
                   {org.slug ? businessLoginUrl(org.slug) : "No business slug yet"}
@@ -2092,6 +2124,46 @@ export default async function BusinessDashboardPage({
                       <option value="annual">Annual - save 10%</option>
                     </select>
                   </label>
+                  <details className="employee-manage-panel" style={{ marginTop: 8 }}>
+                    <summary className="button secondary">Unlock first location</summary>
+                    <div className="employee-manage-panel-inner" style={{ marginTop: 12 }}>
+                      <div className="dashboard-kicker">First location</div>
+                      <h2 style={{ fontSize: "clamp(24px, 3vw, 32px)", marginTop: 10 }}>Optional, but ready if you need it.</h2>
+                      <p className="editor-copy">
+                        Add the first office, rooftop, or market location now so the business starts with a place to assign employees.
+                      </p>
+                      <div className="editor-grid" style={{ marginTop: 14 }}>
+                        <label className="editor-label">
+                          Location name
+                          <input className="editor-input" name="location_name" placeholder="Springfield Office" />
+                        </label>
+                        <label className="editor-label">
+                          Slug
+                          <input className="editor-input" name="location_slug" placeholder="springfield-office" />
+                        </label>
+                      </div>
+                      <div className="editor-grid">
+                        <label className="editor-label">
+                          Address
+                          <input className="editor-input" name="location_address" placeholder="123 Main St" />
+                        </label>
+                        <label className="editor-label">
+                          City
+                          <input className="editor-input" name="location_city" placeholder="Springfield" />
+                        </label>
+                      </div>
+                      <div className="editor-grid">
+                        <label className="editor-label">
+                          State
+                          <input className="editor-input" name="location_state" placeholder="IL" maxLength={2} />
+                        </label>
+                        <label className="editor-label">
+                          Phone
+                          <input className="editor-input" name="location_phone" type="tel" placeholder="(555) 555-5555" />
+                        </label>
+                      </div>
+                    </div>
+                  </details>
                   <button className="button primary" type="submit">
                     Create account and send invite
                   </button>
