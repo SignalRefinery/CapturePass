@@ -20,6 +20,7 @@ import { businessRoleLabel, buildBusinessPermissionScope, normalizeBusinessRole 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { getOrganizationGamificationSummary } from "@/lib/gamification/server";
+import { BUSINESS_TYPE_DESCRIPTIONS, BUSINESS_TYPE_LABELS, BUSINESS_TYPES, normalizeBusinessType } from "@/lib/business-types";
 import { buildEmployeeWebhookPayload, generateWebhookSecret, normalizeWebhookUrl, queueOrganizationWebhook } from "@/lib/webhooks/sendWebhook";
 import { slugify } from "@/lib/utils";
 import { generatePrivateToken } from "@/lib/utils/generate-token";
@@ -141,6 +142,8 @@ function businessErrorMessage(error?: string) {
       return "Webhook secret could not be regenerated. Please try again.";
     case "webhook_url_required":
       return "Webhook URL is required when webhooks are enabled.";
+    case "business_type_save_failed":
+      return "Business type could not be saved. Please try again.";
     case "cannot_remove_self":
       return "You cannot archive or delete your own active admin access from this table.";
     case "member_delete_failed":
@@ -667,6 +670,7 @@ async function createOrganization(formData: FormData) {
       name,
       slug,
       theme_key: "executive_navy",
+      business_type: "general_business",
       owner_user_id: user.id,
       managed_service_enabled: businessPlan.managed,
       business_plan_key: businessPlan.key,
@@ -1013,6 +1017,32 @@ async function updateOrganizationBranding(formData: FormData) {
   }
 
   redirect(`/dashboard/business?org=${organizationId}&saved=branding#business-branding`);
+}
+
+async function updateOrganizationBusinessType(formData: FormData) {
+  "use server";
+
+  const organizationId = String(formData.get("organization_id") || "");
+  await requireBusinessAdmin(organizationId);
+
+  const businessType = normalizeBusinessType(String(formData.get("business_type") || ""));
+  const admin = createAdminClient();
+
+  const { error } = await admin
+    .from("organizations")
+    .update({ business_type: businessType })
+    .eq("id", organizationId);
+
+  if (error) {
+    console.error("Business type save failed", {
+      organizationId,
+      businessType,
+      error: error.message
+    });
+    redirect(`/dashboard/business?org=${organizationId}&error=business_type_save_failed#business-settings`);
+  }
+
+  redirect(`/dashboard/business?org=${organizationId}&saved=business_type#business-settings`);
 }
 
 async function deleteBusinessLogo(formData: FormData) {
@@ -2574,6 +2604,43 @@ export default async function BusinessDashboardPage({
           </div>
         </section>
       ) : null}
+      {params?.saved === "business_type" ? (
+        <section className="dashboard-wrap">
+          <div className="dashboard-card pass-alert">
+            <div className="dashboard-kicker">Saved</div>
+            <p className="editor-copy">Business type was saved.</p>
+          </div>
+        </section>
+      ) : null}
+
+      <section className="dashboard-wrap" id="business-settings">
+        <div className="dashboard-card">
+          <div className="dashboard-kicker">Business settings</div>
+          <h2>Choose the business type.</h2>
+          <p className="editor-copy">
+            This is a broad category for future vertical-specific features. It does not change any profile, lead form, or analytics behavior yet.
+          </p>
+          <form action={updateOrganizationBusinessType} className="editor-form" style={{ marginTop: 18 }}>
+            <input type="hidden" name="organization_id" value={organization.id} />
+            <label className="editor-label">
+              Business type
+              <select className="editor-input" name="business_type" defaultValue={normalizeBusinessType(organization.business_type)}>
+                {BUSINESS_TYPES.map((businessType) => (
+                  <option key={businessType} value={businessType}>
+                    {BUSINESS_TYPE_LABELS[businessType]}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <p className="table-subtext">
+              {BUSINESS_TYPE_DESCRIPTIONS[normalizeBusinessType(organization.business_type)]}
+            </p>
+            <button className="button primary" type="submit">
+              Save business type
+            </button>
+          </form>
+        </div>
+      </section>
 
       <section className="dashboard-wrap" id="business-locations">
         <div className="dashboard-grid">

@@ -135,6 +135,7 @@ create table if not exists public.organizations (
   id uuid primary key default gen_random_uuid(),
   name text not null,
   slug text unique,
+  business_type text not null default 'general_business',
   brand_color text,
   brand_color_primary text,
   brand_color_secondary text,
@@ -177,6 +178,17 @@ create table if not exists public.organizations (
     )
   ),
   constraint organizations_business_billing_interval_check check (business_billing_interval in ('monthly', 'annual')),
+  constraint organizations_business_type_check check (
+    business_type in (
+      'automotive_dealership',
+      'real_estate_brokerage',
+      'insurance_agency',
+      'mortgage_lender',
+      'staffing_recruiting',
+      'financial_advisor',
+      'general_business'
+    )
+  ),
   constraint organizations_business_capacity_check check (
     (seat_limit is null or seat_limit > 0)
     and (included_card_count is null or included_card_count >= 0)

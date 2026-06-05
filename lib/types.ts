@@ -1,3 +1,5 @@
+import type { BusinessType } from "@/lib/business-types";
+
 export type NavLink = {
   href: string;
   label: string;
@@ -98,6 +100,7 @@ export type OrganizationRecord = {
   business_link_3_url?: string | null;
   business_link_4_title?: string | null;
   business_link_4_url?: string | null;
+  business_type?: BusinessType | null;
   owner_user_id: string;
   managed_service_enabled?: boolean | null;
   business_plan_key?: string | null;
