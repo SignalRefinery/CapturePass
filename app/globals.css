@@ -447,6 +447,16 @@ textarea{font:inherit}
   line-height:.95;
   letter-spacing:-.03em;
 }
+.setup-location-toggle{
+  width:fit-content;
+}
+.setup-location-toggle > summary.button{
+  width:fit-content;
+}
+.button.setup-submit-button{
+  width:auto;
+  align-self:flex-start;
+}
 
 .auth-wrap{padding:0 28px 60px}
 .auth-card{
@@ -1908,6 +1918,11 @@ textarea{font:inherit}
   }
   .pass-actions .button{
     width:100%;
+  }
+  .setup-location-toggle,
+  .setup-location-toggle > summary.button,
+  .button.setup-submit-button{
+    width:fit-content;
   }
   .admin-table-frame{
     margin-top:14px;

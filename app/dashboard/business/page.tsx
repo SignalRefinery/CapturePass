@@ -2124,8 +2124,8 @@ export default async function BusinessDashboardPage({
                       <option value="annual">Annual - save 10%</option>
                     </select>
                   </label>
-                  <details className="employee-manage-panel" style={{ marginTop: 8 }}>
-                    <summary className="button secondary">Unlock first location</summary>
+                  <details className="employee-manage-panel setup-location-toggle" style={{ marginTop: 8 }}>
+                    <summary className="button secondary setup-toggle-button">Unlock first location</summary>
                     <div className="employee-manage-panel-inner" style={{ marginTop: 12 }}>
                       <div className="dashboard-kicker">First location</div>
                       <h2 style={{ fontSize: "clamp(24px, 3vw, 32px)", marginTop: 10 }}>Optional, but ready if you need it.</h2>
@@ -2164,7 +2164,7 @@ export default async function BusinessDashboardPage({
                       </div>
                     </div>
                   </details>
-                  <button className="button primary" type="submit">
+                  <button className="button primary setup-submit-button" type="submit">
                     Create account and send invite
                   </button>
                   <Link className="button secondary" href="/dashboard/business">
