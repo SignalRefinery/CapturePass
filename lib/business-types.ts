@@ -95,22 +95,92 @@ export type BusinessPrimaryLinkDefaults = {
 };
 
 export function getBusinessTypePrimaryLinkDefaults(value?: string | null): BusinessPrimaryLinkDefaults | null {
-  if (!isAutomotiveBusiness(value)) return null;
+  if (isAutomotiveBusiness(value)) {
+    return {
+      primary_link_1_title: "View Inventory",
+      primary_link_1_url: "",
+      primary_link_1_type: "website",
+      primary_link_2_title: "Get Pre-Approved",
+      primary_link_2_url: "",
+      primary_link_2_type: "website",
+      primary_link_3_title: "Value My Trade",
+      primary_link_3_url: "",
+      primary_link_3_type: "website",
+      primary_link_4_title: "Schedule Test Drive",
+      primary_link_4_url: "",
+      primary_link_4_type: "booking"
+    };
+  }
 
-  return {
-    primary_link_1_title: "View Inventory",
-    primary_link_1_url: "",
-    primary_link_1_type: "website",
-    primary_link_2_title: "Get Pre-Approved",
-    primary_link_2_url: "",
-    primary_link_2_type: "website",
-    primary_link_3_title: "Value My Trade",
-    primary_link_3_url: "",
-    primary_link_3_type: "website",
-    primary_link_4_title: "Schedule Test Drive",
-    primary_link_4_url: "",
-    primary_link_4_type: "booking"
-  };
+  if (isInsuranceBusiness(value)) {
+    return {
+      primary_link_1_title: "Request Quote",
+      primary_link_1_url: "",
+      primary_link_1_type: "website",
+      primary_link_2_title: "Schedule Review",
+      primary_link_2_url: "",
+      primary_link_2_type: "booking",
+      primary_link_3_title: "File a Claim",
+      primary_link_3_url: "",
+      primary_link_3_type: "website",
+      primary_link_4_title: "Coverage Options",
+      primary_link_4_url: "",
+      primary_link_4_type: "website"
+    };
+  }
+
+  if (isMortgageBusiness(value)) {
+    return {
+      primary_link_1_title: "Apply Now",
+      primary_link_1_url: "",
+      primary_link_1_type: "website",
+      primary_link_2_title: "Get Pre-Qualified",
+      primary_link_2_url: "",
+      primary_link_2_type: "website",
+      primary_link_3_title: "Mortgage Calculator",
+      primary_link_3_url: "",
+      primary_link_3_type: "website",
+      primary_link_4_title: "Schedule Consultation",
+      primary_link_4_url: "",
+      primary_link_4_type: "booking"
+    };
+  }
+
+  if (isRecruitingBusiness(value)) {
+    return {
+      primary_link_1_title: "Submit Resume",
+      primary_link_1_url: "",
+      primary_link_1_type: "website",
+      primary_link_2_title: "Open Positions",
+      primary_link_2_url: "",
+      primary_link_2_type: "website",
+      primary_link_3_title: "Hire Talent",
+      primary_link_3_url: "",
+      primary_link_3_type: "website",
+      primary_link_4_title: "Schedule Interview",
+      primary_link_4_url: "",
+      primary_link_4_type: "booking"
+    };
+  }
+
+  if (isFinancialAdvisorBusiness(value)) {
+    return {
+      primary_link_1_title: "Schedule Consultation",
+      primary_link_1_url: "",
+      primary_link_1_type: "booking",
+      primary_link_2_title: "Retirement Planning",
+      primary_link_2_url: "",
+      primary_link_2_type: "website",
+      primary_link_3_title: "Wealth Review",
+      primary_link_3_url: "",
+      primary_link_3_type: "website",
+      primary_link_4_title: "Resources",
+      primary_link_4_url: "",
+      primary_link_4_type: "website"
+    };
+  }
+
+  return null;
 }
 
 export function applyBusinessTypePrimaryLinkDefaults<T extends {
