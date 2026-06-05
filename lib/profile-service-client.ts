@@ -68,7 +68,7 @@ export async function saveProfileClient(record: ProfileRecord, userId: string) {
 
   const { data: currentProfile, error: currentProfileError } = await supabase
     .from("profiles")
-    .select("slug, slug_status, is_active, stripe_plan_key, billing_exempt, lifetime_free, promo_code_used, is_admin")
+    .select("slug, slug_status, is_active, stripe_plan_key, business_type, billing_exempt, lifetime_free, promo_code_used, is_admin")
     .eq("user_id", userId)
     .maybeSingle();
 
@@ -85,6 +85,10 @@ export async function saveProfileClient(record: ProfileRecord, userId: string) {
     ...record,
     is_active: currentProfile?.is_active ?? record.is_active,
     stripe_plan_key: currentProfile?.stripe_plan_key ?? record.stripe_plan_key,
+    business_type:
+      record.business_type && record.business_type !== "general_business"
+        ? record.business_type
+        : currentProfile?.business_type || "general_business",
     billing_exempt: currentProfile?.billing_exempt ?? record.billing_exempt,
     lifetime_free: currentProfile?.lifetime_free ?? record.lifetime_free,
     promo_code_used: currentProfile?.promo_code_used ?? record.promo_code_used,
@@ -132,6 +136,10 @@ export async function saveProfileClient(record: ProfileRecord, userId: string) {
     email: record.email,
     phone: record.phone,
     website_url: record.website_url,
+    business_type:
+      record.business_type && record.business_type !== "general_business"
+        ? record.business_type
+        : currentProfile?.business_type || "general_business",
     theme_key: themeKey,
     brand_color_primary: useCustomColors && isHexColor(record.brand_color_primary) ? record.brand_color_primary : null,
     brand_color_secondary: useCustomColors && isHexColor(record.brand_color_secondary) ? record.brand_color_secondary : null,

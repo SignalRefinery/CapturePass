@@ -30,6 +30,7 @@ export type ProfileRecord = {
   user_id?: string;
   slug: string;
   private_token?: string | null;
+  business_type?: BusinessType | null;
   page_mode?: "single" | "multi";
   multi_view_display_mode?: "landing" | "favorite";
   default_view_id?: string | null;

@@ -112,6 +112,23 @@ export function getBusinessTypePrimaryLinkDefaults(value?: string | null): Busin
     };
   }
 
+  if (isRealEstateBusiness(value)) {
+    return {
+      primary_link_1_title: "Home Search",
+      primary_link_1_url: "",
+      primary_link_1_type: "website",
+      primary_link_2_title: "Home Valuation",
+      primary_link_2_url: "",
+      primary_link_2_type: "website",
+      primary_link_3_title: "Schedule Consultation",
+      primary_link_3_url: "",
+      primary_link_3_type: "booking",
+      primary_link_4_title: "My Listings",
+      primary_link_4_url: "",
+      primary_link_4_type: "website"
+    };
+  }
+
   if (isInsuranceBusiness(value)) {
     return {
       primary_link_1_title: "Request Quote",

@@ -11,6 +11,7 @@ create table if not exists public.profiles (
   user_id uuid unique not null references auth.users(id) on delete cascade,
   slug text unique not null,
   private_token text unique,
+  business_type text not null default 'general_business',
   page_mode text not null default 'single',
   multi_view_display_mode text not null default 'favorite',
   default_view_id uuid,
@@ -84,6 +85,17 @@ create table if not exists public.profiles (
   updated_at timestamptz not null default timezone('utc', now()),
   constraint profiles_page_mode_check check (page_mode in ('single', 'multi')),
   constraint profiles_multi_view_display_mode_check check (multi_view_display_mode in ('landing', 'favorite')),
+  constraint profiles_business_type_check check (
+    business_type in (
+      'automotive_dealership',
+      'real_estate_brokerage',
+      'insurance_agency',
+      'mortgage_lender',
+      'staffing_recruiting',
+      'financial_advisor',
+      'general_business'
+    )
+  ),
   constraint profiles_slug_status_check check (slug_status in ('approved', 'pending_review', 'rejected')),
   constraint profiles_theme_key_check check (theme_key in ('taptagg_brand', 'executive_navy', 'modern_slate', 'executive_gold', 'clean_horizon', 'sage_professional', 'custom'))
 );

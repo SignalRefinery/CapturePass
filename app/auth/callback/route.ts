@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getBusinessPlan } from "@/lib/business/plans";
 import { safeInternalRedirect } from "@/lib/auth/redirect";
-import { claimBusinessOrganizationForUser } from "@/lib/business/organization-access";
+import { claimBusinessOrganizationForUser, getBusinessTypeForUser } from "@/lib/business/organization-access";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { classifySlug } from "@/lib/slug-moderation";
@@ -235,9 +235,11 @@ export async function GET(req: Request) {
 
   if (!existingProfile) {
     const bootstrapSlugFields = await getBootstrapSlugFields(profileAdmin, user.id, rawSuggestedSlug);
+    const businessType = await getBusinessTypeForUser(user.id);
 
     const { error: insertError } = await profileAdmin.from("profiles").insert({
       user_id: user.id,
+      business_type: businessType,
       email: user.email || null,
       full_name: fullName,
       ...bootstrapSlugFields,

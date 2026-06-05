@@ -5,6 +5,7 @@ import type { ProfileRecord, ProfileViewRecord } from "@/lib/types";
 import { getProfilePlan } from "@/lib/plans";
 import { normalizeUrl } from "@/lib/utils";
 import { classifySlug } from "@/lib/slug-moderation";
+import { isRealEstateBusiness } from "@/lib/business-types";
 import {
   PROFILE_BUTTON_TYPE_DESCRIPTIONS,
   PROFILE_BUTTON_TYPE_LABELS,
@@ -29,6 +30,7 @@ type ProfileEditorProps = {
   userId: string;
   initialProfile: ProfileRecord;
   initialProfileViews: ProfileViewRecord[];
+  businessType?: ProfileRecord["business_type"];
 };
 
 const LINK_FIELD_CONFIG = [
@@ -74,7 +76,6 @@ const LINK_FIELD_CONFIG = [
   }
 ];
 
-const MAX_PROFILE_VIEWS = 3;
 const MAX_INTRO_TEXTAREA_HEIGHT = 220;
 const LEGACY_INTRO_PROMPT = "Turning complexity into clarity.";
 const INTRO_PLACEHOLDER =
@@ -237,8 +238,16 @@ function normalizeViewForSave(view: ProfileViewRecord): ProfileViewRecord {
 export function ProfileEditor({
   userId,
   initialProfile,
-  initialProfileViews
+  initialProfileViews,
+  businessType
 }: ProfileEditorProps) {
+  const resolvedBusinessType =
+    businessType && businessType !== "general_business" ? businessType : initialProfile.business_type;
+  const isRealEstateBusinessProfile = isRealEstateBusiness(resolvedBusinessType);
+  const profileSectionLabel = isRealEstateBusinessProfile ? "Property" : "View";
+  const profileSectionPlural = isRealEstateBusinessProfile ? "Properties" : "Profile views";
+  const profileSectionLower = isRealEstateBusinessProfile ? "property" : "view";
+  const maxProfileViews = isRealEstateBusinessProfile ? 5 : 3;
   const [form, setForm] = useState<ProfileRecord>({
     ...initialProfile,
     intro: cleanIntroValue(initialProfile.intro),
@@ -536,7 +545,7 @@ export function ProfileEditor({
   }
 
   async function handleCreateView() {
-    if (viewSaving || views.length >= MAX_PROFILE_VIEWS || !plan.hasMoreProfileSections) return;
+    if (viewSaving || views.length >= maxProfileViews || !plan.hasMoreProfileSections) return;
 
     setViewSaving(true);
     setViewError("");
@@ -556,7 +565,11 @@ export function ProfileEditor({
       }
 
       if (!profileId) {
-        throw new Error("Save your profile once before creating profile views.");
+        throw new Error(
+          isRealEstateBusinessProfile
+            ? "Save your profile once before creating properties."
+            : "Save your profile once before creating profile views."
+        );
       }
 
       const draft = createViewFromProfile(form, profileId, views.length);
@@ -584,7 +597,7 @@ export function ProfileEditor({
         }
       }
 
-      setViewMessage("Profile view created.");
+      setViewMessage(isRealEstateBusinessProfile ? "Property created." : "Profile view created.");
     } catch (err) {
       setViewError(err instanceof Error ? err.message : "Unexpected error while creating the view.");
     } finally {
@@ -619,7 +632,7 @@ export function ProfileEditor({
       }
 
       setActiveViewKey(view.id);
-      setViewMessage("Default profile view updated.");
+      setViewMessage(isRealEstateBusinessProfile ? "Default property updated." : "Default profile view updated.");
     } catch (err) {
       setViewError(err instanceof Error ? err.message : "Unexpected error while setting the default view.");
     } finally {
@@ -630,7 +643,7 @@ export function ProfileEditor({
   async function handleDeleteView(view: ProfileViewRecord) {
     if (!view.id || view.id === defaultViewId || viewSaving) return;
 
-    const confirmed = window.confirm("Delete this profile view?");
+    const confirmed = window.confirm(isRealEstateBusinessProfile ? "Delete this property?" : "Delete this profile view?");
     if (!confirmed) return;
 
     setViewSaving(true);
@@ -647,7 +660,7 @@ export function ProfileEditor({
       const remainingViews = views.filter((current) => current.id !== view.id);
       setViews(remainingViews);
       setActiveViewKey(remainingViews[0]?.id || remainingViews[0]?.view_key || "");
-      setViewMessage("Profile view deleted.");
+      setViewMessage(isRealEstateBusinessProfile ? "Property deleted." : "Profile view deleted.");
     } catch (err) {
       setViewError(err instanceof Error ? err.message : "Unexpected error while deleting the view.");
     } finally {
@@ -1046,13 +1059,16 @@ export function ProfileEditor({
 
           {plan.hasMoreProfileSections ? (
           <div className="card" style={{ marginTop: 24, padding: 22 }}>
-            <div className="dashboard-kicker">Profile views</div>
+            <div className="dashboard-kicker">{profileSectionPlural}</div>
             <h3 style={{ margin: "6px 0 10px", fontSize: "1.25rem", lineHeight: 1.1 }}>
-              Configure single or multi-view display.
+              {isRealEstateBusinessProfile
+                ? "Configure single or multi-property display."
+                : "Configure single or multi-view display."}
             </h3>
             <p className="editor-copy" style={{ marginBottom: 18 }}>
-              Single mode keeps your current profile behavior. Multi mode lets visitors switch
-              between up to three configured views.
+              {isRealEstateBusinessProfile
+                ? "Single mode keeps your current profile behavior. Multi mode lets visitors switch between up to five configured properties."
+                : "Single mode keeps your current profile behavior. Multi mode lets visitors switch between up to three configured views."}
             </p>
 
             <div className="editor-grid">
@@ -1075,7 +1091,7 @@ export function ProfileEditor({
 
               {isMultiViewMode ? (
                 <label className="auth-field">
-                  <span>Multi-view display</span>
+                  <span>{isRealEstateBusinessProfile ? "Property display" : "Multi-view display"}</span>
                   <select
                     value={form.multi_view_display_mode || "favorite"}
                     onChange={(event) =>
@@ -1103,7 +1119,7 @@ export function ProfileEditor({
                     return (
                       <div className="status-row" key={viewKey}>
                         <span>
-                          <strong>{view.name || "Profile view"}</strong>
+                          <strong>{view.name || profileSectionLabel}</strong>
                           <br />
                           <small style={{ opacity: 0.72 }}>
                             {isDefault ? "Default / favorite" : view.view_key}
@@ -1115,7 +1131,9 @@ export function ProfileEditor({
                             type="button"
                             onClick={() => setActiveViewKey(viewKey)}
                           >
-                            {isActive ? "Editing" : "Edit"}
+                            {isActive
+                              ? `Editing ${profileSectionLower}`
+                              : `Edit ${profileSectionLower}`}
                           </button>
 
                           {isMultiViewMode ? (
@@ -1125,7 +1143,13 @@ export function ProfileEditor({
                               disabled={!view.id || isDefault || viewSaving}
                               onClick={() => handleSetDefaultView(view)}
                             >
-                              {isDefault ? "Default" : "Set default"}
+                              {isDefault
+                                ? isRealEstateBusinessProfile
+                                  ? "Default property"
+                                  : "Default"
+                                : isRealEstateBusinessProfile
+                                  ? "Set default property"
+                                  : "Set default"}
                             </button>
                           ) : null}
 
@@ -1143,7 +1167,11 @@ export function ProfileEditor({
                   })
                 ) : (
                   <div className="status-row">
-                    <span>No profile views created yet. Single profile active.</span>
+                    <span>
+                      {isRealEstateBusinessProfile
+                        ? "No properties created yet. Single profile active."
+                        : "No profile views created yet. Single profile active."}
+                    </span>
                   </div>
                 )}
               </div>
@@ -1155,30 +1183,38 @@ export function ProfileEditor({
                 <button
                   className="button secondary"
                   type="button"
-                  disabled={viewSaving || views.length >= MAX_PROFILE_VIEWS}
+                  disabled={viewSaving || views.length >= maxProfileViews}
                   onClick={handleCreateView}
                 >
-                  {views.length >= MAX_PROFILE_VIEWS ? "View limit reached" : "Create profile view"}
+                  {views.length >= maxProfileViews
+                    ? `${profileSectionLabel} limit reached`
+                    : isRealEstateBusinessProfile
+                      ? "Add Property"
+                      : "Create profile view"}
                 </button>
               </div>
             </div>
             ) : (
               <p className="editor-copy" style={{ marginTop: 18 }}>
-                Single mode uses your main profile information. Switch to multi to manage separate views.
+                {isRealEstateBusinessProfile
+                  ? "Single mode uses your main profile information. Switch to multi to manage separate properties."
+                  : "Single mode uses your main profile information. Switch to multi to manage separate views."}
               </p>
             )}
 
             {isMultiViewMode && activeView ? (
               <div className="card" style={{ marginTop: 20, padding: 18 }}>
-                <div className="dashboard-kicker">Editing view</div>
+                <div className="dashboard-kicker">
+                  {isRealEstateBusinessProfile ? "Editing property" : "Editing view"}
+                </div>
 
                 <div className="editor-grid" style={{ marginTop: 14 }}>
                   <label className="auth-field">
-                    <span>View name</span>
+                    <span>{isRealEstateBusinessProfile ? "Property Name" : "View name"}</span>
                     <input
                       value={activeView.name || ""}
                       onChange={(event) => updateView("name", event.target.value)}
-                      placeholder="Campaign view"
+                      placeholder={isRealEstateBusinessProfile ? "Listing name" : "Campaign view"}
                     />
                   </label>
 
@@ -1194,7 +1230,7 @@ export function ProfileEditor({
 
                 <div className="editor-grid" style={{ marginTop: 14 }}>
                   <label className="auth-field">
-                    <span>Organization or business name</span>
+                    <span>{isRealEstateBusinessProfile ? "Property Description" : "Organization or business name"}</span>
                     <input
                       value={activeView.organization_name || ""}
                       onChange={(event) => updateView("organization_name", event.target.value)}
@@ -1206,7 +1242,7 @@ export function ProfileEditor({
                   </label>
 
                   <label className="auth-field">
-                    <span>Role/Title</span>
+                    <span>{isRealEstateBusinessProfile ? "Property Summary" : "Role/Title"}</span>
                     <input
                       value={activeView.role_line || ""}
                       onChange={(event) => updateView("role_line", event.target.value)}
@@ -1215,8 +1251,19 @@ export function ProfileEditor({
                   </label>
                 </div>
 
+                <div className="editor-grid" style={{ marginTop: 14 }}>
+                  <label className="auth-field">
+                    <span>{isRealEstateBusinessProfile ? "Property URL" : "Website"}</span>
+                    <input
+                      value={activeView.website_url || ""}
+                      onChange={(event) => updateView("website_url", event.target.value)}
+                      placeholder={isRealEstateBusinessProfile ? "https://listing-page.com" : "https://your-site.com"}
+                    />
+                  </label>
+                </div>
+
                 <label className="auth-field" style={{ marginTop: 14 }}>
-                  <span>Intro</span>
+                  <span>{isRealEstateBusinessProfile ? "Property Description" : "Intro"}</span>
                   <AutoResizeTextarea
                     value={activeView.intro || ""}
                     onChange={(value) => updateView("intro", value)}
@@ -1225,7 +1272,7 @@ export function ProfileEditor({
                 </label>
 
                 <div className="card view-subsection" style={{ marginTop: 18 }}>
-                  <div className="dashboard-kicker">Profile badges</div>
+                  <div className="dashboard-kicker">{isRealEstateBusinessProfile ? "Property badges" : "Profile badges"}</div>
                   <div className="editor-grid" style={{ marginTop: 14 }}>
                     <label className="auth-field">
                       <span>Badge 1</span>
@@ -1308,10 +1355,14 @@ export function ProfileEditor({
                         onChange={(event) => updateView("show_in_public_nav", event.target.checked)}
                       />
                       <span>
-                        Show this view as a public profile button.
+                        {isRealEstateBusinessProfile
+                          ? "Show this property as a public profile button."
+                          : "Show this view as a public profile button."}
                         <br />
                         <small className="auth-message">
-                          Turn this off for views you only want opened by card tap, QR scan, or digital pass.
+                          {isRealEstateBusinessProfile
+                            ? "Turn this off for properties you only want opened by card tap, QR scan, or digital pass."
+                            : "Turn this off for views you only want opened by card tap, QR scan, or digital pass."}
                         </small>
                       </span>
                     </label>
@@ -1354,7 +1405,7 @@ export function ProfileEditor({
                 </div>
 
                 <div className="card view-subsection link-fields-card" style={{ marginTop: 18 }}>
-                  <div className="dashboard-kicker">View CTA buttons</div>
+                  <div className="dashboard-kicker">{isRealEstateBusinessProfile ? "Property CTA buttons" : "View CTA buttons"}</div>
                   {LINK_FIELD_CONFIG.map((field, index) => (
                     <div
                       className="editor-grid link-field-row"
@@ -1426,7 +1477,13 @@ export function ProfileEditor({
                       disabled={!activeView.id || activeView.id === defaultViewId || saving || viewSaving}
                       onClick={() => handleSetDefaultView(activeView)}
                     >
-                      {activeView.id === defaultViewId ? "Default view" : "Set as default"}
+                      {activeView.id === defaultViewId
+                        ? isRealEstateBusinessProfile
+                          ? "Default property"
+                          : "Default view"
+                        : isRealEstateBusinessProfile
+                          ? "Set as default property"
+                          : "Set as default"}
                     </button>
                   </div>
                 ) : null}

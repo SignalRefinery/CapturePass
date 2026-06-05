@@ -1,4 +1,5 @@
 import type { ProfileRecord } from "@/lib/types";
+import { isRealEstateBusiness } from "@/lib/business-types";
 
 export type PlanKey = "free" | "digital" | "core" | "tagg_plus" | "creator" | "business";
 
@@ -90,7 +91,11 @@ export function planAtLeast(plan: PlanKey, minimum: PlanKey) {
   return PLAN_ORDER[plan] >= PLAN_ORDER[minimum];
 }
 
-export function getPlanFeatures(plan: PlanKey, isActivated = false): PlanFeatures {
+export function getPlanFeatures(
+  plan: PlanKey,
+  isActivated = false,
+  profileBusinessType?: string | null
+): PlanFeatures {
   const isDigital = isActivated && planAtLeast(plan, "digital");
   const isCore = isActivated && planAtLeast(plan, "core");
   const isTaggPlus = planAtLeast(plan, "tagg_plus");
@@ -98,7 +103,8 @@ export function getPlanFeatures(plan: PlanKey, isActivated = false): PlanFeature
   const isBusiness = isActivated && plan === "business";
   const hasAnalytics = isActivated && (isTaggPlus || isBusiness);
   const hasAdvancedCustomization = isActivated && (isTaggPlus || isBusiness);
-  const hasMultiView = isActivated && isCreator && !isBusiness;
+  const hasMultiView =
+    isActivated && ((isCreator && !isBusiness) || isRealEstateBusiness(profileBusinessType));
 
   return {
     key: plan,
@@ -150,7 +156,7 @@ export function getProfilePlan(profile?: ProfileRecord | null): PlanFeatures {
   // Plan gating lives here so pricing changes can be made in one place.
   // `is_active` controls paid/manual activation; inactive paid plans fall back
   // to Free so failed or canceled subscriptions cannot keep paid access.
-  return getPlanFeatures(accessPlan, isActivated);
+  return getPlanFeatures(accessPlan, isActivated, profile?.business_type);
 }
 
 export function applyFounderAccess(

@@ -274,9 +274,16 @@ export default async function DashboardPage({
 
   const baseProfile =
     existing
-      ? applyBusinessTypePrimaryLinkDefaults(existing, businessType)
+      ? {
+          ...applyBusinessTypePrimaryLinkDefaults(existing, businessType),
+          business_type:
+            existing.business_type && existing.business_type !== "general_business"
+              ? existing.business_type
+              : businessType
+        }
       : {
           user_id: user.id,
+          business_type: businessType,
           full_name: fullName,
           organization_name: "",
           slug:
@@ -515,6 +522,7 @@ export default async function DashboardPage({
             userId={user.id}
             initialProfile={initialProfile}
             initialProfileViews={initialProfileViews}
+            businessType={businessType}
           />
 
           <section className="dashboard-wrap status-bottom">
