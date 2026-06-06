@@ -47,6 +47,14 @@ const headerStyle: React.CSSProperties = {
   userSelect: "none",
 };
 
+const stickyActionHeaderStyle: React.CSSProperties = {
+  ...headerStyle,
+  right: 0,
+  zIndex: 3,
+  borderRight: 0,
+  boxShadow: "-12px 0 18px rgba(0,0,0,.22)",
+};
+
 const actionButtonStyle: React.CSSProperties = {
   border: "1px solid rgba(139,92,246,.3)",
   background: "rgba(139,92,246,.08)",
@@ -61,8 +69,13 @@ const actionButtonStyle: React.CSSProperties = {
 
 const actionCellStyle: React.CSSProperties = {
   ...cellStyle,
+  position: "sticky",
+  right: 0,
+  zIndex: 1,
+  background: "rgba(12,12,14,.98)",
   borderRight: 0,
   overflow: "visible",
+  boxShadow: "-12px 0 18px rgba(0,0,0,.22)",
 };
 
 function Badge({
@@ -322,7 +335,7 @@ export function UserManagementTable({ rows }: { rows: Row[] }) {
               </th>
               <th style={headerStyle}>Referral</th>
               <th style={headerStyle}>Flags</th>
-              <th style={{ ...headerStyle, borderRight: 0 }}>Actions</th>
+              <th style={stickyActionHeaderStyle}>Actions</th>
             </tr>
           </thead>
 
