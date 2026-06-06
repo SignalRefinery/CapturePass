@@ -404,6 +404,14 @@ export function UserManagementTable({ rows }: { rows: Row[] }) {
                         ? "—"
                         : null}
                     </div>
+                    <div style={{ marginTop: 8 }}>
+                      <Link
+                        href={`/admin/account/${r.user_id}`}
+                        style={actionButtonStyle}
+                      >
+                        Manage
+                      </Link>
+                    </div>
                   </td>
 
                   <td style={actionCellStyle}>
@@ -415,13 +423,6 @@ export function UserManagementTable({ rows }: { rows: Row[] }) {
                           View
                         </Link>
                       ) : null}
-
-                      <Link
-                        href={`/admin/account/${r.user_id}`}
-                        style={actionButtonStyle}
-                      >
-                        Manage
-                      </Link>
 
                       <button
                         type="button"
