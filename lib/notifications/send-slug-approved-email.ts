@@ -55,6 +55,11 @@ export async function sendSlugApprovedEmail(profile: ProfileForEmail) {
   const to = process.env.INTERNAL_ORDER_EMAIL || "hello@taptagg.app";
   const issuedUrl = getIssuedProfileUrl(profile);
   const readableUrl = getReadableProfileUrl(profile);
+  const qrUrl = `https://quickchart.io/qr?text=${encodeURIComponent(issuedUrl)}&size=600`;
+  const qrFilenameBase = (profile.slug || profile.private_token || "taptagg-profile")
+    .toLowerCase()
+    .replace(/[^a-z0-9-_]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 
   const subject = `Profile issued: ${profile.slug || profile.private_token || "unknown-profile"}`;
 
@@ -70,14 +75,16 @@ export async function sendSlugApprovedEmail(profile: ProfileForEmail) {
         <tr><td><strong>Email</strong></td><td>${escapeHtml(profile.email || "")}</td></tr>
         <tr><td><strong>Phone</strong></td><td>${escapeHtml(profile.phone || "")}</td></tr>
         <tr><td><strong>Readable profile URL</strong></td><td>${escapeHtml(readableUrl)}</td></tr>
-        <tr><td><strong>Issued card URL</strong></td><td>${escapeHtml(issuedUrl)}</td></tr>
-        <tr><td><strong>QR destination</strong></td><td>${escapeHtml(issuedUrl)}</td></tr>
+        <tr><td><strong>NFC source URL</strong></td><td>${escapeHtml(issuedUrl)}</td></tr>
         <tr><td><strong>Plan</strong></td><td>${escapeHtml(profile.stripe_plan_key || "Not set")}</td></tr>
         <tr><td><strong>Affiliate</strong></td><td>${profile.is_affiliate ? escapeHtml(profile.affiliate_tier || "affiliate") : "No"}</td></tr>
       </table>
 
       <h3 style="margin:24px 0 8px;">Shipping address</h3>
       <p style="margin:0;">${shippingHtml(profile)}</p>
+      <p style="margin:18px 0 0;">
+        The QR PNG is attached to this email for printing and fulfillment use.
+      </p>
     </div>
   `;
 
@@ -91,7 +98,13 @@ export async function sendSlugApprovedEmail(profile: ProfileForEmail) {
       from: process.env.INTERNAL_FROM_EMAIL || "TapTagg <noreply@taptagg.app>",
       to,
       subject,
-      html
+      html,
+      attachments: [
+        {
+          path: qrUrl,
+          filename: `${qrFilenameBase || "taptagg-profile"}-qr.png`
+        }
+      ]
     })
   });
 

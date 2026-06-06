@@ -82,6 +82,10 @@ export async function sendRegistrationEmail({
   const readableUrl = getReadableProfileUrl(profile);
   const tokenUrl = getIssuedProfileUrl(profile);
   const qrUrl = `https://quickchart.io/qr?text=${encodeURIComponent(tokenUrl)}&size=600`;
+  const qrFilenameBase = (profile.slug || profile.private_token || "taptagg-profile")
+    .toLowerCase()
+    .replace(/[^a-z0-9-_]+/g, "-")
+    .replace(/^-+|-+$/g, "");
   const customerName = profile.full_name || "—";
   const customerEmail = profile.email || "—";
   const businessTypeLabel = getBusinessTypeLabel(profile.business_type);
@@ -112,17 +116,26 @@ export async function sendRegistrationEmail({
             <tr><td><strong>Stripe Plan</strong></td><td>${escapeHtml(stripePlan)}</td></tr>
             <tr><td><strong>Slug</strong></td><td>${escapeHtml(profile.slug || "—")}</td></tr>
             <tr><td><strong>Readable Profile URL</strong></td><td><a href="${readableUrl}">${readableUrl}</a></td></tr>
-            <tr><td><strong>Token URL</strong></td><td><a href="${tokenUrl}">${tokenUrl}</a></td></tr>
+            <tr><td><strong>NFC source URL</strong></td><td><a href="${tokenUrl}">${tokenUrl}</a></td></tr>
             <tr><td><strong>QR image URL</strong></td><td><a href="${qrUrl}">${qrUrl}</a></td></tr>
           </table>
           <h3 style="margin:24px 0 8px;">Shipping address</h3>
           <p style="margin:0;">${formatShippingAddress(shipping)}</p>
           <p style="margin:24px 0 0;color:#555;font-size:12px;">App URL: ${escapeHtml(appUrl)}</p>
           <p style="margin:12px 0 0;">
+            The QR PNG is attached to this email for printing and onboarding use.
+          </p>
+          <p style="margin:12px 0 0;">
             <img src="${qrUrl}" alt="QR code" width="300" height="300" />
           </p>
         </div>
-      `
+      `,
+      attachments: [
+        {
+          path: qrUrl,
+          filename: `${qrFilenameBase || "taptagg-profile"}-qr.png`
+        }
+      ]
     })
   });
 
