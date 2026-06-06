@@ -81,6 +81,8 @@ export type ProfileRecord = {
   slug_requested?: string | null;
   slug_review_reason?: string | null;
   consent_public_visibility?: boolean;
+  registration_notification_sent_at?: string | null;
+  card_notification_sent_at?: string | null;
   created_at?: string;
   updated_at?: string;
 };

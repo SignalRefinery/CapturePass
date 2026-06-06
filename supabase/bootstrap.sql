@@ -80,6 +80,7 @@ create table if not exists public.profiles (
   shipping_state text,
   shipping_postal_code text,
   shipping_country text,
+  registration_notification_sent_at timestamptz,
   card_notification_sent_at timestamptz,
   created_at timestamptz not null default timezone('utc', now()),
   updated_at timestamptz not null default timezone('utc', now()),

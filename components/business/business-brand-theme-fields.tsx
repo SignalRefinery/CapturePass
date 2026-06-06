@@ -136,7 +136,7 @@ export function BusinessBrandThemeFields({ organization }: BusinessBrandThemeFie
               className="editor-input"
               name="brand_color_text"
               type="color"
-              defaultValue={organization.brand_color_text || "#FFFFFF"}
+              defaultValue={organization.brand_color_text || customThemeColors.text || "#111827"}
             />
           </label>
         </div>

@@ -134,7 +134,7 @@
   --button-text:var(--profile-text, #ffffff);
   --shell-bg:var(--profile-background, #030304);
   --topbar-bg:rgba(0,0,0,.2);
-  --brand-copy:#ffffff;
+  --brand-copy:var(--profile-text, #ffffff);
   --hero-wash:none;
   --panel-bg:
     linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.075)),

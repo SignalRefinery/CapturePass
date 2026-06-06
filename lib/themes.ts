@@ -58,11 +58,11 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
     name: "Executive Navy",
     description: "A confident navy palette for polished professional profiles.",
     colors: {
-      primary: "#2563EB",
-      secondary: "#1E293B",
-      accent: "#2563EB",
-      text: "#FFFFFF",
-      background: "#F8FAFC"
+      primary: "#1D4ED8",
+      secondary: "#0F172A",
+      accent: "#60A5FA",
+      text: "#F8FAFC",
+      background: "#0B1220"
     },
     allowedPlans: ["free", "digital", "core", "tagg_plus", "creator", "business"]
   },
@@ -72,10 +72,10 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
     description: "A crisp slate theme with a bright cyan accent.",
     colors: {
       primary: "#06B6D4",
-      secondary: "#374151",
-      accent: "#06B6D4",
-      text: "#FFFFFF",
-      background: "#374151"
+      secondary: "#111827",
+      accent: "#38BDF8",
+      text: "#F8FAFC",
+      background: "#111827"
     },
     allowedPlans: ["core", "tagg_plus", "creator", "business"]
   },
@@ -85,10 +85,10 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
     description: "A premium dark executive palette with warm gold accents.",
     colors: {
       primary: "#D4A017",
-      secondary: "#334155",
-      accent: "#D4A017",
-      text: "#FFFAF0",
-      background: "#334155"
+      secondary: "#1E293B",
+      accent: "#F5C451",
+      text: "#FFF8E7",
+      background: "#111827"
     },
     allowedPlans: ["tagg_plus", "creator", "business"]
   },
@@ -98,10 +98,10 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
     description: "A crisp white profile with clean blue action emphasis.",
     colors: {
       primary: "#2563EB",
-      secondary: "#F3F4F6",
-      accent: "#2563EB",
+      secondary: "#E2E8F0",
+      accent: "#60A5FA",
       text: "#111827",
-      background: "#FAFAFA"
+      background: "#F8FBFF"
     },
     allowedPlans: ["core", "tagg_plus", "creator", "business"]
   },
@@ -111,10 +111,10 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
     description: "A fresh light profile with confident green professional accents.",
     colors: {
       primary: "#059669",
-      secondary: "#ECFDF5",
-      accent: "#059669",
-      text: "#FAFFFC",
-      background: "#003014"
+      secondary: "#0F3D2E",
+      accent: "#34D399",
+      text: "#F8FAF7",
+      background: "#08261B"
     },
     allowedPlans: ["tagg_plus", "creator", "business"]
   },
@@ -124,10 +124,10 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
     description: "A crisp white profile with clean blue action emphasis.",
     colors: {
       primary: "#2563EB",
-      secondary: "#F3F4F6",
-      accent: "#2563EB",
+      secondary: "#E5E7EB",
+      accent: "#60A5FA",
       text: "#111827",
-      background: "#FAFAFA"
+      background: "#FFFFFF"
     },
     allowedPlans: ["core", "tagg_plus", "creator", "business"]
   },
@@ -138,7 +138,7 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
     colors: {
       primary: "#B45309",
       secondary: "#F7F3ED",
-      accent: "#B45309",
+      accent: "#D97706",
       text: "#2C241D",
       background: "#FFFDF9"
     },
@@ -151,7 +151,7 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
     colors: {
       primary: "#0284C7",
       secondary: "#EAF4FF",
-      accent: "#0284C7",
+      accent: "#38BDF8",
       text: "#0F172A",
       background: "#F8FBFF"
     },
@@ -164,9 +164,9 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
     colors: {
       primary: "#059669",
       secondary: "#ECFDF5",
-      accent: "#059669",
+      accent: "#10B981",
       text: "#1F2937",
-      background: "#FAFFFC"
+      background: "#F7FFFB"
     },
     allowedPlans: ["tagg_plus", "creator", "business"]
   },
@@ -177,7 +177,7 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
     colors: {
       primary: "#C08457",
       secondary: "#F5F1E8",
-      accent: "#C08457",
+      accent: "#D97706",
       text: "#3A312A",
       background: "#FDFBF8"
     },
@@ -190,7 +190,7 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
     colors: {
       primary: "#E11D48",
       secondary: "#FFF1F2",
-      accent: "#E11D48",
+      accent: "#FB7185",
       text: "#1F2937",
       background: "#FFFDFD"
     },
@@ -204,13 +204,33 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
       primary: "#0F172A",
       secondary: "#1E293B",
       accent: "#2563EB",
-      background: "#F8FAFC"
+      background: "#F8FAFC",
+      text: "#111827"
     },
     allowedPlans: ["creator", "business"]
   }
 };
 
-export const THEME_OPTIONS = Object.values(THEME_PRESETS);
+const CANONICAL_THEME_KEYS: ThemeKey[] = [
+  "taptagg_brand",
+  "executive_navy",
+  "modern_slate",
+  "executive_gold",
+  "clean_horizon",
+  "sage_professional",
+  "ivory_executive",
+  "coastal_blue",
+  "sandstone",
+  "modern_rose",
+  "custom"
+];
+
+const THEME_ALIASES: Partial<Record<ThemeKey, ThemeKey>> = {
+  arctic_white: "clean_horizon",
+  emerald_executive: "sage_professional"
+};
+
+export const THEME_OPTIONS = CANONICAL_THEME_KEYS.map((key) => THEME_PRESETS[key]);
 export const PRESET_THEME_OPTIONS = THEME_OPTIONS.filter((theme) => theme.key !== CUSTOM_THEME_KEY);
 export const BUSINESS_THEME_OPTIONS = THEME_OPTIONS;
 export const PROFILE_THEME_OPTIONS = THEME_OPTIONS.filter((theme) => theme.key !== "executive_navy");
@@ -224,7 +244,12 @@ export const THEME_COLOR_ROLE_LABELS = {
 } as const;
 
 export function normalizeThemeKey(value?: string | null): ThemeKey {
-  return value && value in THEME_PRESETS ? (value as ThemeKey) : DEFAULT_THEME_KEY;
+  if (!value || !(value in THEME_PRESETS)) {
+    return DEFAULT_THEME_KEY;
+  }
+
+  const themeKey = value as ThemeKey;
+  return THEME_ALIASES[themeKey] || themeKey;
 }
 
 export function themeIsAllowedForPlan(themeKey: ThemeKey, plan: PlanKey) {
@@ -250,6 +275,91 @@ export function coerceThemeForPlan(themeKey: string | null | undefined, plan: Pl
   return themeIsAllowedForPlan(normalized, key) ? normalized : DEFAULT_THEME_KEY;
 }
 
+const LIGHT_THEME_KEYS = new Set<ThemeKey>([
+  "clean_horizon",
+  "arctic_white",
+  "ivory_executive",
+  "coastal_blue",
+  "emerald_executive",
+  "sandstone",
+  "modern_rose"
+]);
+
+function hexToRgb(value: string) {
+  if (!isHexColor(value)) {
+    return null;
+  }
+
+  const hex = value.slice(1);
+  return {
+    r: Number.parseInt(hex.slice(0, 2), 16),
+    g: Number.parseInt(hex.slice(2, 4), 16),
+    b: Number.parseInt(hex.slice(4, 6), 16)
+  };
+}
+
+function relativeLuminance(value: string) {
+  const rgb = hexToRgb(value);
+  if (!rgb) {
+    return null;
+  }
+
+  const transform = (channel: number) => {
+    const normalized = channel / 255;
+    return normalized <= 0.03928
+      ? normalized / 12.92
+      : ((normalized + 0.055) / 1.055) ** 2.4;
+  };
+
+  return 0.2126 * transform(rgb.r) + 0.7152 * transform(rgb.g) + 0.0722 * transform(rgb.b);
+}
+
+function contrastRatio(foreground: string, background: string) {
+  const foregroundLuminance = relativeLuminance(foreground);
+  const backgroundLuminance = relativeLuminance(background);
+
+  if (foregroundLuminance === null || backgroundLuminance === null) {
+    return 0;
+  }
+
+  const lighter = Math.max(foregroundLuminance, backgroundLuminance);
+  const darker = Math.min(foregroundLuminance, backgroundLuminance);
+
+  return (lighter + 0.05) / (darker + 0.05);
+}
+
+function bestReadableTextColor(background: string, preferredText?: string | null) {
+  const darkText = "#111827";
+  const lightText = "#FFFFFF";
+  const preferred = isHexColor(preferredText) ? preferredText : null;
+
+  if (preferred && contrastRatio(preferred, background) >= 4.5) {
+    return preferred;
+  }
+
+  return contrastRatio(lightText, background) >= contrastRatio(darkText, background) ? lightText : darkText;
+}
+
+function normalizeThemeColors(colors: ThemeColors): ThemeColors {
+  const background = isHexColor(colors.background) ? colors.background : "#FFFFFF";
+
+  return {
+    ...colors,
+    background,
+    text: bestReadableTextColor(background, colors.text)
+  };
+}
+
+export function themeUsesLightShell(themeKey?: string | null, background?: string | null) {
+  const normalized = normalizeThemeKey(themeKey);
+
+  if (normalized === CUSTOM_THEME_KEY) {
+    return isHexColor(background) ? (relativeLuminance(background) ?? 0) > 0.5 : false;
+  }
+
+  return LIGHT_THEME_KEYS.has(normalized);
+}
+
 export function resolveThemeColors({
   themeKey,
   customPrimary,
@@ -269,17 +379,17 @@ export function resolveThemeColors({
   const preset = THEME_PRESETS[normalized];
 
   if (normalized !== CUSTOM_THEME_KEY) {
-    return preset.colors;
+    return normalizeThemeColors(preset.colors);
   }
 
-  return {
+  return normalizeThemeColors({
     ...preset.colors,
     primary: isHexColor(customPrimary) ? customPrimary : preset.colors.primary,
     secondary: isHexColor(customSecondary) ? customSecondary : preset.colors.secondary,
     accent: isHexColor(customAccent) ? customAccent : preset.colors.accent,
     background: isHexColor(customBackground) ? customBackground : preset.colors.background,
     text: isHexColor(customText) ? customText : preset.colors.text
-  };
+  });
 }
 
 export function isHexColor(value?: string | null): value is string {

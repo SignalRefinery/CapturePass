@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { businessPlanFromRecurringPriceId, getBusinessPlan, isBusinessPlanKey } from "@/lib/business/plans";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { sendRegistrationEmail } from "@/lib/notifications/send-registration-email";
 import { normalizePlanKey } from "@/lib/plans";
 import { stripe } from "@/lib/stripe";
 
@@ -68,6 +69,43 @@ function getInvoiceSubscriptionId(invoice: Stripe.Invoice) {
   };
 
   return getStringId(invoiceWithSubscription.subscription);
+}
+
+function getCheckoutShippingDetails(session?: Stripe.Checkout.Session) {
+  const checkoutSession = session as
+    | (Stripe.Checkout.Session & {
+        shipping_details?: {
+          name?: string | null;
+          address?: {
+            line1?: string | null;
+            line2?: string | null;
+            city?: string | null;
+            state?: string | null;
+            postal_code?: string | null;
+            country?: string | null;
+          } | null;
+        } | null;
+        collected_information?: {
+          shipping_details?: {
+            name?: string | null;
+            address?: {
+              line1?: string | null;
+              line2?: string | null;
+              city?: string | null;
+              state?: string | null;
+              postal_code?: string | null;
+              country?: string | null;
+            } | null;
+          } | null;
+        } | null;
+      })
+    | undefined;
+
+  return (
+    checkoutSession?.collected_information?.shipping_details ||
+    checkoutSession?.shipping_details ||
+    null
+  );
 }
 
 async function findUserIdByCustomer(customerId: string | null) {
@@ -148,7 +186,28 @@ async function updateOrganizationForCheckout(session: Stripe.Checkout.Session) {
   const subscriptionId = getStringId(session.subscription);
   const billingInterval = session.metadata?.business_billing_interval || "monthly";
 
-  if (!organizationId) return true;
+  if (!organizationId) {
+    const userId = session.metadata?.user_id || null;
+    if (userId) {
+      await sendRegistrationEmail({
+        userId,
+        source: "stripe_checkout",
+        shipping: getCheckoutShippingDetails(session)
+      }).catch((registrationError) => {
+        console.error("Registration email failed after business checkout activation", {
+          route: "/api/webhook",
+          sessionId: session.id,
+          userId,
+          error:
+            registrationError instanceof Error
+              ? registrationError.message
+              : "Unknown registration email error"
+        });
+      });
+    }
+
+    return true;
+  }
 
   await updateOrganizationPlan({
     organizationId,
@@ -161,6 +220,25 @@ async function updateOrganizationForCheckout(session: Stripe.Checkout.Session) {
       session.payment_status === "paid" ||
       session.payment_status === "no_payment_required"
   });
+
+  const userId = session.metadata?.user_id || null;
+  if (userId) {
+    await sendRegistrationEmail({
+      userId,
+      source: "stripe_checkout",
+      shipping: getCheckoutShippingDetails(session)
+    }).catch((registrationError) => {
+      console.error("Registration email failed after business checkout activation", {
+        route: "/api/webhook",
+        sessionId: session.id,
+        userId,
+        error:
+          registrationError instanceof Error
+            ? registrationError.message
+            : "Unknown registration email error"
+      });
+    });
+  }
 
   console.info("Webhook checkout business organization updated", {
     route: "/api/webhook",
@@ -266,43 +344,22 @@ async function sendCardNotification(userId: string, session?: Stripe.Checkout.Se
 
   if (!process.env.RESEND_API_KEY || !tokenUrl || !qrUrl) return;
 
-  const checkoutSession = session as
-    | (Stripe.Checkout.Session & {
-        shipping_details?: {
-          name?: string | null;
-          address?: {
-            line1?: string | null;
-            line2?: string | null;
-            city?: string | null;
-            state?: string | null;
-            postal_code?: string | null;
-            country?: string | null;
-          } | null;
-        } | null;
-        collected_information?: {
-          shipping_details?: {
-            name?: string | null;
-            address?: {
-              line1?: string | null;
-              line2?: string | null;
-              city?: string | null;
-              state?: string | null;
-              postal_code?: string | null;
-              country?: string | null;
-            } | null;
-          } | null;
-        } | null;
-      })
-    | undefined;
+  const checkoutSession = session as Stripe.Checkout.Session & {
+    customer_details?: {
+      name?: string | null;
+      email?: string | null;
+      address?: {
+        line1?: string | null;
+        line2?: string | null;
+        city?: string | null;
+        state?: string | null;
+        postal_code?: string | null;
+        country?: string | null;
+      } | null;
+    } | null;
+  };
 
-  const collectedShippingDetails =
-    checkoutSession?.collected_information?.shipping_details || null;
-
-  const legacyShippingDetails =
-    checkoutSession?.shipping_details || null;
-
-  const shippingDetails =
-    collectedShippingDetails || legacyShippingDetails;
+  const shippingDetails = getCheckoutShippingDetails(session);
 
   const customerName =
     checkoutSession?.customer_details?.name ||
@@ -425,6 +482,22 @@ async function updateProfileForCheckout(session: Stripe.Checkout.Session) {
     stripePlanKey: plan,
     isActive: true,
     subscriptionStatus: "active"
+  });
+
+  await sendRegistrationEmail({
+    userId,
+    source: "stripe_checkout",
+    shipping: getCheckoutShippingDetails(session)
+  }).catch((registrationError) => {
+    console.error("Registration email failed after checkout activation", {
+      route: "/api/webhook",
+      sessionId: session.id,
+      userId,
+      error:
+        registrationError instanceof Error
+          ? registrationError.message
+          : "Unknown registration email error"
+    });
   });
 
   if (planIncludesPhysicalCard(plan)) {

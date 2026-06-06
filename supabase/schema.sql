@@ -4,6 +4,8 @@ create table if not exists public.profiles (
   id uuid primary key default gen_random_uuid(),
   user_id uuid unique not null references auth.users(id) on delete cascade,
   slug text unique not null,
+  private_token text unique,
+  business_type text not null default 'general_business',
   full_name text not null,
   role_line text not null,
   intro text not null default '',
@@ -28,6 +30,7 @@ create table if not exists public.profiles (
     and primary_link_3_type in ('website', 'email', 'phone', 'text', 'booking', 'directions', 'pdf', 'payment', 'custom')
     and primary_link_4_type in ('website', 'email', 'phone', 'text', 'booking', 'directions', 'pdf', 'payment', 'custom')
   ),
+  registration_notification_sent_at timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );

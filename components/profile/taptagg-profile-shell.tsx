@@ -5,7 +5,7 @@ import type { CSSProperties } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { ProfileAnalyticsTracker, trackProfileAction } from "@/components/analytics/profile-analytics-tracker";
 import { getReadableProfileUrl } from "@/lib/urls/profile-url";
-import { CUSTOM_THEME_KEY, normalizeThemeKey, resolveThemeColors } from "@/lib/themes";
+import { CUSTOM_THEME_KEY, normalizeThemeKey, resolveThemeColors, themeUsesLightShell } from "@/lib/themes";
 import { ContactShareModal } from "@/components/profile/contact-share-modal";
 import { ReportIssueForm } from "@/components/profile/report-issue-form";
 import { buildProfileButtons, getProfileButtonAnalyticsContext } from "@/lib/profile-buttons";
@@ -143,17 +143,15 @@ function initialsForName(name?: string | null) {
   return (parts.length > 1 ? `${parts[0][0]}${parts[parts.length - 1][0]}` : parts[0]?.slice(0, 2) || "TT").toUpperCase();
 }
 
-function themeClassName(theme?: string | null) {
+function themeClassName(theme?: string | null, background?: string | null) {
   const themeKey = normalizeThemeKey(theme);
 
   if (themeKey === "taptagg_brand") {
     return "";
   }
 
-  if (themeKey === "clean_horizon" || themeKey === "sage_professional") {
-    return themeKey === "sage_professional"
-      ? `${styles.themeCleanLight} ${styles.themeSageProfessional}`
-      : `${styles.themeCleanLight} ${styles.themeCleanHorizon}`;
+  if (themeKey === "sage_professional") {
+    return `${styles.themeCleanLight} ${styles.themeSageProfessional}`;
   }
 
   if (themeKey === "executive_gold") {
@@ -164,7 +162,7 @@ function themeClassName(theme?: string | null) {
     return styles.themeCustom;
   }
 
-  return styles.themeDeepBrand;
+  return themeUsesLightShell(themeKey, background) ? styles.themeCleanLight : styles.themeDeepBrand;
 }
 
 function legacyThemeClassName(theme?: string | null) {
@@ -262,7 +260,9 @@ export function TapTaggProfileShell({
   } as CSSProperties;
   const pageClassName = [
     styles.page,
-    resolvedThemeKey ? themeClassName(resolvedThemeKey) : legacyThemeClassName(activeProfile.brand_theme)
+    resolvedThemeKey
+      ? themeClassName(resolvedThemeKey, resolvedThemeColors.background)
+      : legacyThemeClassName(activeProfile.brand_theme)
   ].filter(Boolean).join(" ");
   const homeHref = isBusinessProfile ? activeProfile.business_home_url || readableUrl : "/";
   const businessLinks = isBusinessProfile

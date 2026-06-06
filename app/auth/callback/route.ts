@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getBusinessPlan } from "@/lib/business/plans";
 import { safeInternalRedirect } from "@/lib/auth/redirect";
 import { claimBusinessOrganizationForUser, getBusinessTypeForUser } from "@/lib/business/organization-access";
+import { sendRegistrationEmail } from "@/lib/notifications/send-registration-email";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { classifySlug } from "@/lib/slug-moderation";
@@ -216,6 +217,16 @@ export async function GET(req: Request) {
       roles: ["owner", "admin", "member"]
     });
 
+    await sendRegistrationEmail({
+      userId: user.id,
+      source: "business_signup"
+    }).catch((error) => {
+      console.error("Registration email failed after business-only claim", {
+        userId: user.id,
+        error: error instanceof Error ? error.message : "Unknown registration email error"
+      });
+    });
+
     return NextResponse.redirect(new URL(nextPath, req.url));
   }
 
@@ -279,6 +290,18 @@ export async function GET(req: Request) {
       }
     }
 
+    if (!isBusinessCheckoutContinuation) {
+      await sendRegistrationEmail({
+        userId: user.id,
+        source: promoCode ? "promo_signup" : "signup"
+      }).catch((error) => {
+        console.error("Registration email failed after profile bootstrap", {
+          userId: user.id,
+          error: error instanceof Error ? error.message : "Unknown registration email error"
+        });
+      });
+    }
+
     if (promoCode === "FOUNDERS") {
       await sendFounderCardNotification(user.id).catch((error) => {
         console.error("Founder card notification failed after profile bootstrap", {
@@ -306,6 +329,18 @@ export async function GET(req: Request) {
         error: updateError.message
       });
       return setupRecoveryRedirect(req, finalNextPath, requestedPlan);
+    }
+
+    if (!isBusinessCheckoutContinuation) {
+      await sendRegistrationEmail({
+        userId: user.id,
+        source: promoCode ? "promo_signup" : "signup"
+      }).catch((error) => {
+        console.error("Registration email failed after founder profile update", {
+          userId: user.id,
+          error: error instanceof Error ? error.message : "Unknown registration email error"
+        });
+      });
     }
 
     await sendFounderCardNotification(user.id).catch((error) => {
