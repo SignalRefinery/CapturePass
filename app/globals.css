@@ -59,6 +59,9 @@ textarea{font:inherit}
   width:min(1240px, calc(100% - 28px));
   margin:28px auto 40px;
 }
+.page-admin{
+  width:min(1600px, calc(100% - 28px));
+}
 .shell{
   position:relative;
   border:1px solid rgba(255,255,255,.14);
@@ -456,6 +459,9 @@ textarea{font:inherit}
 .button.setup-submit-button{
   width:auto;
   align-self:flex-start;
+}
+.admin-kpi-grid{
+  grid-template-columns:repeat(auto-fit, minmax(160px, 1fr));
 }
 
 .auth-wrap{padding:0 28px 60px}
@@ -1833,6 +1839,7 @@ textarea{font:inherit}
   }
   body::before{opacity:.055}
   .page{width:min(100% - 14px, 1240px); margin:14px auto 18px}
+  .page-admin{width:min(100% - 14px, 1600px)}
   .topbar,.simple-hero,.auth-wrap,.section-wrap,.steps,.footer,.dashboard-wrap{
     padding-left:18px;
     padding-right:18px;
@@ -1923,6 +1930,9 @@ textarea{font:inherit}
   .setup-location-toggle > summary.button,
   .button.setup-submit-button{
     width:fit-content;
+  }
+  .admin-kpi-grid{
+    grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));
   }
   .admin-table-frame{
     margin-top:14px;

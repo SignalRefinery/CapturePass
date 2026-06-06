@@ -21,6 +21,7 @@ export function Shell({
   footerRight,
   myProfileHref = null,
   initialAuth,
+  pageVariant = "default",
 }: {
   children: React.ReactNode;
   navLinks?: { href: string; label: string }[];
@@ -32,6 +33,7 @@ export function Shell({
     fullName?: string | null;
     slug?: string | null;
   } | null;
+  pageVariant?: "default" | "admin";
 }) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -83,7 +85,7 @@ export function Shell({
   }, [isSignedIn, isAdmin, profileHref]);
 
   return (
-    <div className="page">
+    <div className={pageVariant === "admin" ? "page page-admin" : "page"}>
       <div className={`shell ${mobileOpen ? "shell-menu-open" : ""}`}>
         <header className="topbar">
           <Link className="brand" href="/">

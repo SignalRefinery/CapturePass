@@ -86,6 +86,7 @@ export default async function AdminPage() {
       footerRight="TapTagg"
       myProfileHref={myProfileHref}
       initialAuth={initialAuth}
+      pageVariant="admin"
       navLinks={[
         { href: "/", label: "Home" },
         { href: "/dashboard", label: "Dashboard" },
@@ -114,9 +115,10 @@ export default async function AdminPage() {
           </div>
 
           <div
+            className="admin-kpi-grid"
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(7, minmax(0, 1fr))",
+              gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
               gap: 12
             }}
           >
