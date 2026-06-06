@@ -115,6 +115,7 @@ export function UserManagementTable({ rows }: { rows: Row[] }) {
   const [sortKey, setSortKey] = useState<keyof Row>("email");
   const [asc, setAsc] = useState(true);
   const [workingId, setWorkingId] = useState<string | null>(null);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [localRows, setLocalRows] = useState(rows);
 
   const filtered = useMemo(() => {
@@ -149,6 +150,28 @@ export function UserManagementTable({ rows }: { rows: Row[] }) {
   async function copy(value: string | null | undefined) {
     if (!value) return;
     await navigator.clipboard.writeText(value);
+  }
+
+  async function resendTokenQrEmail(userId: string) {
+    setWorkingId(userId);
+    setStatusMessage(null);
+
+    try {
+      const response = await fetch(`/api/admin/users/${userId}`, {
+        method: "POST",
+      });
+
+      if (!response.ok) {
+        const payload = await response.json().catch(() => null);
+        throw new Error(payload?.error || "Resend request failed.");
+      }
+
+      setStatusMessage("Token/QR email resent.");
+    } catch (error) {
+      alert(error instanceof Error ? error.message : "Could not resend Token/QR email.");
+    } finally {
+      setWorkingId(null);
+    }
   }
 
   async function disableUser(userId: string) {
@@ -291,6 +314,12 @@ export function UserManagementTable({ rows }: { rows: Row[] }) {
         </div>
       </div>
 
+      {statusMessage ? (
+        <div style={{ padding: "10px 12px", borderBottom: "1px solid rgba(255,255,255,.08)", color: "#d8ccff", fontSize: 12 }}>
+          {statusMessage}
+        </div>
+      ) : null}
+
       <AdminTableFrame maxHeight={620}>
         <table
           style={{
@@ -404,13 +433,21 @@ export function UserManagementTable({ rows }: { rows: Row[] }) {
                         ? "—"
                         : null}
                     </div>
-                    <div style={{ marginTop: 8 }}>
-                      <Link
-                        href={`/admin/account/${r.user_id}`}
-                        style={actionButtonStyle}
-                      >
+                    <div className="table-actions" style={{ marginTop: 8 }}>
+                      <Link href={`/admin/account/${r.user_id}`} style={actionButtonStyle}>
                         Manage
                       </Link>
+                      <button
+                        type="button"
+                        disabled={workingId === r.user_id}
+                        onClick={() => resendTokenQrEmail(r.user_id)}
+                        style={{
+                          ...actionButtonStyle,
+                          opacity: workingId === r.user_id ? 0.55 : 1,
+                        }}
+                      >
+                        {workingId === r.user_id ? "Sending…" : "Resend Token/QR"}
+                      </button>
                     </div>
                   </td>
 

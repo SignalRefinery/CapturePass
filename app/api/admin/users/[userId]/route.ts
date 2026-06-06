@@ -294,6 +294,63 @@ export async function PATCH(
   return NextResponse.json({ ok: true });
 }
 
+export async function POST(
+  _request: Request,
+  { params }: { params: Promise<{ userId: string }> }
+) {
+  const adminUser = await requireAdmin();
+  if (!adminUser) {
+    return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+  }
+
+  const { userId } = await params;
+  const admin = createAdminClient();
+
+  const { data: profile, error } = await admin
+    .from("profiles")
+    .select("*")
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (error || !profile) {
+    console.error("Admin token/QR resend profile lookup failed", {
+      route: "/api/admin/users/[userId]",
+      adminUserId: adminUser.id,
+      targetUserId: userId,
+      error: error?.message || "Profile not found"
+    });
+    return NextResponse.json({ error: "Profile not found." }, { status: 404 });
+  }
+
+  try {
+    await sendSlugApprovedEmail(profile);
+  } catch (emailError) {
+    console.error("Admin token/QR resend notification failed", {
+      route: "/api/admin/users/[userId]",
+      adminUserId: adminUser.id,
+      targetUserId: userId,
+      error: emailError instanceof Error ? emailError.message : "Unknown email error"
+    });
+    return NextResponse.json(
+      { error: "Unable to resend the Token/QR email. Please try again." },
+      { status: 400 }
+    );
+  }
+
+  await writeAdminAuditLog({
+    adminEmail: adminUser.email || "unknown-admin",
+    targetUserId: userId,
+    action: "token_qr_email_resent",
+    details: {
+      profile_email: profile.email || null,
+      profile_name: profile.full_name || null,
+      slug: profile.slug || null
+    }
+  });
+
+  return NextResponse.json({ ok: true, message: "Token/QR email resent." });
+}
+
 export async function DELETE(
   _request: Request,
   { params }: { params: Promise<{ userId: string }> }
