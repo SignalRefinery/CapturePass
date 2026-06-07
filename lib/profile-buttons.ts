@@ -242,6 +242,48 @@ export function getProfileButtonEditorValue(type?: string | null, value?: string
   }
 }
 
+export function normalizeProfileButtonFieldsForStorage(source: ProfileButtonRecordLike) {
+  const button1Type = normalizeProfileButtonType(
+    source.primary_link_1_type || inferProfileButtonType(source.primary_link_1_url, source.primary_link_1_title)
+  );
+  const button2Type = normalizeProfileButtonType(
+    source.primary_link_2_type || inferProfileButtonType(source.primary_link_2_url, source.primary_link_2_title)
+  );
+  const button3Type = normalizeProfileButtonType(
+    source.primary_link_3_type || inferProfileButtonType(source.primary_link_3_url, source.primary_link_3_title)
+  );
+  const button4Type = normalizeProfileButtonType(
+    source.primary_link_4_type || inferProfileButtonType(source.primary_link_4_url, source.primary_link_4_title)
+  );
+
+  return {
+    primary_link_1_title: normalizeProfileButtonLabel(source.primary_link_1_title, button1Type),
+    primary_link_1_url: normalizeProfileButtonHref(
+      button1Type,
+      getProfileButtonEditorValue(button1Type, source.primary_link_1_url)
+    ),
+    primary_link_1_type: button1Type,
+    primary_link_2_title: normalizeProfileButtonLabel(source.primary_link_2_title, button2Type),
+    primary_link_2_url: normalizeProfileButtonHref(
+      button2Type,
+      getProfileButtonEditorValue(button2Type, source.primary_link_2_url)
+    ),
+    primary_link_2_type: button2Type,
+    primary_link_3_title: normalizeProfileButtonLabel(source.primary_link_3_title, button3Type),
+    primary_link_3_url: normalizeProfileButtonHref(
+      button3Type,
+      getProfileButtonEditorValue(button3Type, source.primary_link_3_url)
+    ),
+    primary_link_3_type: button3Type,
+    primary_link_4_title: normalizeProfileButtonLabel(source.primary_link_4_title, button4Type),
+    primary_link_4_url: normalizeProfileButtonHref(
+      button4Type,
+      getProfileButtonEditorValue(button4Type, source.primary_link_4_url)
+    ),
+    primary_link_4_type: button4Type
+  };
+}
+
 export function getProfileButtonSubtitle(type?: string | null, value?: string | null, phone?: string | null, email?: string | null) {
   const normalizedType = normalizeProfileButtonType(type);
   const digits = digitsOnly(value);

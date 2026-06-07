@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { recordAnalyticsEvent } from "@/lib/analytics/record-event";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getPublicProfileBySlug } from "@/lib/profiles/public-profile-source";
 import { isSlugPubliclyAllowed } from "@/lib/slug-moderation";
@@ -352,7 +353,7 @@ export async function POST(request: Request) {
     profile_view_id: viewId
   });
 
-  await admin.from("analytics_events").insert({
+  await recordAnalyticsEvent({
     event_type: "contact_shared",
     profile_id: resolvedOrganizationId ? null : resolvedProfileId,
     organization_id: resolvedOrganizationId,
@@ -367,13 +368,12 @@ export async function POST(request: Request) {
     user_agent: userAgent,
     referrer: cleanText(request.headers.get("referer"), 400) || null,
     metadata: {}
-  }).then(({ error: analyticsError }) => {
-    if (analyticsError) {
-      console.error("Contact shared analytics insert failed", {
-        profileId: resolvedProfileId,
-        organizationId: resolvedOrganizationId,
-        error: analyticsError.message
-      });
+  }, {
+    client: admin,
+    logLabel: "Contact shared analytics insert failed",
+    logContext: {
+      profileId: resolvedProfileId,
+      organizationId: resolvedOrganizationId
     }
   });
 

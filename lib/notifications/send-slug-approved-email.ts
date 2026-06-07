@@ -1,3 +1,4 @@
+import { buildQrPngAttachment } from "@/lib/notifications/qr";
 import { getIssuedProfileUrl, getReadableProfileUrl } from "@/lib/urls/profile-url";
 
 type ProfileForEmail = {
@@ -55,11 +56,7 @@ export async function sendSlugApprovedEmail(profile: ProfileForEmail) {
   const to = process.env.INTERNAL_ORDER_EMAIL || "hello@taptagg.app";
   const issuedUrl = getIssuedProfileUrl(profile);
   const readableUrl = getReadableProfileUrl(profile);
-  const qrUrl = `https://quickchart.io/qr?text=${encodeURIComponent(issuedUrl)}&size=600`;
-  const qrFilenameBase = (profile.slug || profile.private_token || "taptagg-profile")
-    .toLowerCase()
-    .replace(/[^a-z0-9-_]+/g, "-")
-    .replace(/^-+|-+$/g, "");
+  const qrAttachment = buildQrPngAttachment(issuedUrl, profile.slug || profile.private_token);
 
   const subject = `Profile issued: ${profile.slug || profile.private_token || "unknown-profile"}`;
 
@@ -99,12 +96,7 @@ export async function sendSlugApprovedEmail(profile: ProfileForEmail) {
       to,
       subject,
       html,
-      attachments: [
-        {
-          path: qrUrl,
-          filename: `${qrFilenameBase || "taptagg-profile"}-qr.png`
-        }
-      ]
+      attachments: qrAttachment ? [qrAttachment] : []
     })
   });
 

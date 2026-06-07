@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { classifySlug } from "@/lib/slug-moderation";
+import { buildQuickChartQrUrl } from "@/lib/notifications/qr";
 import { sendSlugApprovedEmail } from "@/lib/notifications/send-slug-approved-email";
 import { normalizeIndividualPlanKey } from "@/lib/plans";
 import { requireTapTaggAdmin } from "@/lib/auth/admin";
@@ -45,9 +46,7 @@ async function sendCardProductionEmail(profile: ProfileRecord) {
 
   const siteUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://taptagg.app").replace(/\/$/, "");
   const tokenUrl = profile.private_token ? `${siteUrl}/u/${profile.private_token}` : null;
-  const qrUrl = tokenUrl
-    ? `https://quickchart.io/qr?text=${encodeURIComponent(tokenUrl)}&size=600`
-    : null;
+  const qrUrl = buildQuickChartQrUrl(tokenUrl);
 
   if (!tokenUrl || !qrUrl) return;
 

@@ -1,5 +1,6 @@
 import { createHash, randomUUID } from "crypto";
 import { NextResponse } from "next/server";
+import { recordAnalyticsEvent } from "@/lib/analytics/record-event";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { normalizeGamificationEventType } from "@/lib/gamification/event-normalizer";
 import { getPublicProfileBySlug } from "@/lib/profiles/public-profile-source";
@@ -192,7 +193,7 @@ export async function POST(request: Request) {
   const safeActionType = ACTION_TYPES.has(actionType) ? actionType : actionType ? "other" : null;
   const source = sourceFor(cleanText(payload.source, 80));
 
-  const { error } = await admin.from("analytics_events").insert({
+  const { error } = await recordAnalyticsEvent({
     event_type: normalizeGamificationEventType(eventType) || eventType,
     profile_id: resolvedProfileId,
     organization_id: organizationId,
@@ -212,16 +213,17 @@ export async function POST(request: Request) {
     referrer: cleanText(request.headers.get("referer"), 400) || null,
     ip_hash: hashIp(ip),
     metadata: metadataFor(payload.metadata)
-  });
-
-  if (error) {
-    console.error("Analytics event insert failed", {
+  }, {
+    client: admin,
+    logContext: {
       eventType,
       profileId: resolvedProfileId,
       organizationId,
-      organizationMemberId,
-      error: error.message
-    });
+      organizationMemberId
+    }
+  });
+
+  if (error) {
     return NextResponse.json({ ok: true });
   }
 

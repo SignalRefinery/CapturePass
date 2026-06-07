@@ -1,4 +1,5 @@
 import { getBusinessTypeLabel } from "@/lib/business-types";
+import { buildQrPngAttachment } from "@/lib/notifications/qr";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getIssuedProfileUrl, getReadableProfileUrl } from "@/lib/urls/profile-url";
 
@@ -81,11 +82,8 @@ export async function sendRegistrationEmail({
 
   const readableUrl = getReadableProfileUrl(profile);
   const tokenUrl = getIssuedProfileUrl(profile);
-  const qrUrl = `https://quickchart.io/qr?text=${encodeURIComponent(tokenUrl)}&size=600`;
-  const qrFilenameBase = (profile.slug || profile.private_token || "taptagg-profile")
-    .toLowerCase()
-    .replace(/[^a-z0-9-_]+/g, "-")
-    .replace(/^-+|-+$/g, "");
+  const qrAttachment = buildQrPngAttachment(tokenUrl, profile.slug || profile.private_token);
+  const qrUrl = qrAttachment?.path || "";
   const customerName = profile.full_name || "—";
   const customerEmail = profile.email || "—";
   const businessTypeLabel = getBusinessTypeLabel(profile.business_type);
@@ -130,12 +128,7 @@ export async function sendRegistrationEmail({
           </p>
         </div>
       `,
-      attachments: [
-        {
-          path: qrUrl,
-          filename: `${qrFilenameBase || "taptagg-profile"}-qr.png`
-        }
-      ]
+      attachments: qrAttachment ? [qrAttachment] : []
     })
   });
 

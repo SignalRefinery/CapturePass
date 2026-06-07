@@ -173,7 +173,9 @@ App runs at http://localhost:3000
 
 Supabase Setup
 
-Apply SQL files in order:
+For a fresh Supabase project, start with `supabase/bootstrap.sql`, then apply any newer phase files that are not yet folded into the bootstrap snapshot.
+
+For an existing Supabase project, apply SQL files in order:
 - schema.sql
 - signup_profile_bootstrap.sql
 - signup_slug_moderation_fix.sql
@@ -189,6 +191,7 @@ Apply SQL files in order:
 - phase93_public_profile_rpc.sql
 
 Important:
+- Fresh-project SQL order is documented in `supabase/README.md`.
 - `phase_slug_db_enforcement.sql` should be applied in Supabase before production onboarding.
 - `phase62_profile_view_secondary_action.sql` should be applied before using the "None" secondary action option on profile views.
 - `phase92_public_profile_rls.sql` and `phase93_public_profile_rpc.sql` should be applied before public profile traffic uses the limited public profile read path.

@@ -18,6 +18,7 @@ import {
 import { stripe } from "@/lib/stripe";
 import { slugify } from "@/lib/utils";
 import { getPersonalGamificationSummary } from "@/lib/gamification/server";
+import { buildQuickChartQrUrl } from "@/lib/notifications/qr";
 import type { ProfileRecord } from "@/lib/types";
 import {
   applyBusinessTypePrimaryLinkDefaults,
@@ -176,9 +177,7 @@ async function submitFounderCardClaim(formData: FormData) {
 
   const siteUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://taptagg.app").replace(/\/$/, "");
   const tokenUrl = profile?.private_token ? `${siteUrl}/u/${profile.private_token}` : null;
-  const qrUrl = tokenUrl
-    ? `https://quickchart.io/qr?text=${encodeURIComponent(tokenUrl)}&size=600`
-    : null;
+  const qrUrl = buildQuickChartQrUrl(tokenUrl);
 
   if (!process.env.RESEND_API_KEY) {
     redirect("/dashboard?claim_founder_card=1&claim_error=email_not_configured");

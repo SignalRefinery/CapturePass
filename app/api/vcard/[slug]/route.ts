@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { queueAnalyticsEvent } from "@/lib/analytics/record-event";
 import { getProfileBySlugServer } from "@/lib/profile-service-server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { PROFILE_CACHE_HEADERS } from "@/lib/privacy/profile-privacy";
@@ -111,7 +112,7 @@ export async function GET(request: Request, context: RouteContext) {
     .join("\r\n");
   const filename = safeVcardFilename(slug);
 
-  createAdminClient().from("analytics_events").insert({
+  queueAnalyticsEvent({
     event_type: "vcard_download",
     profile_id: profile.id,
     user_id: profile.user_id,
@@ -122,8 +123,9 @@ export async function GET(request: Request, context: RouteContext) {
     user_agent: request.headers.get("user-agent") || null,
     referrer: request.headers.get("referer") || null,
     metadata: {}
-  }).then(({ error }) => {
-    if (error) console.error("vCard analytics insert failed", { slug, error: error.message });
+  }, {
+    logLabel: "vCard analytics insert failed",
+    logContext: { slug }
   });
 
   return new NextResponse(vcard, {

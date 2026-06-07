@@ -17,6 +17,16 @@ That file creates the current expected schema in one pass:
 - profile access and public visibility RLS policies
 - billing, referral, card fulfillment, business-token, and profile-view columns
 
+After `bootstrap.sql`, apply any later phase files that are newer than the
+bootstrap snapshot. Keep this order when those files are present:
+
+1. Public profile RLS hardening, currently `phase92_public_profile_rls.sql`.
+2. Limited public profile RPCs, currently `phase93_public_profile_rpc.sql`.
+3. Any newer `phase*.sql` files in chronological/order-of-dependency order.
+
+Do not apply late phase files before the base schema/bootstrap step. Phase files
+assume earlier tables, functions, and policies already exist.
+
 ## Existing Project Upgrades
 
 Use the individual `phase*.sql` files only when upgrading an existing database that already has the earlier phases applied.

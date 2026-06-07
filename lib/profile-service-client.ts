@@ -1,57 +1,9 @@
 import type { ProfileRecord, ProfileViewRecord } from "@/lib/types";
 import { createClient as createBrowserClient } from "@/lib/supabase/client";
 import { classifySlug } from "@/lib/slug-moderation";
-import {
-  getProfileButtonEditorValue,
-  inferProfileButtonType,
-  normalizeProfileButtonHref,
-  normalizeProfileButtonLabel,
-  normalizeProfileButtonType
-} from "@/lib/profile-buttons";
+import { normalizeProfileButtonFieldsForStorage } from "@/lib/profile-buttons";
 import { coerceThemeForPlan, isHexColor } from "@/lib/themes";
 import { getProfilePlan } from "@/lib/plans";
-
-function normalizeProfileButtonFields(record: ProfileRecord | ProfileViewRecord) {
-  const button1Type = normalizeProfileButtonType(
-    record.primary_link_1_type || inferProfileButtonType(record.primary_link_1_url, record.primary_link_1_title)
-  );
-  const button2Type = normalizeProfileButtonType(
-    record.primary_link_2_type || inferProfileButtonType(record.primary_link_2_url, record.primary_link_2_title)
-  );
-  const button3Type = normalizeProfileButtonType(
-    record.primary_link_3_type || inferProfileButtonType(record.primary_link_3_url, record.primary_link_3_title)
-  );
-  const button4Type = normalizeProfileButtonType(
-    record.primary_link_4_type || inferProfileButtonType(record.primary_link_4_url, record.primary_link_4_title)
-  );
-
-  return {
-    primary_link_1_title: normalizeProfileButtonLabel(record.primary_link_1_title, button1Type),
-    primary_link_1_url: normalizeProfileButtonHref(
-      button1Type,
-      getProfileButtonEditorValue(button1Type, record.primary_link_1_url)
-    ),
-    primary_link_1_type: button1Type,
-    primary_link_2_title: normalizeProfileButtonLabel(record.primary_link_2_title, button2Type),
-    primary_link_2_url: normalizeProfileButtonHref(
-      button2Type,
-      getProfileButtonEditorValue(button2Type, record.primary_link_2_url)
-    ),
-    primary_link_2_type: button2Type,
-    primary_link_3_title: normalizeProfileButtonLabel(record.primary_link_3_title, button3Type),
-    primary_link_3_url: normalizeProfileButtonHref(
-      button3Type,
-      getProfileButtonEditorValue(button3Type, record.primary_link_3_url)
-    ),
-    primary_link_3_type: button3Type,
-    primary_link_4_title: normalizeProfileButtonLabel(record.primary_link_4_title, button4Type),
-    primary_link_4_url: normalizeProfileButtonHref(
-      button4Type,
-      getProfileButtonEditorValue(button4Type, record.primary_link_4_url)
-    ),
-    primary_link_4_type: button4Type
-  };
-}
 
 function safeFallbackSlugForUser(userId: string) {
   return `profile-${userId.replace(/-/g, "").slice(0, 12)}`;
@@ -158,7 +110,7 @@ export async function saveProfileClient(record: ProfileRecord, userId: string) {
     page_mode: record.page_mode || "single",
     multi_view_display_mode: record.multi_view_display_mode || "favorite",
     default_view_id: record.default_view_id || null,
-    ...normalizeProfileButtonFields(record),
+    ...normalizeProfileButtonFieldsForStorage(record),
     ...moderatedSlugFields,
     updated_at: new Date().toISOString()
   };
@@ -217,7 +169,7 @@ export async function saveProfileViewClient(record: ProfileViewRecord) {
         show_phone: record.show_phone,
         show_text: record.show_text,
         show_in_public_nav: record.show_in_public_nav !== false,
-        ...normalizeProfileButtonFields(record),
+        ...normalizeProfileButtonFieldsForStorage(record),
         updated_at: now
       })
       .eq("id", record.id)
@@ -246,7 +198,7 @@ export async function saveProfileViewClient(record: ProfileViewRecord) {
       show_phone: record.show_phone,
       show_text: record.show_text,
       show_in_public_nav: record.show_in_public_nav !== false,
-      ...normalizeProfileButtonFields(record),
+      ...normalizeProfileButtonFieldsForStorage(record),
       created_at: now,
       updated_at: now
     })

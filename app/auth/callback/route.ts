@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getBusinessPlan } from "@/lib/business/plans";
 import { safeInternalRedirect } from "@/lib/auth/redirect";
 import { claimBusinessOrganizationForUser, getBusinessTypeForUser } from "@/lib/business/organization-access";
+import { buildQuickChartQrUrl } from "@/lib/notifications/qr";
 import { sendRegistrationEmail } from "@/lib/notifications/send-registration-email";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -35,9 +36,7 @@ async function sendFounderCardNotification(userId: string) {
     ? `${siteUrl}/u/${profile.private_token}`
     : null;
 
-  const qrUrl = tokenUrl
-    ? `https://quickchart.io/qr?text=${encodeURIComponent(tokenUrl)}&size=600`
-    : null;
+  const qrUrl = buildQuickChartQrUrl(tokenUrl);
 
   if (!process.env.RESEND_API_KEY || !tokenUrl || !qrUrl) return;
 

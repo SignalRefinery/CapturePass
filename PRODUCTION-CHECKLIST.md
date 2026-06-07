@@ -12,7 +12,7 @@
 - `INTERNAL_FROM_EMAIL="TapTagg <noreply@taptagg.app>"`
 
 ## Required database migrations already introduced
-Run any phase SQL files not yet applied:
+For a fresh project, run `supabase/bootstrap.sql` first, then apply any phase files newer than that bootstrap snapshot. For existing projects, run any phase SQL files not yet applied:
 - `supabase/phase2_profile_safety.sql`
 - `supabase/phase5_randomized_slug.sql`
 - `supabase/phase92_public_profile_rls.sql`

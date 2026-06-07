@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { businessPlanFromRecurringPriceId, getBusinessPlan, isBusinessPlanKey } from "@/lib/business/plans";
+import { buildQuickChartQrUrl } from "@/lib/notifications/qr";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendRegistrationEmail } from "@/lib/notifications/send-registration-email";
 import {
@@ -335,9 +336,7 @@ async function sendCardNotification(userId: string, session?: Stripe.Checkout.Se
 
   const siteUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://taptagg.app").replace(/\/$/, "");
   const tokenUrl = profile.private_token ? `${siteUrl}/u/${profile.private_token}` : null;
-  const qrUrl = tokenUrl
-    ? `https://quickchart.io/qr?text=${encodeURIComponent(tokenUrl)}&size=600`
-    : null;
+  const qrUrl = buildQuickChartQrUrl(tokenUrl);
 
   if (!process.env.RESEND_API_KEY || !tokenUrl || !qrUrl) return;
 
