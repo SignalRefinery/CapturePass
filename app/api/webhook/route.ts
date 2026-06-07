@@ -3,7 +3,11 @@ import Stripe from "stripe";
 import { businessPlanFromRecurringPriceId, getBusinessPlan, isBusinessPlanKey } from "@/lib/business/plans";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendRegistrationEmail } from "@/lib/notifications/send-registration-email";
-import { normalizePlanKey } from "@/lib/plans";
+import {
+  getIndividualPlanKeyFromPriceId,
+  normalizeIndividualPlanKey,
+  resolveCheckoutPlanSelection
+} from "@/lib/plans";
 import { stripe } from "@/lib/stripe";
 
 function getStringId(value: string | { id?: string } | null | undefined) {
@@ -15,38 +19,31 @@ function subscriptionIsActive(status: string | null | undefined) {
   return status === "active" || status === "trialing";
 }
 
-const PLAN_BY_PRICE_ID: Record<string, string> = {
-  ...(process.env.STRIPE_DIGITAL_PRICE_ID
-    ? { [process.env.STRIPE_DIGITAL_PRICE_ID]: "digital" }
-    : {}),
-  ...(process.env.STRIPE_CORE_PRICE_ID
-    ? { [process.env.STRIPE_CORE_PRICE_ID]: "core" }
-    : {}),
-  ...(process.env.STRIPE_TAGG_PLUS_PRICE_ID
-    ? { [process.env.STRIPE_TAGG_PLUS_PRICE_ID]: "tagg_plus" }
-    : {}),
-  ...(process.env.STRIPE_CREATOR_PRICE_ID
-    ? { [process.env.STRIPE_CREATOR_PRICE_ID]: "creator" }
-    : {})
-};
-
 function getPlanFromSubscription(subscription: Stripe.Subscription) {
   const priceId = subscription.items?.data?.[0]?.price?.id || null;
   const businessPlanMatch = businessPlanFromRecurringPriceId(priceId);
 
   if (businessPlanMatch) return businessPlanMatch.plan.key;
 
-  if (priceId && PLAN_BY_PRICE_ID[priceId]) {
-    return normalizePlanKey(PLAN_BY_PRICE_ID[priceId]);
+  const canonicalPlan = getIndividualPlanKeyFromPriceId(priceId);
+  if (canonicalPlan) {
+    return canonicalPlan;
   }
 
-  return normalizePlanKey(subscription.metadata?.plan || subscription.metadata?.selected_plan || null);
+  const metadataPlan = subscription.metadata?.plan || subscription.metadata?.selected_plan || null;
+  const selection = resolveCheckoutPlanSelection(metadataPlan);
+
+  if (selection?.kind === "individual") {
+    return selection.plan;
+  }
+
+  return normalizeIndividualPlanKey(metadataPlan);
 }
 
 function getPlanFromCheckoutSession(session: Stripe.Checkout.Session) {
   const rawPlan = session.metadata?.plan || session.metadata?.selected_plan || null;
   if (isBusinessPlanKey(rawPlan)) return rawPlan;
-  return rawPlan === "additional-cards" ? rawPlan : normalizePlanKey(rawPlan);
+  return rawPlan === "additional-cards" ? rawPlan : normalizeIndividualPlanKey(rawPlan);
 }
 
 function isSubscriptionCheckoutSession(session: Stripe.Checkout.Session) {

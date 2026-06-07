@@ -78,6 +78,8 @@ Confirm these exist in production Supabase.
 - [ ] Business branding columns exist on `organizations`.
 - [ ] Business global link columns exist on `organizations`.
 - [ ] Business-only auth trigger from phase71 is active.
+- [ ] Public profile RLS from phase92 is active.
+- [ ] Limited public profile RPCs from phase93 exist and return only public profile fields.
 - [ ] Contact Sharing SQL phase is applied.
 - [ ] Analytics SQL phase is applied.
 - [ ] Gamification SQL phase is applied.

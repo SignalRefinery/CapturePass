@@ -25,6 +25,11 @@ import { buildEmployeeWebhookPayload, generateWebhookSecret, normalizeWebhookUrl
 import { slugify } from "@/lib/utils";
 import { generatePrivateToken } from "@/lib/utils/generate-token";
 import { CUSTOM_THEME_KEY, normalizeThemeKey, isHexColor } from "@/lib/themes";
+import {
+  getCurrentTapTaggAdmin,
+  isTapTaggBootstrapAdminEmail,
+  TAPTAGG_BOOTSTRAP_ADMIN_EMAIL
+} from "@/lib/auth/admin";
 import type {
   OrganizationMemberRecord,
   BusinessLocationRecord,
@@ -58,10 +63,8 @@ type BusinessSummary = {
   locationCount: number;
 };
 
-const ADMIN_EMAILS = ["john@signalrefinery.pro"];
-
 function isPlatformAdminEmail(email?: string | null) {
-  return !!email && ADMIN_EMAILS.includes(email.toLowerCase());
+  return isTapTaggBootstrapAdminEmail(email);
 }
 
 function isPlatformAdminMember(member?: { email?: string | null } | null) {
@@ -219,7 +222,7 @@ async function getBusinessAccessScope({
 }) {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
-  const isPlatformAdmin = !!user.email && ADMIN_EMAILS.includes(user.email.toLowerCase());
+  const isPlatformAdmin = !!(await getCurrentTapTaggAdmin());
 
   const admin = createAdminClient();
   const { data: organization } = await admin
@@ -640,7 +643,7 @@ async function createOrganization(formData: FormData) {
 
   const user = await getCurrentUser();
   if (!user) redirect("/login");
-  const isPlatformAdmin = !!user.email && ADMIN_EMAILS.includes(user.email.toLowerCase());
+  const isPlatformAdmin = !!(await getCurrentTapTaggAdmin());
   if (!isPlatformAdmin) redirect("/business");
 
   const name = String(formData.get("name") || "").trim();
@@ -669,7 +672,7 @@ async function createOrganization(formData: FormData) {
     .insert({
       name,
       slug,
-      theme_key: "executive_navy",
+      theme_key: "taptagg_brand",
       business_type: "general_business",
       owner_user_id: user.id,
       managed_service_enabled: businessPlan.managed,
@@ -712,11 +715,11 @@ async function createOrganization(formData: FormData) {
     });
   }
 
-  if (adminEmail.toLowerCase() !== ADMIN_EMAILS[0]) {
+  if (adminEmail.toLowerCase() !== TAPTAGG_BOOTSTRAP_ADMIN_EMAIL) {
     await admin.from("organization_members").insert({
       organization_id: organization.id,
       name: "TapTagg Admin",
-      email: ADMIN_EMAILS[0],
+      email: TAPTAGG_BOOTSTRAP_ADMIN_EMAIL,
       title: "Platform admin",
       role: "super_admin",
       status: "active"
@@ -1951,7 +1954,7 @@ export default async function BusinessDashboardPage({
   if (!user) redirect("/login");
 
   const params = searchParams ? await searchParams : {};
-  const isPlatformAdmin = !!user.email && ADMIN_EMAILS.includes(user.email.toLowerCase());
+  const isPlatformAdmin = !!(await getCurrentTapTaggAdmin());
   const selectedOrganizationId = params?.org || null;
   const showOnboarding = isPlatformAdmin && params?.onboard === "1";
   const businessIndex = isPlatformAdmin ? await getBusinessIndex() : [];
@@ -1985,7 +1988,8 @@ export default async function BusinessDashboardPage({
   const initialAuth = {
     email: user.email || null,
     fullName: user.user_metadata?.full_name || null,
-    slug: null
+    slug: null,
+    isAdmin: isPlatformAdmin
   };
   const businessNavLinks = [
     { href: "/", label: "Home" },

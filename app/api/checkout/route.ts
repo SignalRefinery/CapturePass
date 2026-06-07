@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import Stripe from "stripe";
+import type Stripe from "stripe";
 import {
   getBusinessPlan,
   getBusinessRecurringPriceId,
@@ -8,25 +8,16 @@ import {
 } from "@/lib/business/plans";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
-import { normalizePlanKey } from "@/lib/plans";
+import {
+  getIndividualPlanPriceId,
+  resolveCheckoutPlanSelection
+} from "@/lib/plans";
+import { stripe } from "@/lib/stripe";
 import { slugify } from "@/lib/utils";
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2024-06-20"
-});
 
 type CheckoutSessionCreateParams = Parameters<
   typeof stripe.checkout.sessions.create
 >[0];
-
-const PLAN_PRICE_MAP: Record<string, string | undefined> = {
-  digital: process.env.STRIPE_DIGITAL_PRICE_ID,
-  core: process.env.STRIPE_CORE_PRICE_ID,
-  tagg_plus: process.env.STRIPE_TAGG_PLUS_PRICE_ID,
-  "tagg-plus": process.env.STRIPE_TAGG_PLUS_PRICE_ID,
-  creator: process.env.STRIPE_CREATOR_PRICE_ID,
-  "additional-cards": process.env.STRIPE_ADDITIONAL_TAPTAGG_CARD_PRICE_ID
-};
 
 type CheckoutPayload = {
   billing?: string;
@@ -198,7 +189,7 @@ async function getOrCreateCheckoutOrganization({
       name: businessName,
       slug,
       owner_user_id: userId,
-      theme_key: "executive_navy"
+      theme_key: "taptagg_brand"
     })
     .select("id, name, slug, stripe_customer_id, stripe_subscription_id")
     .single();
@@ -263,39 +254,55 @@ async function createCheckoutOrPortal(req: Request) {
     const requestedPlan = await getPlanFromRequest(req);
     const businessBillingInterval = await getBillingIntervalFromRequest(req);
     const promoCode = normalizePromoCode(await getPromoCodeFromRequest(req));
-    const businessPlan = getBusinessPlan(requestedPlan);
-    const isAdditionalCardsRequest = requestedPlan === "additional-cards";
-    const normalizedPlan = normalizePlanKey(requestedPlan);
-    const plan = businessPlan
-      ? businessPlan.key
-      : isAdditionalCardsRequest
-      ? "additional-cards"
-      : requestedPlan
-        ? normalizedPlan === "tagg_plus"
-          ? "tagg_plus"
-          : normalizedPlan
-        : null;
-
+    const checkoutSelection = resolveCheckoutPlanSelection(requestedPlan);
+    const businessPlan = checkoutSelection?.kind === "business" ? checkoutSelection.plan : null;
+    const individualPlan = checkoutSelection?.kind === "individual" ? checkoutSelection.plan : null;
+    const checkoutPlanKey =
+      businessPlan?.key ||
+      individualPlan ||
+      (checkoutSelection?.kind === "additional_cards" ? "additional-cards" : null);
+    const sessionPlanKey =
+      businessPlan?.key ||
+      individualPlan ||
+      (checkoutSelection?.kind === "additional_cards" ? "additional-cards" : null);
     const selectedPriceId = businessPlan
       ? getBusinessRecurringPriceId(businessPlan, businessBillingInterval) || undefined
-      :
-      (plan ? PLAN_PRICE_MAP[plan] : undefined) ||
-      (requestedPlan ? PLAN_PRICE_MAP[requestedPlan] : undefined);
+      : checkoutSelection?.kind === "individual"
+        ? getIndividualPlanPriceId(checkoutSelection.plan) || undefined
+        : checkoutSelection?.kind === "additional_cards"
+          ? process.env.STRIPE_ADDITIONAL_TAPTAGG_CARD_PRICE_ID || undefined
+          : undefined;
     const businessSetupPriceId = businessPlan ? getBusinessSetupPriceId(businessPlan) : null;
+    const plan =
+      checkoutSelection?.kind === "individual"
+        ? checkoutSelection.plan
+        : checkoutSelection?.kind === "additional_cards"
+          ? "additional-cards"
+          : null;
 
-    if (plan === "business") {
-      const businessUrl = new URL("/business", getSiteUrl(req));
-      businessUrl.hash = "business-request";
+    if (!requestedPlan) {
       if (req.method === "GET") {
-        return NextResponse.redirect(businessUrl.toString(), { status: 303 });
+        return redirectWithParam(req, "/pricing", "checkout", "choose-plan");
       }
+
       return NextResponse.json(
-        { error: "Business plans are handled through a quote request.", redirectTo: businessUrl.toString() },
+        { error: "Choose a TapTagg plan before starting checkout." },
         { status: 400 }
       );
     }
 
-    if (!requestedPlan || !plan || plan === "free") {
+    if (!checkoutSelection) {
+      if (req.method === "GET") {
+        return redirectWithParam(req, "/pricing", "checkout", "invalid-plan");
+      }
+
+      return NextResponse.json(
+        { error: "That checkout plan is not supported. Choose a TapTagg plan instead." },
+        { status: 400 }
+      );
+    }
+
+    if (individualPlan === "free") {
       if (req.method === "GET") {
         return redirectWithParam(req, "/pricing", "checkout", "choose-plan");
       }
@@ -330,13 +337,15 @@ async function createCheckoutOrPortal(req: Request) {
 
     if (!user) {
       const signupUrl = new URL("/signup", siteUrl);
-      signupUrl.searchParams.set("plan", plan);
+      if (checkoutPlanKey) {
+        signupUrl.searchParams.set("plan", checkoutPlanKey);
+      }
       if (promoCode) {
         signupUrl.searchParams.set("promo_code", promoCode);
       }
       signupUrl.searchParams.set(
         "next",
-        `/api/checkout?plan=${encodeURIComponent(plan)}${businessPlan ? `&billing=${businessBillingInterval}` : ""}${promoCode ? `&promo_code=${encodeURIComponent(promoCode)}` : ""}`
+        `/api/checkout?plan=${encodeURIComponent(checkoutPlanKey || "")}${businessPlan ? `&billing=${businessBillingInterval}` : ""}${promoCode ? `&promo_code=${encodeURIComponent(promoCode)}` : ""}`
       );
       return NextResponse.redirect(signupUrl.toString(), { status: 303 });
     }
@@ -364,7 +373,7 @@ async function createCheckoutOrPortal(req: Request) {
     }
 
     const isAdditionalCardsCheckout =
-      isAdditionalCardsRequest ||
+      checkoutSelection?.kind === "additional_cards" ||
       selectedPriceId === process.env.STRIPE_ADDITIONAL_TAPTAGG_CARD_PRICE_ID;
     const checkoutOrganization = businessPlan
       ? await getOrCreateCheckoutOrganization({
@@ -459,7 +468,7 @@ async function createCheckoutOrPortal(req: Request) {
     }
 
     const mode = isAdditionalCardsCheckout ? "payment" : "subscription";
-    const collectsShipping = plan !== "digital";
+    const collectsShipping = !!businessPlan || isAdditionalCardsCheckout || !!individualPlan;
     const successUrl = businessPlan && checkoutOrganization
       ? `${siteUrl}/dashboard/business?checkout=success&session_id={CHECKOUT_SESSION_ID}&org=${checkoutOrganization.id}`
       : `${siteUrl}/dashboard?checkout=success&session_id={CHECKOUT_SESSION_ID}`;
@@ -508,8 +517,8 @@ async function createCheckoutOrPortal(req: Request) {
       cancel_url: cancelUrl,
       metadata: {
         user_id: user.id,
-        plan,
-        selected_plan: plan,
+        plan: sessionPlanKey,
+        selected_plan: sessionPlanKey,
         ...(businessPlan && checkoutOrganization
           ? {
               checkout_type: "business",
@@ -526,8 +535,8 @@ async function createCheckoutOrPortal(req: Request) {
             subscription_data: {
               metadata: {
                 user_id: user.id,
-                plan,
-                selected_plan: plan,
+                plan: sessionPlanKey,
+                selected_plan: sessionPlanKey,
                 ...(businessPlan && checkoutOrganization
                   ? {
                       checkout_type: "business",

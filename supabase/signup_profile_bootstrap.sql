@@ -32,6 +32,8 @@ create table if not exists public.profiles (
   ),
   registration_notification_sent_at timestamptz,
   is_active boolean not null default false,
+  slug_status text not null default 'approved',
+  consent_public_visibility boolean not null default true,
   stripe_customer_id text,
   stripe_subscription_id text,
   stripe_plan_key text,
@@ -59,7 +61,11 @@ using (auth.uid() = user_id);
 drop policy if exists "Profiles are publicly readable by slug" on public.profiles;
 create policy "Profiles are publicly readable by slug"
 on public.profiles for select
-using (true);
+using (
+  is_active = true
+  and consent_public_visibility = true
+  and slug_status = 'approved'
+);
 
 create or replace function public.slugify_text(input text)
 returns text

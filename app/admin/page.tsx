@@ -7,10 +7,12 @@ import { SlugReviewQueue } from "@/components/admin/slug-review-queue";
 import { UserManagementTable } from "@/components/admin/user-management-table";
 import { AdminTableFrame } from "@/components/admin/admin-table-frame";
 import { classifySlug } from "@/lib/slug-moderation";
-
-const ADMIN_EMAILS = ["john@signalrefinery.pro"];
+import { getCurrentTapTaggAdmin } from "@/lib/auth/admin";
 
 async function getInitialAuth() {
+  const adminUser = await getCurrentTapTaggAdmin();
+  if (!adminUser) return null;
+
   const supabase = await createClient();
   const {
     data: { user }
@@ -27,17 +29,14 @@ async function getInitialAuth() {
   return {
     email: user.email || null,
     fullName: profile?.full_name || null,
-    slug: profile?.slug || null
+    slug: profile?.slug || null,
+    isAdmin: true
   };
 }
 
 export default async function AdminPage() {
-  const supabase = await createClient();
-  const {
-    data: { user }
-  } = await supabase.auth.getUser();
-
-  if (!user || !user.email || !ADMIN_EMAILS.includes(user.email.toLowerCase())) {
+  const adminUser = await getCurrentTapTaggAdmin();
+  if (!adminUser) {
     redirect("/dashboard");
   }
 

@@ -29,6 +29,8 @@ Recent upgrades:
 - `phase77_theme_presets.sql` adds curated profile/business themes, custom color storage, and profile theme entitlement enforcement.
 - `phase78_custom_theme_text_color.sql` adds a custom text color for readable custom themes.
 - `phase87_multilocation_business.sql` adds business locations, future regions, employee location assignment, and analytics filter fields.
+- `phase92_public_profile_rls.sql` tightens public profile/profile-view row access.
+- `phase93_public_profile_rpc.sql` adds limited public profile RPCs for slug/token profile rendering without exposing internal profile columns.
 
 ## Stripe Billing Note
 

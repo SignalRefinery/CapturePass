@@ -1,13 +1,50 @@
 "use client";
 
 import { AffiliateTerms } from "@/components/legal/affiliate-terms";
+import { getPlanDisplayLabel, getPlanPricingDescription, type PlanKey } from "@/lib/plans";
+
+const planCards: Array<{
+  key: PlanKey;
+  price: string;
+  billing: string;
+  headline: string;
+  description: string;
+  cta: string;
+  featured?: boolean;
+}> = [
+  {
+    key: "core",
+    price: "$29",
+    billing: "one-time",
+    headline: "Activate your TapTagg.",
+    description: "1 card, public profile activation, NFC, QR, expanded links, and basic themes.",
+    cta: "Get Core"
+  },
+  {
+    key: "tagg_plus",
+    price: "$49",
+    billing: "/ year",
+    headline: "Add analytics and control.",
+    description: "Everything in Core plus advanced customization, analytics, contact sharing insights, and support.",
+    cta: "Upgrade to Tagg+",
+    featured: true
+  },
+  {
+    key: "creator",
+    price: "$99",
+    billing: "/ year",
+    headline: "Unlock creator modules.",
+    description: "Everything in Tagg+ plus multi-view profiles, advanced branding, featured sections, and creator tools.",
+    cta: "Start Creator"
+  }
+];
 
 type InactiveStateProps = {
   email: string;
 };
 
 export function InactiveState({ email }: InactiveStateProps) {
-  function handleCheckout(plan: "digital" | "core" | "tagg_plus" | "creator") {
+  function handleCheckout(plan: PlanKey) {
     window.location.assign(`/api/checkout?plan=${encodeURIComponent(plan)}`);
   }
 
@@ -17,62 +54,28 @@ export function InactiveState({ email }: InactiveStateProps) {
         <div className="dashboard-kicker">Reserved Tagg</div>
         <h2>Your profile is preview-only until activation.</h2>
         <p className="editor-copy">
-          Your account for <strong>{email}</strong> can build a basic profile now. Activate Digital
-          to make it public with QR sharing, or choose Core to add a physical NFC card.
+          Your account for <strong>{email}</strong> can build a basic profile now. Activate Core
+          to make it public with QR sharing, or choose a higher plan when you want analytics and advanced tools.
         </p>
 
         <div className="pricing-grid" style={{ marginTop: 20 }}>
-          <div className="card pricing-card">
-            <div className="plan-label">Digital</div>
-            <h2>Start phone-first.</h2>
-            <div className="plan-price">
-              <span className="setup">$1.99</span>
-              <span className="monthly">/ month</span>
+          {planCards.map((plan) => (
+            <div className={`card pricing-card${plan.featured ? " featured" : ""}`} key={plan.key}>
+              <div className="plan-label">{getPlanDisplayLabel(plan.key)}</div>
+              <h2>{plan.headline}</h2>
+              <div className="plan-price">
+                <span className="setup">{plan.price}</span>
+                <span className="monthly">{plan.billing}</span>
+              </div>
+              <p className="muted">{plan.description}</p>
+              <p className="muted" style={{ marginTop: 8 }}>
+                {getPlanPricingDescription(plan.key, { isActivated: true })}
+              </p>
+              <button className="button primary" type="button" onClick={() => handleCheckout(plan.key)}>
+                {plan.cta}
+              </button>
             </div>
-            <p className="muted">Public profile, QR sharing, vCard save contact, Share My Contact, and contacts dashboard.</p>
-            <button className="button primary" type="button" onClick={() => handleCheckout("digital")}>
-              Start Digital
-            </button>
-          </div>
-
-          <div className="card pricing-card">
-            <div className="plan-label">Core</div>
-            <h2>Activate your TapTagg.</h2>
-            <div className="plan-price">
-              <span className="setup">$29</span>
-              <span className="monthly">one-time</span>
-            </div>
-            <p className="muted">1 card, public profile activation, NFC, QR, expanded links, and basic themes.</p>
-            <button className="button primary" type="button" onClick={() => handleCheckout("core")}>
-              Get Core
-            </button>
-          </div>
-
-          <div className="card pricing-card featured">
-            <div className="plan-label">Tagg+</div>
-            <h2>Add analytics and control.</h2>
-            <div className="plan-price">
-              <span className="setup">$49</span>
-              <span className="monthly">/ year</span>
-            </div>
-            <p className="muted">Everything in Core plus advanced customization, analytics, contact sharing insights, and support.</p>
-            <button className="button primary" type="button" onClick={() => handleCheckout("tagg_plus")}>
-              Upgrade to Tagg+
-            </button>
-          </div>
-
-          <div className="card pricing-card">
-            <div className="plan-label">Creator</div>
-            <h2>Unlock creator modules.</h2>
-            <div className="plan-price">
-              <span className="setup">$99</span>
-              <span className="monthly">/ year</span>
-            </div>
-            <p className="muted">Everything in Tagg+ plus multi-view profiles, advanced branding, featured sections, and creator tools.</p>
-            <button className="button primary" type="button" onClick={() => handleCheckout("creator")}>
-              Start Creator
-            </button>
-          </div>
+          ))}
         </div>
       </div>
 

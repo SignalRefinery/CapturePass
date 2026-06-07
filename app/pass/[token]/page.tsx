@@ -2,7 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { unstable_noStore as noStore } from "next/cache";
 import { DigitalPassCard } from "@/components/dashboard/digital-pass-card";
 import { profileMetadata } from "@/lib/privacy/profile-privacy";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { getProfileByTokenServer } from "@/lib/profile-service-server";
 import { isSlugPubliclyAllowed } from "@/lib/slug-moderation";
 import { profileCanRenderPublicly } from "@/lib/plans";
 import { getPreferredProfileShareUrl } from "@/lib/urls/profile-url";
@@ -17,6 +17,10 @@ export async function generateMetadata() {
   return profileMetadata();
 }
 
+function appUrl() {
+  return (process.env.NEXT_PUBLIC_APP_URL || "https://taptagg.app").replace(/\/$/, "");
+}
+
 export default async function PublicDigitalPassPage({ params, searchParams }: PageProps) {
   noStore();
 
@@ -26,12 +30,7 @@ export default async function PublicDigitalPassPage({ params, searchParams }: Pa
     redirect(`/pass/${token}`);
   }
 
-  const admin = createAdminClient();
-  const { data: profile } = await admin
-    .from("profiles")
-    .select("*")
-    .eq("private_token", token)
-    .maybeSingle<ProfileRecord>();
+  const profile = (await getProfileByTokenServer(token)) as ProfileRecord | null;
 
   if (
     !profile ||
@@ -44,7 +43,7 @@ export default async function PublicDigitalPassPage({ params, searchParams }: Pa
     {
       id: "main",
       label: "TapTagg profile",
-      url: getPreferredProfileShareUrl(profile),
+      url: profile.consent_public_visibility === false ? `${appUrl()}/u/${token}` : getPreferredProfileShareUrl(profile),
       passUrl: `/pass/${token}`
     }
   ];

@@ -15,6 +15,8 @@
 Run any phase SQL files not yet applied:
 - `supabase/phase2_profile_safety.sql`
 - `supabase/phase5_randomized_slug.sql`
+- `supabase/phase92_public_profile_rls.sql`
+- `supabase/phase93_public_profile_rpc.sql`
 
 ## Production checks
 - confirm `NEXT_PUBLIC_APP_URL` is no longer localhost
@@ -24,11 +26,12 @@ Run any phase SQL files not yet applied:
 - confirm profile pages return:
   - `X-Robots-Tag`
   - `Cache-Control: private, no-store, no-cache, must-revalidate`
-- confirm `/admin` is accessible only to authorized admin email
+- confirm `/admin` is accessible only to TapTagg admins from the centralized admin helper/database flag
 - confirm public profile only resolves when:
   - `is_active = true`
   - `consent_public_visibility = true`
   - `slug_status = approved`
+- confirm public profile pages and vCards use the limited public profile RPC instead of broad `profiles.select("*")`
 - confirm disabled profiles 404 immediately
 - confirm report flow emails `hello@taptagg.app`
 - confirm `/u/[token]` private route works if using token mode

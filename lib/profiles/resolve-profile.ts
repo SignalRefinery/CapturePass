@@ -1,4 +1,7 @@
-import { createClient } from "@/lib/supabase/server";
+import {
+  getPublicProfileBySlug,
+  getPublicProfileByToken
+} from "@/lib/profiles/public-profile-source";
 
 export async function resolveProfileByTokenOrSlug({
   token,
@@ -7,26 +10,12 @@ export async function resolveProfileByTokenOrSlug({
   token?: string | null;
   slug?: string | null;
 }) {
-  const supabase = await createClient();
-
   if (token) {
-    const { data } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("private_token", token)
-      .maybeSingle();
-
-    return data || null;
+    return getPublicProfileByToken(token);
   }
 
   if (slug) {
-    const { data } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("slug", slug)
-      .maybeSingle();
-
-    return data || null;
+    return getPublicProfileBySlug(slug);
   }
 
   return null;

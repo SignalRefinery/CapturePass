@@ -51,8 +51,8 @@ export default async function ContactsPage() {
             <span className="mini-star">✦</span>
             <span>Contacts</span>
           </div>
-          <h1>Contacts unlock with Digital.</h1>
-          <p>Contact Sharing and the Contacts dashboard are available on Digital, Core, Tagg+, and Creator.</p>
+          <h1>Contacts unlock with Core.</h1>
+          <p>Contact Sharing and the Contacts dashboard are available on Core, Tagg+, and Creator.</p>
           <Link className="button primary" href="/pricing" style={{ marginTop: 22 }}>
             View plans
           </Link>

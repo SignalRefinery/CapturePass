@@ -13,8 +13,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { classifySlug } from "@/lib/slug-moderation";
 import { normalizeUrl } from "@/lib/utils";
-
-const ADMIN_EMAILS = ["john@signalrefinery.pro"];
+import { getCurrentTapTaggAdmin } from "@/lib/auth/admin";
 
 function appUrl() {
   return (process.env.NEXT_PUBLIC_APP_URL || "https://taptagg.app").replace(/\/$/, "");
@@ -32,16 +31,17 @@ type PageProps = {
 };
 
 async function requireAdmin() {
+  const adminUser = await getCurrentTapTaggAdmin();
+  if (!adminUser) {
+    redirect("/dashboard");
+  }
+
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (
-    !user ||
-    !user.email ||
-    !ADMIN_EMAILS.includes(user.email.toLowerCase())
-  ) {
+  if (!user) {
     redirect("/dashboard");
   }
 
@@ -285,6 +285,7 @@ async function getInitialAuth() {
     email: user.email || null,
     fullName: profile?.full_name || null,
     slug: profile?.slug || null,
+    isAdmin: true
   };
 }
 

@@ -10,7 +10,11 @@ import {
 } from "@/lib/profile-service-server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
-import { applyFounderAccess, getProfilePlan, normalizePlanKey } from "@/lib/plans";
+import {
+  applyFounderAccess,
+  getProfilePlan,
+  resolveCheckoutPlanSelection
+} from "@/lib/plans";
 import { stripe } from "@/lib/stripe";
 import { slugify } from "@/lib/utils";
 import { getPersonalGamificationSummary } from "@/lib/gamification/server";
@@ -49,7 +53,8 @@ async function reconcileCheckoutSuccess(sessionId: string | null | undefined, us
     });
     const sessionUserId = session.metadata?.user_id || null;
     const rawPlan = session.metadata?.plan || session.metadata?.selected_plan || null;
-    const plan = normalizePlanKey(rawPlan);
+    const checkoutSelection = resolveCheckoutPlanSelection(rawPlan);
+    const plan = checkoutSelection?.kind === "individual" ? checkoutSelection.plan : null;
     const checkoutComplete = session.status === "complete";
     const paymentComplete =
       session.payment_status === "paid" ||
@@ -65,7 +70,7 @@ async function reconcileCheckoutSuccess(sessionId: string | null | undefined, us
       return;
     }
 
-    if (!checkoutComplete || !paymentComplete || plan === "free") {
+    if (!checkoutComplete || !paymentComplete || !plan || plan === "free") {
       console.warn("Dashboard checkout reconciliation skipped for incomplete session", {
         route: "/dashboard",
         userId,
@@ -401,7 +406,7 @@ export default async function DashboardPage({
           You are signed in as <strong>{user.email}</strong>.{" "}
           {fullAccess
             ? "Refine your public presence, keep your links current, and control how your profile is presented."
-            : "Your @tagg can be edited and previewed now. Activate Digital or above when you are ready to make it publicly live."}
+            : "Your @tagg can be edited and previewed now. Activate Core or above when you are ready to make it publicly live."}
         </p>
       </section>
 

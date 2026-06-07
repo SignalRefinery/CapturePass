@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { checkRateLimit, getClientIp } from "@/lib/security/rate-limit";
+import { parseProfileReportPayload } from "@/lib/validation/api-payloads";
 
 function escapeHtml(value: string) {
   return value
@@ -27,18 +28,13 @@ export async function POST(request: Request) {
       );
     }
 
-    const body = await request.json();
-    const profileId = String(body.profileId || "");
-    const slug = String(body.slug || "");
-    const reason = String(body.reason || "").trim();
+    const body = parseProfileReportPayload(await request.json().catch(() => null));
 
-    if (!slug || !reason) {
-      return NextResponse.json({ error: "Missing slug or reason." }, { status: 400 });
+    if (!body) {
+      return NextResponse.json({ error: "Invalid profile report." }, { status: 400 });
     }
 
-    if (reason.length > 1200) {
-      return NextResponse.json({ error: "Reason is too long." }, { status: 400 });
-    }
+    const { profileId, slug, reason } = body;
 
     const resendApiKey = process.env.RESEND_API_KEY;
     if (!resendApiKey) {

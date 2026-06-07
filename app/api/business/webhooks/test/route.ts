@@ -2,20 +2,18 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { buildWebhookTestPayload, sendOrganizationWebhook } from "@/lib/webhooks/sendWebhook";
-
-const ADMIN_EMAILS = ["john@signalrefinery.pro"];
+import { getCurrentTapTaggAdmin } from "@/lib/auth/admin";
 
 async function requireBusinessAdmin(organizationId: string) {
+  const platformAdmin = await getCurrentTapTaggAdmin();
+  if (platformAdmin) return platformAdmin;
+
   const supabase = await createClient();
   const {
     data: { user }
   } = await supabase.auth.getUser();
 
   if (!user?.email) return null;
-
-  if (ADMIN_EMAILS.includes(user.email.toLowerCase())) {
-    return user;
-  }
 
   const admin = createAdminClient();
   const { data: organization, error: organizationError } = await admin

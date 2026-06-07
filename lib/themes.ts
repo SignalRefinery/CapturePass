@@ -51,12 +51,12 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
       text: "#FFFFFF",
       background: "#030304"
     },
-    allowedPlans: ["free", "digital", "core", "tagg_plus", "creator", "business"]
+    allowedPlans: ["free", "core", "tagg_plus", "creator"]
   },
   executive_navy: {
     key: "executive_navy",
-    name: "Executive Navy",
-    description: "A confident navy palette for polished professional profiles.",
+    name: "Classic Navy",
+    description: "A legacy navy palette kept for existing business branding.",
     colors: {
       primary: "#1D4ED8",
       secondary: "#0F172A",
@@ -64,7 +64,7 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
       text: "#F8FAFC",
       background: "#0B1220"
     },
-    allowedPlans: ["free", "digital", "core", "tagg_plus", "creator", "business"]
+    allowedPlans: ["free", "core", "tagg_plus", "creator"]
   },
   modern_slate: {
     key: "modern_slate",
@@ -77,12 +77,12 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
       text: "#F8FAFC",
       background: "#111827"
     },
-    allowedPlans: ["core", "tagg_plus", "creator", "business"]
+    allowedPlans: ["core", "tagg_plus", "creator"]
   },
   executive_gold: {
     key: "executive_gold",
-    name: "Executive Gold",
-    description: "A premium dark executive palette with warm gold accents.",
+    name: "Amber Night",
+    description: "A dark profile palette with warm amber accents.",
     colors: {
       primary: "#D4A017",
       secondary: "#1E293B",
@@ -90,7 +90,7 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
       text: "#FFF8E7",
       background: "#111827"
     },
-    allowedPlans: ["tagg_plus", "creator", "business"]
+    allowedPlans: ["tagg_plus", "creator"]
   },
   clean_horizon: {
     key: "clean_horizon",
@@ -103,12 +103,12 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
       text: "#111827",
       background: "#F8FBFF"
     },
-    allowedPlans: ["core", "tagg_plus", "creator", "business"]
+    allowedPlans: ["core", "tagg_plus", "creator"]
   },
   sage_professional: {
     key: "sage_professional",
-    name: "Emerald Executive",
-    description: "A fresh light profile with confident green professional accents.",
+    name: "Sage Studio",
+    description: "A fresh profile palette with confident green accents.",
     colors: {
       primary: "#059669",
       secondary: "#0F3D2E",
@@ -116,7 +116,7 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
       text: "#F8FAF7",
       background: "#08261B"
     },
-    allowedPlans: ["tagg_plus", "creator", "business"]
+    allowedPlans: ["tagg_plus", "creator"]
   },
   arctic_white: {
     key: "arctic_white",
@@ -129,12 +129,12 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
       text: "#111827",
       background: "#FFFFFF"
     },
-    allowedPlans: ["core", "tagg_plus", "creator", "business"]
+    allowedPlans: ["core", "tagg_plus", "creator"]
   },
   ivory_executive: {
     key: "ivory_executive",
-    name: "Ivory Executive",
-    description: "A warm premium light profile with understated executive accents.",
+    name: "Warm Ivory",
+    description: "A warm light profile with understated amber accents.",
     colors: {
       primary: "#B45309",
       secondary: "#F7F3ED",
@@ -142,7 +142,7 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
       text: "#2C241D",
       background: "#FFFDF9"
     },
-    allowedPlans: ["tagg_plus", "creator", "business"]
+    allowedPlans: ["tagg_plus", "creator"]
   },
   coastal_blue: {
     key: "coastal_blue",
@@ -155,12 +155,12 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
       text: "#0F172A",
       background: "#F8FBFF"
     },
-    allowedPlans: ["core", "tagg_plus", "creator", "business"]
+    allowedPlans: ["core", "tagg_plus", "creator"]
   },
   emerald_executive: {
     key: "emerald_executive",
-    name: "Emerald Executive",
-    description: "A fresh light profile with confident green professional accents.",
+    name: "Emerald Studio",
+    description: "A fresh light profile with confident green accents.",
     colors: {
       primary: "#059669",
       secondary: "#ECFDF5",
@@ -168,7 +168,7 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
       text: "#1F2937",
       background: "#F7FFFB"
     },
-    allowedPlans: ["tagg_plus", "creator", "business"]
+    allowedPlans: ["tagg_plus", "creator"]
   },
   sandstone: {
     key: "sandstone",
@@ -181,7 +181,7 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
       text: "#3A312A",
       background: "#FDFBF8"
     },
-    allowedPlans: ["tagg_plus", "creator", "business"]
+    allowedPlans: ["tagg_plus", "creator"]
   },
   modern_rose: {
     key: "modern_rose",
@@ -194,7 +194,7 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
       text: "#1F2937",
       background: "#FFFDFD"
     },
-    allowedPlans: ["tagg_plus", "creator", "business"]
+    allowedPlans: ["tagg_plus", "creator"]
   },
   custom: {
     key: "custom",
@@ -207,7 +207,7 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
       background: "#F8FAFC",
       text: "#111827"
     },
-    allowedPlans: ["creator", "business"]
+    allowedPlans: ["creator"]
   }
 };
 
@@ -225,6 +225,8 @@ const CANONICAL_THEME_KEYS: ThemeKey[] = [
   "custom"
 ];
 
+// Stored rows may still reference older theme keys. Keep aliases isolated here
+// so current UI labels can move forward without breaking existing profiles.
 const THEME_ALIASES: Partial<Record<ThemeKey, ThemeKey>> = {
   arctic_white: "clean_horizon",
   emerald_executive: "sage_professional"
@@ -268,7 +270,7 @@ export function allowedThemesForPlan(plan: PlanFeatures | PlanKey) {
 export function coerceThemeForPlan(themeKey: string | null | undefined, plan: PlanFeatures | PlanKey) {
   const normalized = normalizeThemeKey(themeKey);
   const key = typeof plan === "string" ? plan : plan.key;
-  if (normalized === "executive_navy" && key !== "business") {
+  if (normalized === "executive_navy") {
     return DEFAULT_THEME_KEY;
   }
 

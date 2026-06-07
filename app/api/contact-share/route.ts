@@ -1,23 +1,9 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getPublicProfileBySlug } from "@/lib/profiles/public-profile-source";
+import { isSlugPubliclyAllowed } from "@/lib/slug-moderation";
+import { parseContactPayload, type ContactPayload } from "@/lib/validation/api-payloads";
 import { buildContactSharedWebhookPayload, queueOrganizationWebhook } from "@/lib/webhooks/sendWebhook";
-
-type ContactPayload = {
-  profileId?: string | null;
-  slug?: string | null;
-  viewId?: string | null;
-  organizationId?: string | null;
-  name?: string | null;
-  email?: string | null;
-  phone?: string | null;
-  company?: string | null;
-  title?: string | null;
-  note?: string | null;
-  source?: string | null;
-  website?: string | null;
-  consent_to_contact?: boolean | string | null;
-  consent_text?: string | null;
-};
 
 const rateLimit = new Map<string, { count: number; resetAt: number }>();
 const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
@@ -192,7 +178,7 @@ async function sendNotificationEmail({
 }
 
 export async function POST(request: Request) {
-  const payload = (await request.json().catch(() => null)) as ContactPayload | null;
+  const payload = parseContactPayload(await request.json().catch(() => null));
 
   if (!payload) {
     return NextResponse.json({ error: "Invalid request." }, { status: 400 });
@@ -297,15 +283,20 @@ export async function POST(request: Request) {
       ? `${appUrl()}/${organization.slug}/login`
       : `${appUrl()}/dashboard/business?org=${resolvedOrganizationId}`;
   } else {
-    const query = admin
-      .from("profiles")
-      .select("id, user_id, email, slug")
-      .limit(1);
     const { data: profile } = resolvedProfileId
-      ? await query.eq("id", resolvedProfileId).maybeSingle()
-      : await query.eq("slug", slug as string).maybeSingle();
+      ? await admin
+          .from("profiles")
+          .select("id, user_id, email, slug, is_active, slug_status")
+          .eq("id", resolvedProfileId)
+          .maybeSingle()
+      : { data: await getPublicProfileBySlug(slug as string) };
 
-    if (!profile) {
+    if (
+      !profile ||
+      profile.is_active !== true ||
+      profile.slug_status !== "approved" ||
+      !isSlugPubliclyAllowed(profile.slug, profile.slug_status)
+    ) {
       return NextResponse.json({ error: "This profile is not available." }, { status: 404 });
     }
 

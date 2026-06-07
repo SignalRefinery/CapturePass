@@ -14,7 +14,6 @@ import styles from "./taptagg-profile-shell.module.css";
 type ProfileLike = {
   id?: string | null;
   slug?: string | null;
-  private_token?: string | null;
   business_type?: string | null;
   view_id?: string | null;
   view_key?: string | null;
@@ -87,17 +86,7 @@ function contactHref(profile: ProfileLike) {
   if (profile.vcard_url) return profile.vcard_url;
   if (!profile.slug) return "#";
 
-  const viewParam = viewShareParam(profile);
-  const viewQuery = viewParam ? `?view=${encodeURIComponent(viewParam)}` : "";
-
-  return `/api/vcard/${profile.slug}${viewQuery}`;
-}
-
-function viewShareParam(profile: ProfileLike) {
-  // TapTagg renders one public profile. Stored view identifiers are ignored so
-  // saved contacts, share links, and QR codes always point at the main profile.
-  void profile;
-  return null;
+  return `/api/vcard/${profile.slug}`;
 }
 
 function publicShareUrl(profile: ProfileLike) {
@@ -105,14 +94,7 @@ function publicShareUrl(profile: ProfileLike) {
     return profile.public_url;
   }
 
-  const url = getReadableProfileUrl(profile);
-  const viewParam = viewShareParam(profile);
-
-  if (!viewParam) {
-    return url;
-  }
-
-  return `${url}?view=${encodeURIComponent(viewParam)}`;
+  return getReadableProfileUrl(profile);
 }
 
 function urlWithSource(url: string, source: string) {
@@ -166,6 +148,8 @@ function themeClassName(theme?: string | null, background?: string | null) {
 }
 
 function legacyThemeClassName(theme?: string | null) {
+  // Older business pass rows stored brand_theme instead of theme_key. Keep this
+  // isolated fallback so stored passes render without making these public labels.
   switch (theme) {
     case "deep_brand":
       return styles.themeDeepBrand;
@@ -226,7 +210,7 @@ export function TapTaggProfileShell({
   const displayName = activeProfile.full_name || "TapTagg";
   const descriptor = activeProfile.role_line && activeProfile.organization_name
     ? `${activeProfile.role_line} at ${activeProfile.organization_name}`
-    : activeProfile.role_line || activeProfile.organization_name || "Digital contact card";
+    : activeProfile.role_line || activeProfile.organization_name || "TapTagg contact card";
   const isBusinessProfile = activeProfile.is_business_profile === true;
   const avatarUrl =
     isBusinessProfile && activeProfile.brand_logo_url

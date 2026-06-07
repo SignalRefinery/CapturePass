@@ -1,27 +1,12 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-
-const ADMIN_EMAILS = ["john@signalrefinery.pro"];
-
-async function requireAdmin() {
-  const supabase = await createClient();
-  const {
-    data: { user }
-  } = await supabase.auth.getUser();
-
-  if (!user?.email || !ADMIN_EMAILS.includes(user.email.toLowerCase())) {
-    return null;
-  }
-
-  return user;
-}
+import { requireTapTaggAdmin } from "@/lib/auth/admin";
 
 export async function POST(
   _request: Request,
   { params }: { params: Promise<{ userId: string }> }
 ) {
-  const adminUser = await requireAdmin();
+  const adminUser = await requireTapTaggAdmin();
   if (!adminUser) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
   }
@@ -48,7 +33,7 @@ export async function DELETE(
   _request: Request,
   { params }: { params: Promise<{ userId: string }> }
 ) {
-  const adminUser = await requireAdmin();
+  const adminUser = await requireTapTaggAdmin();
   if (!adminUser) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
   }

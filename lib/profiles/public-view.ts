@@ -11,7 +11,6 @@ export function profileViewToPublicProfile(profile: ProfileRecord, view: Profile
   return {
     id: profile.id,
     slug: profile.slug,
-    private_token: profile.private_token,
     business_type: profile.business_type,
     view_id: view.id,
     view_key: view.view_key,
@@ -71,7 +70,6 @@ export function profileRecordToPublicProfile(profile: ProfileRecord) {
   return {
     id: profile.id,
     slug: profile.slug,
-    private_token: profile.private_token,
     business_type: profile.business_type,
     view_id: null,
     view_key: "profile",

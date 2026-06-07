@@ -3,35 +3,20 @@ import { Shell } from "@/components/shared/shell";
 
 const individualPlans = [
   {
-    name: "Digital",
-    price: "$1.99",
-    cadence: "/ month",
-    purpose: "A phone-first TapTagg for QR sharing, contact saving, and contact exchange.",
-    cta: "Start Digital",
-    href: "/api/checkout?plan=digital",
-    features: [
-      "Active TapTagg profile",
-      "QR sharing",
-      "Unlimited updates",
-      "vCard save contact",
-      "Share My Contact",
-      "Contacts dashboard",
-      "Basic links and socials"
-    ]
-  },
-  {
     name: "Core",
     price: "$29",
-    cadence: "/ year",
+    cadence: "one-time",
     purpose: "Activate your TapTagg with a physical card and start sharing in the real world.",
     cta: "Get Your Tagg",
     href: "/api/checkout?plan=core",
     featured: true,
     features: [
-      "Everything in Digital",
+      "Active TapTagg profile",
       "1 physical TapTagg NFC card",
       "NFC sharing",
       "QR sharing",
+      "Share My Contact",
+      "Contacts dashboard",
       "Basic profile customization",
       "Themes"
     ]
@@ -110,7 +95,7 @@ const faqItems = [
 function checkoutNoticeFor(value?: string | null) {
   switch (value) {
     case "choose-plan":
-      return "Choose Digital, Core, Tagg+, or Creator to start checkout.";
+      return "Choose Core, Tagg+, or Creator to start checkout.";
     case "unavailable":
       return "Checkout is temporarily unavailable. Please try again in a few minutes.";
     case "start-error":

@@ -3,8 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { UserMenu } from "@/components/auth/user-menu";
-
-const ADMIN_EMAILS = ["john@signalrefinery.pro"];
+import { isTapTaggBootstrapAdminEmail } from "@/lib/auth/admin-shared";
 
 const PUBLIC_NAV_LINKS = [
   { href: "/", label: "Home" },
@@ -32,13 +31,14 @@ export function Shell({
     email?: string | null;
     fullName?: string | null;
     slug?: string | null;
+    isAdmin?: boolean | null;
   } | null;
   pageVariant?: "default" | "admin";
 }) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const isSignedIn = !!initialAuth?.email;
-  const isAdmin = !!initialAuth?.email && ADMIN_EMAILS.includes(initialAuth.email.toLowerCase());
+  const isAdmin = !!initialAuth?.isAdmin || isTapTaggBootstrapAdminEmail(initialAuth?.email);
 
   useEffect(() => {
     function handleResize() {

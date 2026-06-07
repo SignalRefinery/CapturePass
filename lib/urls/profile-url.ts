@@ -23,18 +23,10 @@ export function getIssuedProfileUrl(profile: ProfileUrlLike) {
   return `${appUrl}/u/${profile.private_token}`;
 }
 
-export function appendProfileViewParam(url: string, view?: string | null) {
-  // TapTagg share URLs always target the single public profile. The optional
-  // view argument is ignored so dormant multi-view data cannot leak into links.
-  void view;
-  return url;
-}
-
-export function getPreferredProfileShareUrl(profile: ProfileUrlLike, view?: string | null) {
-  const baseUrl =
+export function getPreferredProfileShareUrl(profile: ProfileUrlLike) {
+  return (
     profile.consent_public_visibility === false && profile.private_token
       ? getIssuedProfileUrl(profile)
-      : getReadableProfileUrl(profile);
-
-  return appendProfileViewParam(baseUrl, view);
+      : getReadableProfileUrl(profile)
+  );
 }

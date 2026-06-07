@@ -1,10 +1,8 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { classifySlug } from "@/lib/slug-moderation";
 import { sendSlugApprovedEmail } from "@/lib/notifications/send-slug-approved-email";
-
-const ADMIN_EMAILS = ["john@signalrefinery.pro"];
+import { requireTapTaggAdmin } from "@/lib/auth/admin";
 
 async function writeAdminAuditLog({
   adminEmail,
@@ -33,22 +31,9 @@ async function writeAdminAuditLog({
 }
 
 export async function POST(request: Request) {
-  const supabase = await createClient();
-  const {
-    data: { user }
-  } = await supabase.auth.getUser();
-
-  if (!user?.email) {
+  const adminUser = await requireTapTaggAdmin();
+  if (!adminUser?.email) {
     return NextResponse.json({ error: "Sign in is required." }, { status: 401 });
-  }
-
-  if (!ADMIN_EMAILS.includes(user.email.toLowerCase())) {
-    console.error("Unauthorized slug review attempt", {
-      route: "/api/admin/slug-review",
-      userId: user.id,
-      email: user.email
-    });
-    return NextResponse.json({ error: "You do not have permission to review slugs." }, { status: 403 });
   }
 
   let body: { userId?: string; action?: "approve" | "deny" };
@@ -57,21 +42,17 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("Slug review payload parse failed", {
       route: "/api/admin/slug-review",
-      adminUserId: user.id,
+      adminUserId: adminUser.id,
       error: error instanceof Error ? error.message : "Invalid JSON"
     });
     return NextResponse.json({ error: "Invalid review request." }, { status: 400 });
   }
 
-  const userId = body.userId as string | undefined;
-  const action = body.action as "approve" | "deny" | undefined;
+  const userId = typeof body.userId === "string" ? body.userId.trim() : "";
+  const action = body.action === "approve" || body.action === "deny" ? body.action : null;
 
   if (!userId || !action) {
     return NextResponse.json({ error: "Missing review payload." }, { status: 400 });
-  }
-
-  if (action !== "approve" && action !== "deny") {
-    return NextResponse.json({ error: "Invalid slug review action." }, { status: 400 });
   }
 
   const admin = createAdminClient();
@@ -85,7 +66,7 @@ export async function POST(request: Request) {
   if (profileError || !profile) {
     console.error("Slug review profile lookup failed", {
       route: "/api/admin/slug-review",
-      adminUserId: user.id,
+      adminUserId: adminUser.id,
       targetUserId: userId,
       action,
       error: profileError?.message || "Profile not found"
@@ -112,7 +93,7 @@ export async function POST(request: Request) {
     if (error) {
       console.error("Slug review denial update failed", {
         route: "/api/admin/slug-review",
-        adminUserId: user.id,
+        adminUserId: adminUser.id,
         targetUserId: userId,
         requestedSlug: profile.slug_requested,
         error: error.message
@@ -121,7 +102,7 @@ export async function POST(request: Request) {
     }
 
     await writeAdminAuditLog({
-      adminEmail: user.email || "unknown-admin",
+      adminEmail: adminUser.email || "unknown-admin",
       targetUserId: userId,
       action: "slug_denied",
       details: {
@@ -177,7 +158,7 @@ export async function POST(request: Request) {
   if (error) {
     console.error("Slug review approval update failed", {
       route: "/api/admin/slug-review",
-      adminUserId: user.id,
+      adminUserId: adminUser.id,
       targetUserId: userId,
       requestedSlug: profile.slug_requested,
       approvedSlug: updatedProfile.slug,
@@ -198,7 +179,7 @@ export async function POST(request: Request) {
   }
 
   await writeAdminAuditLog({
-    adminEmail: user.email || "unknown-admin",
+    adminEmail: adminUser.email || "unknown-admin",
     targetUserId: userId,
     action: "slug_approved",
     details: {

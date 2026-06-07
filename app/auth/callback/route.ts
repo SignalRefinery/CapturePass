@@ -6,6 +6,7 @@ import { sendRegistrationEmail } from "@/lib/notifications/send-registration-ema
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { classifySlug } from "@/lib/slug-moderation";
+import { resolveCheckoutPlanSelection } from "@/lib/plans";
 
 function cleanValue(value: unknown) {
   if (typeof value !== "string") return null;
@@ -205,8 +206,11 @@ export async function GET(req: Request) {
   const referralCode = cleanValue(meta.referral_code_used);
   const isPublicOfficial = Boolean(meta.is_public_official);
   const requestedBusinessPlan = requestedPlan ? getBusinessPlan(requestedPlan) : null;
+  const requestedCheckoutSelection = resolveCheckoutPlanSelection(requestedPlan);
   const isBusinessCheckoutContinuation =
-    !!requestedBusinessPlan || (/^\/api\/checkout\?/.test(nextPath) && nextPath.includes("plan=business"));
+    !!requestedBusinessPlan ||
+    requestedCheckoutSelection?.kind === "business" ||
+    (/^\/api\/checkout\?/.test(nextPath) && nextPath.includes("plan=business_"));
   const finalNextPath = promoCode === "FOUNDERS" && !isBusinessCheckoutContinuation ? "/dashboard" : nextPath;
 
   if (meta.business_only === true || meta.business_only === "true") {

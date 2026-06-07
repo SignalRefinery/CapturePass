@@ -21,16 +21,16 @@ Recently completed:
 - Role-based navigation (public / user / admin)
 - Admin dashboard (spreadsheet-style user table)
 - Admin user detail page (fully actionable)
-- Token-based routing (`/u/[token]` → redirects to slug)
+- Token-based routing (`/u/[token]` for issued/private links, with public-slug redirect only when visibility allows)
 - Billing + profile visibility in admin
 - Multi-view profile architecture
 - Landing-page vs favorite-view profile modes
-- View-aware vCard generation
+- vCard generation
 - Dashboard multi-view management
 - Per-view contact visibility controls (email / phone / text)
 - Unified dashboard save flow for profile and active profile view edits
-- Public profile view deep links (`/[slug]?view=VIEW_KEY`) with safe fallback when multi-view is off
-- Public QR codes generated from readable slug URLs, including active view query params when applicable
+- Public sharing uses one stable profile URL; dormant view identifiers are not added to public links
+- Public QR codes generated from readable slug URLs, with issued/private links using `/u/[token]`
 - vCard download headers hardened for `.vcf` handling across mobile browsers
 - Stripe checkout, webhook subscription handling, and Customer Portal flow
 - Checkout/signup continuation through auth and email verification
@@ -89,7 +89,7 @@ Profiles:
 - Route: `/[slug]`
 - Dynamic rendering
 - Includes contact info, vCard, QR code
-- Public QR code targets readable slug URL, not private token URL
+- Public QR code targets the readable slug URL when profile visibility is enabled; issued/private links use `/u/[token]`
 
 Profile Views System:
 - Profiles may operate in:
@@ -100,9 +100,9 @@ Profile Views System:
   - landing-page selector mode
   - default/favorite view mode
   - per-view contact visibility
-  - view-aware vCards
-  - public view deep links via `?view=VIEW_KEY`
-  - slug-based per-view QR targets when a view is active
+  - shared profile-level vCards
+  - one stable public share URL for the profile
+  - issued/private token URLs for card and QR fulfillment when public slug visibility is off
 - Example use cases:
   - Capitol Office
   - District Office
@@ -185,10 +185,13 @@ Apply SQL files in order:
 - phase60_profile_views.sql
 - phase_slug_db_enforcement.sql
 - phase62_profile_view_secondary_action.sql
+- phase92_public_profile_rls.sql
+- phase93_public_profile_rpc.sql
 
 Important:
 - `phase_slug_db_enforcement.sql` should be applied in Supabase before production onboarding.
 - `phase62_profile_view_secondary_action.sql` should be applied before using the "None" secondary action option on profile views.
+- `phase92_public_profile_rls.sql` and `phase93_public_profile_rpc.sql` should be applied before public profile traffic uses the limited public profile read path.
 - Test dashboard profile saves, profile view saves, admin slug review, Stripe webhook updates, and auth signup bootstrap after applying migrations.
 
 ---
@@ -204,14 +207,14 @@ Completed production-hardening work:
 - Slug request UX: dashboard slug field is editable, explains pending review, rejected, restricted, approved, and available states.
 - Slug moderation enforcement: app routes prevent restricted/review slugs from bypassing moderation through dashboard, admin, public profile, token, or vCard paths.
 - Admin slug safety: approve/deny actions require confirmation and write audit records.
-- Public profile privacy: profile and token routes use noindex/nofollow/noarchive metadata and `X-Robots-Tag`; sitemap remains marketing-only.
+- Public profile privacy: profile and token routes use noindex/nofollow/noarchive metadata, `X-Robots-Tag`, and limited public profile RPCs; sitemap remains marketing-only.
 - DB slug/profile security: new migration adds database-level trigger protection for slug moderation and sensitive profile fields.
 - API error handling: checkout, admin slug review, admin user mutations, profile report, and slug availability now avoid raw provider/database messages in user-facing responses and log contextual diagnostics server-side.
 - Dashboard save UX: one "Save changes" action saves profile settings and the active view together, with partial-save warnings.
 - Multi-view UX: selecting favorite/landing display activates multi-view mode; default-view controls are hidden in single mode.
-- Public sharing: view deep links are honored only when multi-view is active and fall back safely otherwise.
+- Public sharing: share URLs intentionally target the stable profile URL, not dormant view query params.
 - Auth polish: signup password confirmation, show/hide password controls, and optional referral/promo code placement below submit.
-- vCard reliability: `.vcf` download headers and fallback `?view=profile` handling are hardened.
+- vCard reliability: `.vcf` download headers are hardened.
 
 ---
 
@@ -228,8 +231,8 @@ Operational Checklist Before Onboarding
 - Open Stripe Customer Portal from `/account` for a paid user.
 - Verify founder/billing-exempt account messaging does not push users into Stripe billing.
 - Verify public profile, token route, and vCard route all respect active/consent/approved slug rules.
-- Verify public view links (`/[slug]?view=VIEW_KEY`) open the requested view in multi-view mode and fall back in single mode.
-- Verify public QR code targets slug URL / view URL, while issued/NFC token route still redirects correctly.
+- Verify public share links open the stable profile URL.
+- Verify public QR code targets the slug URL when visibility is enabled, while issued/NFC token routes continue to work for private-link mode.
 - Verify Add to Contacts downloads a `.vcf` file on iOS Safari, Chrome, and desktop.
 - Verify public profile responses include noindex headers and profiles are absent from `sitemap.xml`.
 
@@ -254,7 +257,7 @@ Known Issues / Remaining Risks
 3. Public profiles are intentionally shareable; noindex headers discourage compliant crawlers but do not stop malicious scraping.
 4. Lightweight monitoring/logging is still needed for auth, webhook, admin, checkout, and profile-save failures.
 5. Add-to-Home-Screen / QR onboarding page is not implemented yet.
-6. Remaining image optimization warnings exist in `app/custom/page.tsx` and legacy `components/profile/profile-shell.tsx`.
+6. Remaining image optimization warnings are tracked in the current lint output and should be reviewed before image optimization work.
 
 ---
 
@@ -269,8 +272,7 @@ High:
 Medium:
 - Improve subscription UI + plan management clarity.
 - Add lightweight operational logging/monitoring.
-- Add "Copy/share this view" controls in dashboard now that public view deep links exist.
-- Add a dedicated QR/share panel for base profile URL, active view URL, and issued/NFC token URL.
+- Add a dedicated QR/share panel for the base profile URL and issued/NFC token URL.
 
 Low:
 - UI polish

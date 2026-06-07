@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { unstable_noStore as noStore } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { buildPublicProfileViews, profileRecordToPublicProfile } from "@/lib/profiles/public-view";
+import { getProfileByTokenServer, PROFILE_VIEW_PUBLIC_SELECT } from "@/lib/profile-service-server";
 import { getProfilePlan, profileCanRenderPublicly } from "@/lib/plans";
 import { profileMetadata } from "@/lib/privacy/profile-privacy";
 import { isSlugPubliclyAllowed } from "@/lib/slug-moderation";
@@ -17,17 +18,16 @@ export async function generateMetadata() {
   return profileMetadata();
 }
 
+function appUrl() {
+  return (process.env.NEXT_PUBLIC_APP_URL || "https://taptagg.app").replace(/\/$/, "");
+}
+
 export default async function PrivateTokenProfilePage({ params, searchParams }: PageProps) {
   noStore();
 
   const { token } = await params;
   const requestedView = (await searchParams)?.view || null;
-  const admin = createAdminClient();
-  const { data: profile } = await admin
-    .from("profiles")
-    .select("*")
-    .eq("private_token", token)
-    .maybeSingle<ProfileRecord>();
+  const profile = (await getProfileByTokenServer(token)) as ProfileRecord | null;
 
   if (
     !profile ||
@@ -43,10 +43,11 @@ export default async function PrivateTokenProfilePage({ params, searchParams }: 
 
   const plan = getProfilePlan(profile);
   const isMultiViewProfile = plan.hasMoreProfileSections && profile.page_mode === "multi";
+  const admin = createAdminClient();
   const { data: profileViews } = isMultiViewProfile
     ? await admin
         .from("profile_views")
-        .select("*")
+        .select(PROFILE_VIEW_PUBLIC_SELECT)
         .eq("profile_id", profile.id)
         .order("sort_order", { ascending: true })
         .returns<ProfileViewRecord[]>()
@@ -65,13 +66,19 @@ export default async function PrivateTokenProfilePage({ params, searchParams }: 
         defaultPublicView: profileRecordToPublicProfile(profile),
         orderedPublicViews: [profileRecordToPublicProfile(profile)]
       };
+  const issuedProfileUrl = `${appUrl()}/u/${token}`;
+  const issuedDefaultPublicView = { ...defaultPublicView, public_url: issuedProfileUrl };
+  const issuedOrderedPublicViews = orderedPublicViews.map((view) => ({
+    ...view,
+    public_url: issuedProfileUrl
+  }));
 
   // Privacy-mode profiles render only through the issued QR/card URL.
   // The personalized slug remains non-resolving while the issued link works.
   return (
     <TapTaggProfileShell
-      profile={defaultPublicView}
-      views={orderedPublicViews}
+      profile={issuedDefaultPublicView}
+      views={issuedOrderedPublicViews}
       pageMode={profile.page_mode || "single"}
       multiViewDisplayMode={profile.multi_view_display_mode || "favorite"}
       initialView={requestedView}

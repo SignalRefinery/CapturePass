@@ -2,6 +2,8 @@ import { createHash, randomUUID } from "crypto";
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { normalizeGamificationEventType } from "@/lib/gamification/event-normalizer";
+import { getPublicProfileBySlug } from "@/lib/profiles/public-profile-source";
+import { parseAnalyticsPayload } from "@/lib/validation/api-payloads";
 
 const EVENT_TYPES = new Set([
   "profile_view",
@@ -106,24 +108,24 @@ function metadataFor(value: unknown) {
 }
 
 export async function POST(request: Request) {
-  const payload = await request.json().catch(() => null);
-  if (!payload || typeof payload !== "object") {
+  const payload = parseAnalyticsPayload(await request.json().catch(() => null));
+  if (!payload) {
     return NextResponse.json({ ok: false }, { status: 400 });
   }
 
-  const eventType = cleanText((payload as { event_type?: unknown }).event_type, 60);
+  const eventType = cleanText(payload.event_type, 60);
   const normalizedEventType = normalizeGamificationEventType(eventType) || eventType;
 
   if (!EVENT_TYPES.has(eventType) && !EVENT_TYPES.has(normalizedEventType)) {
     return NextResponse.json({ ok: false, error: "Invalid event type." }, { status: 400 });
   }
 
-  const profileId = cleanText((payload as { profile_id?: unknown }).profile_id, 64) || null;
-  const slug = cleanText((payload as { slug?: unknown }).slug, 80).toLowerCase() || null;
-  const organizationId = cleanText((payload as { organization_id?: unknown }).organization_id, 64) || null;
-  const organizationMemberId = cleanText((payload as { organization_member_id?: unknown }).organization_member_id, 64) || null;
-  const profileViewId = cleanText((payload as { profile_view_id?: unknown }).profile_view_id, 64) || null;
-  const cardId = cleanText((payload as { card_id?: unknown }).card_id, 64) || null;
+  const profileId = cleanText(payload.profile_id, 64) || null;
+  const slug = cleanText(payload.slug, 80).toLowerCase() || null;
+  const organizationId = cleanText(payload.organization_id, 64) || null;
+  const organizationMemberId = cleanText(payload.organization_member_id, 64) || null;
+  const profileViewId = cleanText(payload.profile_view_id, 64) || null;
+  const cardId = cleanText(payload.card_id, 64) || null;
 
   if (
     (profileId && !isUuid(profileId)) ||
@@ -153,11 +155,7 @@ export async function POST(request: Request) {
   const admin = createAdminClient();
 
   if (!resolvedProfileId && slug) {
-    const { data: profile } = await admin
-      .from("profiles")
-      .select("id, user_id")
-      .eq("slug", slug)
-      .maybeSingle();
+    const profile = await getPublicProfileBySlug(slug);
     resolvedProfileId = profile?.id || null;
     submittedUserId = profile?.user_id || null;
   }
@@ -190,9 +188,9 @@ export async function POST(request: Request) {
     regionId = location?.region_id || null;
   }
 
-  const actionType = cleanText((payload as { action_type?: unknown }).action_type, 80);
+  const actionType = cleanText(payload.action_type, 80);
   const safeActionType = ACTION_TYPES.has(actionType) ? actionType : actionType ? "other" : null;
-  const source = sourceFor(cleanText((payload as { source?: unknown }).source, 80));
+  const source = sourceFor(cleanText(payload.source, 80));
 
   const { error } = await admin.from("analytics_events").insert({
     event_type: normalizeGamificationEventType(eventType) || eventType,
@@ -206,14 +204,14 @@ export async function POST(request: Request) {
     card_id: cardId,
     source,
     action_type: safeActionType,
-    action_label: cleanText((payload as { action_label?: unknown }).action_label, 120) || null,
-    action_url: cleanUrl((payload as { action_url?: unknown }).action_url),
+    action_label: cleanText(payload.action_label, 120) || null,
+    action_url: cleanUrl(payload.action_url),
     visitor_id: visitorId,
     session_id: sessionId,
     user_agent: cleanText(request.headers.get("user-agent"), 300) || null,
     referrer: cleanText(request.headers.get("referer"), 400) || null,
     ip_hash: hashIp(ip),
-    metadata: metadataFor((payload as { metadata?: unknown }).metadata)
+    metadata: metadataFor(payload.metadata)
   });
 
   if (error) {

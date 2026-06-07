@@ -1,36 +1,47 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { classifySlug } from "@/lib/slug-moderation";
+import { requireTapTaggAdmin } from "@/lib/auth/admin";
+import { normalizeIndividualPlanKey } from "@/lib/plans";
 
-const ADMIN_EMAILS = ["john@signalrefinery.pro"];
+type AdminUserPayload = {
+  full_name?: unknown;
+  email?: unknown;
+  slug?: unknown;
+  overrideRestrictedSlug?: unknown;
+  is_active?: unknown;
+  billing_exempt?: unknown;
+  is_affiliate?: unknown;
+  affiliate_tier?: unknown;
+  is_public_official?: unknown;
+  stripe_plan_key?: unknown;
+};
 
-async function requireAdmin() {
-  const supabase = await createClient();
-  const {
-    data: { user }
-  } = await supabase.auth.getUser();
+function parseAdminUserPayload(value: unknown) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
 
-  if (!user?.email) {
-    return null;
-  }
+  const body = value as AdminUserPayload;
+  const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
+  const slug = typeof body.slug === "string" ? body.slug.trim() : "";
 
-  if (ADMIN_EMAILS.includes(user.email.toLowerCase())) {
-    return user;
-  }
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return null;
+  if (!slug) return null;
 
-  const admin = createAdminClient();
-  const { data: profile, error } = await admin
-    .from("profiles")
-    .select("is_admin")
-    .or(`user_id.eq.${user.id},id.eq.${user.id}`)
-    .maybeSingle();
-
-  if (error || !profile?.is_admin) {
-    return null;
-  }
-
-  return user;
+  return {
+    full_name: typeof body.full_name === "string" ? body.full_name.trim() : "",
+    email,
+    slug,
+    overrideRestrictedSlug: body.overrideRestrictedSlug === true,
+    is_active: body.is_active === true,
+    billing_exempt: body.billing_exempt === true,
+    is_affiliate: body.is_affiliate === true,
+    affiliate_tier: typeof body.affiliate_tier === "string" ? body.affiliate_tier.trim() || null : null,
+    is_public_official: body.is_public_official === true,
+    stripe_plan_key:
+      typeof body.stripe_plan_key === "string" && body.stripe_plan_key.trim()
+        ? normalizeIndividualPlanKey(body.stripe_plan_key)
+        : null
+  };
 }
 
 async function writeAdminAuditLog({
@@ -61,16 +72,19 @@ export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ userId: string }> }
 ) {
-  const adminUser = await requireAdmin();
+  const adminUser = await requireTapTaggAdmin();
   if (!adminUser) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
   }
 
   const { userId } = await params;
-  const body = await request.json();
+  const body = parseAdminUserPayload(await request.json().catch(() => null));
+  if (!body) {
+    return NextResponse.json({ error: "Invalid user update request." }, { status: 400 });
+  }
   const admin = createAdminClient();
 
-  const moderation = classifySlug(body.slug || "");
+  const moderation = classifySlug(body.slug);
 
   if (moderation.state === "blocked") {
     return NextResponse.json({ error: moderation.reason || "That slug is blocked." }, { status: 400 });
@@ -152,7 +166,7 @@ export async function DELETE(
   _request: Request,
   { params }: { params: Promise<{ userId: string }> }
 ) {
-  const adminUser = await requireAdmin();
+  const adminUser = await requireTapTaggAdmin();
   if (!adminUser) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
   }

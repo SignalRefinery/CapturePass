@@ -31,6 +31,9 @@ create table if not exists public.profiles (
     and primary_link_4_type in ('website', 'email', 'phone', 'text', 'booking', 'directions', 'pdf', 'payment', 'custom')
   ),
   registration_notification_sent_at timestamptz,
+  is_active boolean not null default false,
+  slug_status text not null default 'approved',
+  consent_public_visibility boolean not null default true,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -47,4 +50,10 @@ drop policy if exists "Users can update their own profile record" on public.prof
 create policy "Users can update their own profile record" on public.profiles for update using (auth.uid() = user_id);
 
 drop policy if exists "Profiles are publicly readable by slug" on public.profiles;
-create policy "Profiles are publicly readable by slug" on public.profiles for select using (true);
+create policy "Profiles are publicly readable by slug"
+on public.profiles for select
+using (
+  is_active = true
+  and consent_public_visibility = true
+  and slug_status = 'approved'
+);

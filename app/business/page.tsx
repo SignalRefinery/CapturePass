@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Shell } from "@/components/shared/shell";
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentTapTaggAdmin } from "@/lib/auth/admin";
 
 const selfManagedDescription =
   "Self-managed gives your organization admin access to manage seats, profiles, branding, and card assignments directly.";
@@ -126,7 +127,7 @@ async function getInitialAuth() {
     email: user.email || null,
     fullName: profile?.full_name || null,
     slug: profile?.slug || null,
-    isAdmin: !!profile?.is_admin
+    isAdmin: !!profile?.is_admin || !!(await getCurrentTapTaggAdmin())
   };
 }
 

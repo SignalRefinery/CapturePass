@@ -1,7 +1,11 @@
 import Link from "next/link";
 import { Shell } from "@/components/shared/shell";
 import { createClient } from "@/lib/supabase/server";
-import { getPlanFeatures, normalizePlanKey, type PlanKey } from "@/lib/plans";
+import {
+  getPlanDisplayLabel,
+  getPlanPricingDescription,
+  normalizeIndividualPlanKey
+} from "@/lib/plans";
 
 function cleanValue(value: string | null | undefined) {
   if (!value) return null;
@@ -93,24 +97,6 @@ function billingErrorFor(value?: string | null) {
   }
 }
 
-function billingDescriptionFor(
-  plan: PlanKey,
-  status?: string | null,
-  hasSubscription?: boolean,
-  manualBilling?: boolean
-) {
-  if (manualBilling) return "Founder or manually granted access.";
-
-  if (plan === "digital") return "Monthly subscription.";
-  if (plan === "core") return "Physical card activated. No renewal required.";
-  if (plan === "tagg_plus") return "Annual subscription.";
-  if (plan === "creator") return "Annual subscription.";
-  if (plan === "business") return "Managed team plan.";
-  if (hasSubscription) return status ? `Subscription status: ${status}.` : "Subscription billing.";
-
-  return "Not activated yet.";
-}
-
 export default async function AccountPage({
   searchParams
 }: {
@@ -131,12 +117,12 @@ export default async function AccountPage({
   const manualBilling = !!account?.lifetimeFree || !!account?.billingExempt;
   const hasActiveSubscription = account?.status === "active" || account?.status === "trialing";
 
-  const normalizedPlan = normalizePlanKey(account?.plan);
+  const normalizedPlan = normalizeIndividualPlanKey(account?.plan);
   const currentPlan = account?.lifetimeFree
     ? "Founder lifetime access"
     : account?.billingExempt
       ? "Billing exempt"
-      : getPlanFeatures(normalizedPlan).label;
+      : getPlanDisplayLabel(normalizedPlan);
 
   return (
     <Shell
@@ -215,17 +201,16 @@ export default async function AccountPage({
                 <div>{account?.promoCodeUsed || "—"}</div>
               </div>
 
-              <div>
-                <span className="label">Billing</span>
-                <div>
-                  {billingDescriptionFor(
-                    normalizedPlan,
-                    account?.status,
-                    !!account?.subscriptionId,
-                    manualBilling
-                  )}
-                </div>
-              </div>
+                  <div>
+                    <span className="label">Billing</span>
+                    <div>
+                  {getPlanPricingDescription(normalizedPlan, {
+                    legacySourcePlan: account?.plan,
+                    manualBilling,
+                    subscriptionStatus: account?.status
+                  })}
+                    </div>
+                  </div>
             </div>
 
             <div
@@ -279,7 +264,7 @@ export default async function AccountPage({
                   </Link>
 
                   <p className="editor-copy" style={{ flexBasis: "100%", margin: "4px 0 0" }}>
-                    Choose Digital or above to activate your public profile and QR sharing. Core adds the physical NFC card.
+                    Choose Core or above to activate your public profile, QR sharing, and physical NFC card.
                   </p>
                 </>
               )}

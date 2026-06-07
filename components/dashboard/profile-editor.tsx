@@ -688,7 +688,7 @@ export function ProfileEditor({
         <p className="editor-copy">
           {plan.isActivated
             ? "Shape how people encounter you. Keep the next step clear, make follow-up easier, and present yourself with less clutter."
-            : "Your reserved profile is preview-only. Save the basics now, then activate Digital or above when you are ready to go public."}
+            : "Your reserved profile is preview-only. Save the basics now, then activate Core or above when you are ready to go public."}
         </p>
         <p className="auth-message" style={{ marginTop: 10 }}>
           Current plan: <strong>{plan.label}</strong>
@@ -767,7 +767,7 @@ export function ProfileEditor({
                 <br />
                 {plan.isActivated
                   ? "Leave this checked so your approved slug can open your profile. Uncheck it for added privacy; your personalized slug will not be publicly findable, and sharing should use the exact issued link from your QR code."
-                  : "Free / Reserved profiles are preview-only, so this link will stay private until you activate Digital or above."}
+                  : "Free profiles are preview-only, so this link will stay private until you activate Core or above."}
               </span>
             </label>
           </div>
@@ -798,7 +798,7 @@ export function ProfileEditor({
                       <strong>{theme.name}</strong>
                       <small>
                         {theme.description}
-                        {!allowed ? ` Upgrade to ${theme.key === CUSTOM_THEME_KEY ? "Creator" : "Pro"} to unlock.` : ""}
+                        {!allowed ? ` Upgrade to ${theme.key === CUSTOM_THEME_KEY ? "Creator" : "Tagg+"} to unlock.` : ""}
                       </small>
                       <span
                         className="theme-preview-strip"
@@ -1053,7 +1053,7 @@ export function ProfileEditor({
               </div>
             ))}
             {!plan.hasExpandedLinks ? (
-              <UpgradeNotice>Free / Reserved profiles include basic CTA buttons. Expanded buttons unlock with Digital.</UpgradeNotice>
+              <UpgradeNotice>Free profiles include basic CTA buttons. Expanded buttons unlock with Core.</UpgradeNotice>
             ) : null}
           </div>
 

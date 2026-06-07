@@ -2,33 +2,7 @@
 
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createClient } from "@/lib/supabase/server";
-
-const ADMIN_EMAILS = ["john@signalrefinery.pro"];
-
-async function requireAdmin() {
-  const supabase = await createClient();
-  const {
-    data: { user }
-  } = await supabase.auth.getUser();
-
-  if (!user?.email) return null;
-
-  if (ADMIN_EMAILS.includes(user.email.toLowerCase())) {
-    return user;
-  }
-
-  const admin = createAdminClient();
-  const { data: profile, error } = await admin
-    .from("profiles")
-    .select("is_admin")
-    .or(`user_id.eq.${user.id},id.eq.${user.id}`)
-    .maybeSingle();
-
-  if (error || !profile?.is_admin) return null;
-
-  return user;
-}
+import { requireTapTaggAdmin } from "@/lib/auth/admin";
 
 async function writeAdminAuditLog({
   adminEmail,
@@ -58,15 +32,15 @@ export async function POST(
   request: Request,
   { params }: { params: Promise<{ profileId: string }> }
 ) {
-  const adminUser = await requireAdmin();
+  const adminUser = await requireTapTaggAdmin();
 
   if (!adminUser) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
   }
 
   const { profileId } = await params;
-  const body = await request.json().catch(() => ({}));
-  const reconciled = !!body.reconciled;
+  const body = (await request.json().catch(() => null)) as { reconciled?: unknown } | null;
+  const reconciled = !!body?.reconciled;
   const admin = createAdminClient();
 
   const updatePayload = reconciled

@@ -1,36 +1,49 @@
 import { createClient } from "@/lib/supabase/server";
+import { getPublicProfileBySlug, getPublicProfileByToken } from "@/lib/profiles/public-profile-source";
 import type { ProfileRecord, ProfileViewRecord } from "@/lib/types";
 
+export const PROFILE_VIEW_PUBLIC_SELECT = `
+  id,
+  profile_id,
+  name,
+  view_key,
+  sort_order,
+  full_name,
+  organization_name,
+  role_line,
+  intro,
+  email,
+  phone,
+  website_url,
+  profile_badge_1,
+  profile_badge_2,
+  profile_badge_3,
+  show_email,
+  show_phone,
+  show_text,
+  show_in_public_nav,
+  primary_link_1_title,
+  primary_link_1_url,
+  primary_link_1_type,
+  primary_link_2_title,
+  primary_link_2_url,
+  primary_link_2_type,
+  primary_link_3_title,
+  primary_link_3_url,
+  primary_link_3_type,
+  primary_link_4_title,
+  primary_link_4_url,
+  primary_link_4_type,
+  created_at,
+  updated_at
+`;
+
 export async function getProfileBySlugServer(slug: string) {
-  const supabase = await createClient();
-
-  const { data, error } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("slug", slug)
-    .maybeSingle();
-
-  if (error) {
-    return null;
-  }
-
-  return data;
+  return getPublicProfileBySlug(slug);
 }
 
 export async function getProfileByTokenServer(token: string) {
-  const supabase = await createClient();
-
-  const { data, error } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("private_token", token)
-    .maybeSingle();
-
-  if (error) {
-    return null;
-  }
-
-  return data;
+  return getPublicProfileByToken(token);
 }
 
 export async function getProfileForUserServer(userId: string) {
@@ -54,7 +67,7 @@ export async function getProfileViewsForProfileServer(profileId: string) {
 
   const { data, error } = await supabase
     .from("profile_views")
-    .select("*")
+    .select(PROFILE_VIEW_PUBLIC_SELECT)
     .eq("profile_id", profileId)
     .order("sort_order", { ascending: true });
 
@@ -75,7 +88,7 @@ export async function getDefaultProfileViewServer(profile: ProfileRecord) {
   if (profile.default_view_id) {
     const { data, error } = await supabase
       .from("profile_views")
-      .select("*")
+      .select(PROFILE_VIEW_PUBLIC_SELECT)
       .eq("id", profile.default_view_id)
       .eq("profile_id", profile.id)
       .maybeSingle();
@@ -87,7 +100,7 @@ export async function getDefaultProfileViewServer(profile: ProfileRecord) {
 
   const { data, error } = await supabase
     .from("profile_views")
-    .select("*")
+    .select(PROFILE_VIEW_PUBLIC_SELECT)
     .eq("profile_id", profile.id)
     .order("sort_order", { ascending: true })
     .limit(1)
