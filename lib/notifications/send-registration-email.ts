@@ -1,4 +1,5 @@
 import { getBusinessTypeLabel } from "@/lib/business-types";
+import { escapeEmailHtml, formatShippingAddressHtml } from "@/lib/notifications/html";
 import { buildQrPngAttachment } from "@/lib/notifications/qr";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getIssuedProfileUrl, getReadableProfileUrl } from "@/lib/urls/profile-url";
@@ -15,15 +16,6 @@ type RegistrationShippingAddress = {
   } | null;
 } | null | undefined;
 
-function escapeHtml(value: string) {
-  return value
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;");
-}
-
 function formatShippingAddress(shipping: RegistrationShippingAddress) {
   if (!shipping?.address) {
     return "<em>Shipping address not yet collected.</em>";
@@ -39,11 +31,7 @@ function formatShippingAddress(shipping: RegistrationShippingAddress) {
     shipping.address.country
   ].filter(Boolean) as string[];
 
-  if (!parts.length) {
-    return "<em>Shipping address not yet collected.</em>";
-  }
-
-  return parts.map((part) => escapeHtml(part)).join("<br />");
+  return formatShippingAddressHtml(parts);
 }
 
 export async function sendRegistrationEmail({
@@ -106,20 +94,20 @@ export async function sendRegistrationEmail({
           <h2 style="margin:0 0 16px;">New TapTagg registration</h2>
           <p style="margin:0 0 18px;">A new profile has been created and is ready for review, fulfillment, or onboarding follow-up.</p>
           <table cellpadding="8" cellspacing="0" border="0" style="border-collapse:collapse;">
-            <tr><td><strong>Name</strong></td><td>${escapeHtml(customerName)}</td></tr>
-            <tr><td><strong>Email</strong></td><td>${escapeHtml(customerEmail)}</td></tr>
-            <tr><td><strong>Business Type</strong></td><td>${escapeHtml(businessTypeLabel)}</td></tr>
-            <tr><td><strong>Source</strong></td><td>${escapeHtml(sourceLabel)}</td></tr>
-            <tr><td><strong>Promo</strong></td><td>${escapeHtml(promoCode)}</td></tr>
-            <tr><td><strong>Stripe Plan</strong></td><td>${escapeHtml(stripePlan)}</td></tr>
-            <tr><td><strong>Slug</strong></td><td>${escapeHtml(profile.slug || "—")}</td></tr>
+            <tr><td><strong>Name</strong></td><td>${escapeEmailHtml(customerName)}</td></tr>
+            <tr><td><strong>Email</strong></td><td>${escapeEmailHtml(customerEmail)}</td></tr>
+            <tr><td><strong>Business Type</strong></td><td>${escapeEmailHtml(businessTypeLabel)}</td></tr>
+            <tr><td><strong>Source</strong></td><td>${escapeEmailHtml(sourceLabel)}</td></tr>
+            <tr><td><strong>Promo</strong></td><td>${escapeEmailHtml(promoCode)}</td></tr>
+            <tr><td><strong>Stripe Plan</strong></td><td>${escapeEmailHtml(stripePlan)}</td></tr>
+            <tr><td><strong>Slug</strong></td><td>${escapeEmailHtml(profile.slug || "—")}</td></tr>
             <tr><td><strong>Readable Profile URL</strong></td><td><a href="${readableUrl}">${readableUrl}</a></td></tr>
             <tr><td><strong>NFC source URL</strong></td><td><a href="${tokenUrl}">${tokenUrl}</a></td></tr>
             <tr><td><strong>QR image URL</strong></td><td><a href="${qrUrl}">${qrUrl}</a></td></tr>
           </table>
           <h3 style="margin:24px 0 8px;">Shipping address</h3>
           <p style="margin:0;">${formatShippingAddress(shipping)}</p>
-          <p style="margin:24px 0 0;color:#555;font-size:12px;">App URL: ${escapeHtml(appUrl)}</p>
+          <p style="margin:24px 0 0;color:#555;font-size:12px;">App URL: ${escapeEmailHtml(appUrl)}</p>
           <p style="margin:12px 0 0;">
             The QR PNG is attached to this email for printing and onboarding use.
           </p>

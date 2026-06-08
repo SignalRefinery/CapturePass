@@ -1,6 +1,8 @@
 import { isTapTaggBootstrapAdminEmail } from "@/lib/auth/admin";
 import { normalizeThemeKey, isHexColor } from "@/lib/themes";
 
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 export function isPlatformAdminEmail(email?: string | null) {
   return isTapTaggBootstrapAdminEmail(email);
 }
@@ -27,6 +29,31 @@ export function cleanBrandTheme(value: FormDataEntryValue | null) {
 
 export function cleanText(value: FormDataEntryValue | null) {
   return String(value || "").trim() || null;
+}
+
+export function cleanId(value: FormDataEntryValue | string | null | undefined) {
+  const id = String(value || "").trim();
+  return UUID_PATTERN.test(id) ? id : "";
+}
+
+export function cleanOptionalId(value: FormDataEntryValue | string | null | undefined) {
+  return cleanId(value) || null;
+}
+
+export function cleanEmail(value: FormDataEntryValue | string | null | undefined) {
+  const email = String(value || "").trim().toLowerCase();
+  if (!email || email.length > 254) return null;
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? email : null;
+}
+
+export function cleanLocationState(value: FormDataEntryValue | string | null | undefined) {
+  const state = String(value || "").trim().toUpperCase();
+  return /^[A-Z]{2}$/.test(state) ? state : null;
+}
+
+export function cleanTokenStatus(value: FormDataEntryValue | string | null | undefined) {
+  const status = String(value || "").trim();
+  return status === "active" || status === "unassigned" || status === "inactive" ? status : "inactive";
 }
 
 export function cleanStateCodes(value: FormDataEntryValue | null) {
@@ -97,6 +124,8 @@ export function businessErrorMessage(error?: string) {
       return "Business admin name is required.";
     case "missing_employee_name":
       return "Employee name is required.";
+    case "invalid_business_action":
+      return "That business action was missing required details. Refresh and try again.";
     default:
       return "Please complete the required business fields and try again.";
   }

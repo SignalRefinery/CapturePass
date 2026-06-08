@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { redirect } from "next/navigation";
 import { Shell } from "@/components/shared/shell";
 import { createClient } from "@/lib/supabase/server";
@@ -256,7 +257,13 @@ export default async function BusinessPage({
       </section>
 
       <section className="business-section business-proof">
-        <img src="/custom-taptagg-card.jpg" alt="TapTagg business card" />
+        <Image
+          src="/custom-taptagg-card.jpg"
+          alt="TapTagg business card"
+          width={4466}
+          height={3350}
+          sizes="(max-width: 768px) 100vw, 50vw"
+        />
         <div>
           <div className="dashboard-kicker">Business ready</div>
           <h2>Branded physical cards with updateable digital destinations.</h2>

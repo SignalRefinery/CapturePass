@@ -1,3 +1,4 @@
+import { escapeEmailHtml, formatShippingAddressHtml } from "@/lib/notifications/html";
 import { buildQrPngAttachment } from "@/lib/notifications/qr";
 import { getIssuedProfileUrl, getReadableProfileUrl } from "@/lib/urls/profile-url";
 
@@ -19,17 +20,8 @@ type ProfileForEmail = {
   shipping_country?: string | null;
 };
 
-function escapeHtml(value: string) {
-  return value
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;");
-}
-
 function shippingHtml(profile: ProfileForEmail) {
-  const parts = [
+  return formatShippingAddressHtml([
     profile.shipping_name,
     profile.shipping_address_line1,
     profile.shipping_address_line2,
@@ -37,13 +29,7 @@ function shippingHtml(profile: ProfileForEmail) {
       .filter(Boolean)
       .join(", "),
     profile.shipping_country
-  ].filter(Boolean) as string[];
-
-  if (parts.length === 0) {
-    return "<em>Shipping address not yet collected.</em>";
-  }
-
-  return parts.map((part) => escapeHtml(part)).join("<br />");
+  ]);
 }
 
 export async function sendSlugApprovedEmail(profile: ProfileForEmail) {
@@ -68,13 +54,13 @@ export async function sendSlugApprovedEmail(profile: ProfileForEmail) {
       </p>
 
       <table cellpadding="8" cellspacing="0" border="0" style="border-collapse:collapse;">
-        <tr><td><strong>Customer</strong></td><td>${escapeHtml(profile.full_name || "")}</td></tr>
-        <tr><td><strong>Email</strong></td><td>${escapeHtml(profile.email || "")}</td></tr>
-        <tr><td><strong>Phone</strong></td><td>${escapeHtml(profile.phone || "")}</td></tr>
-        <tr><td><strong>Readable profile URL</strong></td><td>${escapeHtml(readableUrl)}</td></tr>
-        <tr><td><strong>NFC source URL</strong></td><td>${escapeHtml(issuedUrl)}</td></tr>
-        <tr><td><strong>Plan</strong></td><td>${escapeHtml(profile.stripe_plan_key || "Not set")}</td></tr>
-        <tr><td><strong>Affiliate</strong></td><td>${profile.is_affiliate ? escapeHtml(profile.affiliate_tier || "affiliate") : "No"}</td></tr>
+        <tr><td><strong>Customer</strong></td><td>${escapeEmailHtml(profile.full_name || "")}</td></tr>
+        <tr><td><strong>Email</strong></td><td>${escapeEmailHtml(profile.email || "")}</td></tr>
+        <tr><td><strong>Phone</strong></td><td>${escapeEmailHtml(profile.phone || "")}</td></tr>
+        <tr><td><strong>Readable profile URL</strong></td><td>${escapeEmailHtml(readableUrl)}</td></tr>
+        <tr><td><strong>NFC source URL</strong></td><td>${escapeEmailHtml(issuedUrl)}</td></tr>
+        <tr><td><strong>Plan</strong></td><td>${escapeEmailHtml(profile.stripe_plan_key || "Not set")}</td></tr>
+        <tr><td><strong>Affiliate</strong></td><td>${profile.is_affiliate ? escapeEmailHtml(profile.affiliate_tier || "affiliate") : "No"}</td></tr>
       </table>
 
       <h3 style="margin:24px 0 8px;">Shipping address</h3>

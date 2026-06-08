@@ -441,7 +441,6 @@ export function TapTaggProfileShell({
 
         <section className={styles.profileGrid}>
           <div className={styles.card}>
-              <h2>CTA buttons</h2>
               <div className={styles.links}>
                 {links.map((item, index) => (
                   <a
@@ -458,7 +457,6 @@ export function TapTaggProfileShell({
                   >
                     <div>
                       <div className={styles.linkTitle}>{item.title}</div>
-                      <div className={styles.linkSub}>{item.subtitle}</div>
                     </div>
                     <div className={styles.arrow}>↗</div>
                   </a>
@@ -476,9 +474,9 @@ export function TapTaggProfileShell({
                       onClick={() => trackProfileAction(analyticsTarget, { title: item.title, href: item.url })}
                     >
                       <div>
-                        <div className={styles.contactLabel}>{item.title}</div>
-                        <div className={styles.contactValue}>{item.url.replace(/^https?:\/\//, "")}</div>
+                        <div className={styles.linkTitle}>{item.title}</div>
                       </div>
+                      <div className={styles.arrow}>↗</div>
                     </a>
                   ))}
                 </div>

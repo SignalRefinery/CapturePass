@@ -234,6 +234,7 @@ export default async function BusinessSlugLoginPage({ params }: PageProps) {
             <>
               <h2>Ready to share.</h2>
               <div className="pass-qr-frame" style={{ maxWidth: 260 }}>
+                {/* eslint-disable-next-line @next/next/no-img-element -- QR provider returns a generated runtime image URL. */}
                 <img src={qrUrl} alt={`QR code for ${primaryUrl}`} />
               </div>
               <p className="editor-copy" style={{ wordBreak: "break-all" }}>{primaryUrl}</p>

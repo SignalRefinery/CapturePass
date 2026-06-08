@@ -590,7 +590,11 @@
   letter-spacing:0;
 }
 
-.links{display:grid;gap:10px}
+.links{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+  gap:12px;
+}
 
 .linkCard{
   display:flex;
@@ -600,11 +604,15 @@
   width:100%;
   min-width:0;
   box-sizing:border-box;
-  min-height:72px;
-  padding:16px 16px;
-  border-radius:14px;
-  background:var(--link-bg);
-  border:1px solid rgba(255,255,255,.065);
+  min-height:68px;
+  padding:18px 18px;
+  border-radius:18px;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.08), rgba(255,255,255,.025)),
+    var(--link-bg);
+  border:1px solid rgba(255,255,255,.09);
+  color:var(--text);
+  text-decoration:none;
   transition:transform .15s ease, background .15s ease, border-color .15s ease, box-shadow .15s ease;
 }
 
@@ -616,8 +624,9 @@
 }
 
 .linkTitle{
-  font-size:16px;
-  font-weight:600;
+  font-size:clamp(16px, 1.8vw, 19px);
+  font-weight:800;
+  line-height:1.12;
   color:var(--text);
 }
 
@@ -661,6 +670,14 @@
   border:1px solid rgba(255,255,255,.06);
   color:inherit;
   text-decoration:none;
+  transition:transform .15s ease, background .15s ease, border-color .15s ease, box-shadow .15s ease;
+}
+
+.contactLine:hover{
+  transform:translateY(-1px);
+  background:var(--link-hover-bg);
+  border-color:color-mix(in srgb, var(--profile-glow) 28%, transparent);
+  box-shadow:0 0 0 1px color-mix(in srgb, var(--profile-glow) 10%, transparent) inset, 0 14px 28px rgba(0,0,0,.16);
 }
 
 .linkCard > div,

@@ -14,9 +14,14 @@ import { getBusinessAccessScope, getCurrentUser } from "@/lib/business/dashboard
 import {
   businessInviteRedirectUrl,
   cleanBrandTheme,
+  cleanEmail,
   cleanHexColor,
+  cleanId,
+  cleanLocationState,
+  cleanOptionalId,
   cleanStateCodes,
   cleanText,
+  cleanTokenStatus,
   cleanUrl,
   digitalPassUrl,
   escapeHtml,
@@ -115,6 +120,23 @@ async function requireBusinessAdmin(organizationId: string, allowLocationAdmin =
   return access.user;
 }
 
+function businessActionRedirect(organizationId?: string | null, error = "invalid_business_action", anchor = "") {
+  const orgQuery = organizationId ? `?org=${organizationId}&error=${error}` : `?error=${error}`;
+  redirect(`/dashboard/business${orgQuery}${anchor}`);
+}
+
+function requiredOrganizationId(formData: FormData, anchor = "") {
+  const organizationId = cleanId(formData.get("organization_id"));
+  if (!organizationId) businessActionRedirect(null, "invalid_business_action", anchor);
+  return organizationId;
+}
+
+function requiredId(formData: FormData, field: string, organizationId: string, anchor = "") {
+  const id = cleanId(formData.get(field));
+  if (!id) businessActionRedirect(organizationId, "invalid_business_action", anchor);
+  return id;
+}
+
 export async function createOrganization(formData: FormData) {
   "use server";
 
@@ -125,14 +147,14 @@ export async function createOrganization(formData: FormData) {
 
   const name = String(formData.get("name") || "").trim();
   const adminName = String(formData.get("admin_name") || "").trim();
-  const adminEmail = String(formData.get("admin_email") || "").trim();
+  const adminEmail = cleanEmail(formData.get("admin_email"));
   const adminPhone = String(formData.get("admin_phone") || "").trim();
   const adminTitle = String(formData.get("admin_title") || "").trim();
   const locationName = String(formData.get("location_name") || "").trim();
   const locationSlug = String(formData.get("location_slug") || "").trim().toLowerCase();
   const locationAddress = cleanText(formData.get("location_address"));
   const locationCity = cleanText(formData.get("location_city"));
-  const locationState = cleanText(formData.get("location_state"));
+  const locationState = cleanLocationState(formData.get("location_state"));
   const locationPhone = cleanText(formData.get("location_phone"));
   const businessPlan = getBusinessPlan(String(formData.get("business_plan_key") || "")) || BUSINESS_PLANS.business_starter_self;
   const businessBillingInterval = normalizeBusinessBillingInterval(String(formData.get("business_billing_interval") || ""));
@@ -176,7 +198,7 @@ export async function createOrganization(formData: FormData) {
     .insert({
       organization_id: organization.id,
       name: adminName,
-      email: adminEmail || null,
+      email: adminEmail,
       phone: adminPhone || null,
       title: adminTitle || null,
       role: "business_admin",
@@ -192,7 +214,7 @@ export async function createOrganization(formData: FormData) {
     });
   }
 
-  if (adminEmail.toLowerCase() !== TAPTAGG_BOOTSTRAP_ADMIN_EMAIL) {
+  if (adminEmail !== TAPTAGG_BOOTSTRAP_ADMIN_EMAIL) {
     await admin.from("organization_members").insert({
       organization_id: organization.id,
       name: "TapTagg Admin",
@@ -250,10 +272,10 @@ async function generateUniqueBusinessLocationSlug(businessId: string, name: stri
 export async function saveBusinessRegion(formData: FormData) {
   "use server";
 
-  const businessId = String(formData.get("organization_id") || "");
+  const businessId = requiredOrganizationId(formData, "#business-locations");
   await requireBusinessAdmin(businessId);
 
-  const regionId = String(formData.get("region_id") || "");
+  const regionId = cleanOptionalId(formData.get("region_id"));
   const name = String(formData.get("name") || "").trim();
   const description = cleanText(formData.get("description"));
   const stateCodes = cleanStateCodes(formData.get("state_codes"));
@@ -283,15 +305,15 @@ export async function saveBusinessRegion(formData: FormData) {
 export async function saveBusinessLocation(formData: FormData) {
   "use server";
 
-  const businessId = String(formData.get("organization_id") || "");
-  const locationId = String(formData.get("location_id") || "");
+  const businessId = requiredOrganizationId(formData, "#business-locations");
+  const locationId = cleanOptionalId(formData.get("location_id"));
   const name = String(formData.get("name") || "").trim();
   const slug = String(formData.get("slug") || "").trim().toLowerCase();
   const address = cleanText(formData.get("address"));
   const city = cleanText(formData.get("city"));
-  const state = cleanText(formData.get("state"));
+  const state = cleanLocationState(formData.get("state"));
   const phone = cleanText(formData.get("phone"));
-  const regionId = String(formData.get("region_id") || "") || null;
+  const regionId = cleanOptionalId(formData.get("region_id"));
   const admin = createAdminClient();
   const access = await getBusinessAccessScope({ organizationId: businessId, allowLocationAdmin: true });
 
@@ -344,10 +366,10 @@ export async function saveBusinessLocation(formData: FormData) {
 export async function deleteBusinessLocation(formData: FormData) {
   "use server";
 
-  const businessId = String(formData.get("organization_id") || "");
+  const businessId = requiredOrganizationId(formData, "#business-locations");
   await requireBusinessAdmin(businessId);
 
-  const locationId = String(formData.get("location_id") || "");
+  const locationId = requiredId(formData, "location_id", businessId, "#business-locations");
   const admin = createAdminClient();
 
   await admin.from("organization_members").update({ location_id: null }).eq("location_id", locationId).eq("organization_id", businessId);
@@ -364,11 +386,11 @@ export async function deleteBusinessLocation(formData: FormData) {
 export async function updateEmployeeLocation(formData: FormData) {
   "use server";
 
-  const organizationId = String(formData.get("organization_id") || "");
+  const organizationId = requiredOrganizationId(formData, "#business-employees");
   await requireBusinessAdmin(organizationId);
 
-  const memberId = String(formData.get("member_id") || "");
-  const locationId = String(formData.get("location_id") || "") || null;
+  const memberId = requiredId(formData, "member_id", organizationId, "#business-employees");
+  const locationId = cleanOptionalId(formData.get("location_id"));
   const admin = createAdminClient();
 
   const { data: member } = await admin
@@ -412,7 +434,7 @@ export async function updateEmployeeLocation(formData: FormData) {
 export async function updateOrganizationBranding(formData: FormData) {
   "use server";
 
-  const organizationId = String(formData.get("organization_id") || "");
+  const organizationId = requiredOrganizationId(formData, "#business-branding");
   await requireBusinessAdmin(organizationId);
 
   const admin = createAdminClient();
@@ -502,7 +524,7 @@ export async function updateOrganizationBranding(formData: FormData) {
 export async function updateOrganizationBusinessType(formData: FormData) {
   "use server";
 
-  const organizationId = String(formData.get("organization_id") || "");
+  const organizationId = requiredOrganizationId(formData, "#business-settings");
   await requireBusinessAdmin(organizationId);
 
   const businessType = normalizeBusinessType(String(formData.get("business_type") || ""));
@@ -528,7 +550,7 @@ export async function updateOrganizationBusinessType(formData: FormData) {
 export async function deleteBusinessLogo(formData: FormData) {
   "use server";
 
-  const organizationId = String(formData.get("organization_id") || "");
+  const organizationId = requiredOrganizationId(formData, "#business-branding");
   await requireBusinessAdmin(organizationId);
 
   const admin = createAdminClient();
@@ -567,11 +589,11 @@ async function generateUniqueOrganizationSlug(name: string) {
 export async function addEmployee(formData: FormData) {
   "use server";
 
-  const organizationId = String(formData.get("organization_id") || "");
+  const organizationId = requiredOrganizationId(formData, "#business-employees");
   await requireBusinessAdmin(organizationId);
 
   const name = String(formData.get("name") || "").trim();
-  const email = String(formData.get("email") || "").trim();
+  const email = cleanEmail(formData.get("email"));
   const phone = String(formData.get("phone") || "").trim();
   const title = String(formData.get("title") || "").trim();
 
@@ -594,7 +616,7 @@ export async function addEmployee(formData: FormData) {
       .insert({
         organization_id: organizationId,
         name,
-        email: email || null,
+        email,
         phone: phone || null,
         title: title || null,
         role: count === 0 ? "admin" : "member",
@@ -636,10 +658,10 @@ export async function addEmployee(formData: FormData) {
 export async function sendBusinessLoginInvite(formData: FormData) {
   "use server";
 
-  const organizationId = String(formData.get("organization_id") || "");
+  const organizationId = requiredOrganizationId(formData, "#business-employees");
   const access = await getBusinessAccessScope({ organizationId, allowLocationAdmin: true });
 
-  const memberId = String(formData.get("member_id") || "");
+  const memberId = requiredId(formData, "member_id", organizationId, "#business-employees");
   const admin = createAdminClient();
   const [{ data: organization }, { data: member }] = await Promise.all([
     admin
@@ -682,10 +704,10 @@ export async function sendBusinessLoginInvite(formData: FormData) {
 export async function updateEmployeeHeadshot(formData: FormData) {
   "use server";
 
-  const organizationId = String(formData.get("organization_id") || "");
+  const organizationId = requiredOrganizationId(formData, "#business-employees");
   const access = await getBusinessAccessScope({ organizationId, allowLocationAdmin: true });
 
-  const memberId = String(formData.get("member_id") || "");
+  const memberId = requiredId(formData, "member_id", organizationId, "#business-employees");
   const headshotFile = formData.get("headshot_file");
   if (!(headshotFile instanceof File) || headshotFile.size === 0) {
     redirect(`/dashboard/business?org=${organizationId}&error=headshot_upload_failed`);
@@ -736,10 +758,10 @@ export async function updateEmployeeHeadshot(formData: FormData) {
 export async function deleteEmployeeHeadshot(formData: FormData) {
   "use server";
 
-  const organizationId = String(formData.get("organization_id") || "");
+  const organizationId = requiredOrganizationId(formData, "#business-employees");
   const access = await getBusinessAccessScope({ organizationId, allowLocationAdmin: true });
 
-  const memberId = String(formData.get("member_id") || "");
+  const memberId = requiredId(formData, "member_id", organizationId, "#business-employees");
   const admin = createAdminClient();
   const { data: member } = await admin
     .from("organization_members")
@@ -769,11 +791,11 @@ export async function deleteEmployeeHeadshot(formData: FormData) {
 export async function sendBusinessDigitalPass(formData: FormData) {
   "use server";
 
-  const organizationId = String(formData.get("organization_id") || "");
+  const organizationId = requiredOrganizationId(formData, "#business-employees");
   await requireBusinessAdmin(organizationId);
 
-  const memberId = String(formData.get("member_id") || "");
-  const tokenId = String(formData.get("token_id") || "");
+  const memberId = requiredId(formData, "member_id", organizationId, "#business-employees");
+  const tokenId = requiredId(formData, "token_id", organizationId, "#business-employees");
   const admin = createAdminClient();
   const [{ data: organization }, { data: member }, { data: token }] = await Promise.all([
     admin
@@ -946,7 +968,7 @@ async function insertBusinessAnalyticsEvent({
 export async function saveOrganizationWebhooks(formData: FormData) {
   "use server";
 
-  const organizationId = String(formData.get("organization_id") || "");
+  const organizationId = requiredOrganizationId(formData, "#business-automations");
   await requireBusinessAdmin(organizationId);
 
   const enabled = formData.get("enabled") === "on";
@@ -991,7 +1013,7 @@ export async function saveOrganizationWebhooks(formData: FormData) {
 export async function regenerateOrganizationWebhookSecret(formData: FormData) {
   "use server";
 
-  const organizationId = String(formData.get("organization_id") || "");
+  const organizationId = requiredOrganizationId(formData, "#business-automations");
   await requireBusinessAdmin(organizationId);
 
   const admin = createAdminClient();
@@ -1027,10 +1049,10 @@ export async function regenerateOrganizationWebhookSecret(formData: FormData) {
 export async function issueToken(formData: FormData) {
   "use server";
 
-  const organizationId = String(formData.get("organization_id") || "");
+  const organizationId = requiredOrganizationId(formData, "#business-employees");
   await requireBusinessAdmin(organizationId);
 
-  const assignedMemberId = String(formData.get("assigned_member_id") || "") || null;
+  const assignedMemberId = cleanOptionalId(formData.get("assigned_member_id"));
   const tokenType = "both";
   const token = await generateUniqueToken();
   const admin = createAdminClient();
@@ -1072,11 +1094,11 @@ export async function issueToken(formData: FormData) {
 export async function updateTokenAssignment(formData: FormData) {
   "use server";
 
-  const organizationId = String(formData.get("organization_id") || "");
+  const organizationId = requiredOrganizationId(formData, "#business-employees");
   await requireBusinessAdmin(organizationId);
 
-  const tokenId = String(formData.get("token_id") || "");
-  const assignedMemberId = String(formData.get("assigned_member_id") || "") || null;
+  const tokenId = requiredId(formData, "token_id", organizationId, "#business-employees");
+  const assignedMemberId = cleanOptionalId(formData.get("assigned_member_id"));
   const admin = createAdminClient();
 
   if (assignedMemberId) {
@@ -1115,12 +1137,12 @@ export async function updateTokenAssignment(formData: FormData) {
 export async function deactivateToken(formData: FormData) {
   "use server";
 
-  const organizationId = String(formData.get("organization_id") || "");
+  const organizationId = requiredOrganizationId(formData, "#business-employees");
   await requireBusinessAdmin(organizationId);
 
-  const tokenId = String(formData.get("token_id") || "");
-  const assignedMemberId = String(formData.get("assigned_member_id") || "") || null;
-  const status = String(formData.get("status") || "inactive");
+  const tokenId = requiredId(formData, "token_id", organizationId, "#business-employees");
+  const assignedMemberId = cleanOptionalId(formData.get("assigned_member_id"));
+  const status = cleanTokenStatus(formData.get("status"));
   const admin = createAdminClient();
 
   if (status === "unassigned") {
@@ -1172,10 +1194,10 @@ export async function deactivateToken(formData: FormData) {
 export async function updateEmployeeRole(formData: FormData) {
   "use server";
 
-  const organizationId = String(formData.get("organization_id") || "");
+  const organizationId = requiredOrganizationId(formData, "#business-employees");
   await requireBusinessAdmin(organizationId);
 
-  const memberId = String(formData.get("member_id") || "");
+  const memberId = requiredId(formData, "member_id", organizationId, "#business-employees");
   const requestedRole = String(formData.get("role") || "member");
   const normalizedRole = normalizeBusinessRole(requestedRole);
   const admin = createAdminClient();
@@ -1204,11 +1226,11 @@ export async function updateEmployeeRole(formData: FormData) {
 export async function updateEmployeeEmail(formData: FormData) {
   "use server";
 
-  const organizationId = String(formData.get("organization_id") || "");
+  const organizationId = requiredOrganizationId(formData, "#business-employees");
   const access = await getBusinessAccessScope({ organizationId, allowLocationAdmin: true });
 
-  const memberId = String(formData.get("member_id") || "");
-  const nextEmail = String(formData.get("email") || "").trim().toLowerCase();
+  const memberId = requiredId(formData, "member_id", organizationId, "#business-employees");
+  const nextEmail = cleanEmail(formData.get("email"));
   const admin = createAdminClient();
 
   if (!nextEmail) {
@@ -1296,11 +1318,11 @@ export async function updateEmployeeEmail(formData: FormData) {
 export async function updateEmployeeStatus(formData: FormData) {
   "use server";
 
-  const organizationId = String(formData.get("organization_id") || "");
+  const organizationId = requiredOrganizationId(formData, "#business-employees");
   const access = await getBusinessAccessScope({ organizationId, allowLocationAdmin: true });
   const user = access.user;
 
-  const memberId = String(formData.get("member_id") || "");
+  const memberId = requiredId(formData, "member_id", organizationId, "#business-employees");
   const requestedStatus = String(formData.get("status") || "inactive");
   const status = requestedStatus === "active" ? "active" : "inactive";
   const admin = createAdminClient();
@@ -1370,10 +1392,10 @@ export async function updateEmployeeStatus(formData: FormData) {
 export async function deleteEmployee(formData: FormData) {
   "use server";
 
-  const organizationId = String(formData.get("organization_id") || "");
+  const organizationId = requiredOrganizationId(formData, "#business-employees");
   const user = await requireBusinessAdmin(organizationId);
 
-  const memberId = String(formData.get("member_id") || "");
+  const memberId = requiredId(formData, "member_id", organizationId, "#business-employees");
   const admin = createAdminClient();
   const { data: member } = await admin
     .from("organization_members")

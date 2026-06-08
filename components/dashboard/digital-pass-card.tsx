@@ -61,6 +61,7 @@ export function DigitalPassCard({
         ) : null}
 
         <div className="pass-qr-frame">
+          {/* eslint-disable-next-line @next/next/no-img-element -- QR provider returns a generated runtime image URL. */}
           <img src={qrUrl} alt={`QR code for ${selectedView.label}`} />
         </div>
 
