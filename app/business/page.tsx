@@ -5,47 +5,40 @@ import { Shell } from "@/components/shared/shell";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentTapTaggAdmin } from "@/lib/auth/admin";
 
-const selfManagedDescription =
-  "Self-managed gives your organization admin access to manage seats, profiles, branding, and card assignments directly.";
-
-const fullyManagedDescription =
-  "Fully managed means your team sends us new hires, departures, and profile changes. We handle setup, deactivation, card assignment, seat reassignment, and basic profile updates.";
-
 const businessUseCases = [
-  "Sales teams and field reps",
-  "Real estate, hospitality, and service teams",
-  "Events, conferences, and launches",
-  "Restaurants, retail, and local businesses",
-  "Recruiting, onboarding, and internal tools",
-  "Multi-location brands and franchises"
+  "Auto dealerships and BHPH lots",
+  "Real estate brokerages and agents",
+  "Insurance and financial representatives",
+  "Home services and field teams",
+  "Restaurants, hospitality, and retail",
+  "Events, conferences, and recruiting"
 ];
 
 const platformFeatures = [
-  "Business-branded TapTagg cards",
-  "Permanent /p token URLs that survive employee turnover",
-  "Phone-first Digital Pass QR for everyday sharing",
-  "Employee activation and deactivation",
-  "Card/profile reassignment",
-  "Team-ready profile templates",
-  "QR and NFC sharing",
-  "Contact sharing and export workflows",
-  "CRM Ready - Send new TapTagg leads to Zapier, Make, your CRM, email tools, SMS workflows, or custom business systems using outbound webhooks.",
-  "Review, booking, menu, and form links",
-  "Setup, onboarding, and support"
+  "Save contact information instantly",
+  "Capture customer contact details",
+  "Schedule appointments",
+  "Start phone calls and text conversations",
+  "Share listings, inventory, menus, and offers",
+  "Route leads into existing systems",
+  "Manage employee profiles",
+  "Reassign cards without reprinting",
+  "Track engagement and activity",
+  "Maintain consistent branding"
 ];
 
 const rolloutSteps = [
   {
-    title: "Scope",
-    copy: "We map the team size, card count, profile structure, destinations, and launch timeline."
+    title: "Keep Customers Connected",
+    copy: "Customers save the right employee instantly."
   },
   {
-    title: "Configure",
-    copy: "TapTagg builds the cards, profile templates, QR/NFC routing, and team-ready defaults."
+    title: "Capture More Opportunities",
+    copy: "Turn conversations into contacts and follow-up opportunities."
   },
   {
-    title: "Launch",
-    copy: "Your team receives activated cards and a repeatable process for updates, replacements, and new hires."
+    title: "Protect Against Turnover",
+    copy: "Reassign cards and profiles without reprinting materials."
   }
 ];
 
@@ -161,22 +154,20 @@ export default async function BusinessPage({
         <div className="business-hero-content">
           <div className="kicker">
             <span className="mini-star">✦</span>
-            <span>Business & Enterprise</span>
+            <span>For Sales Teams</span>
           </div>
-          <h1>TapTagg for teams that connect in person.</h1>
-          <p>
-            Permanent card/pass URLs, team profiles, QR/NFC sharing, contact sharing, and rollout support for
-            businesses that need every employee, event, or location ready to share.
-          </p>
+          <h1>TapTagg for sales teams that meet customers face-to-face.</h1>
+          <p className="business-hero-tagline">Turn every customer interaction into a saved contact.</p>
+          <p>Give every employee a branded TapTagg profile, instant contact sharing, and lead capture tools that keep customers connected long after the conversation ends. Built for dealerships, real estate teams, local businesses, and field sales organizations.</p>
           <div className="business-hero-actions">
             <Link className="button primary" href="/business/pricing">
               View Business Pricing
             </Link>
-            <Link className="button secondary" href="/pricing">
-              Compare Individual Plans
+            <Link className="button secondary" href="#team-use-cases">
+              See How Teams Use It
             </Link>
             <a className="button secondary" href="#business-request">
-              Request Business Quote
+              Request a Demo
             </a>
           </div>
         </div>
@@ -185,34 +176,31 @@ export default async function BusinessPage({
       <section className="business-band">
         <div className="business-metrics" aria-label="Business capabilities">
           <div>
-            <span>Team setup</span>
-            <strong>Profiles + cards</strong>
+            <span>Stay Connected</span>
+            <strong>Customers save the right employee instantly</strong>
           </div>
           <div>
-            <span>Sharing</span>
-            <strong>Digital Pass QR + NFC</strong>
+            <span>Capture Leads</span>
+            <strong>Collect contact information in seconds</strong>
           </div>
           <div>
-            <span>Operations</span>
-            <strong>Activate, update, reassign</strong>
+            <span>Keep Ownership</span>
+            <strong>Cards survive employee turnover</strong>
           </div>
           <div>
-            <span>CRM Ready</span>
-            <strong>Outbound webhooks for TapTagg leads</strong>
+            <span>Work With Existing Systems</span>
+            <strong>No CRM replacement required</strong>
           </div>
         </div>
       </section>
 
-      <section className="business-section business-two-column">
+      <section className="business-section business-two-column" id="team-use-cases">
         <div>
           <div className="dashboard-kicker">Built for teams</div>
-          <h2>One business system instead of one-off cards.</h2>
-          <p>
-            Business TapTagg setups are designed for repeatable operations: new hires,
-            replacements, seasonal events, location changes, sales campaigns, and teams that need
-            a consistent way to share the right next step. The URL belongs to the card/pass token,
-            not an employee name, so reassignment does not require reprinting or retraining.
-          </p>
+          <h2>Not another CRM. The layer before the CRM.</h2>
+          <p>Most businesses already have a CRM. The problem happens before the CRM.</p>
+          <p>Customers forget business cards. Salespeople lose contact information. Conversations never become follow-up opportunities.</p>
+          <p>TapTagg helps your team capture contact information, share the right next step, and keep customers connected after they walk away.</p>
         </div>
 
         <div className="business-list-grid">
@@ -227,7 +215,7 @@ export default async function BusinessPage({
       <section className="business-section">
         <div className="business-section-heading">
           <div className="dashboard-kicker">What can be included</div>
-          <h2>Cards, profiles, routing, and rollout support.</h2>
+          <h2>Built for the moments that create revenue.</h2>
         </div>
 
         <div className="business-feature-grid">
@@ -241,8 +229,8 @@ export default async function BusinessPage({
 
       <section className="business-section business-process">
         <div className="business-section-heading">
-          <div className="dashboard-kicker">Rollout</div>
-          <h2>A cleaner launch for every cardholder.</h2>
+          <div className="dashboard-kicker">Why teams choose TapTagg</div>
+          <h2>Built around the moments your team cannot afford to lose.</h2>
         </div>
 
         <div className="business-process-grid">
@@ -266,50 +254,69 @@ export default async function BusinessPage({
         />
         <div>
           <div className="dashboard-kicker">Business ready</div>
-          <h2>Branded physical cards with updateable digital destinations.</h2>
+          <h2>Your customers remember the conversation. Make sure they remember who to call.</h2>
           <p>
-            NFC cards create the memorable in-person entry point, while the Digital Pass QR is the
-            daily-use sharing method on the phone. Permanent token URLs keep the card useful when an
-            employee leaves: deactivate, unassign, or reassign the token without changing the URL.
+            TapTagg combines physical NFC cards, QR sharing, and digital profiles so customers can save the right salesperson, agent, or team member instantly. When employees leave, cards and profiles can be reassigned without replacing printed materials.
           </p>
         </div>
       </section>
 
       <section className="business-section">
         <div className="business-section-heading">
-          <div className="dashboard-kicker">Business pricing</div>
-          <h2>Choose self-managed or fully managed.</h2>
-          <p>
-            {selfManagedDescription}
-          </p>
-          <p>
-            {fullyManagedDescription}
-          </p>
+          <div className="dashboard-kicker">Built for your industry</div>
+          <h2>Different businesses. Same problem.</h2>
+          <p>People still lose business cards, forget contact information, and struggle to reconnect after a conversation. TapTagg helps solve that problem across industries.</p>
         </div>
 
-        <div className="business-feature-grid">
-          <div className="business-feature">Starter: 10 seats, 10 NFC cards, $149 setup</div>
-          <div className="business-feature">Growth: 25 seats, 25 NFC cards, $299 setup</div>
-          <div className="business-feature">Pro: 50 seats, 50 NFC cards, $499 setup</div>
-        </div>
-        <Link className="button primary" href="/business/pricing">
-          View Business Pricing
-        </Link>
+        <details className="business-industry-item">
+          <summary>Auto Dealerships</summary>
+          <p>Customers lose business cards. Salespeople change stores. Referrals don&apos;t always reach the original salesperson. Customers call the dealership instead of the rep they trust.</p>
+          <p><strong>TapTagg helps keep customers connected to the salesperson they already chose.</strong></p>
+        </details>
+
+        <details className="business-industry-item">
+          <summary>Real Estate</summary>
+          <p>Open house visitors don&apos;t always become contacts. Referral partners need easy access to your information. Listings change constantly. Agents need a fast way to share information.</p>
+          <p><strong>TapTagg helps agents capture leads and stay connected with referral sources.</strong></p>
+        </details>
+
+        <details className="business-industry-item">
+          <summary>Insurance & Financial Services</summary>
+          <p>Trust-based sales require long-term relationships. Referrals drive growth. Follow-up cycles are often measured in months or years.</p>
+          <p><strong>TapTagg makes it easy for clients to save your information and reconnect when they&apos;re ready.</strong></p>
+        </details>
+
+        <details className="business-industry-item">
+          <summary>Home Services</summary>
+          <p>Technicians and estimators meet customers in person. Customers often need service later. Reviews and referrals are critical.</p>
+          <p><strong>TapTagg keeps your team one tap away.</strong></p>
+        </details>
+
+        <details className="business-industry-item">
+          <summary>Restaurants & Hospitality</summary>
+          <p>Promote reviews, share menus, drive loyalty programs, and capture event inquiries.</p>
+          <p><strong>Turn every guest interaction into a future connection.</strong></p>
+        </details>
+
+        <details className="business-industry-item">
+          <summary>Events & Recruiting</summary>
+          <p>Business cards get lost. Networking happens quickly. Follow-up determines success.</p>
+          <p><strong>Capture connections before they disappear.</strong></p>
+        </details>
       </section>
 
       <section className="business-section business-request" id="business-request">
         <div className="business-section-heading">
-          <div className="dashboard-kicker">Start a business quote</div>
-          <h2>Tell us what your team needs.</h2>
+          <div className="dashboard-kicker">Request a demo</div>
+          <h2>Let&apos;s talk about your sales process.</h2>
           <p>
-            Share the team size, use case, and timeline. We will follow up with pricing for cards,
-            setup, platform needs, and support.
+            Whether you have three employees or hundreds, we&apos;ll help design a TapTagg rollout that fits your team, customer journey, and follow-up process.
           </p>
         </div>
 
         {requestSent ? (
           <div className="business-alert">
-            Request received. We will review the details and follow up with a business quote.
+            Request received. We will review the details and follow up with a demo.
           </div>
         ) : null}
 
@@ -400,7 +407,7 @@ export default async function BusinessPage({
           </label>
 
           <button className="button primary" type="submit">
-            Request Business Quote
+            Request a Demo
           </button>
         </form>
       </section>
