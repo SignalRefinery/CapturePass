@@ -32,7 +32,7 @@ type CheckoutPayload = {
 };
 
 // Launch promotion: business setup fees are temporarily waived.
-// TODO: Re-enable business plan setup fee charges when the launch promotion ends.
+// TODO: Re-enable business plan setup fee charges after 2026-07-31.
 const BUSINESS_SETUP_FEES_WAIVED_FOR_LAUNCH = true;
 
 function getStringId(value: string | { id?: string } | null | undefined) {
@@ -643,7 +643,7 @@ async function createCheckoutOrPortal(req: Request) {
         : {}),
       billing_address_collection: "required",
       line_items: [
-        // TODO: Re-enable this setup fee line item when the launch promotion ends.
+        // TODO: Re-enable business plan setup fee charges after 2026-07-31.
         ...(businessPlan && !businessSetupFeeWaived && businessSetupPriceId
           ? [
               {

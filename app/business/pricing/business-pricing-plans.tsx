@@ -33,6 +33,13 @@ const teamSizeDescriptions: Record<string, string> = {
     "Typically 26–50 employees. Designed for larger organizations, dealer groups, brokerages, franchises, and enterprise-style deployments."
 };
 
+const rooftopDescriptions: Record<string, string> = {
+  small_team: "1 rooftop / location included",
+  starter: "1 rooftop / location included",
+  growth: "Up to 3 rooftops / locations included",
+  pro: "Up to 10 rooftops / locations included"
+};
+
 const sharedPlanFeatures = [
   "Shared company branding",
   "Reassign cards and profiles when employees leave",
@@ -101,6 +108,7 @@ export function BusinessPricingPlans({ tiers }: { tiers: BusinessPricingTier[] }
 
             <div style={businessTierDetails}>
               <div>{tier.cards} NFC cards included at setup</div>
+              <div style={rooftopSupport}>{rooftopDescriptions[tier.tier]}</div>
               <div style={setupFeeWrap}>
                 <span>${tier.setupFee} setup</span>
                 <strong style={setupFeeWaivedText}>Setup Fee Waived</strong>
@@ -128,6 +136,14 @@ export function BusinessPricingPlans({ tiers }: { tiers: BusinessPricingTier[] }
           </article>
         ))}
       </div>
+
+      <section style={rooftopAddOnCard}>
+        <h3 style={addOnHeading}>Need more rooftops?</h3>
+        <p style={addOnCopy}>Additional rooftops / locations can be added for $99/month each.</p>
+        <p style={addOnSupport}>
+          Useful for dealer groups, brokerages, franchises, and businesses with multiple locations.
+        </p>
+      </section>
     </>
   );
 }
@@ -311,6 +327,16 @@ const businessTierDetails = {
   fontWeight: 700
 };
 
+const rooftopSupport = {
+  padding: "11px 13px",
+  borderRadius: 15,
+  border: "1px solid rgba(167,139,250,.3)",
+  background: "rgba(139,92,246,.1)",
+  color: "#f5f3ff",
+  fontSize: 14,
+  fontWeight: 900
+};
+
 const setupFeeWrap = {
   display: "grid",
   gap: 5,
@@ -333,6 +359,42 @@ const setupFeeWaivedText = {
 const businessPlanOptions = {
   display: "grid",
   gap: 10
+};
+
+const rooftopAddOnCard = {
+  gridColumn: "1 / -1",
+  display: "grid",
+  gap: 8,
+  padding: 20,
+  borderRadius: 20,
+  border: "1px solid rgba(167,139,250,.28)",
+  background:
+    "linear-gradient(135deg, rgba(139,92,246,.12), rgba(34,197,94,.08)), rgba(8,8,10,.72)"
+};
+
+const addOnHeading = {
+  margin: 0,
+  color: "#d8ccff",
+  fontSize: "clamp(24px, 3vw, 34px)",
+  lineHeight: 1,
+  fontWeight: 950,
+  letterSpacing: "-0.03em"
+};
+
+const addOnCopy = {
+  margin: 0,
+  color: "#ffffff",
+  fontSize: "clamp(17px, 2vw, 22px)",
+  lineHeight: 1.35,
+  fontWeight: 900
+};
+
+const addOnSupport = {
+  margin: 0,
+  color: "#b6bcc8",
+  fontSize: 14,
+  lineHeight: 1.55,
+  fontWeight: 650
 };
 
 const businessPlanOption = {

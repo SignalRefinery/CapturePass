@@ -96,13 +96,13 @@ export default function BusinessPricingPage() {
           Works alongside your existing CRM. No replacement required.
         </p>
         <p style={planClarification}>
-          All business plans include the same platform features. Choose the seat count that fits your organization.
+          All business plans include the same platform features. Choose the seat count and location support that fits your organization.
         </p>
         <div style={launchPromotion}>
           <div style={launchPromotionLabel}>Limited-Time Launch Promotion</div>
-          <p style={launchPromotionBody}>All business plan setup fees are currently being waived.</p>
-          <strong style={launchPromotionSavings}>Save up to $499 when you start today.</strong>
-          <span style={launchPromotionNote}>This promotion may end at any time.</span>
+          <p style={launchPromotionBody}>All business plan setup fees are waived through July 31, 2026.</p>
+          <strong style={launchPromotionSavings}>Save up to $499 when you start before the launch promotion ends.</strong>
+          <span style={launchPromotionNote}>Setup fees waived through July 31, 2026.</span>
         </div>
       </section>
 
