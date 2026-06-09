@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import { redirect } from "next/navigation";
 import { Shell } from "@/components/shared/shell";
 import { createClient } from "@/lib/supabase/server";
@@ -39,6 +38,25 @@ const rolloutSteps = [
   {
     title: "Protect Against Turnover",
     copy: "Reassign cards and profiles without reprinting materials."
+  }
+];
+
+const proofPoints = [
+  {
+    label: "Customer saves contact",
+    value: "One tap"
+  },
+  {
+    label: "Lead captured",
+    value: "Follow-up ready"
+  },
+  {
+    label: "Card reassigned",
+    value: "No reprint"
+  },
+  {
+    label: "Relationship protected",
+    value: "Team owned"
   }
 ];
 
@@ -245,13 +263,14 @@ export default async function BusinessPage({
       </section>
 
       <section className="business-section business-proof">
-        <Image
-          src="/custom-taptagg-card.jpg"
-          alt="TapTagg business card"
-          width={4466}
-          height={3350}
-          sizes="(max-width: 768px) 100vw, 50vw"
-        />
+        <div className="business-proof-panel" aria-label="Business proof points">
+          {proofPoints.map((point) => (
+            <div className="business-proof-point" key={point.label}>
+              <span>{point.label}</span>
+              <strong>{point.value}</strong>
+            </div>
+          ))}
+        </div>
         <div>
           <div className="dashboard-kicker">Business ready</div>
           <h2>Your customers remember the conversation. Make sure they remember who to call.</h2>
