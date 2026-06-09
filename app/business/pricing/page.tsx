@@ -23,7 +23,7 @@ const businessFeatures = [
   "Business analytics",
   "Employee activation and deactivation",
   "Card and profile reassignment",
-  "CRM-ready outbound webhooks",
+  "CRM-ready lead delivery",
   "Review, booking, menu, and listing links",
   "CSV export and lead ownership tools",
   "Reusable employee seats",
@@ -94,6 +94,9 @@ export default function BusinessPricingPage() {
         </p>
         <p style={{ ...heroCopy, marginTop: 14, fontSize: "clamp(15px, 1.6vw, 17px)", color: "#d8ccff" }}>
           Works alongside your existing CRM. No replacement required.
+        </p>
+        <p style={planClarification}>
+          All business plans include the same platform features. Choose the seat count that fits your organization.
         </p>
       </section>
 
@@ -173,6 +176,19 @@ const heroCopy = {
   fontSize: "clamp(18px, 2vw, 21px)",
   lineHeight: 1.6,
   fontWeight: 500
+};
+
+const planClarification = {
+  maxWidth: 820,
+  margin: "22px auto 0",
+  padding: "16px 18px",
+  borderRadius: 18,
+  border: "1px solid rgba(167,139,250,.3)",
+  background: "rgba(139,92,246,.1)",
+  color: "#ffffff",
+  fontSize: "clamp(16px, 1.8vw, 19px)",
+  lineHeight: 1.5,
+  fontWeight: 800
 };
 
 const businessPanel = {

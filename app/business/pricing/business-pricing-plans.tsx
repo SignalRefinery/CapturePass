@@ -22,6 +22,25 @@ type BusinessPricingTier = {
   tier: string;
 };
 
+const teamSizeDescriptions: Record<string, string> = {
+  small_team:
+    "Typically 1–5 employees. Perfect for small businesses, independent dealerships, small brokerages, and growing teams.",
+  starter:
+    "Typically 6–10 employees. Ideal for established businesses that regularly share contact information with customers, prospects, and referral partners.",
+  growth:
+    "Typically 11–25 employees. Built for larger sales teams, multi-location businesses, and organizations that need consistent branding across employees.",
+  pro:
+    "Typically 26–50 employees. Designed for larger organizations, dealer groups, brokerages, franchises, and enterprise-style deployments."
+};
+
+const sharedPlanFeatures = [
+  "Shared company branding",
+  "Reassign cards and profiles when employees leave",
+  "Team contact management",
+  "Team analytics dashboard",
+  "CRM-ready lead delivery"
+];
+
 export function BusinessPricingPlans({ tiers }: { tiers: BusinessPricingTier[] }) {
   const [billingInterval, setBillingInterval] = useState<BillingInterval>("monthly");
   const [promoCode, setPromoCode] = useState("");
@@ -77,13 +96,15 @@ export function BusinessPricingPlans({ tiers }: { tiers: BusinessPricingTier[] }
             <div>
               <div style={quoteLabel}>{tier.name}</div>
               <div style={quotePrice}>{tier.seats} reusable seats</div>
+              <p style={businessTierDescription}>{teamSizeDescriptions[tier.tier]}</p>
             </div>
 
             <div style={businessTierDetails}>
               <div>{tier.cards} NFC cards included at setup</div>
               <div>${tier.setupFee} one-time setup</div>
-              <div>Business console, branding, token reassignment, contacts, and analytics</div>
-              <div>CRM Ready outbound webhooks for TapTagg leads</div>
+              {sharedPlanFeatures.map((feature) => (
+                <div key={feature}>{feature}</div>
+              ))}
             </div>
 
             <div style={businessPlanOptions}>
@@ -267,6 +288,14 @@ const quotePrice = {
   lineHeight: 1,
   letterSpacing: "-0.035em",
   fontWeight: 800
+};
+
+const businessTierDescription = {
+  margin: "12px 0 0",
+  color: "#b6bcc8",
+  fontSize: 14,
+  lineHeight: 1.55,
+  fontWeight: 650
 };
 
 const businessTierDetails = {
