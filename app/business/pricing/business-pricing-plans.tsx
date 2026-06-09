@@ -101,7 +101,11 @@ export function BusinessPricingPlans({ tiers }: { tiers: BusinessPricingTier[] }
 
             <div style={businessTierDetails}>
               <div>{tier.cards} NFC cards included at setup</div>
-              <div>${tier.setupFee} one-time setup</div>
+              <div style={setupFeeWrap}>
+                <span>${tier.setupFee} setup</span>
+                <strong style={setupFeeWaivedText}>Setup Fee Waived</strong>
+                <em>Save ${tier.setupFee} today</em>
+              </div>
               {sharedPlanFeatures.map((feature) => (
                 <div key={feature}>{feature}</div>
               ))}
@@ -305,6 +309,25 @@ const businessTierDetails = {
   fontSize: 14,
   lineHeight: 1.45,
   fontWeight: 700
+};
+
+const setupFeeWrap = {
+  display: "grid",
+  gap: 5,
+  padding: "12px 13px",
+  borderRadius: 16,
+  border: "1px solid rgba(34,197,94,.28)",
+  background:
+    "linear-gradient(135deg, rgba(34,197,94,.14), rgba(139,92,246,.08))",
+  color: "#dcfce7"
+};
+
+const setupFeeWaivedText = {
+  color: "#86efac",
+  fontSize: 14,
+  fontWeight: 950,
+  letterSpacing: "0.04em",
+  textTransform: "uppercase" as const
 };
 
 const businessPlanOptions = {

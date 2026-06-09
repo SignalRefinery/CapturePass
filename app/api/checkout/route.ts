@@ -31,6 +31,10 @@ type CheckoutPayload = {
   promo_code?: string;
 };
 
+// Launch promotion: business setup fees are temporarily waived.
+// TODO: Re-enable business plan setup fee charges when the launch promotion ends.
+const BUSINESS_SETUP_FEES_WAIVED_FOR_LAUNCH = true;
+
 function getStringId(value: string | { id?: string } | null | undefined) {
   if (!value) return null;
   return typeof value === "string" ? value : value.id || null;
@@ -323,6 +327,8 @@ async function createCheckoutOrPortal(req: Request) {
             ? process.env.STRIPE_PRICE_BUSINESS_INDIVIDUAL_EXTRA_CARD || undefined
           : undefined;
     const businessSetupPriceId = businessPlan ? getBusinessSetupPriceId(businessPlan) : null;
+    const businessSetupFeeWaived =
+      !!businessPlan && BUSINESS_SETUP_FEES_WAIVED_FOR_LAUNCH;
     const plan =
       checkoutSelection?.kind === "individual"
         ? checkoutSelection.plan
@@ -478,13 +484,14 @@ async function createCheckoutOrPortal(req: Request) {
       return NextResponse.redirect(founderBusinessUrl.toString(), { status: 303 });
     }
 
-    if (!selectedPriceId || (businessPlan && !businessSetupPriceId)) {
+    if (!selectedPriceId || (businessPlan && !businessSetupFeeWaived && !businessSetupPriceId)) {
       console.error("Checkout price configuration missing", {
         route: "/api/checkout",
         requestedPlan,
         plan,
         missingRecurringPrice: !selectedPriceId,
-        missingSetupPrice: businessPlan ? !businessSetupPriceId : false
+        missingSetupPrice: businessPlan && !businessSetupFeeWaived ? !businessSetupPriceId : false,
+        setupFeeWaived: businessSetupFeeWaived
       });
 
       if (req.method === "GET") {
@@ -590,6 +597,9 @@ async function createCheckoutOrPortal(req: Request) {
       checkoutMetadata.business_plan_key = businessPlan.key;
       checkoutMetadata.business_plan_tier = businessPlan.tier;
       checkoutMetadata.business_billing_interval = businessBillingInterval;
+      if (businessSetupFeeWaived) {
+        checkoutMetadata.business_setup_fee_waived = "launch_promotion";
+      }
     }
 
     const subscriptionMetadata: Stripe.MetadataParam = {
@@ -611,6 +621,9 @@ async function createCheckoutOrPortal(req: Request) {
       subscriptionMetadata.business_plan_key = businessPlan.key;
       subscriptionMetadata.business_plan_tier = businessPlan.tier;
       subscriptionMetadata.business_billing_interval = businessBillingInterval;
+      if (businessSetupFeeWaived) {
+        subscriptionMetadata.business_setup_fee_waived = "launch_promotion";
+      }
     }
 
     const sessionParamsFor = (customerId?: string | null): CheckoutSessionCreateParams => ({
@@ -630,7 +643,8 @@ async function createCheckoutOrPortal(req: Request) {
         : {}),
       billing_address_collection: "required",
       line_items: [
-        ...(businessPlan && businessSetupPriceId
+        // TODO: Re-enable this setup fee line item when the launch promotion ends.
+        ...(businessPlan && !businessSetupFeeWaived && businessSetupPriceId
           ? [
               {
                 price: businessSetupPriceId,

@@ -98,6 +98,12 @@ export default function BusinessPricingPage() {
         <p style={planClarification}>
           All business plans include the same platform features. Choose the seat count that fits your organization.
         </p>
+        <div style={launchPromotion}>
+          <div style={launchPromotionLabel}>Limited-Time Launch Promotion</div>
+          <p style={launchPromotionBody}>All business plan setup fees are currently being waived.</p>
+          <strong style={launchPromotionSavings}>Save up to $499 when you start today.</strong>
+          <span style={launchPromotionNote}>This promotion may end at any time.</span>
+        </div>
       </section>
 
       <section className="section-wrap">
@@ -189,6 +195,48 @@ const planClarification = {
   fontSize: "clamp(16px, 1.8vw, 19px)",
   lineHeight: 1.5,
   fontWeight: 800
+};
+
+const launchPromotion = {
+  maxWidth: 820,
+  margin: "18px auto 0",
+  display: "grid",
+  gap: 8,
+  padding: "18px 20px",
+  borderRadius: 22,
+  border: "1px solid rgba(34,197,94,.32)",
+  background:
+    "radial-gradient(320px 140px at 18% 0%, rgba(34,197,94,.18), transparent 72%), linear-gradient(135deg, rgba(34,197,94,.12), rgba(139,92,246,.1))",
+  color: "#ffffff",
+  boxShadow: "0 22px 54px rgba(0,0,0,.28)"
+};
+
+const launchPromotionLabel = {
+  color: "#86efac",
+  fontSize: 13,
+  fontWeight: 950,
+  letterSpacing: "0.08em",
+  textTransform: "uppercase" as const
+};
+
+const launchPromotionBody = {
+  margin: 0,
+  color: "#f8fafc",
+  fontSize: "clamp(17px, 2vw, 22px)",
+  lineHeight: 1.35,
+  fontWeight: 850
+};
+
+const launchPromotionSavings = {
+  color: "#dcfce7",
+  fontSize: "clamp(16px, 1.8vw, 19px)",
+  lineHeight: 1.35
+};
+
+const launchPromotionNote = {
+  color: "#b6bcc8",
+  fontSize: 13,
+  fontWeight: 700
 };
 
 const businessPanel = {
