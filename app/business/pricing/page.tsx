@@ -3,31 +3,46 @@ import { Shell } from "@/components/shared/shell";
 import { BusinessPricingPlans } from "./business-pricing-plans";
 
 const businessTierKeys = [
+  ["business_small_team_self", "business_small_team_managed"],
   ["business_starter_self", "business_starter_managed"],
   ["business_growth_self", "business_growth_managed"],
   ["business_pro_self", "business_pro_managed"]
 ] as const satisfies readonly [BusinessPlanKey, BusinessPlanKey][];
 
 const selfManagedDescription =
-  "Self-managed gives your organization admin access to manage seats, profiles, branding, and card assignments directly.";
+  "Your team manages employee profiles, cards, branding, and updates directly.";
 
 const fullyManagedDescription =
-  "Fully managed means your team sends us new hires, departures, and profile changes. We handle setup, deactivation, card assignment, seat reassignment, and basic profile updates.";
+  "TapTagg helps with setup, onboarding, employee changes, card assignment, seat reassignment, and profile updates.";
 
 const businessFeatures = [
-  "Business-branded profile pages",
-  "Reusable employee seats",
-  "Included NFC cards at setup",
-  "Permanent card/pass token assignment",
-  "Employee activation and deactivation",
-  "Card/profile reassignment",
+  "Customer contact capture",
+  "Branded employee profiles",
+  "NFC and QR sharing",
   "Business contacts dashboard",
   "Business analytics",
-  "CRM Ready - Send new TapTagg leads to Zapier, Make, your CRM, email tools, SMS workflows, or custom business systems using outbound webhooks.",
-  "Team leaderboard",
-  "Review, booking, menu, and form links",
-  "CSV/export-ready contact data",
-  "Optional fully managed operations"
+  "Employee activation and deactivation",
+  "Card and profile reassignment",
+  "CRM-ready outbound webhooks",
+  "Review, booking, menu, and listing links",
+  "CSV export and lead ownership tools",
+  "Reusable employee seats",
+  "Optional managed onboarding and support"
+];
+
+const businessOutcomes = [
+  {
+    copy: "Customers save the right employee instantly.",
+    title: "Keep Customers Connected"
+  },
+  {
+    copy: "Turn conversations into contacts and follow-up opportunities.",
+    title: "Capture More Opportunities"
+  },
+  {
+    copy: "Reassign cards and profiles without reprinting materials.",
+    title: "Protect Against Turnover"
+  }
 ];
 
 const businessTiers = businessTierKeys.map(([selfKey, managedKey]) => {
@@ -39,7 +54,7 @@ const businessTiers = businessTierKeys.map(([selfKey, managedKey]) => {
     managed: {
       annualPrice: managedPlan.annualPrice,
       key: managedPlan.key,
-      label: "Fully Managed",
+      label: "Managed",
       monthlyPrice: managedPlan.monthlyPrice
     },
     name: selfPlan.name,
@@ -71,13 +86,14 @@ export default function BusinessPricingPage() {
           <span className="mini-star">✦</span>
           <span>Business Pricing</span>
         </div>
-        <h1 style={heroHeading}>Reusable seats. Included cards. Clean team control.</h1>
+        <h1 style={heroHeading}>Turn every customer interaction into a saved contact.</h1>
         <p style={heroCopy}>
-          Pick a seat capacity, choose self-managed or fully managed, and launch with
-          NFC cards included based on purchased capacity, not currently filled seats.
+          Choose a plan that fits your team and give every employee a branded TapTagg profile,
+          instant contact sharing, lead capture, and reusable NFC/QR tools that keep customers
+          connected after they walk away.
         </p>
         <p style={{ ...heroCopy, marginTop: 14, fontSize: "clamp(15px, 1.6vw, 17px)", color: "#d8ccff" }}>
-          CRM Ready: Send new TapTagg leads to Zapier, Make, your CRM, email tools, SMS workflows, or custom business systems using outbound webhooks.
+          Works alongside your existing CRM. No replacement required.
         </p>
       </section>
 
@@ -86,26 +102,44 @@ export default function BusinessPricingPage() {
           <div style={{ display: "grid", gap: 16 }}>
             <div className="kicker" style={{ width: "fit-content" }}>
               <span className="mini-star">✦</span>
-              <span>How Business Works</span>
+              <span>Built for Sales Teams</span>
             </div>
 
             <p style={businessIntro}>
-              Cards are included based on purchased plan capacity, not currently filled seats.
-              If a Growth customer has 14 active employees at signup, they still receive 25 NFC
-              cards because they purchased 25 reusable seats.
+              TapTagg helps teams capture contact information, stay connected with customers,
+              and protect valuable relationships when employees join, leave, or change roles.
             </p>
           </div>
 
           <div style={managementCopyGrid}>
             <div style={businessQuoteCard}>
-              <div style={quoteLabel}>Self-managed</div>
+              <div style={quoteLabel}>Self-Managed</div>
               <p style={quoteCopy}>{selfManagedDescription}</p>
             </div>
             <div style={businessQuoteCard}>
-              <div style={quoteLabel}>Fully managed</div>
+              <div style={quoteLabel}>Managed</div>
               <p style={quoteCopy}>{fullyManagedDescription}</p>
             </div>
           </div>
+
+          <section style={outcomeSection}>
+            <div style={outcomeHeader}>
+              <div className="kicker" style={{ width: "fit-content" }}>
+                <span className="mini-star">✦</span>
+                <span>Why teams choose TapTagg</span>
+              </div>
+              <h2 style={outcomeHeading}>Built around the moments your team cannot afford to lose.</h2>
+            </div>
+
+            <div style={outcomeGrid}>
+              {businessOutcomes.map((outcome) => (
+                <article key={outcome.title} style={outcomeCard}>
+                  <h3 style={outcomeTitle}>{outcome.title}</h3>
+                  <p style={outcomeCopy}>{outcome.copy}</p>
+                </article>
+              ))}
+            </div>
+          </section>
 
           <BusinessPricingPlans tiers={businessTiers} />
 
@@ -194,6 +228,65 @@ const quoteCopy = {
   color: "#b6bcc8",
   fontSize: 14,
   lineHeight: 1.55
+};
+
+const outcomeSection = {
+  gridColumn: "1 / -1",
+  display: "grid",
+  gap: 18,
+  padding: 22,
+  borderRadius: 24,
+  border: "1px solid rgba(167,139,250,.28)",
+  background:
+    "linear-gradient(180deg, rgba(255,255,255,.052), rgba(255,255,255,.018)), rgba(8,8,10,.72)"
+};
+
+const outcomeHeader = {
+  display: "grid",
+  gap: 12
+};
+
+const outcomeHeading = {
+  maxWidth: 760,
+  margin: 0,
+  fontFamily: "var(--font-heading)",
+  fontSize: "clamp(30px, 4vw, 52px)",
+  lineHeight: 1,
+  letterSpacing: "-0.035em",
+  fontWeight: 800
+};
+
+const outcomeGrid = {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 220px), 1fr))",
+  gap: 14
+};
+
+const outcomeCard = {
+  display: "grid",
+  gap: 10,
+  alignContent: "start",
+  minHeight: 150,
+  padding: 18,
+  borderRadius: 18,
+  border: "1px solid rgba(255,255,255,.1)",
+  background: "rgba(255,255,255,.026)"
+};
+
+const outcomeTitle = {
+  margin: 0,
+  color: "#fff",
+  fontSize: 18,
+  lineHeight: 1.15,
+  fontWeight: 900
+};
+
+const outcomeCopy = {
+  margin: 0,
+  color: "#b6bcc8",
+  fontSize: 14,
+  lineHeight: 1.55,
+  fontWeight: 600
 };
 
 const businessFeatureGrid = {

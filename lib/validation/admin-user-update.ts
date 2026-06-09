@@ -117,6 +117,8 @@ export function isKnownPlanOverride(value: string) {
     "premium",
     "founder",
     "business",
+    "business_small_team_self",
+    "business_small_team_managed",
     "business_starter_self",
     "business_starter_managed",
     "business_growth_self",

@@ -1,7 +1,9 @@
-export type BusinessPlanTier = "starter" | "growth" | "pro";
+export type BusinessPlanTier = "small_team" | "starter" | "growth" | "pro";
 export type BusinessBillingInterval = "monthly" | "annual";
 
 export type BusinessPlanKey =
+  | "business_small_team_self"
+  | "business_small_team_managed"
   | "business_starter_self"
   | "business_starter_managed"
   | "business_growth_self"
@@ -25,6 +27,34 @@ export type BusinessPlanConfig = {
 };
 
 export const BUSINESS_PLANS: Record<BusinessPlanKey, BusinessPlanConfig> = {
+  business_small_team_self: {
+    key: "business_small_team_self",
+    name: "Small Team",
+    monthlyPrice: 99,
+    annualPrice: 1069,
+    setupFee: 99,
+    seatLimit: 5,
+    includedCards: 5,
+    managed: false,
+    tier: "small_team",
+    monthlyPriceEnv: "STRIPE_BUSINESS_SMALL_TEAM_SELF_PRICE_ID",
+    annualPriceEnv: "STRIPE_BUSINESS_SMALL_TEAM_SELF_ANNUAL_PRICE_ID",
+    setupPriceEnv: "STRIPE_BUSINESS_SMALL_TEAM_SETUP_PRICE_ID"
+  },
+  business_small_team_managed: {
+    key: "business_small_team_managed",
+    name: "Small Team",
+    monthlyPrice: 149,
+    annualPrice: 1609,
+    setupFee: 99,
+    seatLimit: 5,
+    includedCards: 5,
+    managed: true,
+    tier: "small_team",
+    monthlyPriceEnv: "STRIPE_BUSINESS_SMALL_TEAM_MANAGED_PRICE_ID",
+    annualPriceEnv: "STRIPE_BUSINESS_SMALL_TEAM_MANAGED_ANNUAL_PRICE_ID",
+    setupPriceEnv: "STRIPE_BUSINESS_SMALL_TEAM_SETUP_PRICE_ID"
+  },
   business_starter_self: {
     key: "business_starter_self",
     name: "Business Starter",
