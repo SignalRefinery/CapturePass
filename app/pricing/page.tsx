@@ -3,10 +3,27 @@ import { Shell } from "@/components/shared/shell";
 
 const individualPlans = [
   {
+    name: "Digital",
+    price: "$1.99",
+    cadence: "/ month",
+    purpose: "Create a digital TapTagg profile and start sharing with your link or QR code.",
+    cta: "Start Digital",
+    href: "/api/checkout?plan=digital",
+    features: [
+      "Active TapTagg profile",
+      "Digital pass only",
+      "QR sharing",
+      "Profile link sharing",
+      "Add-to-contacts / vCard saving",
+      "Basic profile customization",
+      "No physical card included"
+    ]
+  },
+  {
     name: "Core",
     price: "$29",
     cadence: "one-time",
-    purpose: "Activate your TapTagg with a physical card and start sharing in the real world.",
+    purpose: "Activate your TapTagg profile, get your physical NFC card, and start sharing instantly.",
     cta: "Get Your Tagg",
     href: "/api/checkout?plan=core",
     featured: true,
@@ -15,46 +32,32 @@ const individualPlans = [
       "1 physical TapTagg NFC card",
       "NFC sharing",
       "QR sharing",
-      "Share My Contact",
-      "Contacts dashboard",
+      "Profile link sharing",
+      "Add-to-contacts / vCard saving",
       "Basic profile customization",
       "Themes"
     ]
   },
   {
     name: "Tagg+",
-    price: "$49",
+    price: "$79",
     cadence: "/ year",
-    purpose: "The best everyday plan for people who share often and want more control.",
+    purpose: "For people who share often and want contact capture, better branding, analytics, and more control.",
     cta: "Upgrade to Tagg+",
     href: "/api/checkout?plan=tagg_plus",
     features: [
       "Everything in Core",
+      "Contact Capture",
+      "Contacts dashboard",
+      "Individual contact downloads",
       "Analytics dashboard",
       "Views and unique visitors",
       "QR, NFC, and source tracking",
       "Button click analytics",
-      "Contact save and contact sharing analytics",
+      "Contact analytics",
       "Advanced customization",
       "Custom buttons",
       "Priority support"
-    ]
-  },
-  {
-    name: "Creator",
-    price: "$99",
-    cadence: "/ year",
-    purpose: "For creators, musicians, salespeople, realtors, and small brands.",
-    cta: "Start Creator",
-    href: "/api/checkout?plan=creator",
-    features: [
-      "Everything in Tagg+",
-      "Multi-view profiles",
-      "Multiple layouts",
-      "Advanced branding",
-      "Featured links and sections",
-      "Priority support",
-      "Future creator tools"
     ]
   }
 ];
@@ -95,7 +98,7 @@ const faqItems = [
 function checkoutNoticeFor(value?: string | null) {
   switch (value) {
     case "choose-plan":
-      return "Choose Core, Tagg+, or Creator to start checkout.";
+      return "Choose Digital, Core, or Tagg+ to start checkout.";
     case "unavailable":
       return "Checkout is temporarily unavailable. Please try again in a few minutes.";
     case "start-error":
@@ -131,10 +134,10 @@ export default async function PricingPage({
           <span>Pricing</span>
         </div>
 
-        <h1 style={heroHeading}>Choose How You Tagg.</h1>
+        <h1 style={heroHeading}>Choose the TapTagg plan that fits how you share.</h1>
 
         <p style={heroCopy}>
-          Choose a phone-first profile, a physical card, or a larger system for your team.
+          Start digital, add a physical card, or upgrade for contact capture, analytics, and deeper customization.
         </p>
 
         {checkoutNoticeText ? (
@@ -187,8 +190,7 @@ export default async function PricingPage({
           </div>
           <h2 style={sectionHeading}>Need team pricing?</h2>
           <p style={sectionCopy}>
-            Business pricing now lives on its own page with Starter, Growth, and Pro
-            options for self-managed or fully managed teams.
+            Business pricing now lives on its own page with Small Team, Starter, Growth, and Pro options for teams that need shared branding, reusable seats, employee management, and lead ownership.
           </p>
           <Link className="button primary" href="/business/pricing" style={{ width: "fit-content" }}>
             View Business Pricing
