@@ -22,8 +22,8 @@ const individualPlans = [
   {
     name: "Core",
     price: "$29",
-    cadence: "one-time",
-    purpose: "Activate your TapTagg profile, get your physical NFC card, and start sharing instantly.",
+    cadence: "/ year",
+    purpose: "Activate your TapTagg profile, get your physical NFC card, and start sharing instantly with an introductory annual offer.",
     cta: "Get Your Tagg",
     href: "/api/checkout?plan=core",
     featured: true,
@@ -35,7 +35,8 @@ const individualPlans = [
       "Profile link sharing",
       "Add-to-contacts / vCard saving",
       "Basic profile customization",
-      "Themes"
+      "Themes",
+      "Introductory offer"
     ]
   },
   {
