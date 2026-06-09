@@ -13,8 +13,10 @@ import {
   BUSINESS_INDIVIDUAL_EXTRA_CARD_PLAN_KEY,
   BUSINESS_INDIVIDUAL_LAUNCH_OFFER,
   BUSINESS_INDIVIDUAL_PLAN_KEY,
+  BUSINESS_INDIVIDUAL_PROMO_CODE,
   BUSINESS_INDIVIDUAL_REGULAR_PRICE_AFTER,
   getIndividualPlanPriceId,
+  isBusinessIndividualPromoCode,
   resolveCheckoutPlanSelection
 } from "@/lib/plans";
 import { stripe } from "@/lib/stripe";
@@ -287,6 +289,36 @@ async function activateFounderBusinessCheckout({
   }
 }
 
+async function activateBusinessIndividualPromoCheckout({
+  businessType,
+  promoCode,
+  userId
+}: {
+  businessType: BusinessType;
+  promoCode: string;
+  userId: string;
+}) {
+  const admin = createAdminClient();
+  const { data, error } = await admin
+    .from("profiles")
+    .update({
+      business_type: businessType,
+      is_active: true,
+      stripe_plan_key: BUSINESS_INDIVIDUAL_PLAN_KEY,
+      subscription_status: "active",
+      billing_exempt: true,
+      lifetime_free: false,
+      promo_code_used: promoCode
+    })
+    .eq("user_id", userId)
+    .select("id")
+    .maybeSingle();
+
+  if (error || !data) {
+    throw new Error(error?.message || "Unable to activate Business Individual promo checkout.");
+  }
+}
+
 async function createCheckoutOrPortal(req: Request) {
   try {
     if (!process.env.STRIPE_SECRET_KEY) {
@@ -469,6 +501,10 @@ async function createCheckoutOrPortal(req: Request) {
 
     const isFounderPromo =
       promoCode === "FOUNDERS" || normalizePromoCode(profile?.promo_code_used) === "FOUNDERS";
+    const isBusinessIndividualPromo =
+      isBusinessIndividualCheckout &&
+      (isBusinessIndividualPromoCode(promoCode) ||
+        isBusinessIndividualPromoCode(profile?.promo_code_used));
 
     if (businessPlan && checkoutOrganization && isFounderPromo) {
       await activateFounderBusinessCheckout({
@@ -482,6 +518,20 @@ async function createCheckoutOrPortal(req: Request) {
       founderBusinessUrl.searchParams.set("checkout", "success");
 
       return NextResponse.redirect(founderBusinessUrl.toString(), { status: 303 });
+    }
+
+    if (isBusinessIndividualCheckout && selectedBusinessType.value && isBusinessIndividualPromo) {
+      await activateBusinessIndividualPromoCheckout({
+        businessType: selectedBusinessType.value,
+        promoCode: BUSINESS_INDIVIDUAL_PROMO_CODE,
+        userId: user.id
+      });
+
+      const businessIndividualUrl = new URL("/dashboard", siteUrl);
+      businessIndividualUrl.searchParams.set("checkout", "success");
+      businessIndividualUrl.searchParams.set("promo", "business_individual");
+
+      return NextResponse.redirect(businessIndividualUrl.toString(), { status: 303 });
     }
 
     if (!selectedPriceId || (businessPlan && !businessSetupFeeWaived && !businessSetupPriceId)) {

@@ -6,6 +6,7 @@ export const BUSINESS_INDIVIDUAL_PLAN_KEY = "business_individual" as const;
 export const BUSINESS_INDIVIDUAL_EXTRA_CARD_PLAN_KEY = "business_individual_extra_card" as const;
 export const BUSINESS_INDIVIDUAL_LAUNCH_OFFER = "launch_99_through_2026_07_31" as const;
 export const BUSINESS_INDIVIDUAL_REGULAR_PRICE_AFTER = "199" as const;
+export const BUSINESS_INDIVIDUAL_PROMO_CODE = "FRIENDSNFAM26" as const;
 
 export type IndividualPlanKey = "free" | "core" | "tagg_plus" | "creator";
 export type BusinessIndividualPlanKey = typeof BUSINESS_INDIVIDUAL_PLAN_KEY;
@@ -128,6 +129,10 @@ const INDIVIDUAL_PLAN_PRICE_ENV: Record<PlanKey, string | null> = {
 
 function normalizePlanInput(value?: string | null) {
   return (value || "").trim().toLowerCase();
+}
+
+export function isBusinessIndividualPromoCode(value?: string | null) {
+  return (value || "").trim().toUpperCase() === BUSINESS_INDIVIDUAL_PROMO_CODE;
 }
 
 export function normalizeIndividualPlanKey(value?: string | null): PlanKey {

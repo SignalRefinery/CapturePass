@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { BUSINESS_TYPE_LABELS, BUSINESS_TYPES } from "@/lib/business-types";
+import { BUSINESS_INDIVIDUAL_PROMO_CODE } from "@/lib/plans";
 import { Shell } from "@/components/shared/shell";
 
 const includedFeatures = [
@@ -77,10 +78,14 @@ export default async function BusinessIndividualPage({
 }: {
   searchParams?: Promise<{
     checkout?: string;
+    promo_code?: string;
   }>;
 }) {
   const params = searchParams ? await searchParams : {};
   const checkoutNotice = checkoutNoticeFor(params.checkout);
+  const promoCode = params.promo_code?.toUpperCase() === BUSINESS_INDIVIDUAL_PROMO_CODE
+    ? BUSINESS_INDIVIDUAL_PROMO_CODE
+    : params.promo_code || "";
 
   return (
     <Shell footerLeft="Business Individual" footerRight="TapTagg">
@@ -135,6 +140,16 @@ export default async function BusinessIndividualPage({
                     </option>
                   ))}
                 </select>
+              </label>
+              <label style={selectLabel}>
+                Promo code
+                <input
+                  name="promo_code"
+                  style={selectInput}
+                  placeholder="Optional promo code"
+                  defaultValue={promoCode}
+                  autoComplete="off"
+                />
               </label>
               <button className="button primary" type="submit" style={{ width: "fit-content" }}>
                 Start Business Individual
