@@ -166,10 +166,15 @@ function friendlySlugRestrictionMessage(reason?: string | null) {
     .replace(/\bSlug\b/g, "URL");
 }
 
-function createViewFromProfile(profile: ProfileRecord, profileId: string, index: number): ProfileViewRecord {
+function createViewFromProfile(
+  profile: ProfileRecord,
+  profileId: string,
+  index: number,
+  label: "Property" | "View" = "View"
+): ProfileViewRecord {
   return {
     profile_id: profileId,
-    name: `View ${index + 1}`,
+    name: `${label} ${index + 1}`,
     view_key: `view-${Date.now()}`,
     sort_order: index,
     full_name: profile.full_name || "",
@@ -205,10 +210,10 @@ function createViewFromProfile(profile: ProfileRecord, profileId: string, index:
   };
 }
 
-function normalizeViewForSave(view: ProfileViewRecord): ProfileViewRecord {
+function normalizeViewForSave(view: ProfileViewRecord, fallbackName = "Profile view"): ProfileViewRecord {
   return {
     ...view,
-    name: view.name.trim() || "Profile view",
+    name: view.name.trim() || fallbackName,
     full_name: view.full_name.trim(),
     organization_name: (view.organization_name || "").trim(),
     role_line: view.role_line.trim(),
@@ -439,10 +444,14 @@ export function ProfileEditor({
   async function saveActiveViewChanges() {
     if (!activeView) return null;
 
-    const result = await saveProfileViewClient(normalizeViewForSave(activeView));
+    const result = await saveProfileViewClient(
+      normalizeViewForSave(activeView, isRealEstateBusinessProfile ? "Property" : "Profile view")
+    );
 
     if (result.error) {
-      throw new Error(result.error.message || "Failed to save view.");
+      throw new Error(
+        result.error.message || (isRealEstateBusinessProfile ? "Failed to save property." : "Failed to save view.")
+      );
     }
 
     const savedView = result.data as ProfileViewRecord;
@@ -522,10 +531,18 @@ export function ProfileEditor({
           console.error("Profile view save failed:", viewErr);
           setViewError(
             viewErr instanceof Error
-              ? `Profile saved, but the active view was not saved: ${viewErr.message}`
-              : "Profile saved, but the active view was not saved."
+              ? isRealEstateBusinessProfile
+                ? `Profile saved, but the active property was not saved: ${viewErr.message}`
+                : `Profile saved, but the active view was not saved: ${viewErr.message}`
+              : isRealEstateBusinessProfile
+                ? "Profile saved, but the active property was not saved."
+                : "Profile saved, but the active view was not saved."
           );
-          setMessage("Profile saved. The active view still needs attention.");
+          setMessage(
+            isRealEstateBusinessProfile
+              ? "Profile saved. The active property still needs attention."
+              : "Profile saved. The active view still needs attention."
+          );
           return;
         }
       }
@@ -572,11 +589,19 @@ export function ProfileEditor({
         );
       }
 
-      const draft = createViewFromProfile(form, profileId, views.length);
+      const draft = createViewFromProfile(
+        form,
+        profileId,
+        views.length,
+        isRealEstateBusinessProfile ? "Property" : "View"
+      );
       const result = await saveProfileViewClient(draft);
 
       if (result.error) {
-        throw new Error(result.error.message || "Failed to create profile view.");
+        throw new Error(
+          result.error.message ||
+            (isRealEstateBusinessProfile ? "Failed to create property." : "Failed to create profile view.")
+        );
       }
 
       const savedView = result.data as ProfileViewRecord;
@@ -599,7 +624,13 @@ export function ProfileEditor({
 
       setViewMessage(isRealEstateBusinessProfile ? "Property created." : "Profile view created.");
     } catch (err) {
-      setViewError(err instanceof Error ? err.message : "Unexpected error while creating the view.");
+      setViewError(
+        err instanceof Error
+          ? err.message
+          : isRealEstateBusinessProfile
+            ? "Unexpected error while creating the property."
+            : "Unexpected error while creating the view."
+      );
     } finally {
       setViewSaving(false);
     }
@@ -616,7 +647,10 @@ export function ProfileEditor({
       const result = await setDefaultProfileViewClient(userId, view.id);
 
       if (result.error) {
-        throw new Error(result.error.message || "Failed to set default profile view.");
+        throw new Error(
+          result.error.message ||
+            (isRealEstateBusinessProfile ? "Failed to set featured property." : "Failed to set default profile view.")
+        );
       }
 
       if (result.data) {
@@ -634,7 +668,13 @@ export function ProfileEditor({
       setActiveViewKey(view.id);
       setViewMessage(isRealEstateBusinessProfile ? "Default property updated." : "Default profile view updated.");
     } catch (err) {
-      setViewError(err instanceof Error ? err.message : "Unexpected error while setting the default view.");
+      setViewError(
+        err instanceof Error
+          ? err.message
+          : isRealEstateBusinessProfile
+            ? "Unexpected error while setting the featured property."
+            : "Unexpected error while setting the default view."
+      );
     } finally {
       setViewSaving(false);
     }
@@ -654,7 +694,10 @@ export function ProfileEditor({
       const result = await deleteProfileViewClient(view.id);
 
       if (result.error) {
-        throw new Error(result.error.message || "Failed to delete profile view.");
+        throw new Error(
+          result.error.message ||
+            (isRealEstateBusinessProfile ? "Failed to delete property." : "Failed to delete profile view.")
+        );
       }
 
       const remainingViews = views.filter((current) => current.id !== view.id);
@@ -662,7 +705,13 @@ export function ProfileEditor({
       setActiveViewKey(remainingViews[0]?.id || remainingViews[0]?.view_key || "");
       setViewMessage(isRealEstateBusinessProfile ? "Property deleted." : "Profile view deleted.");
     } catch (err) {
-      setViewError(err instanceof Error ? err.message : "Unexpected error while deleting the view.");
+      setViewError(
+        err instanceof Error
+          ? err.message
+          : isRealEstateBusinessProfile
+            ? "Unexpected error while deleting the property."
+            : "Unexpected error while deleting the view."
+      );
     } finally {
       setViewSaving(false);
     }
@@ -1062,18 +1111,18 @@ export function ProfileEditor({
             <div className="dashboard-kicker">{profileSectionPlural}</div>
             <h3 style={{ margin: "6px 0 10px", fontSize: "1.25rem", lineHeight: 1.1 }}>
               {isRealEstateBusinessProfile
-                ? "Configure single or multi-property display."
+                ? "Configure property pages."
                 : "Configure single or multi-view display."}
             </h3>
             <p className="editor-copy" style={{ marginBottom: 18 }}>
               {isRealEstateBusinessProfile
-                ? "Single mode keeps your current profile behavior. Multi mode lets visitors switch between up to five configured properties."
+                ? "Use one main property page, or let visitors switch between up to five configured properties."
                 : "Single mode keeps your current profile behavior. Multi mode lets visitors switch between up to three configured views."}
             </p>
 
             <div className="editor-grid">
               <label className="auth-field">
-                <span>Page mode</span>
+                <span>{isRealEstateBusinessProfile ? "Property page setup" : "Page mode"}</span>
                 <select
                   value={form.page_mode || "single"}
                   onChange={(event) =>
@@ -1081,8 +1130,12 @@ export function ProfileEditor({
                   }
                   disabled={!plan.hasMoreProfileSections}
                 >
-                  <option value="single">single</option>
-                  <option value="multi">multi</option>
+                  <option value="single">
+                    {isRealEstateBusinessProfile ? "Main property only" : "single"}
+                  </option>
+                  <option value="multi">
+                    {isRealEstateBusinessProfile ? "Property collection" : "multi"}
+                  </option>
                 </select>
                 {!plan.hasMoreProfileSections ? (
                   <UpgradeNotice>More profile sections and multi-view profiles unlock with Creator.</UpgradeNotice>
@@ -1091,7 +1144,7 @@ export function ProfileEditor({
 
               {isMultiViewMode ? (
                 <label className="auth-field">
-                  <span>{isRealEstateBusinessProfile ? "Property display" : "Multi-view display"}</span>
+                  <span>{isRealEstateBusinessProfile ? "Property navigation" : "Multi-view display"}</span>
                   <select
                     value={form.multi_view_display_mode || "favorite"}
                     onChange={(event) =>
@@ -1100,8 +1153,12 @@ export function ProfileEditor({
                       )
                     }
                   >
-                    <option value="favorite">favorite</option>
-                    <option value="landing">landing</option>
+                    <option value="favorite">
+                      {isRealEstateBusinessProfile ? "Feature default property" : "favorite"}
+                    </option>
+                    <option value="landing">
+                      {isRealEstateBusinessProfile ? "Show property landing page" : "landing"}
+                    </option>
                   </select>
                 </label>
               ) : null}
@@ -1122,7 +1179,13 @@ export function ProfileEditor({
                           <strong>{view.name || profileSectionLabel}</strong>
                           <br />
                           <small style={{ opacity: 0.72 }}>
-                            {isDefault ? "Default / favorite" : view.view_key}
+                            {isDefault
+                              ? isRealEstateBusinessProfile
+                                ? "Featured property"
+                                : "Default / favorite"
+                              : isRealEstateBusinessProfile
+                                ? "Property page"
+                                : view.view_key}
                           </small>
                         </span>
                         <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
@@ -1197,7 +1260,7 @@ export function ProfileEditor({
             ) : (
               <p className="editor-copy" style={{ marginTop: 18 }}>
                 {isRealEstateBusinessProfile
-                  ? "Single mode uses your main profile information. Switch to multi to manage separate properties."
+                  ? "Use your main profile information for now. Choose property collection to manage separate properties."
                   : "Single mode uses your main profile information. Switch to multi to manage separate views."}
               </p>
             )}
@@ -1338,7 +1401,11 @@ export function ProfileEditor({
                         checked={!!activeView.show_email}
                         onChange={(event) => updateView("show_email", event.target.checked)}
                       />
-                      <span>Display email address on this view.</span>
+                      <span>
+                        {isRealEstateBusinessProfile
+                          ? "Display email address on this property."
+                          : "Display email address on this view."}
+                      </span>
                     </label>
 
                     <label className="toggle-row" style={{ margin: 0 }}>
@@ -1347,7 +1414,11 @@ export function ProfileEditor({
                         checked={!!activeView.show_phone}
                         onChange={(event) => updateView("show_phone", event.target.checked)}
                       />
-                      <span>Display phone number on this view.</span>
+                      <span>
+                        {isRealEstateBusinessProfile
+                          ? "Display phone number on this property."
+                          : "Display phone number on this view."}
+                      </span>
                     </label>
 
                     <label className="toggle-row" style={{ margin: 0 }}>
@@ -1358,7 +1429,7 @@ export function ProfileEditor({
                       />
                       <span>
                         {isRealEstateBusinessProfile
-                          ? "Show this property as a public profile button."
+                          ? "Show this property in the public property list."
                           : "Show this view as a public profile button."}
                         <br />
                         <small className="auth-message">
