@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import type { CSSProperties } from "react";
-import { useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 import { ProfileAnalyticsTracker, trackProfileAction } from "@/components/analytics/profile-analytics-tracker";
 import { getReadableProfileUrl } from "@/lib/urls/profile-url";
 import { CUSTOM_THEME_KEY, normalizeThemeKey, resolveThemeColors, themeUsesLightShell } from "@/lib/themes";
@@ -185,7 +185,6 @@ export function TapTaggProfileShell({
 }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const activeProfile = profile;
-  const [avatarAspectRatio, setAvatarAspectRatio] = useState<number | null>(null);
   const readableUrl = publicShareUrl(activeProfile);
   const qrReadableUrl = urlWithSource(readableUrl, "qr");
   const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=420x420&data=${encodeURIComponent(
@@ -217,9 +216,6 @@ export function TapTaggProfileShell({
       ? activeProfile.brand_logo_url
       : activeProfile.profile_image_url || activeProfile.brand_logo_url || null;
   const avatarIsLogo = isBusinessProfile && !!activeProfile.brand_logo_url && avatarUrl === activeProfile.brand_logo_url;
-  useEffect(() => {
-    setAvatarAspectRatio(null);
-  }, [avatarUrl]);
   const resolvedThemeKey =
     activeProfile.theme_key && !isBusinessProfile && normalizeThemeKey(activeProfile.theme_key) === "executive_navy"
       ? "taptagg_brand"
@@ -267,25 +263,6 @@ export function TapTaggProfileShell({
     profileViewId: activeProfile.view_id || null,
     cardId: activeProfile.analytics_card_id || null
   };
-  const avatarFrameStyle = useMemo(() => {
-    if (!avatarIsLogo) {
-      return undefined;
-    }
-
-    const ratio = avatarAspectRatio || 1;
-    const isWide = ratio >= 1.2;
-    const isTall = ratio <= 0.85;
-    const width = isWide ? Math.min(180, Math.max(96, Math.round(84 * ratio * 1.08))) : isTall ? 92 : 84;
-    const height = isWide ? 84 : isTall ? Math.min(132, Math.max(86, Math.round(84 / Math.max(ratio, 0.5) * 1.04))) : 84;
-    const radius = isWide ? 26 : isTall ? 28 : 22;
-
-    return {
-      width: `${width}px`,
-      height: `${height}px`,
-      borderRadius: `${radius}px`
-    } as CSSProperties;
-  }, [avatarAspectRatio, avatarIsLogo]);
-
   return (
     <div className={pageClassName} style={brandStyle}>
       <ProfileAnalyticsTracker target={analyticsTarget} />
@@ -364,21 +341,10 @@ export function TapTaggProfileShell({
               <div
                 className={`${styles.profileAvatar}${avatarIsLogo ? ` ${styles.profileAvatarLogo}` : ""}`}
                 aria-hidden="true"
-                style={avatarFrameStyle}
               >
                 {avatarUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={avatarUrl}
-                    alt=""
-                    onLoad={(event) => {
-                      if (!avatarIsLogo) return;
-                      const image = event.currentTarget;
-                      if (image.naturalWidth && image.naturalHeight) {
-                        setAvatarAspectRatio(image.naturalWidth / image.naturalHeight);
-                      }
-                    }}
-                  />
+                  <img src={avatarUrl} alt="" />
                 ) : (
                   <span>{initialsForName(displayName)}</span>
                 )}

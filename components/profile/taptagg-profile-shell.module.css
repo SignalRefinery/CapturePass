@@ -374,13 +374,13 @@
 }
 
 .profileAvatarLogo{
-  padding:10px 14px;
-  width:auto;
+  width:min(75%, 720px);
   height:auto;
-  min-width:78px;
-  min-height:78px;
-  max-width:min(180px, 92vw);
-  max-height:132px;
+  min-width:min(75%, 260px);
+  min-height:112px;
+  max-width:75%;
+  padding:clamp(18px, 4vw, 34px);
+  border-radius:30px;
 }
 
 .profileAvatar img{
@@ -392,8 +392,11 @@
 }
 
 .profileAvatarLogo img{
+  width:100%;
+  height:auto;
+  max-height:180px;
   object-fit:contain;
-  padding:2px;
+  padding:0;
 }
 
 .profileAvatar span{
@@ -1086,6 +1089,15 @@
     width:68px;
     height:68px;
     border-radius:20px;
+  }
+  .profileAvatarLogo{
+    width:75%;
+    height:auto;
+    min-width:min(75%, 220px);
+    min-height:96px;
+    max-width:75%;
+    padding:18px;
+    border-radius:24px;
   }
   .profileAvatar span{
     font-size:21px;
