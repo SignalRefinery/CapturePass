@@ -381,11 +381,11 @@ export default async function BusinessPage({
                 <option value="" disabled>
                   Choose a range
                 </option>
-                <option value="2-10">2-10</option>
+                <option value="2-5">2-5</option>
+                <option value="6-10">6-10</option>
                 <option value="11-25">11-25</option>
-                <option value="26-100">26-100</option>
-                <option value="101-250">101-250</option>
-                <option value="250+">250+</option>
+                <option value="26-50">26-50</option>
+                <option value="50+">50+</option>
               </select>
             </label>
 
