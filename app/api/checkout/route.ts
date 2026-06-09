@@ -6,9 +6,14 @@ import {
   getBusinessSetupPriceId,
   normalizeBusinessBillingInterval
 } from "@/lib/business/plans";
+import { BUSINESS_TYPES, normalizeBusinessType, type BusinessType } from "@/lib/business-types";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import {
+  BUSINESS_INDIVIDUAL_EXTRA_CARD_PLAN_KEY,
+  BUSINESS_INDIVIDUAL_LAUNCH_OFFER,
+  BUSINESS_INDIVIDUAL_PLAN_KEY,
+  BUSINESS_INDIVIDUAL_REGULAR_PRICE_AFTER,
   getIndividualPlanPriceId,
   resolveCheckoutPlanSelection
 } from "@/lib/plans";
@@ -21,6 +26,7 @@ type CheckoutSessionCreateParams = Parameters<
 
 type CheckoutPayload = {
   billing?: string;
+  business_type?: string;
   plan?: string;
   promo_code?: string;
 };
@@ -141,6 +147,42 @@ async function getPromoCodeFromRequest(req: Request) {
   return null;
 }
 
+async function getBusinessTypeFromRequest(req: Request) {
+  const url = new URL(req.url);
+  const queryBusinessType = url.searchParams.get("business_type");
+
+  if (queryBusinessType) return queryBusinessType;
+
+  const contentType = req.headers.get("content-type") || "";
+
+  if (contentType.includes("application/json")) {
+    const body = (await req.clone().json().catch(() => ({}))) as CheckoutPayload;
+    return body.business_type || null;
+  }
+
+  if (contentType.includes("application/x-www-form-urlencoded") || contentType.includes("multipart/form-data")) {
+    const formData = await req.clone().formData().catch(() => null);
+    const formBusinessType = formData?.get("business_type");
+    return typeof formBusinessType === "string" ? formBusinessType : null;
+  }
+
+  return null;
+}
+
+function parseSelectedBusinessType(value?: string | null) {
+  const trimmed = (value || "").trim();
+
+  if (!trimmed) {
+    return { value: null, error: "missing" as const };
+  }
+
+  if (!BUSINESS_TYPES.includes(trimmed as BusinessType)) {
+    return { value: null, error: "invalid" as const };
+  }
+
+  return { value: normalizeBusinessType(trimmed), error: null };
+}
+
 async function generateUniqueOrganizationSlug(name: string) {
   const admin = createAdminClient();
   const base = slugify(name) || `business-${Date.now()}`;
@@ -254,23 +296,31 @@ async function createCheckoutOrPortal(req: Request) {
     const requestedPlan = await getPlanFromRequest(req);
     const businessBillingInterval = await getBillingIntervalFromRequest(req);
     const promoCode = normalizePromoCode(await getPromoCodeFromRequest(req));
+    const selectedBusinessType = parseSelectedBusinessType(await getBusinessTypeFromRequest(req));
     const checkoutSelection = resolveCheckoutPlanSelection(requestedPlan);
     const businessPlan = checkoutSelection?.kind === "business" ? checkoutSelection.plan : null;
     const individualPlan = checkoutSelection?.kind === "individual" ? checkoutSelection.plan : null;
+    const isBusinessIndividualCheckout = individualPlan === BUSINESS_INDIVIDUAL_PLAN_KEY;
+    const isBusinessIndividualExtraCardCheckout =
+      checkoutSelection?.kind === "business_individual_extra_card";
     const checkoutPlanKey =
       businessPlan?.key ||
       individualPlan ||
-      (checkoutSelection?.kind === "additional_cards" ? "additional-cards" : null);
+      (checkoutSelection?.kind === "additional_cards" ? "additional-cards" : null) ||
+      (isBusinessIndividualExtraCardCheckout ? BUSINESS_INDIVIDUAL_EXTRA_CARD_PLAN_KEY : null);
     const sessionPlanKey =
       businessPlan?.key ||
       individualPlan ||
-      (checkoutSelection?.kind === "additional_cards" ? "additional-cards" : null);
+      (checkoutSelection?.kind === "additional_cards" ? "additional-cards" : null) ||
+      (isBusinessIndividualExtraCardCheckout ? BUSINESS_INDIVIDUAL_EXTRA_CARD_PLAN_KEY : null);
     const selectedPriceId = businessPlan
       ? getBusinessRecurringPriceId(businessPlan, businessBillingInterval) || undefined
       : checkoutSelection?.kind === "individual"
         ? getIndividualPlanPriceId(checkoutSelection.plan) || undefined
         : checkoutSelection?.kind === "additional_cards"
           ? process.env.STRIPE_ADDITIONAL_TAPTAGG_CARD_PRICE_ID || undefined
+          : isBusinessIndividualExtraCardCheckout
+            ? process.env.STRIPE_PRICE_BUSINESS_INDIVIDUAL_EXTRA_CARD || undefined
           : undefined;
     const businessSetupPriceId = businessPlan ? getBusinessSetupPriceId(businessPlan) : null;
     const plan =
@@ -278,6 +328,8 @@ async function createCheckoutOrPortal(req: Request) {
         ? checkoutSelection.plan
         : checkoutSelection?.kind === "additional_cards"
           ? "additional-cards"
+          : isBusinessIndividualExtraCardCheckout
+            ? BUSINESS_INDIVIDUAL_EXTRA_CARD_PLAN_KEY
           : null;
 
     if (!requestedPlan) {
@@ -313,6 +365,22 @@ async function createCheckoutOrPortal(req: Request) {
       );
     }
 
+    if (isBusinessIndividualCheckout && selectedBusinessType.error) {
+      if (req.method === "GET") {
+        return redirectWithParam(
+          req,
+          "/business-individual",
+          "checkout",
+          selectedBusinessType.error === "missing" ? "missing-business-type" : "invalid-business-type"
+        );
+      }
+
+      return NextResponse.json(
+        { error: "Choose a business type before starting Business Individual checkout." },
+        { status: 400 }
+      );
+    }
+
     const siteUrl = getSiteUrl(req);
 
     const supabase = await createClient();
@@ -343,10 +411,19 @@ async function createCheckoutOrPortal(req: Request) {
       if (promoCode) {
         signupUrl.searchParams.set("promo_code", promoCode);
       }
-      signupUrl.searchParams.set(
-        "next",
-        `/api/checkout?plan=${encodeURIComponent(checkoutPlanKey || "")}${businessPlan ? `&billing=${businessBillingInterval}` : ""}${promoCode ? `&promo_code=${encodeURIComponent(promoCode)}` : ""}`
-      );
+      if (selectedBusinessType.value) {
+        signupUrl.searchParams.set("business_type", selectedBusinessType.value);
+      }
+
+      const checkoutParams = new URLSearchParams();
+      checkoutParams.set("plan", checkoutPlanKey || "");
+      if (businessPlan) checkoutParams.set("billing", businessBillingInterval);
+      if (promoCode) checkoutParams.set("promo_code", promoCode);
+      if (selectedBusinessType.value) {
+        checkoutParams.set("business_type", selectedBusinessType.value);
+      }
+
+      signupUrl.searchParams.set("next", `/api/checkout?${checkoutParams.toString()}`);
       return NextResponse.redirect(signupUrl.toString(), { status: 303 });
     }
 
@@ -374,6 +451,7 @@ async function createCheckoutOrPortal(req: Request) {
 
     const isAdditionalCardsCheckout =
       checkoutSelection?.kind === "additional_cards" ||
+      isBusinessIndividualExtraCardCheckout ||
       selectedPriceId === process.env.STRIPE_ADDITIONAL_TAPTAGG_CARD_PRICE_ID;
     const checkoutOrganization = businessPlan
       ? await getOrCreateCheckoutOrganization({
@@ -410,7 +488,14 @@ async function createCheckoutOrPortal(req: Request) {
       });
 
       if (req.method === "GET") {
-        return redirectWithParam(req, "/pricing", "checkout", "unavailable");
+        return redirectWithParam(
+          req,
+          isBusinessIndividualCheckout || isBusinessIndividualExtraCardCheckout
+            ? "/business-individual"
+            : "/pricing",
+          "checkout",
+          "unavailable"
+        );
       }
 
       return NextResponse.json(
@@ -472,7 +557,62 @@ async function createCheckoutOrPortal(req: Request) {
     const successUrl = businessPlan && checkoutOrganization
       ? `${siteUrl}/dashboard/business?checkout=success&session_id={CHECKOUT_SESSION_ID}&org=${checkoutOrganization.id}`
       : `${siteUrl}/dashboard?checkout=success&session_id={CHECKOUT_SESSION_ID}`;
-    const cancelUrl = `${siteUrl}/pricing`;
+    const cancelUrl =
+      isBusinessIndividualCheckout || isBusinessIndividualExtraCardCheckout
+        ? `${siteUrl}/business-individual`
+        : `${siteUrl}/pricing`;
+    const checkoutErrorPath =
+      isBusinessIndividualCheckout || isBusinessIndividualExtraCardCheckout
+        ? "/business-individual"
+        : "/pricing";
+    const metadataPlanKey = sessionPlanKey || "";
+    const checkoutMetadata: Stripe.MetadataParam = {
+      user_id: user.id,
+      plan: metadataPlanKey,
+      selected_plan: metadataPlanKey
+    };
+
+    if (isBusinessIndividualCheckout) {
+      checkoutMetadata.business_type = selectedBusinessType.value || "general_business";
+      checkoutMetadata.checkout_type = BUSINESS_INDIVIDUAL_PLAN_KEY;
+      checkoutMetadata.offer = BUSINESS_INDIVIDUAL_LAUNCH_OFFER;
+      checkoutMetadata.regular_price_after = BUSINESS_INDIVIDUAL_REGULAR_PRICE_AFTER;
+    }
+
+    if (isBusinessIndividualExtraCardCheckout) {
+      checkoutMetadata.checkout_type = BUSINESS_INDIVIDUAL_EXTRA_CARD_PLAN_KEY;
+      checkoutMetadata.product_type = "additional_card";
+    }
+
+    if (businessPlan && checkoutOrganization) {
+      checkoutMetadata.checkout_type = "business";
+      checkoutMetadata.organization_id = checkoutOrganization.id;
+      checkoutMetadata.business_plan_key = businessPlan.key;
+      checkoutMetadata.business_plan_tier = businessPlan.tier;
+      checkoutMetadata.business_billing_interval = businessBillingInterval;
+    }
+
+    const subscriptionMetadata: Stripe.MetadataParam = {
+      user_id: user.id,
+      plan: metadataPlanKey,
+      selected_plan: metadataPlanKey
+    };
+
+    if (isBusinessIndividualCheckout) {
+      subscriptionMetadata.business_type = selectedBusinessType.value || "general_business";
+      subscriptionMetadata.checkout_type = BUSINESS_INDIVIDUAL_PLAN_KEY;
+      subscriptionMetadata.offer = BUSINESS_INDIVIDUAL_LAUNCH_OFFER;
+      subscriptionMetadata.regular_price_after = BUSINESS_INDIVIDUAL_REGULAR_PRICE_AFTER;
+    }
+
+    if (businessPlan && checkoutOrganization) {
+      subscriptionMetadata.checkout_type = "business";
+      subscriptionMetadata.organization_id = checkoutOrganization.id;
+      subscriptionMetadata.business_plan_key = businessPlan.key;
+      subscriptionMetadata.business_plan_tier = businessPlan.tier;
+      subscriptionMetadata.business_billing_interval = businessBillingInterval;
+    }
+
     const sessionParamsFor = (customerId?: string | null): CheckoutSessionCreateParams => ({
       mode,
       ...(customerId
@@ -515,38 +655,12 @@ async function createCheckoutOrPortal(req: Request) {
       allow_promotion_codes: true,
       success_url: successUrl,
       cancel_url: cancelUrl,
-      metadata: {
-        user_id: user.id,
-        plan: sessionPlanKey,
-        selected_plan: sessionPlanKey,
-        ...(businessPlan && checkoutOrganization
-          ? {
-              checkout_type: "business",
-              organization_id: checkoutOrganization.id,
-              business_plan_key: businessPlan.key,
-              business_plan_tier: businessPlan.tier,
-              business_billing_interval: businessBillingInterval
-            }
-          : {})
-      },
+      metadata: checkoutMetadata,
       ...(mode === "payment"
         ? {}
         : {
             subscription_data: {
-              metadata: {
-                user_id: user.id,
-                plan: sessionPlanKey,
-                selected_plan: sessionPlanKey,
-                ...(businessPlan && checkoutOrganization
-                  ? {
-                      checkout_type: "business",
-                      organization_id: checkoutOrganization.id,
-                      business_plan_key: businessPlan.key,
-                      business_plan_tier: businessPlan.tier,
-                      business_billing_interval: businessBillingInterval
-                    }
-                  : {})
-              }
+              metadata: subscriptionMetadata
             }
           })
     });
@@ -579,7 +693,7 @@ async function createCheckoutOrPortal(req: Request) {
             retryError: stripeErrorDetails(retryError)
           });
           if (req.method === "GET") {
-            return redirectWithParam(req, "/pricing", "checkout", "start-error");
+            return redirectWithParam(req, checkoutErrorPath, "checkout", "start-error");
           }
           return NextResponse.json({ error: "Unable to start checkout. Please try again." }, { status: 500 });
         }
@@ -594,7 +708,7 @@ async function createCheckoutOrPortal(req: Request) {
           error: stripeErrorDetails(error)
         });
         if (req.method === "GET") {
-          return redirectWithParam(req, "/pricing", "checkout", "start-error");
+          return redirectWithParam(req, checkoutErrorPath, "checkout", "start-error");
         }
         return NextResponse.json({ error: "Unable to start checkout. Please try again." }, { status: 500 });
       }
@@ -608,7 +722,7 @@ async function createCheckoutOrPortal(req: Request) {
         sessionId: session.id
       });
       if (req.method === "GET") {
-        return redirectWithParam(req, "/pricing", "checkout", "start-error");
+        return redirectWithParam(req, checkoutErrorPath, "checkout", "start-error");
       }
       return NextResponse.json(
         { error: "Unable to start checkout. Please try again." },

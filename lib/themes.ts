@@ -51,7 +51,7 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
       text: "#FFFFFF",
       background: "#030304"
     },
-    allowedPlans: ["free", "core", "tagg_plus", "creator"]
+    allowedPlans: ["free", "core", "tagg_plus", "creator", "business_individual"]
   },
   executive_navy: {
     key: "executive_navy",
@@ -64,7 +64,7 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
       text: "#F8FAFC",
       background: "#0B1220"
     },
-    allowedPlans: ["free", "core", "tagg_plus", "creator"]
+    allowedPlans: ["free", "core", "tagg_plus", "creator", "business_individual"]
   },
   modern_slate: {
     key: "modern_slate",
@@ -77,7 +77,7 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
       text: "#F8FAFC",
       background: "#111827"
     },
-    allowedPlans: ["core", "tagg_plus", "creator"]
+    allowedPlans: ["core", "tagg_plus", "creator", "business_individual"]
   },
   executive_gold: {
     key: "executive_gold",
@@ -90,7 +90,7 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
       text: "#FFF8E7",
       background: "#111827"
     },
-    allowedPlans: ["tagg_plus", "creator"]
+    allowedPlans: ["tagg_plus", "creator", "business_individual"]
   },
   clean_horizon: {
     key: "clean_horizon",
@@ -103,7 +103,7 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
       text: "#111827",
       background: "#F8FBFF"
     },
-    allowedPlans: ["core", "tagg_plus", "creator"]
+    allowedPlans: ["core", "tagg_plus", "creator", "business_individual"]
   },
   sage_professional: {
     key: "sage_professional",
@@ -116,7 +116,7 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
       text: "#F8FAF7",
       background: "#08261B"
     },
-    allowedPlans: ["tagg_plus", "creator"]
+    allowedPlans: ["tagg_plus", "creator", "business_individual"]
   },
   arctic_white: {
     key: "arctic_white",
@@ -129,7 +129,7 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
       text: "#111827",
       background: "#FFFFFF"
     },
-    allowedPlans: ["core", "tagg_plus", "creator"]
+    allowedPlans: ["core", "tagg_plus", "creator", "business_individual"]
   },
   ivory_executive: {
     key: "ivory_executive",
@@ -142,7 +142,7 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
       text: "#2C241D",
       background: "#FFFDF9"
     },
-    allowedPlans: ["tagg_plus", "creator"]
+    allowedPlans: ["tagg_plus", "creator", "business_individual"]
   },
   coastal_blue: {
     key: "coastal_blue",
@@ -155,7 +155,7 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
       text: "#0F172A",
       background: "#F8FBFF"
     },
-    allowedPlans: ["core", "tagg_plus", "creator"]
+    allowedPlans: ["core", "tagg_plus", "creator", "business_individual"]
   },
   emerald_executive: {
     key: "emerald_executive",
@@ -168,7 +168,7 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
       text: "#1F2937",
       background: "#F7FFFB"
     },
-    allowedPlans: ["tagg_plus", "creator"]
+    allowedPlans: ["tagg_plus", "creator", "business_individual"]
   },
   sandstone: {
     key: "sandstone",
@@ -181,7 +181,7 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
       text: "#3A312A",
       background: "#FDFBF8"
     },
-    allowedPlans: ["tagg_plus", "creator"]
+    allowedPlans: ["tagg_plus", "creator", "business_individual"]
   },
   modern_rose: {
     key: "modern_rose",
@@ -194,7 +194,7 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
       text: "#1F2937",
       background: "#FFFDFD"
     },
-    allowedPlans: ["tagg_plus", "creator"]
+    allowedPlans: ["tagg_plus", "creator", "business_individual"]
   },
   custom: {
     key: "custom",
@@ -207,7 +207,7 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
       background: "#F8FAFC",
       text: "#111827"
     },
-    allowedPlans: ["creator"]
+    allowedPlans: ["creator", "business_individual"]
   }
 };
 

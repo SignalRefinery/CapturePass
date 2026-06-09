@@ -1,10 +1,13 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { businessPlanFromRecurringPriceId, getBusinessPlan, isBusinessPlanKey } from "@/lib/business/plans";
+import { normalizeBusinessType } from "@/lib/business-types";
 import { buildQuickChartQrUrl } from "@/lib/notifications/qr";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendRegistrationEmail } from "@/lib/notifications/send-registration-email";
 import {
+  BUSINESS_INDIVIDUAL_EXTRA_CARD_PLAN_KEY,
+  BUSINESS_INDIVIDUAL_PLAN_KEY,
   getIndividualPlanKeyFromPriceId,
   normalizeIndividualPlanKey,
   resolveCheckoutPlanSelection
@@ -38,13 +41,25 @@ function getPlanFromSubscription(subscription: Stripe.Subscription) {
     return selection.plan;
   }
 
+  if (selection?.kind === "business_individual_extra_card") {
+    return BUSINESS_INDIVIDUAL_EXTRA_CARD_PLAN_KEY;
+  }
+
   return normalizeIndividualPlanKey(metadataPlan);
 }
 
 function getPlanFromCheckoutSession(session: Stripe.Checkout.Session) {
   const rawPlan = session.metadata?.plan || session.metadata?.selected_plan || null;
   if (isBusinessPlanKey(rawPlan)) return rawPlan;
-  return rawPlan === "additional-cards" ? rawPlan : normalizeIndividualPlanKey(rawPlan);
+
+  const selection = resolveCheckoutPlanSelection(rawPlan);
+  if (selection?.kind === "individual") return selection.plan;
+  if (selection?.kind === "additional_cards") return "additional-cards";
+  if (selection?.kind === "business_individual_extra_card") {
+    return BUSINESS_INDIVIDUAL_EXTRA_CARD_PLAN_KEY;
+  }
+
+  return normalizeIndividualPlanKey(rawPlan);
 }
 
 function isSubscriptionCheckoutSession(session: Stripe.Checkout.Session) {
@@ -53,12 +68,23 @@ function isSubscriptionCheckoutSession(session: Stripe.Checkout.Session) {
   return (
     session.mode === "subscription" &&
     !!session.subscription &&
-    plan !== "additional-cards"
+    plan !== "additional-cards" &&
+    plan !== BUSINESS_INDIVIDUAL_EXTRA_CARD_PLAN_KEY
   );
 }
 
 function planIncludesPhysicalCard(plan: string) {
-  return plan === "core" || plan === "tagg_plus" || plan === "creator";
+  return (
+    plan === "core" ||
+    plan === "tagg_plus" ||
+    plan === "creator" ||
+    plan === BUSINESS_INDIVIDUAL_PLAN_KEY
+  );
+}
+
+function getMetadataBusinessType(metadata?: Stripe.Metadata | null) {
+  const businessType = metadata?.business_type;
+  return businessType ? normalizeBusinessType(businessType) : null;
 }
 
 function getInvoiceSubscriptionId(invoice: Stripe.Invoice) {
@@ -442,6 +468,7 @@ async function updateProfileForCheckout(session: Stripe.Checkout.Session) {
   const userId = session.metadata?.user_id || null;
   const customerId = getStringId(session.customer);
   const subscriptionId = getStringId(session.subscription);
+  const businessType = getMetadataBusinessType(session.metadata);
 
   if (!userId) return;
 
@@ -463,6 +490,7 @@ async function updateProfileForCheckout(session: Stripe.Checkout.Session) {
       stripe_subscription_id: subscriptionId,
       stripe_plan_key: plan,
       subscription_status: "active",
+      ...(businessType ? { business_type: businessType } : {})
     })
     .or(`user_id.eq.${userId},id.eq.${userId}`);
 
@@ -514,6 +542,7 @@ async function updateProfileForSubscription(subscription: Stripe.Subscription) {
     (await findUserIdByCustomer(customerId));
 
   const plan = getPlanFromSubscription(subscription);
+  const businessType = getMetadataBusinessType(subscription.metadata);
 
   if (!userId) return;
 
@@ -535,6 +564,7 @@ async function updateProfileForSubscription(subscription: Stripe.Subscription) {
       stripe_subscription_id: subscription.id,
       stripe_plan_key: plan,
       subscription_status: subscription.status,
+      ...(businessType ? { business_type: businessType } : {})
     })
     .or(`user_id.eq.${userId},id.eq.${userId}`);
 

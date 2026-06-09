@@ -1,8 +1,15 @@
-import type { ProfileRecord } from "@/lib/types";
 import { getBusinessPlan, type BusinessPlanConfig } from "@/lib/business/plans";
 import { isRealEstateBusiness } from "@/lib/business-types";
+import type { ProfileRecord } from "@/lib/types";
 
-export type PlanKey = "free" | "core" | "tagg_plus" | "creator";
+export const BUSINESS_INDIVIDUAL_PLAN_KEY = "business_individual" as const;
+export const BUSINESS_INDIVIDUAL_EXTRA_CARD_PLAN_KEY = "business_individual_extra_card" as const;
+export const BUSINESS_INDIVIDUAL_LAUNCH_OFFER = "launch_99_through_2026_07_31" as const;
+export const BUSINESS_INDIVIDUAL_REGULAR_PRICE_AFTER = "199" as const;
+
+export type IndividualPlanKey = "free" | "core" | "tagg_plus" | "creator";
+export type BusinessIndividualPlanKey = typeof BUSINESS_INDIVIDUAL_PLAN_KEY;
+export type PlanKey = IndividualPlanKey | BusinessIndividualPlanKey;
 
 export type PlanFeatures = {
   key: PlanKey;
@@ -31,20 +38,23 @@ export type PlanFeatures = {
 export type CheckoutPlanSelection =
   | { kind: "individual"; plan: PlanKey }
   | { kind: "business"; plan: BusinessPlanConfig }
-  | { kind: "additional_cards" };
+  | { kind: "additional_cards" }
+  | { kind: "business_individual_extra_card" };
 
 const PLAN_ORDER: Record<PlanKey, number> = {
   free: 0,
   core: 1,
   tagg_plus: 2,
-  creator: 3
+  creator: 3,
+  business_individual: 2
 };
 
 const PLAN_LABELS: Record<PlanKey, string> = {
   free: "Free",
   core: "Core",
   tagg_plus: "Tagg+",
-  creator: "Creator"
+  creator: "Creator",
+  business_individual: "Business Individual"
 };
 
 const LEGACY_INDIVIDUAL_PLAN_ALIASES: Record<string, PlanKey> = {
@@ -69,7 +79,11 @@ const LEGACY_INDIVIDUAL_PLAN_ALIASES: Record<string, PlanKey> = {
   creator: "creator",
   premium: "creator",
   founder: "creator",
+  business_individual: "business_individual",
+  "business-individual": "business_individual",
   business: "creator",
+  business_small_team_self: "core",
+  business_small_team_managed: "core",
   business_starter_self: "core",
   business_starter_managed: "core",
   business_growth_self: "tagg_plus",
@@ -95,7 +109,9 @@ const CHECKOUT_INDIVIDUAL_PLAN_ALIASES: Record<string, PlanKey> = {
   taggplus: "tagg_plus",
   professional: "tagg_plus",
   creator: "creator",
-  premium: "creator"
+  premium: "creator",
+  business_individual: "business_individual",
+  "business-individual": "business_individual"
 };
 
 const INDIVIDUAL_PLAN_PRICE_ENV: Record<PlanKey, string | null> = {
@@ -105,7 +121,9 @@ const INDIVIDUAL_PLAN_PRICE_ENV: Record<PlanKey, string | null> = {
     process.env.STRIPE_DIGITAL_PRICE_ID ||
     null,
   tagg_plus: process.env.STRIPE_TAGG_PLUS_PRICE_ID || null,
-  creator: process.env.STRIPE_CREATOR_PRICE_ID || null
+  creator: process.env.STRIPE_CREATOR_PRICE_ID || null,
+  // TODO: Switch business_individual from launch pricing to regular $199/year pricing after 2026-07-31.
+  business_individual: process.env.STRIPE_PRICE_BUSINESS_INDIVIDUAL_LAUNCH_YEARLY || null
 };
 
 function normalizePlanInput(value?: string | null) {
@@ -183,6 +201,10 @@ export function getPlanPricingDescription(
     return "Physical card activated. No renewal required.";
   }
 
+  if (normalized === "business_individual") {
+    return "Business Individual launch subscription.";
+  }
+
   if (options?.billingInterval === "monthly") {
     return "Monthly subscription.";
   }
@@ -216,6 +238,13 @@ export function getIndividualPlanKeyFromPriceId(priceId?: string | null) {
     return "creator" as const;
   }
 
+  if (
+    INDIVIDUAL_PLAN_PRICE_ENV.business_individual === priceId ||
+    process.env.STRIPE_PRICE_BUSINESS_INDIVIDUAL_YEARLY === priceId
+  ) {
+    return "business_individual" as const;
+  }
+
   return null;
 }
 
@@ -228,6 +257,13 @@ export function resolveCheckoutPlanSelection(value?: string | null): CheckoutPla
 
   if (normalized === "additional-cards") {
     return { kind: "additional_cards" };
+  }
+
+  if (
+    normalized === BUSINESS_INDIVIDUAL_EXTRA_CARD_PLAN_KEY ||
+    normalized === "business-individual-extra-card"
+  ) {
+    return { kind: "business_individual_extra_card" };
   }
 
   const businessPlan = getBusinessPlan(normalized);
@@ -248,9 +284,10 @@ export function getPlanFeatures(
   profileBusinessType?: string | null
 ): PlanFeatures {
   const hasPaidAccess = isActivated && plan !== "free";
-  const isCore = isActivated && planAtLeast(plan, "core");
-  const isTaggPlus = isActivated && planAtLeast(plan, "tagg_plus");
-  const isCreator = isActivated && planAtLeast(plan, "creator");
+  const isBusinessIndividual = isActivated && plan === "business_individual";
+  const isCore = isActivated && (planAtLeast(plan, "core") || isBusinessIndividual);
+  const isTaggPlus = isActivated && (planAtLeast(plan, "tagg_plus") || isBusinessIndividual);
+  const isCreator = isActivated && plan === "creator";
   const hasMultipleViews = isCreator || isRealEstateBusiness(profileBusinessType);
 
   return {
@@ -269,7 +306,7 @@ export function getPlanFeatures(
     hasLeadCapture: hasPaidAccess,
     hasCustomButtons: isTaggPlus || isCreator,
     hasPrioritySupport: isTaggPlus || isCreator,
-    hasAdvancedAnalytics: isCreator,
+    hasAdvancedAnalytics: isCreator || isBusinessIndividual,
     hasMoreProfileSections: hasMultipleViews,
     hasEmbeds: isCreator,
     hasBookingLinks: isCreator,
