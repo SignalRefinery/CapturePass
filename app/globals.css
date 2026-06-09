@@ -1606,9 +1606,11 @@ textarea{font:inherit}
   align-items:flex-end;
   padding:70px 34px 42px;
   background:
-    linear-gradient(180deg, rgba(3,3,4,.08), rgba(3,3,4,.82)),
-    linear-gradient(90deg, rgba(3,3,4,.88), rgba(3,3,4,.24) 58%, rgba(3,3,4,.75)),
-    url("/custom-taptagg-card.jpg") center / cover no-repeat;
+    radial-gradient(circle at 18% 18%, rgba(139,92,246,.28), transparent 42%),
+    radial-gradient(circle at 88% 0%, rgba(34,197,94,.10), transparent 34%),
+    linear-gradient(135deg, rgba(139,92,246,.18), transparent 44%),
+    linear-gradient(180deg, rgba(8,8,10,.76), rgba(3,3,4,.96)),
+    linear-gradient(90deg, rgba(3,3,4,.92), rgba(3,3,4,.54) 58%, rgba(3,3,4,.86));
   border-bottom:1px solid rgba(255,255,255,.09);
 }
 .business-hero-content{width:min(850px, 100%)}
