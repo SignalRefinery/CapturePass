@@ -28,6 +28,7 @@ create table if not exists public.profiles (
   brand_color_accent text,
   brand_color_background text,
   brand_color_text text,
+  brand_logo_url text,
   profile_badge_1 text not null default '',
   profile_badge_2 text not null default '',
   profile_badge_3 text not null default '',

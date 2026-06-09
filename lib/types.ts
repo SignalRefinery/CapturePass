@@ -47,6 +47,7 @@ export type ProfileRecord = {
   brand_color_accent?: string | null;
   brand_color_background?: string | null;
   brand_color_text?: string | null;
+  brand_logo_url?: string | null;
   profile_badge_1?: string | null;
   profile_badge_2?: string | null;
   profile_badge_3?: string | null;

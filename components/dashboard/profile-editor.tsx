@@ -80,6 +80,7 @@ const MAX_INTRO_TEXTAREA_HEIGHT = 220;
 const LEGACY_INTRO_PROMPT = "Turning complexity into clarity.";
 const INTRO_PLACEHOLDER =
   "Write a short line in your own words: what you do, who you help, or the best next step.";
+const BUSINESS_INDIVIDUAL_LOGO_MAX_BYTES = 5 * 1024 * 1024;
 
 function UpgradeNotice({ children }: { children: React.ReactNode }) {
   return <small className="auth-message">{children}</small>;
@@ -275,12 +276,15 @@ export function ProfileEditor({
   const [error, setError] = useState("");
   const [viewMessage, setViewMessage] = useState("");
   const [viewError, setViewError] = useState("");
+  const [logoDeleting, setLogoDeleting] = useState(false);
   const [slugInput, setSlugInput] = useState(initialProfile.slug_requested || initialProfile.slug || "");
   const [slugChecking, setSlugChecking] = useState(false);
   const [slugTaken, setSlugTaken] = useState(false);
   const [slugCheckError, setSlugCheckError] = useState("");
   const slugCheckRequestRef = useRef(0);
+  const profileLogoInputRef = useRef<HTMLInputElement | null>(null);
   const plan = getProfilePlan(form);
+  const isBusinessIndividualProfile = plan.isActivated && plan.key === "business_individual";
   const selectedThemeKey = coerceThemeForPlan(form.theme_key, plan);
   const showCustomThemeColors = selectedThemeKey === CUSTOM_THEME_KEY;
   const customThemeColors = resolveThemeColors({
@@ -467,6 +471,58 @@ export function ProfileEditor({
     return savedView;
   }
 
+  async function uploadBusinessIndividualLogo(file: File) {
+    const logoFormData = new FormData();
+    logoFormData.set("logo", file);
+
+    const response = await fetch("/api/profile-logo", {
+      method: "POST",
+      body: logoFormData
+    });
+    const result = (await response.json().catch(() => ({}))) as {
+      brand_logo_url?: string | null;
+      error?: string;
+    };
+
+    if (!response.ok) {
+      throw new Error(result.error || "Logo upload failed.");
+    }
+
+    return result.brand_logo_url || null;
+  }
+
+  async function handleDeleteBusinessIndividualLogo() {
+    if (logoDeleting) return;
+
+    setLogoDeleting(true);
+    setError("");
+    setMessage("");
+
+    try {
+      const response = await fetch("/api/profile-logo", {
+        method: "DELETE"
+      });
+      const result = (await response.json().catch(() => ({}))) as {
+        brand_logo_url?: string | null;
+        error?: string;
+      };
+
+      if (!response.ok) {
+        throw new Error(result.error || "Unable to remove logo.");
+      }
+
+      setForm((current) => ({ ...current, brand_logo_url: null }));
+      if (profileLogoInputRef.current) {
+        profileLogoInputRef.current.value = "";
+      }
+      setMessage("Logo removed.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unable to remove logo.");
+    } finally {
+      setLogoDeleting(false);
+    }
+  }
+
   async function handleSave(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -480,6 +536,20 @@ export function ProfileEditor({
     setViewMessage("");
 
     try {
+      const logoFile = profileLogoInputRef.current?.files?.[0] || null;
+
+      if (logoFile && !isBusinessIndividualProfile) {
+        throw new Error("Logo upload is available for Business Individual profiles.");
+      }
+
+      if (logoFile && logoFile.type !== "image/png") {
+        throw new Error("Business Individual logos must be PNG files.");
+      }
+
+      if (logoFile && logoFile.size > BUSINESS_INDIVIDUAL_LOGO_MAX_BYTES) {
+        throw new Error("Business Individual logos must be 5 MB or smaller.");
+      }
+
       if (slugModeration.state === "blocked") {
         throw new Error(slugModeration.reason || "This slug is restricted or unavailable.");
       }
@@ -515,8 +585,20 @@ export function ProfileEditor({
         throw new Error(result.error.message || "Failed to save profile.");
       }
 
-      if (result.data) {
-        const savedProfile = result.data as ProfileRecord;
+      let savedProfile = result.data as ProfileRecord | null;
+
+      if (logoFile) {
+        const brandLogoUrl = await uploadBusinessIndividualLogo(logoFile);
+        savedProfile = {
+          ...(savedProfile || payload),
+          brand_logo_url: brandLogoUrl
+        };
+        if (profileLogoInputRef.current) {
+          profileLogoInputRef.current.value = "";
+        }
+      }
+
+      if (savedProfile) {
         setForm(savedProfile);
         setSlugInput(savedProfile.slug_requested || savedProfile.slug || "");
       }
@@ -550,7 +632,9 @@ export function ProfileEditor({
       setMessage(
         savedSlugStatus === "pending_review"
           ? `Changes saved. ${savedRequestedSlug ? `/${savedRequestedSlug}` : "Your requested URL"} is pending review.`
-          : "Changes saved."
+          : logoFile
+            ? "Changes saved. Logo updated."
+            : "Changes saved."
       );
     } catch (err) {
       console.error("Profile save failed:", err);
@@ -820,6 +904,47 @@ export function ProfileEditor({
               </span>
             </label>
           </div>
+
+          {isBusinessIndividualProfile ? (
+            <div className="card" style={{ marginTop: 18, padding: 18 }}>
+              <div className="dashboard-kicker">Business logo</div>
+              <h3 style={{ margin: "6px 0 8px" }}>Show your brand first.</h3>
+              <p className="editor-copy">
+                Upload a PNG logo to replace the initials/avatar block on your public profile with a wide brand mark.
+              </p>
+              <label className="editor-label" style={{ marginTop: 18 }}>
+                Logo PNG
+                {form.brand_logo_url ? (
+                  <div className="business-logo-preview">
+                    {/* eslint-disable-next-line @next/next/no-img-element -- storage-backed customer logos are remote runtime uploads. */}
+                    <img src={form.brand_logo_url} alt={`${form.organization_name || form.full_name || "Business"} logo`} />
+                    <span className="table-subtext">Current logo</span>
+                  </div>
+                ) : (
+                  <span className="table-subtext">No logo uploaded.</span>
+                )}
+                <input
+                  className="editor-input"
+                  ref={profileLogoInputRef}
+                  type="file"
+                  accept="image/png"
+                  disabled={saving || viewSaving || logoDeleting}
+                />
+                <span className="table-subtext">PNG only. Max 5 MB. Save changes to upload a selected logo.</span>
+              </label>
+              {form.brand_logo_url ? (
+                <button
+                  className="button secondary"
+                  type="button"
+                  disabled={saving || viewSaving || logoDeleting}
+                  onClick={handleDeleteBusinessIndividualLogo}
+                  style={{ marginTop: 12 }}
+                >
+                  {logoDeleting ? "Removing..." : "Remove logo"}
+                </button>
+              ) : null}
+            </div>
+          ) : null}
 
           <div className="card" style={{ marginTop: 18, padding: 18 }}>
             <div className="dashboard-kicker">Profile Theme</div>

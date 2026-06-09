@@ -16,6 +16,12 @@ type UploadBusinessAssetOptions = {
   organizationId: string;
 };
 
+type UploadBusinessIndividualLogoOptions = {
+  file: File | null;
+  oldUrl?: string | null;
+  profileId: string;
+};
+
 function cleanFilenamePart(value: string) {
   return value.replace(/[^a-z0-9-]/gi, "-").replace(/-+/g, "-").replace(/^-|-$/g, "").toLowerCase();
 }
@@ -71,6 +77,43 @@ export async function uploadBusinessAsset({
   const path = isLogo
     ? `organizations/${safeOrganizationId}/branding/logo-${timestamp}.${extension}`
     : `organizations/${safeOrganizationId}/members/${cleanFilenamePart(memberId || "member")}/headshot-${timestamp}.${extension}`;
+
+  const { error } = await admin.storage.from(BUSINESS_ASSETS_BUCKET).upload(path, file, {
+    cacheControl: "3600",
+    contentType: file.type,
+    upsert: false
+  });
+
+  if (error) {
+    throw new Error(error.message || "asset_upload_failed");
+  }
+
+  if (oldUrl) {
+    await deleteBusinessAssetUrl(oldUrl);
+  }
+
+  const { data } = admin.storage.from(BUSINESS_ASSETS_BUCKET).getPublicUrl(path);
+  return data.publicUrl;
+}
+
+export async function uploadBusinessIndividualLogoAsset({
+  file,
+  oldUrl,
+  profileId
+}: UploadBusinessIndividualLogoOptions) {
+  if (!file || file.size === 0) return null;
+
+  if (file.size > BUSINESS_LOGO_MAX_BYTES) {
+    throw new Error("logo_too_large");
+  }
+
+  if (file.type !== "image/png") {
+    throw new Error("logo_must_be_png");
+  }
+
+  const admin = createAdminClient();
+  const safeProfileId = cleanFilenamePart(profileId);
+  const path = `profiles/${safeProfileId}/branding/logo-${Date.now()}.png`;
 
   const { error } = await admin.storage.from(BUSINESS_ASSETS_BUCKET).upload(path, file, {
     cacheControl: "3600",

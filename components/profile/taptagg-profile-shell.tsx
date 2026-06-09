@@ -215,7 +215,7 @@ export function TapTaggProfileShell({
     isBusinessProfile && activeProfile.brand_logo_url
       ? activeProfile.brand_logo_url
       : activeProfile.profile_image_url || activeProfile.brand_logo_url || null;
-  const avatarIsLogo = isBusinessProfile && !!activeProfile.brand_logo_url && avatarUrl === activeProfile.brand_logo_url;
+  const avatarIsLogo = !!activeProfile.brand_logo_url && avatarUrl === activeProfile.brand_logo_url;
   const resolvedThemeKey =
     activeProfile.theme_key && !isBusinessProfile && normalizeThemeKey(activeProfile.theme_key) === "executive_navy"
       ? "taptagg_brand"
