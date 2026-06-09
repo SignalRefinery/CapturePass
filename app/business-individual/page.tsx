@@ -26,21 +26,6 @@ const includedFeatures = [
   "Priority support"
 ];
 
-const excludedFeatures = [
-  "Team management",
-  "Reusable seats",
-  "Employee management",
-  "Employee activation/deactivation",
-  "Employee reassignment",
-  "Card reassignment",
-  "Shared seat pools",
-  "Team analytics",
-  "Team lead ownership",
-  "Competitions",
-  "Team competitions",
-  "Leaderboards",
-  "Gamification management"
-];
 
 const faqItems = [
   {
@@ -167,15 +152,14 @@ export default async function BusinessIndividualPage({
 
           <aside style={sideStack}>
             <section className="card tagg-card" style={sideCard}>
-              <div className="dashboard-kicker">Not included</div>
-              <h2 style={sideHeading}>Built for one professional, not a team account.</h2>
-              <div style={excludedGrid}>
-                {excludedFeatures.map((feature) => (
-                  <div key={feature} style={excludedItem}>
-                    {feature}
-                  </div>
-                ))}
-              </div>
+              <div className="dashboard-kicker">Need a team plan?</div>
+              <h2 style={sideHeading}>Upgrade when you are ready to manage multiple people.</h2>
+              <p style={sideCopy}>
+                Business Individual is built for one professional. Team plans add reusable seats, employee management, shared company branding, team contacts, team analytics, card reassignment, and organization-wide management tools.
+              </p>
+              <Link className="button secondary" href="/business/pricing" style={{ width: "fit-content" }}>
+                View Team Plans
+              </Link>
             </section>
 
             <section className="card tagg-card" style={sideCard}>
@@ -415,20 +399,6 @@ const sideCopy = {
   lineHeight: 1.6
 };
 
-const excludedGrid = {
-  display: "grid",
-  gap: 9
-};
-
-const excludedItem = {
-  padding: "10px 12px",
-  borderRadius: 14,
-  border: "1px solid rgba(248,113,113,.2)",
-  background: "rgba(248,113,113,.07)",
-  color: "#fecaca",
-  fontSize: 13,
-  fontWeight: 800
-};
 
 const extraCardPrice = {
   fontFamily: "var(--font-heading)",
