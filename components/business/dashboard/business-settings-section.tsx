@@ -11,7 +11,7 @@ export function BusinessSettingsSection({ organization }: { organization: Organi
         <div className="dashboard-kicker">Business settings</div>
         <h2>Choose the business type.</h2>
         <p className="editor-copy">
-          This is a broad category for future vertical-specific features. It does not change any profile, lead form, or analytics behavior yet.
+          Business type helps TapTagg apply industry-friendly defaults, including CTA button suggestions and real estate property page wording. More vertical-specific tools can build on this setting later.
         </p>
         <form action={updateOrganizationBusinessType} className="editor-form" style={{ marginTop: 18 }}>
           <input type="hidden" name="organization_id" value={organization.id} />
