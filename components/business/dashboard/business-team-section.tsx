@@ -8,9 +8,9 @@ import {
   issueToken,
   sendBusinessDigitalPass,
   sendBusinessLoginInvite,
-  updateEmployeeEmail,
   updateEmployeeHeadshot,
   updateEmployeeLocation,
+  updateEmployeeProfile,
   updateEmployeeRole,
   updateEmployeeStatus,
   updateTokenAssignment
@@ -162,10 +162,26 @@ export function BusinessTeamSection({
                                     </form>
                                   ) : null}
 
-                                  <div className="dashboard-kicker">Email</div>
-                                  <form action={updateEmployeeEmail} className="table-actions">
+                                  <div className="dashboard-kicker">Profile details</div>
+                                  <form action={updateEmployeeProfile} className="table-actions">
                                     <input type="hidden" name="organization_id" value={organization.id} />
                                     <input type="hidden" name="member_id" value={member.id} />
+                                    <input
+                                      className="editor-input"
+                                      name="name"
+                                      defaultValue={member.name || ""}
+                                      placeholder="Employee name"
+                                      autoComplete="name"
+                                      required
+                                    />
+                                    <input
+                                      className="editor-input"
+                                      name="phone"
+                                      type="tel"
+                                      defaultValue={member.phone || ""}
+                                      placeholder="(555) 555-5555"
+                                      autoComplete="tel"
+                                    />
                                     <input
                                       className="editor-input"
                                       name="email"
@@ -174,10 +190,10 @@ export function BusinessTeamSection({
                                       placeholder="name@example.com"
                                       autoComplete="email"
                                     />
-                                    <button className="button secondary" type="submit">Save email</button>
+                                    <button className="button secondary" type="submit">Save profile</button>
                                   </form>
                                   <p className="table-subtext">
-                                    Updates the business member email used for invites and digital pass delivery.
+                                    Updates the public business profile. If the email changes, TapTagg also updates login access and sends a fresh setup invite.
                                   </p>
 
                                   <div className="dashboard-kicker">Location</div>

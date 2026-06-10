@@ -92,6 +92,8 @@ export function businessErrorMessage(error?: string) {
       return "That person needs an email address before a login invite can be sent.";
     case "member_email_failed":
       return "The member email could not be updated. Check the address and try again.";
+    case "member_profile_failed":
+      return "The member profile could not be updated. Check the name, phone, and email, then try again.";
     case "location_name_required":
       return "Location name is required.";
     case "region_name_required":

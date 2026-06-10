@@ -1223,18 +1223,25 @@ export async function updateEmployeeRole(formData: FormData) {
   redirect(`/dashboard/business?org=${organizationId}`);
 }
 
-export async function updateEmployeeEmail(formData: FormData) {
+export async function updateEmployeeProfile(formData: FormData) {
   "use server";
 
   const organizationId = requiredOrganizationId(formData, "#business-employees");
   const access = await getBusinessAccessScope({ organizationId, allowLocationAdmin: true });
 
   const memberId = requiredId(formData, "member_id", organizationId, "#business-employees");
-  const nextEmail = cleanEmail(formData.get("email"));
+  const nextName = String(formData.get("name") || "").trim();
+  const rawEmail = String(formData.get("email") || "").trim();
+  const nextEmail = rawEmail ? cleanEmail(rawEmail) : null;
+  const nextPhone = cleanText(formData.get("phone"));
   const admin = createAdminClient();
 
-  if (!nextEmail) {
-    redirect(`/dashboard/business?org=${organizationId}&error=missing_member_email`);
+  if (!nextName) {
+    redirect(`/dashboard/business?org=${organizationId}&error=missing_employee_name#business-employees`);
+  }
+
+  if (rawEmail && !nextEmail) {
+    redirect(`/dashboard/business?org=${organizationId}&error=member_profile_failed#business-employees`);
   }
 
   const { data: member } = await admin
@@ -1256,6 +1263,9 @@ export async function updateEmployeeEmail(formData: FormData) {
     redirect(`/dashboard/business?org=${organizationId}&error=platform_admin_locked`);
   }
 
+  const currentEmail = (member.email || "").trim().toLowerCase();
+  const emailChanged = nextEmail !== currentEmail;
+
   const { data: organization } = await admin
     .from("organizations")
     .select("id, name, slug")
@@ -1263,25 +1273,29 @@ export async function updateEmployeeEmail(formData: FormData) {
     .maybeSingle();
 
   if (!organization) {
-    redirect(`/dashboard/business?org=${organizationId}&error=member_email_failed`);
+    redirect(`/dashboard/business?org=${organizationId}&error=member_profile_failed#business-employees`);
   }
 
   const { error } = await admin
     .from("organization_members")
-    .update({ email: nextEmail })
+    .update({
+      name: nextName,
+      email: nextEmail,
+      phone: nextPhone
+    })
     .eq("id", memberId)
     .eq("organization_id", organizationId);
 
   if (error) {
-    console.error("Business member email update failed", {
+    console.error("Business member profile update failed", {
       organizationId,
       memberId,
       error: error.message
     });
-    redirect(`/dashboard/business?org=${organizationId}&error=member_email_failed`);
+    redirect(`/dashboard/business?org=${organizationId}&error=member_profile_failed#business-employees`);
   }
 
-  if (member.user_id) {
+  if (member.user_id && emailChanged && nextEmail) {
     const { error: authError } = await admin.auth.admin.updateUserById(member.user_id, {
       email: nextEmail,
       email_confirm: true
@@ -1294,25 +1308,27 @@ export async function updateEmployeeEmail(formData: FormData) {
         userId: member.user_id,
         error: authError.message
       });
-      redirect(`/dashboard/business?org=${organizationId}&error=member_email_failed`);
+      redirect(`/dashboard/business?org=${organizationId}&error=member_profile_failed#business-employees`);
     }
   }
 
-  const inviteResult = await sendBusinessInviteEmail({
-    organization,
-    member: {
-      id: member.id,
-      name: member.name,
-      email: nextEmail,
-      role: member.role
-    }
-  });
+  if (emailChanged && nextEmail) {
+    const inviteResult = await sendBusinessInviteEmail({
+      organization,
+      member: {
+        id: member.id,
+        name: nextName,
+        email: nextEmail,
+        role: member.role
+      }
+    });
 
-  if (!inviteResult.sent) {
-    redirect(`/dashboard/business?org=${organizationId}&error=business_invite_send_failed`);
+    if (!inviteResult.sent) {
+      redirect(`/dashboard/business?org=${organizationId}&error=business_invite_send_failed#business-employees`);
+    }
   }
 
-  redirect(`/dashboard/business?org=${organizationId}&saved=member_email`);
+  redirect(`/dashboard/business?org=${organizationId}&saved=member_profile#business-employees`);
 }
 
 export async function updateEmployeeStatus(formData: FormData) {

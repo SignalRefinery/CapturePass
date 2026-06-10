@@ -26,6 +26,10 @@ const savedAlertMessages: Record<string, { kicker: string; message: string }> = 
     kicker: "Updated",
     message: "Member email was updated."
   },
+  member_profile: {
+    kicker: "Updated",
+    message: "Member profile details were updated."
+  },
   location: {
     kicker: "Saved",
     message: "Location was saved."
