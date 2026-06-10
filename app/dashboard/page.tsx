@@ -300,6 +300,7 @@ export default async function DashboardPage({
           email,
           phone: "",
           website_url: "",
+          show_text: true,
           theme_key: "taptagg_brand",
           profile_badge_1: "",
           profile_badge_2: "",

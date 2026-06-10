@@ -22,6 +22,7 @@ create table if not exists public.profiles (
   email text not null default '',
   phone text not null default '',
   website_url text not null default '',
+  show_text boolean default true,
   theme_key text not null default 'taptagg_brand',
   brand_color_primary text,
   brand_color_secondary text,

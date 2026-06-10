@@ -41,6 +41,7 @@ export type ProfileRecord = {
   email: string;
   phone: string;
   website_url: string;
+  show_text?: boolean | null;
   theme_key?: string | null;
   brand_color_primary?: string | null;
   brand_color_secondary?: string | null;

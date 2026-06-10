@@ -88,6 +88,12 @@ export async function saveProfileClient(record: ProfileRecord, userId: string) {
     email: record.email,
     phone: record.phone,
     website_url: record.website_url,
+    show_text:
+      record.show_text === null
+        ? null
+        : record.show_text === false
+          ? false
+          : true,
     business_type:
       record.business_type && record.business_type !== "general_business"
         ? record.business_type

@@ -94,7 +94,10 @@ export function profileRecordToPublicProfile(profile: ProfileRecord) {
     profile_badge_3: plan.hasAdvancedCustomization ? profile.profile_badge_3 : "",
     show_email: true,
     show_phone: true,
-    show_text: !!profile.phone,
+    show_text:
+      typeof profile.show_text === "undefined"
+        ? !!profile.phone
+        : profile.show_text,
     show_in_public_nav: true,
     primary_link_1_title: profile.primary_link_1_title,
     primary_link_1_url: profile.primary_link_1_url,

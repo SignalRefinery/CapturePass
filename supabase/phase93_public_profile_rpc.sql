@@ -10,6 +10,9 @@
 alter table public.profiles
   add column if not exists brand_logo_url text;
 
+alter table public.profiles
+  add column if not exists show_text boolean default true;
+
 drop function if exists public.get_public_profile_by_slug(text);
 drop function if exists public.get_public_profile_by_token(text);
 
@@ -29,6 +32,7 @@ returns table (
   email text,
   phone text,
   website_url text,
+  show_text boolean,
   theme_key text,
   brand_color_primary text,
   brand_color_secondary text,
@@ -79,6 +83,7 @@ as $$
     p.email,
     p.phone,
     p.website_url,
+    p.show_text,
     p.theme_key,
     p.brand_color_primary,
     p.brand_color_secondary,
@@ -142,6 +147,7 @@ returns table (
   email text,
   phone text,
   website_url text,
+  show_text boolean,
   theme_key text,
   brand_color_primary text,
   brand_color_secondary text,
@@ -192,6 +198,7 @@ as $$
     p.email,
     p.phone,
     p.website_url,
+    p.show_text,
     p.theme_key,
     p.brand_color_primary,
     p.brand_color_secondary,

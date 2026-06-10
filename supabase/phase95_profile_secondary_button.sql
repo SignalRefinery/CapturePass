@@ -1,17 +1,16 @@
--- Business Individual profile logo support.
+-- Main profile secondary hero button support.
 --
--- Business Individual accounts stay on the normal profiles table, but can now
--- store a public brand logo URL. Public profile RPCs expose only this logo URL,
--- not private upload metadata or storage object details.
-
-alter table public.profiles
-  add column if not exists brand_logo_url text;
+-- The main profile now uses the same tri-state secondary action model as
+-- profile views:
+-- true  = show Text as the secondary action
+-- false = show Email as the secondary action
+-- null  = show no secondary action
 
 alter table public.profiles
   add column if not exists show_text boolean default true;
 
-comment on column public.profiles.brand_logo_url
-is 'Optional public brand logo URL for Business Individual profile rendering.';
+comment on column public.profiles.show_text
+is 'Secondary hero action mode for the main profile: true=text, false=email, null=none.';
 
 drop function if exists public.get_public_profile_by_slug(text);
 drop function if exists public.get_public_profile_by_token(text);
@@ -251,7 +250,7 @@ grant execute on function public.get_public_profile_by_slug(text) to anon, authe
 grant execute on function public.get_public_profile_by_token(text) to anon, authenticated, service_role;
 
 comment on function public.get_public_profile_by_slug(text)
-is 'Returns the limited public profile payload for active, visible, approved slug pages, including optional public brand logo URL.';
+is 'Returns the limited public profile payload for active, visible, approved slug pages, including secondary button mode.';
 
 comment on function public.get_public_profile_by_token(text)
 is 'Returns the limited public profile payload for active, approved issued-token pages without exposing private_token.';

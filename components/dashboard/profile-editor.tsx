@@ -285,6 +285,7 @@ export function ProfileEditor({
   const profileLogoInputRef = useRef<HTMLInputElement | null>(null);
   const plan = getProfilePlan(form);
   const isBusinessIndividualProfile = plan.isActivated && plan.key === "business_individual";
+  const secondaryButtonMode = typeof form.show_text === "undefined" ? true : form.show_text;
   const selectedThemeKey = coerceThemeForPlan(form.theme_key, plan);
   const showCustomThemeColors = selectedThemeKey === CUSTOM_THEME_KEY;
   const customThemeColors = resolveThemeColors({
@@ -1150,6 +1151,38 @@ export function ProfileEditor({
                 </small>
               )}
             </label>
+          </div>
+
+          <div className="action-choice-row" style={{ marginTop: 18 }}>
+            <span className="action-choice-label">Secondary button</span>
+            <div className="action-choice-options" aria-label="Current profile secondary button">
+              <button
+                className={secondaryButtonMode === true ? "action-choice is-active" : "action-choice"}
+                type="button"
+                onClick={() => update("show_text", true)}
+              >
+                Text
+              </button>
+
+              <button
+                className={form.show_text === false ? "action-choice is-active" : "action-choice"}
+                type="button"
+                onClick={() => update("show_text", false)}
+              >
+                Email
+              </button>
+
+              <button
+                className={form.show_text === null ? "action-choice is-active" : "action-choice"}
+                type="button"
+                onClick={() => update("show_text", null)}
+              >
+                None
+              </button>
+            </div>
+            <small className="auth-message">
+              Choose whether the hero button next to Add to Contacts opens a text, email, or stays hidden.
+            </small>
           </div>
 
           <div className="card" style={{ marginTop: 24, padding: 22 }}>

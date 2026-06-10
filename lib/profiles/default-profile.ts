@@ -39,6 +39,7 @@ export function buildDashboardProfile(user: User, existing: ProfileRecord | null
     email,
     phone: "",
     website_url: "",
+    show_text: true,
     theme_key: "taptagg_brand",
     primary_link_1_title: "Call",
     primary_link_1_url: "15551234",
