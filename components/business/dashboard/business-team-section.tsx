@@ -30,13 +30,15 @@ type BusinessTeamSectionProps = {
   members: OrganizationMemberRecord[];
   locations: BusinessLocationRecord[];
   tokens: PassTokenRecord[];
+  showLocationControls?: boolean;
 };
 
 export function BusinessTeamSection({
   organization,
   members,
   locations,
-  tokens
+  tokens,
+  showLocationControls = true
 }: BusinessTeamSectionProps) {
   const activeMembers = members.filter((member) => member.status === "active" && !isPlatformAdminMember(member));
   const memberById = new Map(members.map((member) => [member.id, member]));
@@ -58,7 +60,7 @@ export function BusinessTeamSection({
                 <tr>
                   <th>Name</th>
                   <th>Role / title</th>
-                  <th>Location</th>
+                  {showLocationControls ? <th>Location</th> : null}
                   <th>Email</th>
                   <th>Token</th>
                   <th>Status</th>
@@ -94,7 +96,7 @@ export function BusinessTeamSection({
                           </div>
                         )}
                       </td>
-                      <td>{memberLocation ? memberLocation.name : "No location"}</td>
+                      {showLocationControls ? <td>{memberLocation ? memberLocation.name : "No location"}</td> : null}
                       <td>{member.email || "—"}</td>
                       <td>
                         {assignedToken && assignedProfileUrl ? (
@@ -196,30 +198,34 @@ export function BusinessTeamSection({
                                     Updates the public business profile. If the email changes, TapTagg also updates login access and sends a fresh setup invite.
                                   </p>
 
-                                  <div className="dashboard-kicker">Location</div>
-                                  <form action={updateEmployeeLocation} className="table-actions">
-                                    <input type="hidden" name="organization_id" value={organization.id} />
-                                    <input type="hidden" name="member_id" value={member.id} />
-                                    <select
-                                      className="editor-input"
-                                      name="location_id"
-                                      defaultValue={member.location_id || ""}
-                                      aria-label={`Location for ${member.name}`}
-                                    >
-                                      <option value="">No location</option>
-                                      {locations.map((location) => (
-                                        <option key={location.id} value={location.id}>
-                                          {location.name}
-                                        </option>
-                                      ))}
-                                    </select>
-                                    <button className="button secondary" type="submit">
-                                      Save location
-                                    </button>
-                                  </form>
-                                  <p className="table-subtext">
-                                    Assign the employee to a location so future location-level reporting can filter cleanly.
-                                  </p>
+                                  {showLocationControls ? (
+                                    <>
+                                      <div className="dashboard-kicker">Location</div>
+                                      <form action={updateEmployeeLocation} className="table-actions">
+                                        <input type="hidden" name="organization_id" value={organization.id} />
+                                        <input type="hidden" name="member_id" value={member.id} />
+                                        <select
+                                          className="editor-input"
+                                          name="location_id"
+                                          defaultValue={member.location_id || ""}
+                                          aria-label={`Location for ${member.name}`}
+                                        >
+                                          <option value="">No location</option>
+                                          {locations.map((location) => (
+                                            <option key={location.id} value={location.id}>
+                                              {location.name}
+                                            </option>
+                                          ))}
+                                        </select>
+                                        <button className="button secondary" type="submit">
+                                          Save location
+                                        </button>
+                                      </form>
+                                      <p className="table-subtext">
+                                        Assign the employee to a location so future location-level reporting can filter cleanly.
+                                      </p>
+                                    </>
+                                  ) : null}
 
                                   <div className="dashboard-kicker">Token and digital pass</div>
                                   {assignedToken ? (
@@ -368,6 +374,7 @@ export function BusinessTeamSection({
                         <strong>Unassigned token</strong>
                       </td>
                       <td>{token.token_type.replace("_", " ")}</td>
+                      {showLocationControls ? <td>—</td> : null}
                       <td>—</td>
                       <td>
                         <strong>{`/p/${token.token}`}</strong>

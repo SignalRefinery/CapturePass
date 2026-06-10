@@ -1,12 +1,10 @@
 import { ConfirmSubmitButton } from "@/components/shared/confirm-submit-button";
 import {
   deleteBusinessLocation,
-  saveBusinessLocation,
-  saveBusinessRegion
+  saveBusinessLocation
 } from "@/app/dashboard/business/actions";
 import type {
   BusinessLocationRecord,
-  BusinessRegionRecord,
   OrganizationMemberRecord,
   OrganizationRecord
 } from "@/lib/types";
@@ -14,18 +12,14 @@ import type {
 type BusinessLocationsSectionProps = {
   organization: OrganizationRecord;
   locations: BusinessLocationRecord[];
-  regions: BusinessRegionRecord[];
   members: OrganizationMemberRecord[];
 };
 
 export function BusinessLocationsSection({
   organization,
   locations,
-  regions,
   members
 }: BusinessLocationsSectionProps) {
-  const regionById = new Map(regions.map((region) => [region.id, region]));
-
   return (
     <section className="dashboard-wrap" id="business-locations">
       <div className="dashboard-grid">
@@ -67,17 +61,6 @@ export function BusinessLocationsSection({
                 State
                 <input className="editor-input" name="state" placeholder="IL" maxLength={2} />
               </label>
-              <label className="editor-label">
-                Region
-                <select className="editor-input" name="region_id" defaultValue="">
-                  <option value="">No region</option>
-                  {regions.map((region) => (
-                    <option key={region.id} value={region.id}>
-                      {region.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
             </div>
             <button className="button primary" type="submit">
               Create location
@@ -90,14 +73,12 @@ export function BusinessLocationsSection({
                 <thead>
                   <tr>
                     <th>Location</th>
-                    <th>Region</th>
                     <th>Employees</th>
                     <th>Details</th>
                   </tr>
                 </thead>
                 <tbody>
                   {locations.map((location) => {
-                    const region = location.region_id ? regionById.get(location.region_id) : null;
                     const assignedEmployees = members.filter((member) => member.location_id === location.id && member.status === "active");
                     return (
                       <tr key={location.id}>
@@ -107,7 +88,6 @@ export function BusinessLocationsSection({
                             {[location.address, location.city, location.state].filter(Boolean).join(", ") || "No address yet"}
                           </div>
                         </td>
-                        <td>{region?.name || "No region"}</td>
                         <td>{assignedEmployees.length}</td>
                         <td>
                           <details className="employee-manage-panel">
@@ -116,6 +96,7 @@ export function BusinessLocationsSection({
                               <form action={saveBusinessLocation} className="editor-form">
                                 <input type="hidden" name="organization_id" value={organization.id} />
                                 <input type="hidden" name="location_id" value={location.id} />
+                                <input type="hidden" name="region_id" value={location.region_id || ""} />
                                 <label className="editor-label">
                                   Location name
                                   <input className="editor-input" name="name" defaultValue={location.name} required />
@@ -145,17 +126,6 @@ export function BusinessLocationsSection({
                                     State
                                     <input className="editor-input" name="state" defaultValue={location.state || ""} maxLength={2} />
                                   </label>
-                                  <label className="editor-label">
-                                    Region
-                                    <select className="editor-input" name="region_id" defaultValue={location.region_id || ""}>
-                                      <option value="">No region</option>
-                                      {regions.map((region) => (
-                                        <option key={region.id} value={region.id}>
-                                          {region.name}
-                                        </option>
-                                      ))}
-                                    </select>
-                                  </label>
                                 </div>
                                 <button className="button secondary" type="submit">
                                   Save location
@@ -179,102 +149,8 @@ export function BusinessLocationsSection({
                   })}
                   {locations.length === 0 ? (
                     <tr>
-                      <td colSpan={4}>
+                      <td colSpan={3}>
                         <p className="editor-copy">No locations yet. Add one above when you are ready.</p>
-                      </td>
-                    </tr>
-                  ) : null}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        <div className="dashboard-card">
-          <div className="dashboard-kicker">Regions</div>
-          <h2>Future-ready territory groups.</h2>
-          <p className="editor-copy">
-            Regions are intentionally simple for now. They let locations be grouped later by state codes or custom territory rules.
-          </p>
-
-          <form action={saveBusinessRegion} className="editor-form" style={{ marginTop: 18 }}>
-            <input type="hidden" name="organization_id" value={organization.id} />
-            <label className="editor-label">
-              Region name
-              <input className="editor-input" name="name" placeholder="Central Illinois" required />
-            </label>
-            <label className="editor-label">
-              Description
-              <textarea className="editor-input" name="description" rows={3} placeholder="Optional notes about the territory." />
-            </label>
-            <label className="editor-label">
-              State codes
-              <input className="editor-input" name="state_codes" placeholder="IL,MO,IN" />
-            </label>
-            <button className="button primary" type="submit">
-              Create region
-            </button>
-          </form>
-
-          <div className="admin-table-frame business-member-table" style={{ marginTop: 18 }}>
-            <div className="admin-table-scroll">
-              <table className="admin-table">
-                <thead>
-                  <tr>
-                    <th>Region</th>
-                    <th>State codes</th>
-                    <th>Locations</th>
-                    <th>Details</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {regions.map((region) => {
-                    const regionLocations = locations.filter((location) => location.region_id === region.id);
-                    return (
-                      <tr key={region.id}>
-                        <td>
-                          <strong>{region.name}</strong>
-                          {region.description ? <div className="table-subtext">{region.description}</div> : null}
-                        </td>
-                        <td>{region.state_codes?.length ? region.state_codes.join(", ") : "—"}</td>
-                        <td>{regionLocations.length}</td>
-                        <td>
-                          <details className="employee-manage-panel">
-                            <summary className="button secondary">Edit</summary>
-                            <div className="employee-manage-panel-inner">
-                              <form action={saveBusinessRegion} className="editor-form">
-                                <input type="hidden" name="organization_id" value={organization.id} />
-                                <input type="hidden" name="region_id" value={region.id} />
-                                <label className="editor-label">
-                                  Region name
-                                  <input className="editor-input" name="name" defaultValue={region.name} required />
-                                </label>
-                                <label className="editor-label">
-                                  Description
-                                  <textarea className="editor-input" name="description" rows={3} defaultValue={region.description || ""} />
-                                </label>
-                                <label className="editor-label">
-                                  State codes
-                                  <input
-                                    className="editor-input"
-                                    name="state_codes"
-                                    defaultValue={region.state_codes?.join(", ") || ""}
-                                  />
-                                </label>
-                                <button className="button secondary" type="submit">
-                                  Save region
-                                </button>
-                              </form>
-                            </div>
-                          </details>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                  {regions.length === 0 ? (
-                    <tr>
-                      <td colSpan={4}>
-                        <p className="editor-copy">No regions yet. Add one when you want to group locations by territory.</p>
                       </td>
                     </tr>
                   ) : null}

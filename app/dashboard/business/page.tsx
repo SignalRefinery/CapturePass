@@ -19,6 +19,7 @@ import {
   businessLoginUrl,
   isPlatformAdminMember
 } from "@/lib/business/dashboard-utils";
+import { businessPlanIncludesAdditionalLocations } from "@/lib/business/plans";
 import { businessRoleLabel, normalizeBusinessRole } from "@/lib/business/roles";
 import { getOrganizationGamificationSummary } from "@/lib/gamification/server";
 import { getCurrentTapTaggAdmin } from "@/lib/auth/admin";
@@ -49,7 +50,6 @@ export default async function BusinessDashboardPage({
     organization,
     viewerAccess,
     locations,
-    regions,
     members,
     tokens,
     contacts,
@@ -60,7 +60,6 @@ export default async function BusinessDashboardPage({
     ? {
         organization: null,
         locations: [],
-        regions: [],
         members: [],
         tokens: [],
         contacts: [],
@@ -95,9 +94,6 @@ export default async function BusinessDashboardPage({
     isLocationScopedViewer ? members.filter((member) => member.location_id === viewerAccess.locationId).map((member) => member.id) : members.map((member) => member.id)
   );
   const scopedLocations = isLocationScopedViewer ? (viewerLocation ? [viewerLocation] : []) : locations;
-  const scopedRegions = isLocationScopedViewer
-    ? regions.filter((region) => scopedLocations.some((location) => location.region_id === region.id))
-    : regions;
   const scopedMembers = isLocationScopedViewer ? members.filter((member) => scopedMemberIds.has(member.id)) : members;
   const scopedActiveMembers = scopedMembers.filter((member) => member.status === "active" && !isPlatformAdminMember(member));
   const scopedContacts = isLocationScopedViewer
@@ -312,9 +308,10 @@ export default async function BusinessDashboardPage({
     );
   }
 
-  const regionById = new Map(scopedRegions.map((region) => [region.id, region]));
-  const viewerLocationRegion = viewerLocation?.region_id ? regionById.get(viewerLocation.region_id) || null : null;
   const dashboardFooterLeft = isLocationScopedViewer ? "Location dashboard" : "Business dashboard";
+  const showLocationControls = organization
+    ? businessPlanIncludesAdditionalLocations(organization.business_plan_key)
+    : false;
   const locationEmployeeCount = scopedMembers.length;
   const locationActiveCount = scopedActiveMembers.length;
   const locationContactCount = scopedContacts.length;
@@ -340,9 +337,6 @@ export default async function BusinessDashboardPage({
                 This view only includes the employees, contacts, and activity for this location. Business-wide settings stay in the parent business dashboard.
               </p>
               <div className="location-hero-tag-row">
-                <span className="button secondary" aria-disabled="true">
-                  {viewerLocationRegion?.name || "No region assigned"}
-                </span>
                 {viewerLocation?.address || viewerLocation?.city || viewerLocation?.state ? (
                   <span className="button secondary" aria-disabled="true">
                     {[viewerLocation.address, viewerLocation.city, viewerLocation.state].filter(Boolean).join(", ")}
@@ -413,10 +407,6 @@ export default async function BusinessDashboardPage({
                     <label className="editor-label">
                       State
                       <input className="editor-input" name="state" defaultValue={viewerLocation.state || ""} maxLength={2} />
-                    </label>
-                    <label className="editor-label">
-                      Region
-                      <input className="editor-input" value={viewerLocationRegion?.name || "No region assigned"} readOnly />
                     </label>
                   </div>
                   <button className="button primary" type="submit">
@@ -635,9 +625,17 @@ export default async function BusinessDashboardPage({
 
       <BusinessSettingsSection organization={organization} />
 
-      <BusinessLocationsSection organization={organization} locations={locations} regions={regions} members={members} />
+      {showLocationControls ? (
+        <BusinessLocationsSection organization={organization} locations={locations} members={members} />
+      ) : null}
 
-      <BusinessTeamSection organization={organization} members={members} locations={locations} tokens={tokens} />
+      <BusinessTeamSection
+        organization={organization}
+        members={members}
+        locations={locations}
+        tokens={tokens}
+        showLocationControls={showLocationControls}
+      />
 
       <BusinessAutomationsSection
         organizationId={organization.id}

@@ -143,12 +143,28 @@ export const BUSINESS_PLANS: Record<BusinessPlanKey, BusinessPlanConfig> = {
 
 export const BUSINESS_PLAN_KEYS = Object.keys(BUSINESS_PLANS) as BusinessPlanKey[];
 
+export const BUSINESS_PLAN_INCLUDED_LOCATION_COUNTS: Record<BusinessPlanTier, number> = {
+  small_team: 1,
+  starter: 1,
+  growth: 3,
+  pro: 10
+};
+
 export function isBusinessPlanKey(value?: string | null): value is BusinessPlanKey {
   return !!value && value in BUSINESS_PLANS;
 }
 
 export function getBusinessPlan(value?: string | null) {
   return isBusinessPlanKey(value) ? BUSINESS_PLANS[value] : null;
+}
+
+export function getBusinessIncludedLocationCount(value?: string | null) {
+  const plan = getBusinessPlan(value);
+  return plan ? BUSINESS_PLAN_INCLUDED_LOCATION_COUNTS[plan.tier] : 1;
+}
+
+export function businessPlanIncludesAdditionalLocations(value?: string | null) {
+  return getBusinessIncludedLocationCount(value) > 1;
 }
 
 export function normalizeBusinessBillingInterval(value?: string | null): BusinessBillingInterval {
