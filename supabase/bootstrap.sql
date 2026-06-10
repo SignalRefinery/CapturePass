@@ -110,6 +110,21 @@ create unique index if not exists profiles_slug_requested_unique_idx
 on public.profiles (slug_requested)
 where slug_requested is not null;
 create index if not exists profiles_slug_status_idx on public.profiles (slug_status);
+create index if not exists profiles_public_lower_slug_lookup_idx
+on public.profiles (lower(slug))
+where is_active = true
+  and consent_public_visibility = true
+  and slug_status = 'approved';
+create index if not exists profiles_public_private_token_lookup_idx
+on public.profiles (private_token)
+where private_token is not null
+  and is_active = true
+  and slug_status = 'approved';
+create index if not exists profiles_active_approved_public_idx
+on public.profiles (id)
+where is_active = true
+  and consent_public_visibility = true
+  and slug_status = 'approved';
 
 create table if not exists public.profile_views (
   id uuid primary key default gen_random_uuid(),
