@@ -54,3 +54,21 @@ test("buildProfileButtons can hide email buttons from public rendering", () => {
   assert.equal(buttons[0].type, "website");
   assert.equal(buttons[0].href, "https://taptagg.app");
 });
+
+test("buildProfileButtons uses each button value for phone and email destinations", () => {
+  const buttons = buildProfileButtons({
+    phone: "1112223333",
+    email: "account@example.com",
+    primary_link_1_title: "Text Sales",
+    primary_link_1_url: "4445556666",
+    primary_link_1_type: "text",
+    primary_link_2_title: "Email Support",
+    primary_link_2_url: "support@example.com",
+    primary_link_2_type: "email"
+  });
+
+  assert.equal(buttons[0].href, "sms:14445556666");
+  assert.equal(buttons[0].subtitle, "Text 4445556666");
+  assert.equal(buttons[1].href, "mailto:support@example.com");
+  assert.equal(buttons[1].subtitle, "Email support@example.com");
+});

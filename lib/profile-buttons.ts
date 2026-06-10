@@ -284,17 +284,18 @@ export function normalizeProfileButtonFieldsForStorage(source: ProfileButtonReco
   };
 }
 
-export function getProfileButtonSubtitle(type?: string | null, value?: string | null, phone?: string | null, email?: string | null) {
+export function getProfileButtonSubtitle(type?: string | null, value?: string | null) {
   const normalizedType = normalizeProfileButtonType(type);
   const digits = digitsOnly(value);
+  const email = (value || "").trim().replace(/^mailto:/i, "");
 
   switch (normalizedType) {
     case "phone":
-      return phone || digits ? `Call ${phone || digits}` : "Call directly";
+      return digits ? `Call ${digits}` : "Call directly";
     case "text":
-      return phone || digits ? `Text ${phone || digits}` : "Send a text";
+      return digits ? `Text ${digits}` : "Send a text";
     case "email":
-      return email || value ? `Email ${email || value?.replace(/^mailto:/i, "")}` : "Send an email";
+      return email ? `Email ${email}` : "Send an email";
     case "directions":
       return "Open directions in Google Maps";
     case "booking":
@@ -356,7 +357,7 @@ export function buildProfileButtons(source: ProfileButtonRecordLike, options?: {
         type,
         value,
         href,
-        subtitle: getProfileButtonSubtitle(type, value, source.phone, source.email)
+        subtitle: getProfileButtonSubtitle(type, value)
       } satisfies ProfileButton;
     })
     .filter((button): button is ProfileButton => !!button)
