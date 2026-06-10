@@ -146,7 +146,7 @@ export default async function BusinessIndividualPage({
                 <input
                   name="promo_code"
                   style={selectInput}
-                  placeholder="Optional promo code"
+                  placeholder="Optional: Enter promo code if you have one"
                   defaultValue={promoCode}
                   autoComplete="off"
                 />

@@ -331,6 +331,7 @@ export function AuthForm({ mode, nextPath, plan, initialPromoCode }: AuthFormPro
                 type="text"
                 value={promoCode}
                 onChange={(event) => setPromoCode(event.target.value)}
+                placeholder="Optional: Enter promo code if you have one"
               />
             </label>
           </div>

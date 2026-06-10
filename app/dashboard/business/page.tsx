@@ -219,7 +219,7 @@ export default async function BusinessDashboardPage({
                     <input
                       className="editor-input"
                       name="promo_code"
-                      placeholder="Optional, use FOUNDERS for a demo-ready business"
+                      placeholder="Optional: Enter promo code if you have one"
                     />
                   </label>
                   <label className="editor-label">

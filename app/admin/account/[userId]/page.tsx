@@ -538,7 +538,7 @@ export default async function AdminUserPage({ params, searchParams }: PageProps)
                     id="profile-promo-code"
                     name="value"
                     defaultValue={profile.promo_code_used || ""}
-                    placeholder="Optional promo code"
+                    placeholder="Optional: Enter promo code if you have one"
                     style={{ width: "100%", padding: 10, margin: "8px 0" }}
                   />
                   <button className="button primary" type="submit">

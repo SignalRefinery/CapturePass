@@ -88,12 +88,12 @@ export function BusinessPricingPlans({ tiers }: { tiers: BusinessPricingTier[] }
             type="text"
             value={promoCode}
             onChange={(event) => setPromoCode(event.target.value)}
-            placeholder="Optional"
+            placeholder="Optional: Enter promo code if you have one"
             autoComplete="off"
           />
         </label>
         <div style={promoHint}>
-          Use <strong>FOUNDERS</strong> to route a business demo through the founder access flow.
+          Optional: Enter promo code if you have one.
         </div>
       </div>
 
