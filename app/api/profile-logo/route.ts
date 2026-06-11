@@ -3,6 +3,7 @@ import {
   deleteBusinessAssetUrl,
   uploadBusinessIndividualLogoAsset
 } from "@/lib/business/assets";
+import { sendBusinessIndividualLogoEmail } from "@/lib/notifications/send-business-individual-logo-email";
 import { getProfilePlan } from "@/lib/plans";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
@@ -102,6 +103,16 @@ export async function POST(request: Request) {
         { status: 500 }
       );
     }
+
+    await sendBusinessIndividualLogoEmail({
+      brandLogoUrl: data.brand_logo_url,
+      profileId: auth.profile.id
+    }).catch((emailError) => {
+      console.error("Business Individual logo email failed after upload", {
+        profileId: auth.profile.id,
+        error: emailError instanceof Error ? emailError.message : "Unknown logo email error"
+      });
+    });
 
     return NextResponse.json({ brand_logo_url: data.brand_logo_url });
   } catch (error) {
