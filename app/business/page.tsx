@@ -44,19 +44,27 @@ const rolloutSteps = [
 const proofPoints = [
   {
     label: "Customer saves contact",
-    value: "One tap"
+    before: "Paper card gets lost",
+    value: "One tap",
+    copy: "Customers save the right employee before they leave the lot, open house, counter, or appointment."
   },
   {
     label: "Lead captured",
-    value: "Follow-up ready"
+    before: "Conversation disappears",
+    value: "Follow-up ready",
+    copy: "Your team can turn real-world conversations into contact records and next-step opportunities."
   },
   {
     label: "Card reassigned",
-    value: "No reprint"
+    before: "Employee turnover wastes cards",
+    value: "No reprint",
+    copy: "Reusable cards and profiles can move with your team instead of forcing new print runs."
   },
   {
     label: "Relationship protected",
-    value: "Team owned"
+    before: "Contacts leave with people",
+    value: "Team owned",
+    copy: "Customer relationships stay connected to your business, not just someone's pocket."
   }
 ];
 
@@ -264,19 +272,42 @@ export default async function BusinessPage({
 
       <section className="business-section business-proof">
         <div className="business-proof-panel" aria-label="Business proof points">
-          {proofPoints.map((point) => (
-            <div className="business-proof-point" key={point.label}>
-              <span>{point.label}</span>
-              <strong>{point.value}</strong>
-            </div>
-          ))}
+          <div className="business-proof-intro">
+            <div className="dashboard-kicker">What changes</div>
+            <h3>From missed follow-up to owned relationships.</h3>
+            <p>
+              TapTagg closes the gap between a good face-to-face conversation and an actual saved contact your team can act on.
+            </p>
+          </div>
+
+          <div className="business-proof-grid">
+            {proofPoints.map((point, index) => (
+              <article className="business-proof-point" key={point.label}>
+                <div className="business-proof-point-top">
+                  <span>{String(index + 1).padStart(2, "0")}</span>
+                  <p>{point.label}</p>
+                </div>
+                <div className="business-proof-shift">
+                  <small>{point.before}</small>
+                  <strong>{point.value}</strong>
+                </div>
+                <p>{point.copy}</p>
+              </article>
+            ))}
+          </div>
         </div>
-        <div>
+        <div className="business-proof-copy">
           <div className="dashboard-kicker">Business ready</div>
           <h2>Your customers remember the conversation. Make sure they remember who to call.</h2>
           <p>
             TapTagg combines physical NFC cards, QR sharing, and digital profiles so customers can save the right salesperson, agent, or team member instantly. When employees leave, cards and profiles can be reassigned without replacing printed materials.
           </p>
+          <div className="business-proof-checks" aria-label="Business-ready outcomes">
+            <span>Contact saved</span>
+            <span>Lead captured</span>
+            <span>Card reused</span>
+            <span>Relationship retained</span>
+          </div>
         </div>
       </section>
 

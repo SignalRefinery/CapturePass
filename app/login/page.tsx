@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Shell } from "@/components/shared/shell";
 import { AuthForm } from "@/components/auth/auth-form";
 
+import { checkoutContinuationPath } from "@/lib/auth/checkout-continuation";
 import { safeInternalRedirect } from "@/lib/auth/redirect";
 import { createClient } from "@/lib/supabase/server";
 
@@ -33,15 +34,26 @@ export default async function LoginPage({
   searchParams?: Promise<{
     plan?: string;
     next?: string;
+    promo_code?: string;
+    business_type?: string;
   }>;
 }) {
   const initialAuth = await getInitialAuth();
   const params = searchParams ? await searchParams : {};
   const plan = params?.plan || null;
-  const nextPath = safeInternalRedirect(params?.next);
+  const businessType = params?.business_type || null;
+  const promoCode = params?.promo_code || null;
+  const fallbackNextPath = checkoutContinuationPath({
+    businessType,
+    plan,
+    promoCode
+  });
+  const nextPath = safeInternalRedirect(params?.next, fallbackNextPath);
   const signupHref = new URLSearchParams();
 
   if (plan) signupHref.set("plan", plan);
+  if (promoCode) signupHref.set("promo_code", promoCode);
+  if (businessType) signupHref.set("business_type", businessType);
   if (nextPath !== "/dashboard") signupHref.set("next", nextPath);
 
   return (
@@ -69,7 +81,7 @@ export default async function LoginPage({
 
       <section className="auth-wrap">
         <div className="auth-card">
-          <AuthForm mode="login" nextPath={nextPath} plan={plan} />
+          <AuthForm mode="login" nextPath={nextPath} plan={plan} businessType={businessType} />
 
           <p style={{ marginTop: 10, fontSize: 13, color: "var(--muted)" }}>
             Forgot your password? Use the reset link above.

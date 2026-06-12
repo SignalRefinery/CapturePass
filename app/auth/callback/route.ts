@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getBusinessPlan } from "@/lib/business/plans";
+import { checkoutContinuationPath } from "@/lib/auth/checkout-continuation";
 import { safeInternalRedirect } from "@/lib/auth/redirect";
 import { claimBusinessOrganizationForUser, getBusinessTypeForUser } from "@/lib/business/organization-access";
 import { buildQuickChartQrUrl } from "@/lib/notifications/qr";
@@ -165,11 +166,9 @@ async function getBootstrapSlugFields(
 export async function GET(req: Request) {
   const url = new URL(req.url);
   const code = url.searchParams.get("code");
-  const requestedPlan = cleanValue(url.searchParams.get("plan"));
-  const fallbackNext = requestedPlan
-    ? `/api/checkout?plan=${encodeURIComponent(requestedPlan)}`
-    : "/dashboard";
-  const nextPath = safeInternalRedirect(url.searchParams.get("next"), fallbackNext);
+  const requestedPlanParam = cleanValue(url.searchParams.get("plan"));
+  const businessTypeParam = cleanValue(url.searchParams.get("business_type"));
+  const nextPathParam = cleanValue(url.searchParams.get("next"));
 
   const supabase = await createClient();
   const profileAdmin = createAdminClient();
@@ -191,6 +190,21 @@ export async function GET(req: Request) {
   }
 
   const meta = (user.user_metadata || {}) as Record<string, unknown>;
+  const promoCode = cleanValue(meta.promo_code)?.toUpperCase() || null;
+  const requestedPlan = requestedPlanParam || cleanValue(meta.selected_plan);
+  const businessType =
+    businessTypeParam ||
+    cleanValue(meta.selected_business_type) ||
+    cleanValue(meta.business_type);
+  const fallbackNext = checkoutContinuationPath({
+    businessType,
+    plan: requestedPlan,
+    promoCode
+  });
+  const nextPath = safeInternalRedirect(
+    nextPathParam || cleanValue(meta.checkout_next_path),
+    fallbackNext
+  );
 
   const firstName = cleanValue(meta.first_name);
   const lastName = cleanValue(meta.last_name);
@@ -201,7 +215,6 @@ export async function GET(req: Request) {
     cleanValue(meta.suggested_slug) ||
     (fullName || (user.email ? user.email.split("@")[0] : null));
 
-  const promoCode = cleanValue(meta.promo_code)?.toUpperCase() || null;
   const referralCode = cleanValue(meta.referral_code_used);
   const isPublicOfficial = Boolean(meta.is_public_official);
   const requestedBusinessPlan = requestedPlan ? getBusinessPlan(requestedPlan) : null;
@@ -249,11 +262,11 @@ export async function GET(req: Request) {
 
   if (!existingProfile) {
     const bootstrapSlugFields = await getBootstrapSlugFields(profileAdmin, user.id, rawSuggestedSlug);
-    const businessType = await getBusinessTypeForUser(user.id);
+    const assignedBusinessType = businessType || (await getBusinessTypeForUser(user.id));
 
     const { error: insertError } = await profileAdmin.from("profiles").insert({
       user_id: user.id,
-      business_type: businessType,
+      business_type: assignedBusinessType,
       email: user.email || null,
       full_name: fullName,
       ...bootstrapSlugFields,

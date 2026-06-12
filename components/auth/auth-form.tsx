@@ -11,6 +11,7 @@ type AuthFormProps = {
   mode: "login" | "signup";
   nextPath?: string | null;
   plan?: string | null;
+  businessType?: string | null;
   initialPromoCode?: string | null;
 };
 
@@ -21,7 +22,7 @@ type SlugAvailabilityResponse = {
   error?: string;
 };
 
-export function AuthForm({ mode, nextPath, plan, initialPromoCode }: AuthFormProps) {
+export function AuthForm({ mode, nextPath, plan, businessType, initialPromoCode }: AuthFormProps) {
   const router = useRouter();
   const supabase = useMemo(() => createClient(), []);
   const redirectTo = safeInternalRedirect(nextPath);
@@ -100,7 +101,8 @@ export function AuthForm({ mode, nextPath, plan, initialPromoCode }: AuthFormPro
         options: {
           emailRedirectTo: getEmailRedirectUrl(
             isFounderSignup ? "/dashboard" : redirectTo,
-            isFounderSignup ? null : plan
+            isFounderSignup ? null : plan,
+            isFounderSignup ? null : businessType
           ),
           data: {
             first_name: trimmedFirst,
@@ -109,7 +111,9 @@ export function AuthForm({ mode, nextPath, plan, initialPromoCode }: AuthFormPro
             suggested_slug: suggestedSlug,
             referral_code_used: referral.trim() || null,
             promo_code: normalizedPromoCode || null,
-            selected_plan: isFounderSignup ? null : plan || null
+            selected_business_type: businessType || null,
+            selected_plan: isFounderSignup ? null : plan || null,
+            checkout_next_path: isFounderSignup ? null : redirectTo
           }
         }
       });
@@ -355,7 +359,7 @@ async function checkSignupSlugAvailability(slug: string) {
   return result;
 }
 
-function getEmailRedirectUrl(nextPath: string, plan?: string | null) {
+function getEmailRedirectUrl(nextPath: string, plan?: string | null, businessType?: string | null) {
   const appOrigin =
     typeof window !== "undefined"
       ? window.location.origin
@@ -369,6 +373,10 @@ function getEmailRedirectUrl(nextPath: string, plan?: string | null) {
 
   if (plan) {
     callbackUrl.searchParams.set("plan", plan);
+  }
+
+  if (businessType) {
+    callbackUrl.searchParams.set("business_type", businessType);
   }
 
   return callbackUrl.toString();

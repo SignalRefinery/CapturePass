@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Shell } from "@/components/shared/shell";
 import { AuthForm } from "@/components/auth/auth-form";
+import { checkoutContinuationPath } from "@/lib/auth/checkout-continuation";
 import { safeInternalRedirect } from "@/lib/auth/redirect";
 import { createClient } from "@/lib/supabase/server";
 
@@ -32,16 +33,25 @@ export default async function SignupPage({
     plan?: string;
     next?: string;
     promo_code?: string;
+    business_type?: string;
   }>;
 }) {
   const initialAuth = await getInitialAuth();
   const params = searchParams ? await searchParams : {};
   const plan = params?.plan || null;
-  const nextPath = safeInternalRedirect(params?.next);
+  const businessType = params?.business_type || null;
   const promoCode = params?.promo_code || null;
+  const fallbackNextPath = checkoutContinuationPath({
+    businessType,
+    plan,
+    promoCode
+  });
+  const nextPath = safeInternalRedirect(params?.next, fallbackNextPath);
   const loginHref = new URLSearchParams();
 
   if (plan) loginHref.set("plan", plan);
+  if (promoCode) loginHref.set("promo_code", promoCode);
+  if (businessType) loginHref.set("business_type", businessType);
   if (nextPath !== "/dashboard") loginHref.set("next", nextPath);
 
   return (
@@ -69,7 +79,13 @@ export default async function SignupPage({
 
       <section className="auth-wrap">
         <div className="auth-card">
-          <AuthForm mode="signup" nextPath={nextPath} plan={plan} initialPromoCode={promoCode} />
+          <AuthForm
+            mode="signup"
+            nextPath={nextPath}
+            plan={plan}
+            businessType={businessType}
+            initialPromoCode={promoCode}
+          />
 
           <div className="card" style={{ marginTop: 18, padding: 16 }}>
             <div className="dashboard-kicker">Already signed up?</div>

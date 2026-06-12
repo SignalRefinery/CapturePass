@@ -10,32 +10,34 @@ const planCards: Array<{
   headline: string;
   description: string;
   cta: string;
+  href?: string;
   featured?: boolean;
 }> = [
   {
     key: "core",
     price: "$29",
-    billing: "one-time",
+    billing: "/ year",
     headline: "Activate your TapTagg.",
-    description: "1 card, public profile activation, NFC, QR, expanded links, and basic themes.",
+    description: "Physical TapTagg card, NFC sharing, QR sharing, profile link sharing, add-to-contacts, basic customization, and themes.",
     cta: "Get Core"
   },
   {
     key: "tagg_plus",
-    price: "$49",
+    price: "$79",
     billing: "/ year",
-    headline: "Add analytics and control.",
-    description: "Everything in Core plus advanced customization, analytics, contact sharing insights, and support.",
+    headline: "Capture contacts and understand engagement.",
+    description: "Everything in Core plus Contact Capture, contacts dashboard, analytics, source tracking, custom buttons, advanced customization, and priority support.",
     cta: "Upgrade to Tagg+",
     featured: true
   },
   {
-    key: "creator",
+    key: "business_individual",
     price: "$99",
     billing: "/ year",
-    headline: "Unlock creator modules.",
-    description: "Everything in Tagg+ plus multi-view profiles, advanced branding, featured sections, and creator tools.",
-    cta: "Start Creator"
+    headline: "Business Individual.",
+    description: "For solo professionals who need lead capture, business branding, a custom printed card, analytics, and onboarding support.",
+    cta: "Open Business Individual",
+    href: "/business-individual"
   }
 ];
 
@@ -44,7 +46,12 @@ type InactiveStateProps = {
 };
 
 export function InactiveState({ email }: InactiveStateProps) {
-  function handleCheckout(plan: PlanKey) {
+  function handleCheckout(plan: PlanKey, href?: string) {
+    if (href) {
+      window.location.assign(href);
+      return;
+    }
+
     window.location.assign(`/api/checkout?plan=${encodeURIComponent(plan)}`);
   }
 
@@ -54,8 +61,9 @@ export function InactiveState({ email }: InactiveStateProps) {
         <div className="dashboard-kicker">Reserved Tagg</div>
         <h2>Your profile is preview-only until activation.</h2>
         <p className="editor-copy">
-          Your account for <strong>{email}</strong> can build a basic profile now. Activate Core
-          to make it public with QR sharing, or choose a higher plan when you want analytics and advanced tools.
+          Your account for <strong>{email}</strong> can build a basic profile now. Choose Core
+          for card sharing, Tagg+ for contact capture and analytics, or Business Individual
+          for a branded solo-professional profile.
         </p>
 
         <div className="pricing-grid" style={{ marginTop: 20 }}>
@@ -71,7 +79,7 @@ export function InactiveState({ email }: InactiveStateProps) {
               <p className="muted" style={{ marginTop: 8 }}>
                 {getPlanPricingDescription(plan.key, { isActivated: true })}
               </p>
-              <button className="button primary" type="button" onClick={() => handleCheckout(plan.key)}>
+              <button className="button primary" type="button" onClick={() => handleCheckout(plan.key, plan.href)}>
                 {plan.cta}
               </button>
             </div>
