@@ -4,6 +4,8 @@ import { Shell } from "@/components/shared/shell";
 import { ProfileEditor } from "@/components/dashboard/profile-editor";
 import { InactiveState } from "@/components/dashboard/inactive-state";
 import { PersonalPerformancePanel } from "@/components/gamification/gamification-panels";
+import { checkoutContinuationPath } from "@/lib/auth/checkout-continuation";
+import { safeInternalRedirect } from "@/lib/auth/redirect";
 import {
   getProfileForUserServer,
   getProfileViewsForProfileServer
@@ -12,6 +14,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import {
   applyFounderAccess,
+  BUSINESS_INDIVIDUAL_PLAN_KEY,
   getProfilePlan,
   resolveCheckoutPlanSelection
 } from "@/lib/plans";
@@ -37,6 +40,22 @@ function passHrefFor(profile: ProfileRecord) {
 function getStringId(value: string | { id?: string } | null | undefined) {
   if (!value) return null;
   return typeof value === "string" ? value : value.id || null;
+}
+
+function cleanMetadataValue(value: unknown) {
+  if (typeof value !== "string") return null;
+  const trimmed = value.trim();
+  return trimmed || null;
+}
+
+function getCheckoutSearchParam(path: string | null, key: string) {
+  if (!path?.startsWith("/api/checkout")) return null;
+
+  try {
+    return cleanMetadataValue(new URL(path, "https://taptagg.local").searchParams.get(key));
+  } catch {
+    return null;
+  }
 }
 
 async function reconcileCheckoutSuccess(sessionId: string | null | undefined, userId: string) {
@@ -346,6 +365,39 @@ export default async function DashboardPage({
   const fullAccess = plan.isActivated;
   const checkoutSuccess = params?.checkout === "success";
   const activationPending = checkoutSuccess && !fullAccess;
+  const selectedPlan = cleanMetadataValue(user.user_metadata?.selected_plan);
+  const savedCheckoutPath = cleanMetadataValue(user.user_metadata?.checkout_next_path);
+  const savedCheckoutPlan = getCheckoutSearchParam(savedCheckoutPath, "plan");
+  const pendingCheckoutPlan = selectedPlan || savedCheckoutPlan;
+  const selectedBusinessType =
+    cleanMetadataValue(user.user_metadata?.selected_business_type) ||
+    getCheckoutSearchParam(savedCheckoutPath, "business_type") ||
+    (initialProfile.business_type && initialProfile.business_type !== "general_business"
+      ? initialProfile.business_type
+      : null);
+  const selectedPromoCode =
+    cleanMetadataValue(user.user_metadata?.promo_code) ||
+    getCheckoutSearchParam(savedCheckoutPath, "promo_code");
+
+  if (
+    !fullAccess &&
+    !activationPending &&
+    pendingCheckoutPlan === BUSINESS_INDIVIDUAL_PLAN_KEY
+  ) {
+    const fallbackPath = selectedBusinessType
+      ? checkoutContinuationPath({
+          businessType: selectedBusinessType,
+          plan: pendingCheckoutPlan,
+          promoCode: selectedPromoCode
+        })
+      : "/business-individual";
+    const nextCheckoutPath = savedCheckoutPath?.startsWith("/api/checkout")
+      ? safeInternalRedirect(savedCheckoutPath, fallbackPath)
+      : fallbackPath;
+
+    redirect(nextCheckoutPath === "/dashboard" ? fallbackPath : nextCheckoutPath);
+  }
+
   const myProfileHref = fullAccess && initialProfile.slug ? `/${initialProfile.slug}` : "/dashboard/preview";
   const passOptions = [
     {
