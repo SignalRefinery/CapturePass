@@ -36,6 +36,8 @@ type CheckoutPayload = {
 // Launch promotion: business setup fees are temporarily waived.
 // TODO: Re-enable business plan setup fee charges after 2026-07-31.
 const BUSINESS_SETUP_FEES_WAIVED_FOR_LAUNCH = true;
+const PENDING_CHECKOUT_COOKIE = "taptagg_pending_checkout";
+const PENDING_CHECKOUT_COOKIE_MAX_AGE = 60 * 30;
 
 function getStringId(value: string | { id?: string } | null | undefined) {
   if (!value) return null;
@@ -461,8 +463,19 @@ async function createCheckoutOrPortal(req: Request) {
         checkoutParams.set("business_type", selectedBusinessType.value);
       }
 
-      signupUrl.searchParams.set("next", `/api/checkout?${checkoutParams.toString()}`);
-      return NextResponse.redirect(signupUrl.toString(), { status: 303 });
+      const pendingCheckoutPath = `/api/checkout?${checkoutParams.toString()}`;
+      signupUrl.searchParams.set("next", pendingCheckoutPath);
+
+      const response = NextResponse.redirect(signupUrl.toString(), { status: 303 });
+      response.cookies.set(PENDING_CHECKOUT_COOKIE, pendingCheckoutPath, {
+        httpOnly: true,
+        maxAge: PENDING_CHECKOUT_COOKIE_MAX_AGE,
+        path: "/",
+        sameSite: "lax",
+        secure: siteUrl.startsWith("https://")
+      });
+
+      return response;
     }
 
     const { data: profile, error: profileError } = await supabase

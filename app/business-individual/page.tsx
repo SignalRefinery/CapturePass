@@ -30,31 +30,39 @@ const includedFeatures = [
 
 const faqItems = [
   {
-    question: "Who is Business Individual for?",
-    answer:
+    title: "Who is Business Individual for?",
+    body:
       "Business Individual is for solo professionals who need lead capture, relationship management, networking tools, and follow-up capabilities without needing a full team account."
   },
   {
-    question: "How is this different from a team plan?",
-    answer:
+    title: "How is this different from a team plan?",
+    body:
       "Business Individual supports one professional. Team plans include reusable seats, employee management, shared branding controls, team analytics, and card reassignment."
   },
   {
-    question: "Does this include a custom printed card?",
-    answer: "Yes. Business Individual includes one custom printed NFC TapTagg card."
+    title: "Does this include a custom printed card?",
+    body: "Yes. Business Individual includes one custom printed NFC TapTagg card designed with your branding."
   },
   {
-    question: "Can I add more cards?",
-    answer: "Yes. Additional cards are available for $25 each."
+    title: "Does this include contact capture?",
+    body: "Yes. Visitors can share their contact information directly from your TapTagg profile. Leads are stored in your dashboard and can be exported to CSV at any time."
   },
   {
-    question: "Is the $99 price permanent?",
-    answer:
+    title: "Is this CRM ready?",
+    body: "Yes. Export contacts as CSV files for import into your CRM, marketing platform, or follow-up workflow."
+  },
+  {
+    title: "Can I add more cards?",
+    body: "Yes. Additional TapTagg cards can be ordered for $25 each and linked to the same profile."
+  },
+  {
+    title: "Do my contacts need an app?",
+    body: "No. TapTagg works through any modern web browser. Your contacts can view your profile, save your information, and share their contact details without downloading anything."
+  },
+  {
+    title: "Is the $99 price permanent?",
+    body:
       "No. $99/year is a limited launch offer available through July 31, 2026. The regular price is $199/year after the launch period."
-  },
-  {
-    question: "Is this page public?",
-    answer: "No. This offer is currently available through direct access during the launch period."
   }
 ];
 
@@ -202,9 +210,9 @@ export default async function BusinessIndividualPage({
 
           <div style={faqGrid}>
             {faqItems.map((item) => (
-              <div className="card" key={item.question} style={faqCard}>
-                <h3 style={faqQuestion}>{item.question}</h3>
-                <p style={faqAnswer}>{item.answer}</p>
+              <div className="card" key={item.title} style={faqCard}>
+                <h3 style={faqQuestion}>{item.title}</h3>
+                <p style={faqAnswer}>{item.body}</p>
               </div>
             ))}
           </div>
@@ -446,7 +454,8 @@ const faqGrid = {
 const faqCard = {
   padding: 22,
   display: "grid",
-  gap: 10
+  gap: 10,
+  height: "100%"
 };
 
 const faqQuestion = {

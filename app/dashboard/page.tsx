@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import Link from "next/link";
 import { Shell } from "@/components/shared/shell";
 import { ProfileEditor } from "@/components/dashboard/profile-editor";
@@ -28,6 +29,8 @@ import {
   getBusinessTypePrimaryLinkDefaults
 } from "@/lib/business-types";
 import { getBusinessTypeForUser } from "@/lib/business/organization-access";
+
+const PENDING_CHECKOUT_COOKIE = "taptagg_pending_checkout";
 
 function passHrefFor(profile: ProfileRecord) {
   if (!profile.private_token) {
@@ -280,6 +283,8 @@ export default async function DashboardPage({
   }
 
   const params = searchParams ? await searchParams : {};
+  const cookieStore = await cookies();
+  const pendingCheckoutCookie = cleanMetadataValue(cookieStore.get(PENDING_CHECKOUT_COOKIE)?.value);
 
   if (params?.checkout === "success") {
     await reconcileCheckoutSuccess(params.session_id, user.id);
@@ -366,12 +371,18 @@ export default async function DashboardPage({
   const checkoutSuccess = params?.checkout === "success";
   const activationPending = checkoutSuccess && !fullAccess;
   const selectedPlan = cleanMetadataValue(user.user_metadata?.selected_plan);
-  const savedCheckoutPath = cleanMetadataValue(user.user_metadata?.checkout_next_path);
+  const metadataBusinessType = cleanMetadataValue(user.user_metadata?.selected_business_type);
+  const savedCheckoutPath =
+    cleanMetadataValue(user.user_metadata?.checkout_next_path) || pendingCheckoutCookie;
   const savedCheckoutPlan = getCheckoutSearchParam(savedCheckoutPath, "plan");
-  const pendingCheckoutPlan = selectedPlan || savedCheckoutPlan;
+  const savedCheckoutBusinessType = getCheckoutSearchParam(savedCheckoutPath, "business_type");
+  const pendingCheckoutPlan =
+    selectedPlan ||
+    savedCheckoutPlan ||
+    (metadataBusinessType || savedCheckoutBusinessType ? BUSINESS_INDIVIDUAL_PLAN_KEY : null);
   const selectedBusinessType =
-    cleanMetadataValue(user.user_metadata?.selected_business_type) ||
-    getCheckoutSearchParam(savedCheckoutPath, "business_type") ||
+    metadataBusinessType ||
+    savedCheckoutBusinessType ||
     (initialProfile.business_type && initialProfile.business_type !== "general_business"
       ? initialProfile.business_type
       : null);
