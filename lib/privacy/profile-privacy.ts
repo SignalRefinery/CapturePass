@@ -15,6 +15,7 @@ export const SITE_ROUTES = new Set([
   "admin",
   "api",
   "dashboard",
+  "contact",
   "how-it-works",
   "legal",
   "live-demo",
@@ -34,6 +35,11 @@ export const SITE_ROUTES = new Set([
   "forgot-password",
   "insurance-agents",
   "real-estate-agents",
+  "resources",
+  "springfield-il-contact-capture",
+  "springfield-il-digital-business-cards",
+  "springfield-il-nfc-business-cards",
+  "springfield-il-sales-team-business-cards",
   "sales-teams",
   "update-password"
 ]);

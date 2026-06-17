@@ -85,7 +85,39 @@ export default function ContactCaptureNfcCardsPage() {
           { href: "/business-individual", label: "Business Individual" },
           { href: "/business", label: "Business" },
           { href: "/business/pricing", label: "Business Pricing" },
-          { href: "/pricing", label: "Pricing" }
+          { href: "/pricing", label: "Pricing" },
+          { href: "/resources/contact-capture-vs-traditional-business-cards", label: "Traditional Cards vs Contact Capture" },
+          { href: "/springfield-il-contact-capture", label: "Springfield Contact Capture" }
+        ]}
+        sections={[
+          {
+            heading: "Why paper business cards fail",
+            paragraphs: [
+              "Paper cards are easy to hand out but easy to forget, which means the conversation often ends at the exchange itself.",
+              "They also do nothing to help capture the other person's information or move the conversation forward."
+            ]
+          },
+          {
+            heading: "How contact capture works",
+            paragraphs: [
+              "A tap or scan opens a page that can share your profile, collect the recipient's contact details, and give both sides a clear next step.",
+              "That keeps the exchange simple while making the follow-up much more useful."
+            ]
+          },
+          {
+            heading: "CRM-ready workflows",
+            paragraphs: [
+              "Teams can design the page so the contact flows into their existing follow-up process instead of creating another disconnected tool.",
+              "That makes it easier to keep records clean and avoid manual re-entry."
+            ]
+          },
+          {
+            heading: "Follow-up and conversion benefits",
+            paragraphs: [
+              "The faster the recipient sees a useful next step, the more likely the conversation turns into an actual opportunity.",
+              "Contact capture creates a stronger bridge between the first meeting and the next action."
+            ]
+          }
         ]}
         subheadline="Make contact capture feel instant, simple, and branded."
       />

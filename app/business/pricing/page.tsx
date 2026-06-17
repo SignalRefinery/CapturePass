@@ -216,6 +216,39 @@ export default function BusinessPricingPage() {
             </Link>
           </div>
         </section>
+
+        <section className="card tagg-card" style={{ padding: "clamp(24px, 5vw, 36px)" }}>
+          <div className="dashboard-kicker">Resources</div>
+          <h2
+            style={{
+              margin: "8px 0 12px",
+              fontFamily: "var(--font-heading)",
+              fontSize: "clamp(36px, 5vw, 58px)",
+              lineHeight: 0.98,
+              letterSpacing: "-0.04em",
+              fontWeight: 800
+            }}
+          >
+            Explore the playbook behind the rollout.
+          </h2>
+          <p style={{ margin: 0, color: "#b6bcc8", fontSize: 16, lineHeight: 1.62, fontWeight: 500 }}>
+            TapTagg resources explain the workflows behind contact capture, NFC business cards, and industry-specific use cases.
+          </p>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginTop: 18 }}>
+            <Link className="button secondary" href="/resources">
+              Resource Center
+            </Link>
+            <Link className="button secondary" href="/resources/category/sales">
+              Sales Resources
+            </Link>
+            <Link className="button secondary" href="/resources/category/dealerships">
+              Dealership Resources
+            </Link>
+            <Link className="button secondary" href="/springfield-il-contact-capture">
+              Springfield Contact Capture
+            </Link>
+          </div>
+        </section>
       </section>
     </Shell>
   );

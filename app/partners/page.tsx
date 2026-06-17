@@ -73,10 +73,12 @@ export default function PartnersPage() {
             <Link className="button secondary" href="/contact-capture-nfc-cards">
               Contact Capture NFC Cards
             </Link>
+            <Link className="button secondary" href="/resources">
+              Resources
+            </Link>
           </div>
         </div>
       </section>
     </Shell>
   );
 }
-

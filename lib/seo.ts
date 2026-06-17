@@ -5,7 +5,8 @@ export const SITE_TAGLINE = "Play Tagg Everywhere.";
 export const SITE_DESCRIPTION =
   "TapTagg helps people and teams share profiles, contact details, and links instantly with NFC cards, QR codes, and contact capture.";
 export const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://taptagg.app";
-export const DEFAULT_OG_IMAGE = "/custom-taptagg-card.jpg";
+export const DEFAULT_OG_IMAGE = "/opengraph-image";
+export const DEFAULT_TWITTER_IMAGE = "/twitter-image";
 
 type PageMetadataInput = {
   description: string;
@@ -24,6 +25,9 @@ export function buildPageMetadata({
   title,
   image = DEFAULT_OG_IMAGE
 }: PageMetadataInput): Metadata {
+  const ogImage = `${image}${image.includes("?") ? "&" : "?"}title=${encodeURIComponent(title)}&subtitle=${encodeURIComponent(description)}`;
+  const twitterImage = `${DEFAULT_TWITTER_IMAGE}?title=${encodeURIComponent(title)}&subtitle=${encodeURIComponent(description)}`;
+
   return {
     alternates: {
       canonical: path
@@ -35,7 +39,7 @@ export function buildPageMetadata({
         {
           alt: title,
           height: 630,
-          url: image,
+          url: ogImage,
           width: 1200
         }
       ],
@@ -48,7 +52,7 @@ export function buildPageMetadata({
     twitter: {
       card: "summary_large_image",
       description,
-      images: [image],
+      images: [twitterImage],
       title
     }
   };
@@ -130,6 +134,26 @@ export function buildLocalBusinessJsonLd(input: {
     "@type": "LocalBusiness",
     description: input.description,
     name: input.name,
+    url: absoluteUrl(input.path)
+  };
+}
+
+export function buildArticleJsonLd(input: {
+  author?: string;
+  description: string;
+  headline: string;
+  path: string;
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    author: {
+      "@type": "Organization",
+      name: input.author || SITE_NAME
+    },
+    description: input.description,
+    headline: input.headline,
+    mainEntityOfPage: absoluteUrl(input.path),
     url: absoluteUrl(input.path)
   };
 }

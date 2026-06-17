@@ -12,6 +12,10 @@ type IndustryLandingPageProps = {
   navLinks: Array<{ href: string; label: string }>;
   proofPoints: Array<{ copy: string; label: string }>;
   relatedLinks: Array<{ href: string; label: string }>;
+  sections?: Array<{
+    heading: string;
+    paragraphs: string[];
+  }>;
   subheadline: string;
 };
 
@@ -26,6 +30,7 @@ export function IndustryLandingPage({
   navLinks,
   proofPoints,
   relatedLinks,
+  sections,
   subheadline
 }: IndustryLandingPageProps) {
   return (
@@ -73,6 +78,21 @@ export function IndustryLandingPage({
             ))}
           </div>
         </section>
+
+        {sections?.length ? (
+          <div style={{ display: "grid", gap: 16 }}>
+            {sections.map((section) => (
+              <article className="card tagg-card" key={section.heading} style={sectionCard}>
+                <h2 style={sectionHeadingStyle}>{section.heading}</h2>
+                {section.paragraphs.map((paragraph) => (
+                  <p key={paragraph} style={sectionCopy}>
+                    {paragraph}
+                  </p>
+                ))}
+              </article>
+            ))}
+          </div>
+        ) : null}
 
         <section className="card tagg-card" style={relatedPanel}>
           <div className="dashboard-kicker">Related pages</div>
@@ -199,6 +219,27 @@ const proofCopy = {
   fontWeight: 500
 };
 
+const sectionCard = {
+  padding: 24
+};
+
+const sectionHeadingStyle = {
+  margin: "0 0 10px",
+  fontFamily: "var(--font-heading)",
+  fontSize: "clamp(28px, 3vw, 38px)",
+  lineHeight: 1,
+  letterSpacing: "-0.035em",
+  fontWeight: 800
+};
+
+const sectionCopy = {
+  margin: "0 0 12px",
+  color: "#b6bcc8",
+  fontSize: 16,
+  lineHeight: 1.62,
+  fontWeight: 500
+};
+
 const relatedPanel = {
   marginTop: 18,
   padding: "clamp(24px, 5vw, 36px)"
@@ -209,4 +250,3 @@ const relatedLinksWrap = {
   flexWrap: "wrap" as const,
   gap: 12
 };
-

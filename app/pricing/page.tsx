@@ -247,6 +247,29 @@ export default async function PricingPage({
           </div>
         </section>
 
+        <section className="card tagg-card" style={internalLinkPanel}>
+          <div className="kicker" style={{ width: "fit-content" }}>
+            <span className="mini-star">✦</span>
+            <span>Springfield</span>
+          </div>
+          <h2 style={sectionHeading}>Looking for TapTagg in Springfield, Illinois?</h2>
+          <p style={sectionCopy}>
+            Explore local SEO pages that map TapTagg to NFC business cards, digital business cards, contact capture,
+            and sales team workflows for Springfield searchers.
+          </p>
+          <div style={internalLinkGrid}>
+            <Link className="button secondary" href="/springfield-il-nfc-business-cards">
+              NFC Business Cards
+            </Link>
+            <Link className="button secondary" href="/springfield-il-digital-business-cards">
+              Digital Business Cards
+            </Link>
+            <Link className="button secondary" href="/springfield-il-sales-team-business-cards">
+              Sales Team Cards
+            </Link>
+          </div>
+        </section>
+
         <section style={faqSection}>
           <div style={{ textAlign: "center" }}>
             <div className="kicker" style={{ margin: "0 auto 14px" }}>

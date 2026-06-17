@@ -81,11 +81,42 @@ export default function DealershipsPage() {
           { href: "/business", label: "Business" },
           { href: "/business/pricing", label: "Business Pricing" },
           { href: "/contact-capture-nfc-cards", label: "Contact Capture NFC Cards" },
-          { href: "/pricing", label: "Pricing" }
+          { href: "/pricing", label: "Pricing" },
+          { href: "/resources/nfc-business-cards-for-car-dealerships", label: "Dealership Guide" },
+          { href: "/springfield-il-nfc-business-cards", label: "Springfield NFC Cards" }
+        ]}
+        sections={[
+          {
+            heading: "Common lead-loss points in automotive sales",
+            paragraphs: [
+              "Dealerships often lose momentum after the walkaround, after the test drive, or after a customer says they need to think it over.",
+              "If the salesperson's contact information is buried in a stack of paper cards, the rep may never get the chance to continue the conversation."
+            ]
+          },
+          {
+            heading: "CRM integration and contact capture workflows",
+            paragraphs: [
+              "The strongest dealership workflow captures the lead once, routes it to the right rep, and keeps the follow-up path obvious.",
+              "TapTagg supports that handoff by making the card-to-contact step faster, cleaner, and easier to reuse across campaigns."
+            ]
+          },
+          {
+            heading: "Multi-location dealership use cases",
+            paragraphs: [
+              "Dealer groups can use the same system across rooftops, helping reps stay connected to customers even when the sales floor changes.",
+              "That is especially useful when inventory, specialties, and staff vary by location."
+            ]
+          },
+          {
+            heading: "Test-drive follow-up challenges",
+            paragraphs: [
+              "The best follow-up happens immediately after the test drive when the customer's interest is highest.",
+              "A TapTagg page can point them to the next step before they leave the lot."
+            ]
+          }
         ]}
         subheadline="Turn every showroom conversation into a saved contact and a cleaner follow-up path."
       />
     </>
   );
 }
-

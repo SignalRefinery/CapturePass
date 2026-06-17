@@ -81,11 +81,41 @@ export default function InsuranceAgentsPage() {
           { href: "/business", label: "Business" },
           { href: "/business/pricing", label: "Business Pricing" },
           { href: "/contact-capture-nfc-cards", label: "Contact Capture NFC Cards" },
-          { href: "/pricing", label: "Pricing" }
+          { href: "/pricing", label: "Pricing" },
+          { href: "/resources/digital-business-cards-for-insurance-agents", label: "Insurance Guide" },
+          { href: "/springfield-il-contact-capture", label: "Springfield Contact Capture" }
+        ]}
+        sections={[
+          {
+            heading: "Referral networking",
+            paragraphs: [
+              "Insurance work is built on trust and introductions, so a simple branded page helps referrals move quickly from introduction to saved contact.",
+              "The goal is to make it easy for partners to remember you and easy for prospects to find you again."
+            ]
+          },
+          {
+            heading: "Community events and local visibility",
+            paragraphs: [
+              "Community sponsorships, chamber events, and neighborhood outreach all benefit from a quick tap that keeps the follow-up path clear.",
+              "That is especially true when the conversation starts in person and the next step happens later."
+            ]
+          },
+          {
+            heading: "Long-term relationship building",
+            paragraphs: [
+              "Insurance relationships often span renewals, policy reviews, and major life changes, so the card needs to stay useful for months or years.",
+              "A digital page can be updated without reprinting, which helps keep those long-term relationships intact."
+            ]
+          },
+          {
+            heading: "Contact capture and follow-up workflows",
+            paragraphs: [
+              "A good workflow makes it easy to collect a contact, route them to the right page, and schedule the next conversation before the lead goes cold."
+            ]
+          }
         ]}
         subheadline="Keep every quote request and referral tied to the right agent."
       />
     </>
   );
 }
-

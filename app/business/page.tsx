@@ -284,6 +284,42 @@ export default async function BusinessPage({
         </div>
       </section>
 
+      <section className="business-section">
+        <div className="card tagg-card" style={{ padding: 28 }}>
+          <div className="dashboard-kicker">Resources</div>
+          <h2
+            style={{
+              margin: "8px 0 12px",
+              fontFamily: "var(--font-heading)",
+              fontSize: "clamp(36px, 5vw, 58px)",
+              lineHeight: 0.98,
+              letterSpacing: "-0.04em",
+              fontWeight: 800
+            }}
+          >
+            Read the TapTagg playbook.
+          </h2>
+          <p style={{ margin: 0, color: "#b6bcc8", fontSize: 16, lineHeight: 1.62, fontWeight: 500 }}>
+            Explore guides on NFC business cards, contact capture, and industry-specific workflows for teams
+            that want stronger follow-up.
+          </p>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginTop: 18 }}>
+            <Link className="button secondary" href="/resources">
+              Resource Center
+            </Link>
+            <Link className="button secondary" href="/resources/category/dealerships">
+              Dealership Resources
+            </Link>
+            <Link className="button secondary" href="/resources/category/real-estate">
+              Real Estate Resources
+            </Link>
+            <Link className="button secondary" href="/resources/category/sales">
+              Sales Resources
+            </Link>
+          </div>
+        </div>
+      </section>
+
       <section className="business-section business-process">
         <div className="business-section-heading">
           <div className="dashboard-kicker">Why teams choose TapTagg</div>

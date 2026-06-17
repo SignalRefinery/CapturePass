@@ -81,11 +81,42 @@ export default function SalesTeamsPage() {
           { href: "/business", label: "Business" },
           { href: "/business/pricing", label: "Business Pricing" },
           { href: "/contact-capture-nfc-cards", label: "Contact Capture NFC Cards" },
-          { href: "/pricing", label: "Pricing" }
+          { href: "/pricing", label: "Pricing" },
+          { href: "/resources/digital-business-cards-for-sales-teams", label: "Sales Guide" },
+          { href: "/springfield-il-sales-team-business-cards", label: "Springfield Sales Cards" }
+        ]}
+        sections={[
+          {
+            heading: "Team accountability",
+            paragraphs: [
+              "Sales leaders need to know the system is being used consistently across the team and that the follow-up path stays visible.",
+              "A branded TapTagg workflow makes the handoff easier to measure without forcing a heavy CRM replacement."
+            ]
+          },
+          {
+            heading: "Lead ownership",
+            paragraphs: [
+              "When the rep who made the connection stays attached to the lead, follow-up is cleaner and accountability improves.",
+              "That matters whether the meeting happens in a showroom, at an event, or in the field."
+            ]
+          },
+          {
+            heading: "Contact capture",
+            paragraphs: [
+              "TapTagg gives the team a simple way to move from a quick introduction into a saved contact and a clear next step.",
+              "That reduces friction when the team needs to capture names, emails, and intent in the moment."
+            ]
+          },
+          {
+            heading: "Employee turnover protection",
+            paragraphs: [
+              "If a salesperson leaves, the same reusable system can be reassigned instead of discarded.",
+              "That keeps the original print investment alive and helps maintain continuity for the customer."
+            ]
+          }
         ]}
         subheadline="Make every in-person conversation easier to capture, own, and follow up."
       />
     </>
   );
 }
-

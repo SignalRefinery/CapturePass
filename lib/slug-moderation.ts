@@ -62,6 +62,7 @@ const BLOCKED_EXACT = new Set([
   "private",
   "public",
   "resend",
+  "resources",
   "robots",
   "root",
   "sales",
@@ -81,6 +82,10 @@ const BLOCKED_EXACT = new Set([
   "verify",
   "verification",
   "webmail",
+  "springfield-il-contact-capture",
+  "springfield-il-digital-business-cards",
+  "springfield-il-nfc-business-cards",
+  "springfield-il-sales-team-business-cards",
   "www"
 ]);
 

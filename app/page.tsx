@@ -255,6 +255,81 @@ export default function HomePage() {
               </Link>
             </div>
           </div>
+          <div className="card tagg-card" style={{ padding: 26 }}>
+            <h2
+              style={{
+                margin: "0 0 10px",
+                fontFamily: "var(--font-heading)",
+                fontSize: "clamp(34px, 4vw, 42px)",
+                lineHeight: 0.98,
+                letterSpacing: "-0.035em",
+                fontWeight: 800
+              }}
+            >
+              Learn from the resource center.
+            </h2>
+            <p
+              style={{
+                margin: "0 0 16px",
+                color: "#b6bcc8",
+                fontSize: 16,
+                lineHeight: 1.62,
+                fontWeight: 500
+              }}
+            >
+              Explore guides on NFC business cards, contact capture, and the workflows behind dealership,
+              insurance, real estate, and sales use cases.
+            </p>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
+              <Link className="button secondary" href="/resources">
+                Resource Center
+              </Link>
+              <Link className="button secondary" href="/resources/category/dealerships">
+                Dealership Resources
+              </Link>
+              <Link className="button secondary" href="/resources/category/sales">
+                Sales Resources
+              </Link>
+            </div>
+          </div>
+
+          <div className="card tagg-card" style={{ padding: 26 }}>
+            <h2
+              style={{
+                margin: "0 0 10px",
+                fontFamily: "var(--font-heading)",
+                fontSize: "clamp(34px, 4vw, 42px)",
+                lineHeight: 0.98,
+                letterSpacing: "-0.035em",
+                fontWeight: 800
+              }}
+            >
+              Springfield, Illinois cluster.
+            </h2>
+            <p
+              style={{
+                margin: "0 0 16px",
+                color: "#b6bcc8",
+                fontSize: 16,
+                lineHeight: 1.62,
+                fontWeight: 500
+              }}
+            >
+              Localize your search path with Springfield pages built for NFC business cards, digital business cards,
+              contact capture, and sales team workflows.
+            </p>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
+              <Link className="button secondary" href="/springfield-il-nfc-business-cards">
+                NFC Business Cards
+              </Link>
+              <Link className="button secondary" href="/springfield-il-digital-business-cards">
+                Digital Business Cards
+              </Link>
+              <Link className="button secondary" href="/springfield-il-contact-capture">
+                Contact Capture
+              </Link>
+            </div>
+          </div>
 
           <div
             className="card tagg-card tagg-card-feature"

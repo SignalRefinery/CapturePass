@@ -247,6 +247,12 @@ export default async function BusinessIndividualPage({
                 <Link className="button secondary" href="/business/pricing" style={{ width: "fit-content" }}>
                   Business Pricing
                 </Link>
+                <Link className="button secondary" href="/resources" style={{ width: "fit-content" }}>
+                  Resources
+                </Link>
+                <Link className="button secondary" href="/springfield-il-contact-capture" style={{ width: "fit-content" }}>
+                  Springfield Contact Capture
+                </Link>
               </div>
             </section>
           </aside>

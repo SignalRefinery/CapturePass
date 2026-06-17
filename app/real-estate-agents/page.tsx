@@ -81,11 +81,41 @@ export default function RealEstateAgentsPage() {
           { href: "/business", label: "Business" },
           { href: "/business/pricing", label: "Business Pricing" },
           { href: "/contact-capture-nfc-cards", label: "Contact Capture NFC Cards" },
-          { href: "/pricing", label: "Pricing" }
+          { href: "/pricing", label: "Pricing" },
+          { href: "/resources/nfc-business-cards-for-realtors", label: "Real Estate Guide" },
+          { href: "/springfield-il-digital-business-cards", label: "Springfield Digital Cards" }
+        ]}
+        sections={[
+          {
+            heading: "Open houses",
+            paragraphs: [
+              "Open houses create a short window where visitors can become real leads, so the page should make it easy to save the agent and capture contact details.",
+              "TapTagg can send visitors to the listing, a follow-up form, or a direct booking link."
+            ]
+          },
+          {
+            heading: "Vendor and referral networks",
+            paragraphs: [
+              "Real estate agents rely on lenders, inspectors, contractors, and other referral partners. A reusable digital page helps keep those relationships organized.",
+              "That makes it easier to stay visible across the entire transaction chain."
+            ]
+          },
+          {
+            heading: "Mortgage partner relationships",
+            paragraphs: [
+              "Mortgage conversations often happen alongside the home search itself, so a shared digital profile helps the handoff feel natural and fast.",
+              "The same page can point to lender partners, pre-qualification steps, or property search links."
+            ]
+          },
+          {
+            heading: "Property-specific use cases",
+            paragraphs: [
+              "You can adapt the same TapTagg setup for a listing, a neighborhood landing page, or a broader personal brand depending on the opportunity."
+            ]
+          }
         ]}
         subheadline="Turn showings, open houses, and referrals into saved contacts."
       />
     </>
   );
 }
-
