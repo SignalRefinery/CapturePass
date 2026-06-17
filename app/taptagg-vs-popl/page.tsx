@@ -4,7 +4,7 @@ import { Shell } from "@/components/shared/shell";
 import { JsonLd } from "@/components/seo/json-ld";
 import { buildFaqJsonLd, buildOrganizationJsonLd, buildPageMetadata } from "@/lib/seo";
 
-export const canonicalUrl = "https://taptagg.app/taptagg-vs-popl";
+const canonicalUrl = "https://taptagg.app/taptagg-vs-popl";
 
 export const metadata = buildPageMetadata({
   description:
@@ -133,13 +133,13 @@ export default function TapTaggVsPoplPage() {
         <div style={heroCopyWrap}>
           <p style={heroCopy}>
             Popl is one of the most recognized names in digital business cards and event lead capture.
-            It's a powerful platform used by organizations around the world to collect contacts at conferences,
+            It&apos;s a powerful platform used by organizations around the world to collect contacts at conferences,
             trade shows, and networking events.
           </p>
 
-          <p style={heroCopy}>But most sales organizations aren't trying to win a trade show.</p>
+          <p style={heroCopy}>But most sales organizations aren&apos;t trying to win a trade show.</p>
 
-          <p style={heroCopy}>They're trying to turn conversations into customers.</p>
+          <p style={heroCopy}>They&apos;re trying to turn conversations into customers.</p>
 
           <p style={heroCopy}>
             If your team spends its time meeting prospects in dealerships, real estate offices, insurance agencies,
@@ -259,7 +259,7 @@ export default function TapTaggVsPoplPage() {
           <p style={sectionIntro}>Maintaining relationships is hard.</p>
 
           <p style={sectionIntro}>
-            That's why TapTagg was designed to help businesses:
+            That&apos;s why TapTagg was designed to help businesses:
           </p>
 
           <div style={bulletGrid}>
@@ -277,7 +277,7 @@ export default function TapTaggVsPoplPage() {
           </div>
 
           <p style={sectionIntro}>
-            The goal isn't simply to hand someone a digital business card.
+            The goal isn&apos;t simply to hand someone a digital business card.
           </p>
 
           <p style={sectionIntro}>
@@ -353,7 +353,7 @@ export default function TapTaggVsPoplPage() {
 
           <p style={sectionIntro}>Most digital business card companies talk about networking.</p>
 
-          <p style={sectionIntro}>Dealerships don't have a networking problem.</p>
+          <p style={sectionIntro}>Dealerships don&apos;t have a networking problem.</p>
 
           <p style={sectionIntro}>They have a relationship retention problem.</p>
 
@@ -361,11 +361,11 @@ export default function TapTaggVsPoplPage() {
 
           <p style={sectionIntro}>Dealerships experience turnover.</p>
 
-          <p style={sectionIntro}>That's reality.</p>
+          <p style={sectionIntro}>That&apos;s reality.</p>
 
           <p style={sectionIntro}>When a salesperson leaves, what happens to the relationships they built?</p>
 
-          <p style={sectionIntro}>What happens to the customers they've worked with for years?</p>
+          <p style={sectionIntro}>What happens to the customers they&apos;ve worked with for years?</p>
 
           <p style={sectionIntro}>What happens to the prospects they met last month?</p>
 
@@ -410,7 +410,7 @@ export default function TapTaggVsPoplPage() {
           </p>
 
           <p style={sectionIntro}>
-            Yet they're often the exact issues business owners care about most.
+            Yet they&apos;re often the exact issues business owners care about most.
           </p>
         </section>
 
@@ -425,7 +425,7 @@ export default function TapTaggVsPoplPage() {
             If your primary goal is helping your team capture opportunities, build relationships, retain customer connections, and create measurable business outcomes, TapTagg was built specifically with those objectives in mind.
           </p>
 
-          <p style={sectionIntro}>The best platform depends on the problem you're trying to solve.</p>
+          <p style={sectionIntro}>The best platform depends on the problem you&apos;re trying to solve.</p>
 
           <p style={sectionIntro}>
             But if your organization views every handshake as a potential opportunity, TapTagg deserves a serious look.
@@ -456,7 +456,7 @@ export default function TapTaggVsPoplPage() {
             Building systems that help your organization capture opportunities and maintain customer relationships is harder.
           </p>
 
-          <p style={finalCopy}>That's where TapTagg comes in.</p>
+          <p style={finalCopy}>That&apos;s where TapTagg comes in.</p>
 
           <p style={finalCopy}>
             Request a demo and see how modern sales teams are using TapTagg to create measurable business growth.
