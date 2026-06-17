@@ -15,7 +15,7 @@ const PUBLIC_NAV_LINKS = [
 
 export function Shell({
   children,
-  navLinks: _navLinks,
+  navLinks,
   footerLeft,
   footerRight,
   myProfileHref = null,
@@ -58,7 +58,7 @@ export function Shell({
 
   const effectiveNavLinks = useMemo(() => {
     if (!isSignedIn) {
-      return PUBLIC_NAV_LINKS;
+      return navLinks?.length ? navLinks : PUBLIC_NAV_LINKS;
     }
 
     const links = [
@@ -82,7 +82,7 @@ export function Shell({
     }
 
     return links;
-  }, [isSignedIn, isAdmin, profileHref]);
+  }, [isSignedIn, isAdmin, profileHref, navLinks]);
 
   return (
     <div className={pageVariant === "admin" ? "page page-admin" : "page"}>

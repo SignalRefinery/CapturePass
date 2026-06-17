@@ -1,19 +1,36 @@
-"use client";
-
 import "./globals.css";
-import { useEffect } from "react";
-import { createClient } from "@/lib/supabase/client";
+import type { Metadata } from "next";
+import { Inter, Inter_Tight } from "next/font/google";
+import { SessionSync } from "@/components/shared/session-sync";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/seo";
 
-function SessionSync() {
-  useEffect(() => {
-    const supabase = createClient();
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap"
+});
 
-    // Force session hydration on load
-    supabase.auth.getSession();
-  }, []);
+const interTight = Inter_Tight({
+  subsets: ["latin"],
+  variable: "--font-inter-tight",
+  display: "swap"
+});
 
-  return null;
-}
+export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: SITE_NAME,
+    template: `%s | ${SITE_NAME}`
+  },
+  description: SITE_DESCRIPTION,
+  openGraph: {
+    siteName: SITE_NAME,
+    type: "website"
+  },
+  twitter: {
+    card: "summary_large_image"
+  }
+};
 
 export default function RootLayout({
   children,
@@ -21,7 +38,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${inter.variable} ${interTight.variable}`}>
       <body>
         <SessionSync />
         {children}

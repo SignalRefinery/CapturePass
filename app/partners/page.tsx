@@ -1,43 +1,24 @@
 import Link from "next/link";
-
 import { Shell } from "@/components/shared/shell";
+import { buildPageMetadata } from "@/lib/seo";
 
-import { createClient } from "@/lib/supabase/server";
+export const metadata = buildPageMetadata({
+  description:
+    "Partner with TapTagg to introduce NFC cards, QR profiles, and contact capture to creators, shops, teams, salespeople, and builders.",
+  path: "/partners",
+  title: "Partners"
+});
 
-async function getInitialAuth() {
-  const supabase = await createClient();
-  const {
-    data: { user }
-  } = await supabase.auth.getUser();
-
-  if (!user) return null;
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("full_name, slug")
-    .eq("user_id", user.id)
-    .maybeSingle();
-
-  return {
-    email: user.email || null,
-    fullName: profile?.full_name || null,
-    slug: profile?.slug || null
-  };
-}
-
-
-export default async function PartnersPage() {
-  const initialAuth = await getInitialAuth();
-
+export default function PartnersPage() {
   return (
     <Shell
       footerLeft="Share TapTagg"
       footerRight="TapTagg"
-      initialAuth={initialAuth}
       navLinks={[
         { href: "/", label: "Home" },
         { href: "/pricing", label: "Pricing" },
-        { href: "/how-it-works", label: "How it works" }
+        { href: "/how-it-works", label: "How it works" },
+        { href: "/contact-capture-nfc-cards", label: "Contact Capture" }
       ]}
     >
       <section className="simple-hero">
@@ -82,11 +63,20 @@ export default async function PartnersPage() {
             Tell us who you work with, who you can reach, and how TapTagg fits
             the way they share.
           </p>
-          <Link className="button primary" href="/partner-request">
-            Request partner code
-          </Link>
+          <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 12 }}>
+            <Link className="button primary" href="/partner-request">
+              Request partner code
+            </Link>
+            <Link className="button secondary" href="/business">
+              Business
+            </Link>
+            <Link className="button secondary" href="/contact-capture-nfc-cards">
+              Contact Capture NFC Cards
+            </Link>
+          </div>
         </div>
       </section>
     </Shell>
   );
 }
+

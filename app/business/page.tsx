@@ -1,8 +1,15 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Shell } from "@/components/shared/shell";
-import { createClient } from "@/lib/supabase/server";
-import { getCurrentTapTaggAdmin } from "@/lib/auth/admin";
+import { JsonLd } from "@/components/seo/json-ld";
+import { buildPageMetadata, buildSoftwareApplicationJsonLd, SITE_DESCRIPTION } from "@/lib/seo";
+
+export const metadata = buildPageMetadata({
+  description:
+    "TapTagg for sales teams, dealerships, real estate teams, insurance agents, and field sales organizations that need contact capture and lead ownership.",
+  path: "/business",
+  title: "Business"
+});
 
 const businessUseCases = [
   "Auto dealerships and BHPH lots",
@@ -129,27 +136,11 @@ async function submitBusinessRequest(formData: FormData) {
   redirect("/business?request_sent=1");
 }
 
-async function getInitialAuth() {
-  const supabase = await createClient();
-  const {
-    data: { user }
-  } = await supabase.auth.getUser();
-
-  if (!user) return null;
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("full_name, slug, is_admin")
-    .eq("user_id", user.id)
-    .maybeSingle();
-
-  return {
-    email: user.email || null,
-    fullName: profile?.full_name || null,
-    slug: profile?.slug || null,
-    isAdmin: !!profile?.is_admin || !!(await getCurrentTapTaggAdmin())
-  };
-}
+const softwareApplicationSchema = buildSoftwareApplicationJsonLd({
+  description: SITE_DESCRIPTION,
+  name: "TapTagg for Business",
+  path: "/business"
+});
 
 export default async function BusinessPage({
   searchParams
@@ -159,7 +150,6 @@ export default async function BusinessPage({
     request_error?: string;
   }>;
 }) {
-  const initialAuth = await getInitialAuth();
   const params = searchParams ? await searchParams : {};
   const requestSent = params?.request_sent === "1";
   const requestError = params?.request_error || null;
@@ -168,14 +158,16 @@ export default async function BusinessPage({
     <Shell
       footerLeft="Business"
       footerRight="TapTagg"
-      initialAuth={initialAuth}
       navLinks={[
         { href: "/", label: "Home" },
         { href: "/how-it-works", label: "How it works" },
         { href: "/pricing", label: "Pricing" },
-        { href: "/partners", label: "Partners" }
+        { href: "/partners", label: "Partners" },
+        { href: "/contact-capture-nfc-cards", label: "Contact Capture" }
       ]}
     >
+      <JsonLd data={softwareApplicationSchema} />
+
       <section className="business-hero">
         <div className="business-hero-content">
           <div className="kicker">
@@ -250,6 +242,45 @@ export default async function BusinessPage({
               {feature}
             </div>
           ))}
+        </div>
+      </section>
+
+      <section className="business-section">
+        <div className="card tagg-card" style={{ padding: 28 }}>
+          <div className="dashboard-kicker">Industry pages</div>
+          <h2
+            style={{
+              margin: "8px 0 12px",
+              fontFamily: "var(--font-heading)",
+              fontSize: "clamp(36px, 5vw, 58px)",
+              lineHeight: 0.98,
+              letterSpacing: "-0.04em",
+              fontWeight: 800
+            }}
+          >
+            See TapTagg by industry.
+          </h2>
+          <p style={{ margin: 0, color: "#b6bcc8", fontSize: 16, lineHeight: 1.62, fontWeight: 500 }}>
+            Explore tailored pages for dealerships, real estate agents, insurance agents, sales teams,
+            and NFC contact capture cards.
+          </p>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginTop: 18 }}>
+            <Link className="button secondary" href="/dealerships">
+              Dealerships
+            </Link>
+            <Link className="button secondary" href="/real-estate-agents">
+              Real Estate Agents
+            </Link>
+            <Link className="button secondary" href="/insurance-agents">
+              Insurance Agents
+            </Link>
+            <Link className="button secondary" href="/sales-teams">
+              Sales Teams
+            </Link>
+            <Link className="button secondary" href="/contact-capture-nfc-cards">
+              Contact Capture NFC Cards
+            </Link>
+          </div>
         </div>
       </section>
 

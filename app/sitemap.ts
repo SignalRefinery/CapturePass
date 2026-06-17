@@ -8,6 +8,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const routes = [
     "",
     "/business",
+    "/business-individual",
+    "/business/pricing",
+    "/contact-capture-nfc-cards",
+    "/dealerships",
+    "/insurance-agents",
+    "/real-estate-agents",
+    "/sales-teams",
     "/pricing",
     "/how-it-works",
     "/partners",

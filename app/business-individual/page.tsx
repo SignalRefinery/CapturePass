@@ -1,7 +1,16 @@
 import Link from "next/link";
 import { BUSINESS_TYPE_LABELS, BUSINESS_TYPES } from "@/lib/business-types";
 import { BUSINESS_INDIVIDUAL_PROMO_CODE } from "@/lib/plans";
+import { JsonLd } from "@/components/seo/json-ld";
 import { Shell } from "@/components/shared/shell";
+import { buildFaqJsonLd, buildPageMetadata, buildProductJsonLd } from "@/lib/seo";
+
+export const metadata = buildPageMetadata({
+  description:
+    "Business Individual for solo professionals who need contact capture, branded NFC cards, QR sharing, analytics, and CRM-ready exports.",
+  path: "/business-individual",
+  title: "Business Individual"
+});
 
 const includedFeatures = [
   "Active TapTagg business profile",
@@ -66,6 +75,20 @@ const faqItems = [
   }
 ];
 
+const faqSchema = buildFaqJsonLd(
+  faqItems.map((item) => ({
+    answer: item.body,
+    question: item.title
+  }))
+);
+const productSchema = buildProductJsonLd({
+  description:
+    "Business Individual launch offer with a branded TapTagg profile, contact capture, analytics, and a custom printed NFC card.",
+  name: "TapTagg Business Individual",
+  path: "/business-individual",
+  price: "99"
+});
+
 function checkoutNoticeFor(value?: string | null) {
   switch (value) {
     case "missing-business-type":
@@ -96,7 +119,20 @@ export default async function BusinessIndividualPage({
     : params.promo_code || "";
 
   return (
-    <Shell footerLeft="Business Individual" footerRight="TapTagg">
+    <Shell
+      footerLeft="Business Individual"
+      footerRight="TapTagg"
+      navLinks={[
+        { href: "/", label: "Home" },
+        { href: "/pricing", label: "Pricing" },
+        { href: "/business", label: "Business" },
+        { href: "/business/pricing", label: "Business Pricing" },
+        { href: "/contact-capture-nfc-cards", label: "Contact Capture" }
+      ]}
+    >
+      <JsonLd data={productSchema} />
+      <JsonLd data={faqSchema} />
+
       <section className="simple-hero" style={{ paddingBottom: 36 }}>
         <div className="kicker">
           <span className="mini-star">✦</span>
@@ -195,6 +231,23 @@ export default async function BusinessIndividualPage({
               <Link className="button primary" href="/api/checkout?plan=business_individual_extra_card" style={{ width: "fit-content" }}>
                 Add Extra Card
               </Link>
+            </section>
+
+            <section className="card tagg-card" style={sideCard}>
+              <div className="dashboard-kicker">More pages</div>
+              <h2 style={sideHeading}>See the broader TapTagg funnel.</h2>
+              <p style={sideCopy}>
+                Compare pricing, explore business plans, and visit the industry landing pages for dealerships,
+                real estate agents, insurance agents, sales teams, and NFC contact capture cards.
+              </p>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
+                <Link className="button secondary" href="/pricing" style={{ width: "fit-content" }}>
+                  Pricing
+                </Link>
+                <Link className="button secondary" href="/business/pricing" style={{ width: "fit-content" }}>
+                  Business Pricing
+                </Link>
+              </div>
             </section>
           </aside>
         </div>

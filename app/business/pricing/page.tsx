@@ -1,6 +1,16 @@
+import Link from "next/link";
 import { BUSINESS_PLANS, type BusinessPlanKey } from "@/lib/business/plans";
+import { JsonLd } from "@/components/seo/json-ld";
 import { Shell } from "@/components/shared/shell";
 import { BusinessPricingPlans } from "./business-pricing-plans";
+import { buildPageMetadata, buildSoftwareApplicationJsonLd, SITE_DESCRIPTION } from "@/lib/seo";
+
+export const metadata = buildPageMetadata({
+  description:
+    "Business pricing for TapTagg teams: Small Team, Starter, Growth, and Pro with self-managed and managed options, reusable seats, and launch promotion pricing.",
+  path: "/business/pricing",
+  title: "Business Pricing"
+});
 
 const businessTierKeys = [
   ["business_small_team_self", "business_small_team_managed"],
@@ -70,6 +80,12 @@ const businessTiers = businessTierKeys.map(([selfKey, managedKey]) => {
   };
 });
 
+const softwareApplicationSchema = buildSoftwareApplicationJsonLd({
+  description: SITE_DESCRIPTION,
+  name: "TapTagg Business Pricing",
+  path: "/business/pricing"
+});
+
 export default function BusinessPricingPage() {
   return (
     <Shell
@@ -78,9 +94,12 @@ export default function BusinessPricingPage() {
       navLinks={[
         { href: "/", label: "Home" },
         { href: "/pricing", label: "User Pricing" },
-        { href: "/business", label: "Business" }
+        { href: "/business", label: "Business" },
+        { href: "/contact-capture-nfc-cards", label: "Contact Capture" }
       ]}
     >
+      <JsonLd data={softwareApplicationSchema} />
+
       <section className="simple-hero" style={{ paddingBottom: 36 }}>
         <div className="kicker">
           <span className="mini-star">✦</span>
@@ -158,6 +177,43 @@ export default function BusinessPricingPage() {
                 {feature}
               </div>
             ))}
+          </div>
+        </section>
+
+        <section className="card tagg-card" style={{ padding: "clamp(24px, 5vw, 36px)" }}>
+          <div className="dashboard-kicker">Explore vertical pages</div>
+          <h2
+            style={{
+              margin: "8px 0 12px",
+              fontFamily: "var(--font-heading)",
+              fontSize: "clamp(36px, 5vw, 58px)",
+              lineHeight: 0.98,
+              letterSpacing: "-0.04em",
+              fontWeight: 800
+            }}
+          >
+            Match your team to the right landing page.
+          </h2>
+          <p style={{ margin: 0, color: "#b6bcc8", fontSize: 16, lineHeight: 1.62, fontWeight: 500 }}>
+            Visit the industry pages for dealerships, real estate agents, insurance agents, sales teams,
+            and contact capture NFC cards.
+          </p>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginTop: 18 }}>
+            <Link className="button secondary" href="/dealerships">
+              Dealerships
+            </Link>
+            <Link className="button secondary" href="/real-estate-agents">
+              Real Estate Agents
+            </Link>
+            <Link className="button secondary" href="/insurance-agents">
+              Insurance Agents
+            </Link>
+            <Link className="button secondary" href="/sales-teams">
+              Sales Teams
+            </Link>
+            <Link className="button secondary" href="/contact-capture-nfc-cards">
+              Contact Capture NFC Cards
+            </Link>
           </div>
         </section>
       </section>

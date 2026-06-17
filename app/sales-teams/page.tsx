@@ -1,0 +1,91 @@
+import { JsonLd } from "@/components/seo/json-ld";
+import { IndustryLandingPage } from "@/components/marketing/industry-landing-page";
+import { buildFaqJsonLd, buildLocalBusinessJsonLd, buildPageMetadata } from "@/lib/seo";
+
+export const metadata = buildPageMetadata({
+  description:
+    "TapTagg for sales teams: capture contacts, share links fast, and keep lead ownership connected to the rep who built the relationship.",
+  path: "/sales-teams",
+  title: "Sales Teams"
+});
+
+const faqItems = [
+  {
+    question: "How does TapTagg help sales teams?",
+    answer:
+      "It gives each rep a branded profile for quick contact sharing, lead capture, and follow-up links that can be reused across the team."
+  },
+  {
+    question: "Can it help with lead ownership?",
+    answer:
+      "Yes. TapTagg helps the rep who made the connection stay attached to the lead instead of losing the contact to a general company inbox."
+  },
+  {
+    question: "Is it good for field sales?",
+    answer:
+      "Absolutely. TapTagg works anywhere you meet customers in person, including events, meetings, showrooms, and field visits."
+  }
+];
+
+const localBusinessSchema = buildLocalBusinessJsonLd({
+  description:
+    "Landing page for sales teams that want TapTagg contact capture and lead ownership tools.",
+  name: "TapTagg for Sales Teams",
+  path: "/sales-teams"
+});
+
+export default function SalesTeamsPage() {
+  return (
+    <>
+      <JsonLd data={localBusinessSchema} />
+      <JsonLd data={buildFaqJsonLd(faqItems)} />
+      <IndustryLandingPage
+        actionLinks={[
+          { href: "/business/pricing", label: "View Business Pricing", primary: true },
+          { href: "/contact-capture-nfc-cards", label: "Contact Capture NFC Cards" }
+        ]}
+        audienceLabel="Sales Teams"
+        benefits={[
+          {
+            title: "Capture the conversation",
+            copy:
+              "Turn a face-to-face meeting into a saved contact before the customer walks away."
+          },
+          {
+            title: "Support team branding",
+            copy:
+              "Keep every rep on-brand with reusable profiles, cards, and company-controlled links."
+          },
+          {
+            title: "Protect lead ownership",
+            copy:
+              "Tie the contact to the rep who actually met the customer and keep that relationship intact."
+          }
+        ]}
+        footerLeft="Sales Teams"
+        headline="TapTagg for sales teams that need the lead to stay with the rep."
+        intro="Use TapTagg to move from conversation to contact to follow-up without adding friction to the meeting."
+        navLinks={[
+          { href: "/", label: "Home" },
+          { href: "/business", label: "Business" },
+          { href: "/business/pricing", label: "Business Pricing" },
+          { href: "/pricing", label: "Pricing" },
+          { href: "/contact-capture-nfc-cards", label: "Contact Capture" }
+        ]}
+        proofPoints={[
+          { label: "Meeting captured", copy: "One tap saves a contact while the conversation is still fresh." },
+          { label: "Brand kept", copy: "Every rep can stay on-brand with the same system and template." },
+          { label: "Follow-up ready", copy: "Send people directly to the next step without rebuilding the relationship flow." }
+        ]}
+        relatedLinks={[
+          { href: "/business", label: "Business" },
+          { href: "/business/pricing", label: "Business Pricing" },
+          { href: "/contact-capture-nfc-cards", label: "Contact Capture NFC Cards" },
+          { href: "/pricing", label: "Pricing" }
+        ]}
+        subheadline="Make every in-person conversation easier to capture, own, and follow up."
+      />
+    </>
+  );
+}
+

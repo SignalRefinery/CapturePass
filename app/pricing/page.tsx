@@ -1,5 +1,14 @@
 import Link from "next/link";
 import { Shell } from "@/components/shared/shell";
+import { JsonLd } from "@/components/seo/json-ld";
+import { buildFaqJsonLd, buildPageMetadata, buildSoftwareApplicationJsonLd, SITE_DESCRIPTION } from "@/lib/seo";
+
+export const metadata = buildPageMetadata({
+  description:
+    "Compare TapTagg individual plans, upgrade for contact capture and analytics, and move into business pricing when you need team tools.",
+  path: "/pricing",
+  title: "Pricing"
+});
 
 const individualPlans = [
   {
@@ -96,6 +105,13 @@ const faqItems = [
   }
 ];
 
+const faqSchema = buildFaqJsonLd(faqItems);
+const softwareApplicationSchema = buildSoftwareApplicationJsonLd({
+  description: SITE_DESCRIPTION,
+  name: "TapTagg",
+  path: "/pricing"
+});
+
 function checkoutNoticeFor(value?: string | null) {
   switch (value) {
     case "choose-plan":
@@ -126,9 +142,13 @@ export default async function PricingPage({
       navLinks={[
         { href: "/", label: "Home" },
         { href: "/how-it-works", label: "How it works" },
-        { href: "/business/pricing", label: "Business Pricing" }
+        { href: "/business/pricing", label: "Business Pricing" },
+        { href: "/contact-capture-nfc-cards", label: "Contact Capture" }
       ]}
     >
+      <JsonLd data={softwareApplicationSchema} />
+      <JsonLd data={faqSchema} />
+
       <section className="simple-hero" style={{ paddingBottom: 36 }}>
         <div className="kicker">
           <span className="mini-star">✦</span>
@@ -196,6 +216,35 @@ export default async function PricingPage({
           <Link className="button primary" href="/business/pricing" style={{ width: "fit-content" }}>
             View Business Pricing
           </Link>
+        </section>
+
+        <section className="card tagg-card" style={internalLinkPanel}>
+          <div className="kicker" style={{ width: "fit-content" }}>
+            <span className="mini-star">✦</span>
+            <span>Explore More</span>
+          </div>
+          <h2 style={sectionHeading}>Need a page for a specific use case?</h2>
+          <p style={sectionCopy}>
+            Visit the industry landing pages for dealerships, real estate agents, insurance agents,
+            sales teams, and NFC contact capture cards.
+          </p>
+          <div style={internalLinkGrid}>
+            <Link className="button secondary" href="/dealerships">
+              Dealerships
+            </Link>
+            <Link className="button secondary" href="/real-estate-agents">
+              Real Estate Agents
+            </Link>
+            <Link className="button secondary" href="/insurance-agents">
+              Insurance Agents
+            </Link>
+            <Link className="button secondary" href="/sales-teams">
+              Sales Teams
+            </Link>
+            <Link className="button secondary" href="/contact-capture-nfc-cards">
+              Contact Capture NFC Cards
+            </Link>
+          </div>
         </section>
 
         <section style={faqSection}>
@@ -359,6 +408,19 @@ const businessPanel = {
   padding: "clamp(24px, 5vw, 36px)",
   background:
     "radial-gradient(520px 240px at 18% 0%, rgba(139,92,246,.18), transparent 62%), radial-gradient(420px 220px at 92% 12%, rgba(79,70,229,.13), transparent 62%), linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.014)), linear-gradient(180deg, rgba(8,8,10,.96), rgba(4,4,6,.98))"
+};
+
+const internalLinkPanel = {
+  display: "grid",
+  gap: 16,
+  padding: "clamp(24px, 5vw, 36px)",
+  marginTop: 18
+};
+
+const internalLinkGrid = {
+  display: "flex",
+  flexWrap: "wrap" as const,
+  gap: 12
 };
 
 const sectionHeading = {

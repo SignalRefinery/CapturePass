@@ -1,40 +1,24 @@
+import Link from "next/link";
 import { Shell } from "@/components/shared/shell";
-import { createClient } from "@/lib/supabase/server";
+import { buildPageMetadata } from "@/lib/seo";
 
-async function getInitialAuth() {
-  const supabase = await createClient();
-  const {
-    data: { user }
-  } = await supabase.auth.getUser();
+export const metadata = buildPageMetadata({
+  description:
+    "Learn how TapTagg works: build your profile once, use NFC or QR as the trigger, and share the right page instantly.",
+  path: "/how-it-works",
+  title: "How it works"
+});
 
-  if (!user) return null;
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("full_name, slug")
-    .eq("user_id", user.id)
-    .maybeSingle();
-
-  return {
-    email: user.email || null,
-    fullName: profile?.full_name || null,
-    slug: profile?.slug || null
-  };
-}
-
-export default async function HowItWorksPage() {
-  const initialAuth = await getInitialAuth();
-
+export default function HowItWorksPage() {
   return (
     <Shell
       footerLeft="How it works"
       footerRight="TapTagg"
-      myProfileHref={initialAuth?.slug ? `/${initialAuth.slug}` : null}
-      initialAuth={initialAuth}
       navLinks={[
         { href: "/", label: "Home" },
         { href: "/pricing", label: "Pricing" },
-        { href: "/partners", label: "Partners" }
+        { href: "/partners", label: "Partners" },
+        { href: "/contact-capture-nfc-cards", label: "Contact Capture" }
       ]}
     >
       <section className="simple-hero">
@@ -83,6 +67,42 @@ export default async function HowItWorksPage() {
           </div>
         </div>
       </section>
+
+      <section className="section-wrap" style={{ paddingTop: 0 }}>
+        <div className="card" style={{ padding: 28 }}>
+          <div className="dashboard-kicker">Next steps</div>
+          <h2
+            style={{
+              margin: "8px 0 12px",
+              fontFamily: "var(--font-heading)",
+              fontSize: "clamp(36px, 5vw, 58px)",
+              lineHeight: 0.98,
+              letterSpacing: "-0.04em",
+              fontWeight: 800
+            }}
+          >
+            Find the right TapTagg path for your use case.
+          </h2>
+          <p className="editor-copy" style={{ maxWidth: 760, margin: "0 0 18px" }}>
+            Compare plans, explore business pricing, or jump into a landing page for your industry.
+          </p>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
+            <Link className="button primary" href="/pricing">
+              Pricing
+            </Link>
+            <Link className="button secondary" href="/business">
+              Business
+            </Link>
+            <Link className="button secondary" href="/dealerships">
+              Dealerships
+            </Link>
+            <Link className="button secondary" href="/contact-capture-nfc-cards">
+              Contact Capture NFC Cards
+            </Link>
+          </div>
+        </div>
+      </section>
     </Shell>
   );
 }
+

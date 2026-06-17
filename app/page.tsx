@@ -1,41 +1,32 @@
 import Link from "next/link";
 import { Shell } from "@/components/shared/shell";
-import { createClient } from "@/lib/supabase/server";
+import { JsonLd } from "@/components/seo/json-ld";
+import {
+  buildOrganizationJsonLd,
+  buildPageMetadata,
+  SITE_DESCRIPTION
+} from "@/lib/seo";
 
-async function getInitialAuth() {
-  const supabase = await createClient();
-  const {
-    data: { user }
-  } = await supabase.auth.getUser();
+export const metadata = buildPageMetadata({
+  description: SITE_DESCRIPTION,
+  path: "/",
+  title: "TapTagg"
+});
 
-  if (!user) return null;
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("full_name, slug")
-    .eq("user_id", user.id)
-    .maybeSingle();
-
-  return {
-    email: user.email || null,
-    fullName: profile?.full_name || null,
-    slug: profile?.slug || null
-  };
-}
-
-export default async function HomePage() {
-  const initialAuth = await getInitialAuth();
-
+export default function HomePage() {
   return (
     <Shell
       footerLeft="Play Tagg. Share instantly."
       footerRight="TapTagg"
-      initialAuth={initialAuth}
       navLinks={[
         { href: "/how-it-works", label: "How it works" },
-        { href: "/pricing", label: "Pricing" }
+        { href: "/pricing", label: "Pricing" },
+        { href: "/business", label: "Business" },
+        { href: "/contact-capture-nfc-cards", label: "Contact Capture" }
       ]}
     >
+      <JsonLd data={buildOrganizationJsonLd()} />
+
       <section className="simple-hero" style={{ paddingBottom: 40 }}>
         <div className="kicker">
           <span className="mini-star">✦</span>
@@ -110,6 +101,43 @@ export default async function HomePage() {
       </section>
 
       <section className="section-wrap">
+        <div className="card tagg-card" style={{ padding: 26, marginBottom: 18 }}>
+          <div className="kicker">
+            <span className="mini-star">✦</span>
+            <span>Solutions</span>
+          </div>
+          <h2
+            style={{
+              margin: "14px 0 10px",
+              fontFamily: "var(--font-heading)",
+              fontSize: "clamp(34px, 4vw, 44px)",
+              lineHeight: 0.98,
+              letterSpacing: "-0.035em",
+              fontWeight: 800
+            }}
+          >
+            Built for individuals, teams, and contact capture.
+          </h2>
+          <p style={{ margin: 0, color: "#b6bcc8", fontSize: 16, lineHeight: 1.62, fontWeight: 500 }}>
+            TapTagg works for personal sharing, team rollouts, and industry-specific pages that need more
+            conversions than a generic homepage.
+          </p>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginTop: 18 }}>
+            <Link className="button secondary" href="/business">
+              Business
+            </Link>
+            <Link className="button secondary" href="/business-individual">
+              Business Individual
+            </Link>
+            <Link className="button secondary" href="/contact-capture-nfc-cards">
+              Contact Capture NFC Cards
+            </Link>
+            <Link className="button secondary" href="/dealerships">
+              Dealerships
+            </Link>
+          </div>
+        </div>
+
         <div style={{ display: "grid", gap: 18 }}>
           <div className="card tagg-card" style={{ padding: 26 }}>
             <h2
@@ -190,6 +218,42 @@ export default async function HomePage() {
               Artists, salespeople, shops, teams, freelancers, and founders can
               move people from real life to the right link in seconds.
             </p>
+          </div>
+          <div className="card tagg-card" style={{ padding: 26 }}>
+            <h2
+              style={{
+                margin: "0 0 10px",
+                fontFamily: "var(--font-heading)",
+                fontSize: "clamp(34px, 4vw, 42px)",
+                lineHeight: 0.98,
+                letterSpacing: "-0.035em",
+                fontWeight: 800
+              }}
+            >
+              Explore industry pages.
+            </h2>
+            <p
+              style={{
+                margin: "0 0 16px",
+                color: "#b6bcc8",
+                fontSize: 16,
+                lineHeight: 1.62,
+                fontWeight: 500
+              }}
+            >
+              See how TapTagg fits dealerships, real estate, insurance, sales teams, and NFC contact capture.
+            </p>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
+              <Link className="button secondary" href="/real-estate-agents">
+                Real Estate
+              </Link>
+              <Link className="button secondary" href="/insurance-agents">
+                Insurance
+              </Link>
+              <Link className="button secondary" href="/sales-teams">
+                Sales Teams
+              </Link>
+            </div>
           </div>
 
           <div

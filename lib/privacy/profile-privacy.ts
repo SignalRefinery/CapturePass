@@ -28,7 +28,13 @@ export const SITE_ROUTES = new Set([
   "account",
   "auth",
   "business",
+  "business-individual",
+  "contact-capture-nfc-cards",
+  "dealerships",
   "forgot-password",
+  "insurance-agents",
+  "real-estate-agents",
+  "sales-teams",
   "update-password"
 ]);
 
