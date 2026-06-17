@@ -19,6 +19,11 @@ function getStringId(value: string | { id?: string } | null | undefined) {
   return typeof value === "string" ? value : value.id || null;
 }
 
+function normalizeEmailForLookup(email: string | null | undefined) {
+  const normalized = (email || "").trim().toLowerCase();
+  return normalized || null;
+}
+
 function subscriptionIsActive(status: string | null | undefined) {
   return status === "active" || status === "trialing";
 }
@@ -143,6 +148,49 @@ async function findUserIdByCustomer(customerId: string | null) {
     .maybeSingle();
 
   return data?.user_id || null;
+}
+
+async function getStripeCustomerEmail(customerId: string | null) {
+  if (!customerId) return null;
+
+  try {
+    const customer = await stripe.customers.retrieve(customerId);
+
+    if (!customer || Array.isArray(customer) || customer.deleted) {
+      return null;
+    }
+
+    return normalizeEmailForLookup(customer.email || null);
+  } catch {
+    return null;
+  }
+}
+
+async function findUserIdByEmail(email: string | null) {
+  const normalizedEmail = normalizeEmailForLookup(email);
+
+  if (!normalizedEmail) return null;
+
+  const admin = createAdminClient();
+  const { data, error } = await admin
+    .from("profiles")
+    .select("user_id")
+    .ilike("email", normalizedEmail)
+    .limit(2);
+
+  if (error || !data || data.length !== 1) return null;
+
+  return data[0]?.user_id || null;
+}
+
+async function findUserIdByCustomerOrEmail({
+  customerId,
+  email
+}: {
+  customerId: string | null;
+  email: string | null;
+}) {
+  return (await findUserIdByCustomer(customerId)) || (await findUserIdByEmail(email));
 }
 
 async function findOrganizationIdByCustomer(customerId: string | null) {
@@ -468,16 +516,23 @@ async function updateProfileForCheckout(session: Stripe.Checkout.Session) {
   const userId = session.metadata?.user_id || null;
   const customerId = getStringId(session.customer);
   const subscriptionId = getStringId(session.subscription);
+  const customerEmail = normalizeEmailForLookup(
+    session.customer_details?.email || session.customer_email || null
+  );
   const businessType = getMetadataBusinessType(session.metadata);
 
-  if (!userId) return;
+  const resolvedUserId =
+    userId || (await findUserIdByCustomerOrEmail({ customerId, email: customerEmail }));
+
+  if (!resolvedUserId) return;
 
   console.info("Webhook checkout subscription activation received", {
     route: "/api/webhook",
     event: "checkout.session.completed",
     sessionId: session.id,
-    userId,
+    userId: resolvedUserId,
     customerId,
+    customerEmail,
     subscriptionId,
     plan
   });
@@ -492,7 +547,7 @@ async function updateProfileForCheckout(session: Stripe.Checkout.Session) {
       subscription_status: "active",
       ...(businessType ? { business_type: businessType } : {})
     })
-    .or(`user_id.eq.${userId},id.eq.${userId}`);
+    .or(`user_id.eq.${resolvedUserId},id.eq.${resolvedUserId}`);
 
   if (error) throw error;
 
@@ -500,8 +555,9 @@ async function updateProfileForCheckout(session: Stripe.Checkout.Session) {
     route: "/api/webhook",
     event: "checkout.session.completed",
     sessionId: session.id,
-    userId,
+    userId: resolvedUserId,
     customerId,
+    customerEmail,
     subscriptionId,
     stripePlanKey: plan,
     isActive: true,
@@ -509,7 +565,7 @@ async function updateProfileForCheckout(session: Stripe.Checkout.Session) {
   });
 
   await sendRegistrationEmail({
-    userId,
+    userId: resolvedUserId,
     source: "stripe_checkout",
     shipping: getCheckoutShippingDetails(session)
   }).catch((registrationError) => {
@@ -525,7 +581,7 @@ async function updateProfileForCheckout(session: Stripe.Checkout.Session) {
   });
 
   if (planIncludesPhysicalCard(plan)) {
-    await sendCardNotification(userId, session);
+    await sendCardNotification(resolvedUserId, session);
   }
 }
 
@@ -537,9 +593,14 @@ async function updateProfileForSubscription(subscription: Stripe.Subscription) {
   const admin = createAdminClient();
 
   const customerId = getStringId(subscription.customer);
+  const customerEmail = normalizeEmailForLookup(
+    subscription.metadata?.customer_email ||
+      subscription.metadata?.email ||
+      (await getStripeCustomerEmail(customerId))
+  );
   const userId =
     subscription.metadata?.user_id ||
-    (await findUserIdByCustomer(customerId));
+    (await findUserIdByCustomerOrEmail({ customerId, email: customerEmail }));
 
   const plan = getPlanFromSubscription(subscription);
   const businessType = getMetadataBusinessType(subscription.metadata);
@@ -552,6 +613,7 @@ async function updateProfileForSubscription(subscription: Stripe.Subscription) {
     subscriptionId: subscription.id,
     userId,
     customerId,
+    customerEmail,
     plan,
     subscriptionStatus: subscription.status
   });
@@ -576,6 +638,7 @@ async function updateProfileForSubscription(subscription: Stripe.Subscription) {
     subscriptionId: subscription.id,
     userId,
     customerId,
+    customerEmail,
     stripePlanKey: plan,
     isActive: subscriptionIsActive(subscription.status),
     subscriptionStatus: subscription.status
@@ -597,7 +660,10 @@ async function updateProfileForInvoice(
   const admin = createAdminClient();
 
   const customerId = getStringId(invoice.customer);
-  const userId = await findUserIdByCustomer(customerId);
+  const customerEmail = normalizeEmailForLookup(
+    invoice.customer_email || (await getStripeCustomerEmail(customerId))
+  );
+  const userId = await findUserIdByCustomerOrEmail({ customerId, email: customerEmail });
 
   if (!userId) return;
 
@@ -607,6 +673,7 @@ async function updateProfileForInvoice(
     invoiceId: invoice.id,
     userId,
     customerId,
+    customerEmail,
     status
   });
 
@@ -626,6 +693,7 @@ async function updateProfileForInvoice(
     invoiceId: invoice.id,
     userId,
     customerId,
+    customerEmail,
     isActive: status === "active",
     subscriptionStatus: status
   });

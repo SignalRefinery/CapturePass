@@ -638,6 +638,7 @@ async function createCheckoutOrPortal(req: Request) {
     const metadataPlanKey = sessionPlanKey || "";
     const checkoutMetadata: Stripe.MetadataParam = {
       user_id: user.id,
+      customer_email: user.email || "",
       plan: metadataPlanKey,
       selected_plan: metadataPlanKey
     };
@@ -667,6 +668,7 @@ async function createCheckoutOrPortal(req: Request) {
 
     const subscriptionMetadata: Stripe.MetadataParam = {
       user_id: user.id,
+      customer_email: user.email || "",
       plan: metadataPlanKey,
       selected_plan: metadataPlanKey
     };
