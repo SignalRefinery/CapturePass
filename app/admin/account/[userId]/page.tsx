@@ -118,6 +118,7 @@ async function updateUserAction(formData: FormData) {
       break;
     }
     case "role_line":
+    case "organization_name":
     case "intro":
     case "phone":
     case "primary_link_1_title":
@@ -474,6 +475,24 @@ export default async function AdminUserPage({ params, searchParams }: PageProps)
                   marginTop: 12,
                 }}
               >
+                <form action={updateUserAction} className="card" style={{ padding: 14 }}>
+                  <input type="hidden" name="userId" value={profile.user_id} />
+                  <input type="hidden" name="field" value="organization_name" />
+                  <label className="label" htmlFor="profile-organization-name">
+                    Organization
+                  </label>
+                  <input
+                    id="profile-organization-name"
+                    name="value"
+                    defaultValue={profile.organization_name || ""}
+                    placeholder="Organization or business name"
+                    style={{ width: "100%", padding: 10, margin: "8px 0" }}
+                  />
+                  <button className="button primary" type="submit">
+                    Save organization
+                  </button>
+                </form>
+
                 <form action={updateUserAction} className="card" style={{ padding: 14 }}>
                   <input type="hidden" name="userId" value={profile.user_id} />
                   <input type="hidden" name="field" value="role_line" />

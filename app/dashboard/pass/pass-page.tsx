@@ -57,7 +57,7 @@ export async function DashboardPassPageContent({
   const passViews = [
     {
       id: "main",
-      label: "TapTagg profile",
+      label: "Profile",
       url: getPreferredProfileShareUrl(profile),
       passUrl: publicPassPathFor(profile)
     }

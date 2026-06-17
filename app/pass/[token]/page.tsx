@@ -42,7 +42,7 @@ export default async function PublicDigitalPassPage({ params, searchParams }: Pa
   const passViews = [
     {
       id: "main",
-      label: "TapTagg profile",
+      label: "Profile",
       url: profile.consent_public_visibility === false ? `${appUrl()}/u/${token}` : getPreferredProfileShareUrl(profile),
       passUrl: `/pass/${token}`
     }

@@ -9,7 +9,7 @@ import {
 const demoProfile: Profile = {
   slug: "demo-profile",
   name: "Demo Profile",
-  role: "TapTagg profile",
+  role: "Live profile",
   intro: "A clean way to share contact details, links, and next steps from one controlled profile.",
   email: "hello@example.com",
   profileUrl: `${site.url}/demo-profile`,

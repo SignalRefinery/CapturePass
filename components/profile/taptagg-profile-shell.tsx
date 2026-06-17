@@ -171,7 +171,7 @@ export function TapTaggProfileShell({
   pageMode: _pageMode = "single",
   multiViewDisplayMode: _multiViewDisplayMode = "favorite",
   initialView: _initialView = null,
-  heroLabel: _heroLabel = "Live profile",
+  heroLabel = "Live profile",
   initialAuth = null
 }: {
   profile: ProfileLike;
@@ -244,6 +244,7 @@ export function TapTaggProfileShell({
       ? themeClassName(resolvedThemeKey, resolvedThemeColors.background)
       : legacyThemeClassName(activeProfile.brand_theme)
   ].filter(Boolean).join(" ");
+  const profileLabel = heroLabel || "Live profile";
   const homeHref = isBusinessProfile ? activeProfile.business_home_url || readableUrl : "/";
   const businessLinks = isBusinessProfile
     ? (activeProfile.business_links || []).filter((item) => item.title && item.url)
@@ -349,9 +350,7 @@ export function TapTaggProfileShell({
                   <span>{initialsForName(displayName)}</span>
                 )}
               </div>
-              <div className={styles.profileEyebrow}>
-                {activeProfile.business_type === "real_estate_brokerage" ? "Live property" : "TapTagg profile"}
-              </div>
+              <div className={styles.profileEyebrow}>{profileLabel}</div>
             </div>
 
             <h1 className={styles.profileName}>{displayName}</h1>
@@ -510,7 +509,7 @@ export function TapTaggProfileShell({
 
         <footer className={styles.footer}>
           <span>{activeProfile.full_name || "TapTagg"}</span>
-          <span>TapTagg profile</span>
+          <span>{profileLabel}</span>
         </footer>
       </div>
     </div>

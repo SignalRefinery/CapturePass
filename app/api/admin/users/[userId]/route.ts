@@ -184,6 +184,7 @@ export async function PATCH(
         moderation.state === "review" ? "approved_by_admin_override" : null;
       break;
     }
+    case "organization_name":
     case "role_line":
     case "intro":
     case "phone":
