@@ -15,7 +15,7 @@ export async function sendBusinessIndividualLogoEmail({
 }: SendBusinessIndividualLogoEmailOptions) {
   const resendApiKey = process.env.RESEND_API_KEY;
   if (!resendApiKey) {
-    console.warn("RESEND_API_KEY is missing. Skipping Business Individual logo email.");
+    console.warn("RESEND_API_KEY is missing. Skipping Business Individual business logo email.");
     return;
   }
 
@@ -27,7 +27,7 @@ export async function sendBusinessIndividualLogoEmail({
     .maybeSingle();
 
   if (error || !profile) {
-    console.warn("Business Individual logo email skipped because profile lookup failed.", {
+    console.warn("Business Individual business logo email skipped because profile lookup failed.", {
       profileId,
       error: error?.message || null
     });
@@ -56,11 +56,11 @@ export async function sendBusinessIndividualLogoEmail({
     body: JSON.stringify({
       from: process.env.INTERNAL_FROM_EMAIL || "TapTagg <noreply@taptagg.app>",
       to: process.env.INTERNAL_ORDER_EMAIL || process.env.INTERNAL_REGISTRATION_EMAIL || "john@taptagg.app",
-      subject: `Business Individual logo uploaded: ${customerName || customerEmail}`,
+      subject: `Business logo uploaded: ${customerName || customerEmail}`,
       html: `
         <div style="font-family:Arial,sans-serif;line-height:1.6;color:#111;">
-          <h2 style="margin:0 0 16px;">Business Individual logo uploaded</h2>
-          <p style="margin:0 0 18px;">A Business Individual customer uploaded a logo for card/profile fulfillment.</p>
+          <h2 style="margin:0 0 16px;">Business logo uploaded</h2>
+          <p style="margin:0 0 18px;">A Business Individual customer uploaded a business logo for card/profile fulfillment.</p>
           <table cellpadding="8" cellspacing="0" border="0" style="border-collapse:collapse;">
             <tr><td><strong>Name</strong></td><td>${escapeEmailHtml(customerName)}</td></tr>
             <tr><td><strong>Email</strong></td><td>${escapeEmailHtml(customerEmail)}</td></tr>
@@ -89,6 +89,6 @@ export async function sendBusinessIndividualLogoEmail({
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(`Unable to send Business Individual logo email: ${errorText}`);
+    throw new Error(`Unable to send Business Individual business logo email: ${errorText}`);
   }
 }

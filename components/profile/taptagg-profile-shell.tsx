@@ -22,6 +22,7 @@ type ProfileLike = {
   organization_name?: string | null;
   profile_image_url?: string | null;
   brand_logo_url?: string | null;
+  is_business_individual?: boolean | null;
   brand_color_primary?: string | null;
   brand_color_secondary?: string | null;
   brand_color_accent?: string | null;
@@ -211,8 +212,9 @@ export function TapTaggProfileShell({
     ? `${activeProfile.role_line} at ${activeProfile.organization_name}`
     : activeProfile.role_line || activeProfile.organization_name || "TapTagg contact card";
   const isBusinessProfile = activeProfile.is_business_profile === true;
+  const useWideLogo = isBusinessProfile || activeProfile.is_business_individual === true;
   const avatarUrl =
-    isBusinessProfile && activeProfile.brand_logo_url
+    useWideLogo && activeProfile.brand_logo_url
       ? activeProfile.brand_logo_url
       : activeProfile.profile_image_url || activeProfile.brand_logo_url || null;
   const avatarIsLogo = !!activeProfile.brand_logo_url && avatarUrl === activeProfile.brand_logo_url;

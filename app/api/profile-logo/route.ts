@@ -108,9 +108,9 @@ export async function POST(request: Request) {
       brandLogoUrl: data.brand_logo_url,
       profileId: auth.profile.id
     }).catch((emailError) => {
-      console.error("Business Individual logo email failed after upload", {
+      console.error("Business Individual business logo email failed after upload", {
         profileId: auth.profile.id,
-        error: emailError instanceof Error ? emailError.message : "Unknown logo email error"
+        error: emailError instanceof Error ? emailError.message : "Unknown business logo error"
       });
     });
 
