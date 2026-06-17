@@ -126,17 +126,25 @@ export function BusinessTeamSection({
                                 <summary className="button secondary">Manage</summary>
                                 <div className="employee-manage-panel-inner">
                                   <div className="dashboard-kicker">Headshot</div>
-                                  {member.headshot_url ? (
-                                    <div className="employee-headshot-preview">
-                                      {/* eslint-disable-next-line @next/next/no-img-element -- employee headshots are storage-backed runtime uploads. */}
-                                      <img src={member.headshot_url} alt={`${member.name} headshot`} />
-                                    </div>
-                                  ) : (
-                                    <p className="table-subtext">No headshot uploaded.</p>
-                                  )}
-                                  <form action={updateEmployeeHeadshot} className="table-actions" encType="multipart/form-data">
-                                    <input type="hidden" name="organization_id" value={organization.id} />
-                                    <input type="hidden" name="member_id" value={member.id} />
+                                    {member.headshot_url ? (
+                                      <div className="employee-headshot-preview">
+                                        {/* eslint-disable-next-line @next/next/no-img-element -- employee headshots are storage-backed runtime uploads. */}
+                                        <img src={member.headshot_url} alt={`${member.name} headshot`} />
+                                      </div>
+                                    ) : (
+                                      <p className="table-subtext">No headshot uploaded.</p>
+                                    )}
+                                    {member.headshot_url ? (
+                                      <a
+                                        className="button secondary"
+                                        href={`/api/business/headshot/download?organization_id=${organization.id}&member_id=${member.id}`}
+                                      >
+                                        Download headshot
+                                      </a>
+                                    ) : null}
+                                    <form action={updateEmployeeHeadshot} className="table-actions" encType="multipart/form-data">
+                                      <input type="hidden" name="organization_id" value={organization.id} />
+                                      <input type="hidden" name="member_id" value={member.id} />
                                     <input
                                       className="editor-input"
                                       name="headshot_file"

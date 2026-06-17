@@ -57,7 +57,7 @@ async function getAuthorizedBusinessIndividualProfile() {
   }
 
   const plan = getProfilePlan(profile as ProfileRecord);
-  if (!plan.isActivated || plan.key !== "business_individual") {
+  if (plan.key !== "business_individual") {
     return {
       error: NextResponse.json(
         { error: "Logo upload is available for Business Individual profiles." },

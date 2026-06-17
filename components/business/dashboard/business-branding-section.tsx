@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { BusinessBrandThemeFields } from "@/components/business/business-brand-theme-fields";
 import { ConfirmSubmitButton } from "@/components/shared/confirm-submit-button";
 import { deleteBusinessLogo, updateOrganizationBranding } from "@/app/dashboard/business/actions";
@@ -73,15 +74,20 @@ export function BusinessBrandingSection({ organization }: { organization: Organi
           <button className="button primary" type="submit">Save branding</button>
         </form>
         {organization.brand_logo_url ? (
-          <form action={deleteBusinessLogo} style={{ marginTop: 12 }}>
-            <input type="hidden" name="organization_id" value={organization.id} />
-            <ConfirmSubmitButton
-              className="button secondary"
-              confirmMessage="Delete this business logo?"
-            >
-              Delete logo
-            </ConfirmSubmitButton>
-          </form>
+          <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 12 }}>
+            <Link className="button secondary" href={`/api/business/logo/download?organization_id=${organization.id}`}>
+              Download logo
+            </Link>
+            <form action={deleteBusinessLogo}>
+              <input type="hidden" name="organization_id" value={organization.id} />
+              <ConfirmSubmitButton
+                className="button secondary"
+                confirmMessage="Delete this business logo?"
+              >
+                Delete logo
+              </ConfirmSubmitButton>
+            </form>
+          </div>
         ) : null}
       </div>
     </section>

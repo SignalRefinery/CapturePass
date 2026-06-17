@@ -284,7 +284,7 @@ export function ProfileEditor({
   const slugCheckRequestRef = useRef(0);
   const profileLogoInputRef = useRef<HTMLInputElement | null>(null);
   const plan = getProfilePlan(form);
-  const isBusinessIndividualProfile = plan.isActivated && plan.key === "business_individual";
+  const canManageBusinessIndividualLogo = plan.key === "business_individual";
   const secondaryButtonMode = typeof form.show_text === "undefined" ? true : form.show_text;
   const selectedThemeKey = coerceThemeForPlan(form.theme_key, plan);
   const showCustomThemeColors = selectedThemeKey === CUSTOM_THEME_KEY;
@@ -539,7 +539,7 @@ export function ProfileEditor({
     try {
       const logoFile = profileLogoInputRef.current?.files?.[0] || null;
 
-      if (logoFile && !isBusinessIndividualProfile) {
+      if (logoFile && !canManageBusinessIndividualLogo) {
         throw new Error("Logo upload is available for Business Individual profiles.");
       }
 
@@ -906,7 +906,7 @@ export function ProfileEditor({
             </label>
           </div>
 
-          {isBusinessIndividualProfile ? (
+          {canManageBusinessIndividualLogo ? (
             <div className="card" style={{ marginTop: 18, padding: 18 }}>
               <div className="dashboard-kicker">Business logo</div>
               <h3 style={{ margin: "6px 0 8px" }}>Show your brand first.</h3>
