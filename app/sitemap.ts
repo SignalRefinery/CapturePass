@@ -11,6 +11,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/business-individual",
     "/business/pricing",
     "/contact-capture-nfc-cards",
+    "/taptagg-vs-popl",
     "/dealerships",
     "/insurance-agents",
     "/real-estate-agents",
