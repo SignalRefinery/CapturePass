@@ -126,7 +126,7 @@ function UpdatePasswordForm() {
 
         <h1 style={{ marginTop: 0 }}>Create a new password.</h1>
         <p className="editor-copy">
-          Enter a new password for your TapTagg account. This will replace your previous password.
+          Enter a new password for your CapturePass account. This will replace your previous password.
         </p>
 
         <form className="auth-form" onSubmit={handleSubmit} style={{ marginTop: 22 }}>

@@ -4,33 +4,33 @@ import { buildFaqJsonLd, buildLocalBusinessJsonLd, buildPageMetadata } from "@/l
 
 export const metadata = buildPageMetadata({
   description:
-    "TapTagg for real estate agents: share listings, book showings, capture leads, and keep your name attached to the conversation.",
+    "CapturePass for real estate agents: share listings, book showings, capture leads, and keep your name attached to the conversation.",
   path: "/real-estate-agents",
   title: "Real Estate Agents"
 });
 
 const faqItems = [
   {
-    question: "How does TapTagg help real estate agents?",
+    question: "How does CapturePass help real estate agents?",
     answer:
       "It gives agents a fast way to share listings, home valuation links, booking links, and their direct contact info from one page."
   },
   {
     question: "Can I use it for open houses?",
     answer:
-      "Yes. TapTagg is ideal for open houses because visitors can save the agent, scan the sign, and capture contact details before they leave."
+      "Yes. CapturePass is ideal for open houses because visitors can save the agent, scan the sign, and capture contact details before they leave."
   },
   {
     question: "Will it work with my current website?",
     answer:
-      "Yes. TapTagg can point to your existing listings, website, or CRM-friendly lead flow without replacing your current setup."
+      "Yes. CapturePass can point to your existing listings, website, or CRM-friendly lead flow without replacing your current setup."
   }
 ];
 
 const localBusinessSchema = buildLocalBusinessJsonLd({
   description:
-    "Landing page for real estate agents who want TapTagg contact capture, listing sharing, and lead follow-up.",
-  name: "TapTagg for Real Estate Agents",
+    "Landing page for real estate agents who want CapturePass contact capture, listing sharing, and lead follow-up.",
+  name: "CapturePass for Real Estate Agents",
   path: "/real-estate-agents"
 });
 
@@ -59,11 +59,11 @@ export default function RealEstateAgentsPage() {
           {
             title: "Keep your name attached",
             copy:
-              "Your TapTagg profile keeps the relationship with the agent who actually met the client."
+              "Your CapturePass profile keeps the relationship with the agent who actually met the client."
           }
         ]}
         footerLeft="Real Estate"
-        headline="TapTagg for real estate agents who want stronger follow-up."
+        headline="CapturePass for real estate agents who want stronger follow-up."
         intro="Make it easier for prospects to save you, request a showing, and stay connected after the open house or first meeting."
         navLinks={[
           { href: "/", label: "Home" },
@@ -90,7 +90,7 @@ export default function RealEstateAgentsPage() {
             heading: "Open houses",
             paragraphs: [
               "Open houses create a short window where visitors can become real leads, so the page should make it easy to save the agent and capture contact details.",
-              "TapTagg can send visitors to the listing, a follow-up form, or a direct booking link."
+              "CapturePass can send visitors to the listing, a follow-up form, or a direct booking link."
             ]
           },
           {
@@ -110,7 +110,7 @@ export default function RealEstateAgentsPage() {
           {
             heading: "Property-specific use cases",
             paragraphs: [
-              "You can adapt the same TapTagg setup for a listing, a neighborhood landing page, or a broader personal brand depending on the opportunity."
+              "You can adapt the same CapturePass setup for a listing, a neighborhood landing page, or a broader personal brand depending on the opportunity."
             ]
           }
         ]}

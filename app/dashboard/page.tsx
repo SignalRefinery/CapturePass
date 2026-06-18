@@ -197,7 +197,7 @@ async function submitFounderCardClaim(formData: FormData) {
     redirect("/dashboard?claim_founder_card=1&claim_error=missing_fields");
   }
 
-  const siteUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://taptagg.app").replace(/\/$/, "");
+  const siteUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://capturepass.com").replace(/\/$/, "");
   const tokenUrl = profile?.private_token ? `${siteUrl}/u/${profile.private_token}` : null;
   const qrUrl = buildQuickChartQrUrl(tokenUrl);
 
@@ -212,8 +212,8 @@ async function submitFounderCardClaim(formData: FormData) {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      from: "TapTagg <notifications@taptagg.app>",
-      to: "john@taptagg.app",
+      from: "CapturePass <notifications@capturepass.com>",
+      to: "support@capturepass.com",
       subject: `Founder card claimed: ${shippingName}`,
       html: `
         <h2>Founder card claimed</h2>
@@ -413,8 +413,8 @@ export default async function DashboardPage({
   const passOptions = [
     {
       href: passHrefFor(initialProfile),
-      label: "TapTagg digital pass",
-      description: "Shows your QR for your single TapTagg profile"
+      label: "CapturePass digital pass",
+      description: "Shows your QR for your single CapturePass profile"
     }
   ];
 
@@ -446,7 +446,7 @@ export default async function DashboardPage({
   return (
     <Shell
       footerLeft="Dashboard"
-      footerRight="TapTagg"
+      footerRight="CapturePass"
       myProfileHref={myProfileHref}
       initialAuth={initialAuth}
       navLinks={[
@@ -490,10 +490,10 @@ export default async function DashboardPage({
             <section className="dashboard-wrap">
               <div className="dashboard-card">
                 <div className="dashboard-kicker">Checkout</div>
-                <h2>{fullAccess ? "Your TapTagg is active." : "Activating your account."}</h2>
+                <h2>{fullAccess ? "Your CapturePass is active." : "Activating your account."}</h2>
                 <p className="editor-copy">
                   {fullAccess
-                    ? "Your checkout is complete and your TapTagg profile is ready to manage."
+                    ? "Your checkout is complete and your CapturePass profile is ready to manage."
                     : "Checkout is complete. Stripe is finishing activation, which can take a few moments. Refresh this page shortly if your account is still preview-only."}
                 </p>
               </div>
@@ -510,7 +510,7 @@ export default async function DashboardPage({
                 <div className="dashboard-kicker">Founder card</div>
                 <h2>Claim your founder card.</h2>
                 <p className="editor-copy">
-                  Founder access bypasses Stripe, so enter your shipping details here to have your physical TapTagg card prepared.
+                  Founder access bypasses Stripe, so enter your shipping details here to have your physical CapturePass card prepared.
                 </p>
 
                 {claimError ? (
@@ -574,7 +574,7 @@ export default async function DashboardPage({
               <div className="dashboard-kicker">Digital pass</div>
               <h2>Open your QR pass.</h2>
               <p className="editor-copy">
-                Show your QR when you do not have your physical card, or save your TapTagg pass to your phone home screen.
+                Show your QR when you do not have your physical card, or save your CapturePass pass to your phone home screen.
               </p>
               <Link href={passOptions[0].href} className="button primary" style={{ marginTop: 20 }}>
                 Open Digital Pass

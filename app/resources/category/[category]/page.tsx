@@ -40,7 +40,7 @@ export default async function ResourceCategoryPage({
   return (
     <Shell
       footerLeft={`${info.label} Resources`}
-      footerRight="TapTagg"
+      footerRight="CapturePass"
       navLinks={[
         { href: "/", label: "Home" },
         { href: "/resources", label: "Resources" },

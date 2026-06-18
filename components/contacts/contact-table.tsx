@@ -28,12 +28,12 @@ function cleanPhone(value?: string | null) {
 }
 
 function safeFilename(value?: string | null) {
-  const safeName = (value || "taptagg-contact")
+  const safeName = (value || "capturepass-contact")
     .toLowerCase()
     .replace(/[^a-z0-9-]+/g, "-")
     .replace(/-+/g, "-")
     .replace(/^-|-$/g, "");
-  return safeName || "taptagg-contact";
+  return safeName || "capturepass-contact";
 }
 
 function formatDate(value?: string | null) {
@@ -88,7 +88,7 @@ function downloadCsv(rows: ContactSubmissionRecord[]) {
   const csv = [header, ...body]
     .map((row) => row.map((cell) => escapeCsv(cell)).join(","))
     .join("\n");
-  downloadBlob(csv, `taptagg-contacts-${new Date().toISOString().slice(0, 10)}.csv`, "text/csv;charset=utf-8");
+  downloadBlob(csv, `capturepass-contacts-${new Date().toISOString().slice(0, 10)}.csv`, "text/csv;charset=utf-8");
 }
 
 function contactToVcard(contact: ContactSubmissionRecord) {
@@ -125,7 +125,7 @@ function downloadVcards(rows: ContactSubmissionRecord[]) {
   const vcards = rows.map(contactToVcard).join("\r\n\r\n");
   downloadBlob(
     vcards,
-    `taptagg-contacts-${new Date().toISOString().slice(0, 10)}.vcf`,
+    `capturepass-contacts-${new Date().toISOString().slice(0, 10)}.vcf`,
     "text/x-vcard;charset=utf-8"
   );
 }
@@ -164,7 +164,7 @@ export function ContactTable({ contacts, members = [], showMemberFilter = false 
     <div className="dashboard-card">
       <div className="dashboard-kicker">Contacts</div>
       <h2>Shared contacts.</h2>
-      <p className="editor-copy">Review contact details shared through your TapTagg profile.</p>
+      <p className="editor-copy">Review contact details shared through your CapturePass profile.</p>
 
       <div className="contact-toolbar">
         {showMemberFilter ? (

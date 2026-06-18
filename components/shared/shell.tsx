@@ -90,7 +90,7 @@ export function Shell({
         <header className="topbar">
           <Link className="brand" href="/">
             <span className="brand-star">✦</span>
-            <span>TapTagg</span>
+            <span>CapturePass</span>
           </Link>
 
           <div className="desktop-nav-wrap">

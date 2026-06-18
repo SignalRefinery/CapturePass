@@ -1,4 +1,4 @@
-# TapTagg Production Launch Checklist
+# CapturePass Production Launch Checklist
 
 Last updated: 2026-06-01
 
@@ -150,7 +150,7 @@ Production cron route:
 
 Test account:
 
-- [ ] Create a new personal TapTagg account.
+- [ ] Create a new personal CapturePass account.
 - [ ] Confirmation email arrives.
 - [ ] Confirmation link goes to production domain.
 - [ ] User can log in after confirming.
@@ -301,8 +301,8 @@ Business profile:
 - [ ] Dashboard Performance section loads.
 - [ ] Contacts Captured This Month matches contact data.
 - [ ] All-time contacts count is reasonable.
-- [ ] Monthly TapTagg score is reasonable.
-- [ ] All-time TapTagg score is reasonable.
+- [ ] Monthly CapturePass score is reasonable.
+- [ ] All-time CapturePass score is reasonable.
 - [ ] Streak display does not error with no activity.
 - [ ] Profile activity counts are reasonable.
 - [ ] Recently earned badges display.
@@ -316,7 +316,7 @@ Business profile:
 Leaderboard:
 
 - [ ] Business leaderboard loads.
-- [ ] Current month ranking is ordered by TapTagg score.
+- [ ] Current month ranking is ordered by CapturePass score.
 - [ ] Contacts captured are visually easy to identify.
 - [ ] Leaderboard does not show another organization's data.
 - [ ] Team members without auth users do not break leaderboard rendering.
@@ -368,7 +368,7 @@ Business account:
 - [ ] Invite email arrives.
 - [ ] Invite link lets admin set password.
 - [ ] Admin lands in business console.
-- [ ] Business admin does not automatically receive a normal personal TapTagg profile.
+- [ ] Business admin does not automatically receive a normal personal CapturePass profile.
 - [ ] Business admin can manage employees for their organization only.
 
 ## 18. Business Onboarding
@@ -426,7 +426,7 @@ Test business:
 ## 21. Business Public Profile Navigation
 
 - [ ] Business public profile menu does not show login/signup.
-- [ ] Home button routes to the business main profile/page, not TapTagg generic homepage.
+- [ ] Home button routes to the business main profile/page, not the CapturePass generic homepage.
 - [ ] Main business profile/admin profile behavior is correct.
 - [ ] Add to Contacts vCard works on business profiles.
 - [ ] Share My Contact works on business profiles.

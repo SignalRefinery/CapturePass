@@ -4,33 +4,33 @@ import { buildFaqJsonLd, buildLocalBusinessJsonLd, buildPageMetadata } from "@/l
 
 export const metadata = buildPageMetadata({
   description:
-    "TapTagg for insurance agents: share quote pages, schedule reviews, and keep your contact information easy to save and reuse.",
+    "CapturePass for insurance agents: share quote pages, schedule reviews, and keep your contact information easy to save and reuse.",
   path: "/insurance-agents",
   title: "Insurance Agents"
 });
 
 const faqItems = [
   {
-    question: "How does TapTagg help insurance agents?",
+    question: "How does CapturePass help insurance agents?",
     answer:
       "It lets agents share quote requests, review links, coverage pages, and direct contact details from one branded page."
   },
   {
     question: "Can it support policy reviews and renewals?",
     answer:
-      "Yes. TapTagg makes it easy to route people to scheduling links and review pages when it is time to talk coverage again."
+      "Yes. CapturePass makes it easy to route people to scheduling links and review pages when it is time to talk coverage again."
   },
   {
     question: "Is it useful for referrals?",
     answer:
-      "Absolutely. TapTagg helps you stay top of mind so referrals can quickly save your contact and reach the right agent."
+      "Absolutely. CapturePass helps you stay top of mind so referrals can quickly save your contact and reach the right agent."
   }
 ];
 
 const localBusinessSchema = buildLocalBusinessJsonLd({
   description:
-    "Landing page for insurance agents and brokers who want TapTagg contact capture and review scheduling.",
-  name: "TapTagg for Insurance Agents",
+    "Landing page for insurance agents and brokers who want CapturePass contact capture and review scheduling.",
+  name: "CapturePass for Insurance Agents",
   path: "/insurance-agents"
 });
 
@@ -54,7 +54,7 @@ export default function InsuranceAgentsPage() {
           {
             title: "Keep referral flow simple",
             copy:
-              "When someone refers a client, your TapTagg page gives them a fast path to your direct contact info."
+              "When someone refers a client, your CapturePass page gives them a fast path to your direct contact info."
           },
           {
             title: "Share policy support links",
@@ -63,8 +63,8 @@ export default function InsuranceAgentsPage() {
           }
         ]}
         footerLeft="Insurance"
-        headline="TapTagg for insurance agents who want better follow-up."
-        intro="Use TapTagg to make quote requests, policy reviews, and referral handoffs feel simple and immediate."
+        headline="CapturePass for insurance agents who want better follow-up."
+        intro="Use CapturePass to make quote requests, policy reviews, and referral handoffs feel simple and immediate."
         navLinks={[
           { href: "/", label: "Home" },
           { href: "/business", label: "Business" },

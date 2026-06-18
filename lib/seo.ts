@@ -1,10 +1,16 @@
 import type { Metadata } from "next";
+import {
+  appUrl,
+  fullBrandName,
+  fullDescription,
+  productName,
+  tagline
+} from "@/lib/brand";
 
-export const SITE_NAME = "TapTagg";
-export const SITE_TAGLINE = "Play Tagg Everywhere.";
-export const SITE_DESCRIPTION =
-  "TapTagg helps people and teams share profiles, contact details, and links instantly with NFC cards, QR codes, and contact capture.";
-export const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://taptagg.app";
+export const SITE_NAME = productName;
+export const SITE_TAGLINE = tagline;
+export const SITE_DESCRIPTION = fullDescription;
+export const SITE_URL = appUrl;
 export const DEFAULT_OG_IMAGE = "/opengraph-image";
 export const DEFAULT_TWITTER_IMAGE = "/twitter-image";
 
@@ -27,10 +33,11 @@ export function buildPageMetadata({
 }: PageMetadataInput): Metadata {
   const ogImage = `${image}${image.includes("?") ? "&" : "?"}title=${encodeURIComponent(title)}&subtitle=${encodeURIComponent(description)}`;
   const twitterImage = `${DEFAULT_TWITTER_IMAGE}?title=${encodeURIComponent(title)}&subtitle=${encodeURIComponent(description)}`;
+  const canonicalUrl = absoluteUrl(path);
 
   return {
     alternates: {
-      canonical: path
+      canonical: canonicalUrl
     },
     description,
     openGraph: {
@@ -46,7 +53,7 @@ export function buildPageMetadata({
       siteName: SITE_NAME,
       title,
       type: "website",
-      url: absoluteUrl(path)
+      url: canonicalUrl
     },
     title,
     twitter: {
@@ -62,10 +69,10 @@ export function buildOrganizationJsonLd() {
   return {
     "@context": "https://schema.org",
     "@type": "Organization",
-    name: SITE_NAME,
+    name: fullBrandName,
     url: SITE_URL,
     description: SITE_DESCRIPTION,
-    logo: absoluteUrl("/custom-taptagg-card.jpg"),
+    logo: absoluteUrl("/icon"),
     sameAs: []
   };
 }
@@ -149,7 +156,7 @@ export function buildArticleJsonLd(input: {
     "@type": "Article",
     author: {
       "@type": "Organization",
-      name: input.author || SITE_NAME
+      name: input.author || fullBrandName
     },
     description: input.description,
     headline: input.headline,

@@ -56,7 +56,7 @@ export default function PartnerRequestPage() {
         </div>
         <h1 style={{ marginTop: 0 }}>Request a partner code.</h1>
         <p className="editor-copy">
-          Tell us who you work with and how you would help more people Play Tagg.
+          Tell us who you work with and how you would help more people share CapturePass.
           We review requests manually.
         </p>
         {submitted ? (

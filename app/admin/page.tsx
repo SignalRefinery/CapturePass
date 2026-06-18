@@ -82,7 +82,7 @@ export default async function AdminPage() {
   return (
     <Shell
       footerLeft="Admin"
-      footerRight="TapTagg"
+      footerRight="CapturePass"
       myProfileHref={myProfileHref}
       initialAuth={initialAuth}
       pageVariant="admin"

@@ -92,7 +92,7 @@ function checkRateLimit(key: string) {
 }
 
 function appUrl() {
-  return (process.env.NEXT_PUBLIC_APP_URL || "https://taptagg.app").replace(/\/$/, "");
+  return (process.env.NEXT_PUBLIC_APP_URL || "https://capturepass.com").replace(/\/$/, "");
 }
 
 function sourceFor(value?: string | null) {
@@ -149,7 +149,7 @@ async function sendNotificationEmail({
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        from: "TapTagg <notifications@taptagg.app>",
+        from: "CapturePass <notifications@capturepass.com>",
         to,
         subject: "New Contact Shared",
         html: `

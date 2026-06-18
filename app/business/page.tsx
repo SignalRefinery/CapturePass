@@ -6,7 +6,7 @@ import { buildPageMetadata, buildSoftwareApplicationJsonLd, SITE_DESCRIPTION } f
 
 export const metadata = buildPageMetadata({
   description:
-    "TapTagg for sales teams, dealerships, real estate teams, insurance agents, and field sales organizations that need contact capture and lead ownership.",
+    "CapturePass for sales teams, dealerships, real estate teams, insurance agents, and field sales organizations that need contact capture and lead ownership.",
   path: "/business",
   title: "Business"
 });
@@ -111,12 +111,12 @@ async function submitBusinessRequest(formData: FormData) {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      from: "TapTagg <notifications@taptagg.app>",
-      to: "john@taptagg.app",
+      from: "CapturePass <notifications@capturepass.com>",
+      to: "support@capturepass.com",
       reply_to: email,
-      subject: `TapTagg business inquiry: ${organization}`,
+      subject: `CapturePass business inquiry: ${organization}`,
       html: `
-        <h2>New TapTagg business / enterprise inquiry</h2>
+        <h2>New CapturePass business / enterprise inquiry</h2>
         <p><strong>Name:</strong> ${escapeHtml(name)}</p>
         <p><strong>Organization:</strong> ${escapeHtml(organization)}</p>
         <p><strong>Email:</strong> ${escapeHtml(email)}</p>
@@ -138,7 +138,7 @@ async function submitBusinessRequest(formData: FormData) {
 
 const softwareApplicationSchema = buildSoftwareApplicationJsonLd({
   description: SITE_DESCRIPTION,
-  name: "TapTagg for Business",
+  name: "CapturePass for Business",
   path: "/business"
 });
 
@@ -157,7 +157,7 @@ export default async function BusinessPage({
   return (
     <Shell
       footerLeft="Business"
-      footerRight="TapTagg"
+      footerRight="CapturePass"
       navLinks={[
         { href: "/", label: "Home" },
         { href: "/how-it-works", label: "How it works" },
@@ -174,15 +174,19 @@ export default async function BusinessPage({
             <span className="mini-star">✦</span>
             <span>For Sales Teams</span>
           </div>
-          <h1>TapTagg for sales teams that meet customers face-to-face.</h1>
+          <h1>CapturePass for sales teams that meet customers face-to-face.</h1>
           <p className="business-hero-tagline">Turn every customer interaction into a saved contact.</p>
-          <p>Give every employee a branded TapTagg profile, instant contact sharing, and lead capture tools that keep customers connected long after the conversation ends. Built for dealerships, real estate teams, local businesses, and field sales organizations.</p>
+          <p>
+            CapturePass helps teams capture contacts, share information instantly, and keep relationship ownership
+            connected to the business. Give every employee a branded profile, CRM-ready follow-up, and reusable cards
+            that turn face-to-face conversations into trackable opportunities.
+          </p>
           <div className="business-hero-actions">
             <Link className="button primary" href="/business/pricing">
               View Business Pricing
             </Link>
             <Link className="button secondary" href="#team-use-cases">
-              See How Teams Use It
+              See Contact Capture in Action
             </Link>
             <a className="button secondary" href="#business-request">
               Request a Demo
@@ -215,10 +219,10 @@ export default async function BusinessPage({
       <section className="business-section business-two-column" id="team-use-cases">
         <div>
           <div className="dashboard-kicker">Built for teams</div>
-          <h2>Not another CRM. The layer before the CRM.</h2>
+          <h2>Not another CRM. The contact capture layer before the CRM.</h2>
           <p>Most businesses already have a CRM. The problem happens before the CRM.</p>
           <p>Customers forget business cards. Salespeople lose contact information. Conversations never become follow-up opportunities.</p>
-          <p>TapTagg helps your team capture contact information, share the right next step, and keep customers connected after they walk away.</p>
+          <p>CapturePass helps your team capture contact information, share the right next step, and keep customers connected after they walk away.</p>
         </div>
 
         <div className="business-list-grid">
@@ -258,7 +262,7 @@ export default async function BusinessPage({
               fontWeight: 800
             }}
           >
-            See TapTagg by industry.
+            See CapturePass by industry.
           </h2>
           <p style={{ margin: 0, color: "#b6bcc8", fontSize: 16, lineHeight: 1.62, fontWeight: 500 }}>
             Explore tailored pages for dealerships, real estate agents, insurance agents, sales teams,
@@ -297,7 +301,7 @@ export default async function BusinessPage({
               fontWeight: 800
             }}
           >
-            Read the TapTagg playbook.
+            Read the CapturePass playbook.
           </h2>
           <p style={{ margin: 0, color: "#b6bcc8", fontSize: 16, lineHeight: 1.62, fontWeight: 500 }}>
             Explore guides on NFC business cards, contact capture, and industry-specific workflows for teams
@@ -322,7 +326,7 @@ export default async function BusinessPage({
 
       <section className="business-section business-process">
         <div className="business-section-heading">
-          <div className="dashboard-kicker">Why teams choose TapTagg</div>
+          <div className="dashboard-kicker">Why teams choose CapturePass</div>
           <h2>Built around the moments your team cannot afford to lose.</h2>
         </div>
 
@@ -343,7 +347,7 @@ export default async function BusinessPage({
             <div className="dashboard-kicker">What changes</div>
             <h3>From missed follow-up to owned relationships.</h3>
             <p>
-              TapTagg closes the gap between a good face-to-face conversation and an actual saved contact your team can act on.
+            CapturePass closes the gap between a good face-to-face conversation and an actual saved contact your team can act on.
             </p>
           </div>
 
@@ -367,7 +371,7 @@ export default async function BusinessPage({
           <div className="dashboard-kicker">Business ready</div>
           <h2>Your customers remember the conversation. Make sure they remember who to call.</h2>
           <p>
-            TapTagg combines physical NFC cards, QR sharing, and digital profiles so customers can save the right salesperson, agent, or team member instantly. When employees leave, cards and profiles can be reassigned without replacing printed materials.
+            CapturePass combines physical NFC cards, QR sharing, and digital profiles so customers can save the right salesperson, agent, or team member instantly. When employees leave, cards and profiles can be reassigned without replacing printed materials, which protects relationship ownership and team accountability.
           </p>
           <div className="business-proof-checks" aria-label="Business-ready outcomes">
             <span>Contact saved</span>
@@ -382,31 +386,31 @@ export default async function BusinessPage({
         <div className="business-section-heading">
           <div className="dashboard-kicker">Built for your industry</div>
           <h2>Different businesses. Same problem.</h2>
-          <p>People still lose business cards, forget contact information, and struggle to reconnect after a conversation. TapTagg helps solve that problem across industries.</p>
+          <p>People still lose business cards, forget contact information, and struggle to reconnect after a conversation. CapturePass helps solve that problem across industries by making contact capture the first step.</p>
         </div>
 
         <details className="business-industry-item">
           <summary>Auto Dealerships</summary>
           <p>Customers lose business cards. Salespeople change stores. Referrals don&apos;t always reach the original salesperson. Customers call the dealership instead of the rep they trust.</p>
-          <p><strong>TapTagg helps keep customers connected to the salesperson they already chose.</strong></p>
+          <p><strong>CapturePass helps keep customers connected to the salesperson they already chose.</strong></p>
         </details>
 
         <details className="business-industry-item">
           <summary>Real Estate</summary>
           <p>Open house visitors don&apos;t always become contacts. Referral partners need easy access to your information. Listings change constantly. Agents need a fast way to share information.</p>
-          <p><strong>TapTagg helps agents capture leads and stay connected with referral sources.</strong></p>
+          <p><strong>CapturePass helps agents capture leads and stay connected with referral sources.</strong></p>
         </details>
 
         <details className="business-industry-item">
           <summary>Insurance & Financial Services</summary>
           <p>Trust-based sales require long-term relationships. Referrals drive growth. Follow-up cycles are often measured in months or years.</p>
-          <p><strong>TapTagg makes it easy for clients to save your information and reconnect when they&apos;re ready.</strong></p>
+          <p><strong>CapturePass makes it easy for clients to save your information and reconnect when they&apos;re ready.</strong></p>
         </details>
 
         <details className="business-industry-item">
           <summary>Home Services</summary>
           <p>Technicians and estimators meet customers in person. Customers often need service later. Reviews and referrals are critical.</p>
-          <p><strong>TapTagg keeps your team one tap away.</strong></p>
+          <p><strong>CapturePass keeps your team one tap away.</strong></p>
         </details>
 
         <details className="business-industry-item">
@@ -427,7 +431,7 @@ export default async function BusinessPage({
           <div className="dashboard-kicker">Request a demo</div>
           <h2>Let&apos;s talk about your sales process.</h2>
           <p>
-            Whether you have three employees or hundreds, we&apos;ll help design a TapTagg rollout that fits your team, customer journey, and follow-up process.
+            Whether you have three employees or hundreds, we&apos;ll help design a CapturePass rollout that fits your team, customer journey, and follow-up process.
           </p>
         </div>
 
@@ -443,7 +447,7 @@ export default async function BusinessPage({
               ? "Please complete your name, organization, email, team size, and business need."
               : requestError === "email_not_configured"
                 ? "The form is ready, but email is not configured yet."
-                : "The request could not be sent. Please email hello@taptagg.app directly."}
+                : "The request could not be sent. Please email support@capturepass.com directly."}
           </div>
         ) : null}
 

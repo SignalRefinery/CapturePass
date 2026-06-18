@@ -77,6 +77,19 @@ function digitsOnly(value?: string | null) {
   return (value || "").replace(/\D/g, "");
 }
 
+function hexToRgbString(value?: string | null) {
+  const normalized = (value || "").trim();
+  if (!/^#[0-9a-fA-F]{6}$/.test(normalized)) {
+    return null;
+  }
+
+  const hex = normalized.slice(1);
+  return `${Number.parseInt(hex.slice(0, 2), 16)}, ${Number.parseInt(hex.slice(2, 4), 16)}, ${Number.parseInt(
+    hex.slice(4, 6),
+    16
+  )}`;
+}
+
 function textHref(phone?: string | null) {
   const digits = digitsOnly(phone);
   if (!digits) return "";
@@ -118,7 +131,7 @@ function getPills(profile: ProfileLike) {
 }
 
 function initialsForName(name?: string | null) {
-  const parts = (name || "TapTagg")
+  const parts = (name || "CapturePass")
     .trim()
     .split(/\s+/)
     .filter(Boolean);
@@ -207,10 +220,10 @@ export function TapTaggProfileShell({
   const links = buildProfileButtons(activeProfile, {
     hideEmail: secondaryAction?.label === "Email"
   });
-  const displayName = activeProfile.full_name || "TapTagg";
+  const displayName = activeProfile.full_name || "CapturePass";
   const descriptor = activeProfile.role_line && activeProfile.organization_name
     ? `${activeProfile.role_line} at ${activeProfile.organization_name}`
-    : activeProfile.role_line || activeProfile.organization_name || "TapTagg contact card";
+    : activeProfile.role_line || activeProfile.organization_name || "CapturePass contact card";
   const isBusinessProfile = activeProfile.is_business_profile === true;
   const useWideLogo = isBusinessProfile || activeProfile.is_business_individual === true;
   const avatarUrl =
@@ -238,6 +251,11 @@ export function TapTaggProfileShell({
     "--profile-secondary": resolvedThemeColors.secondary,
     "--profile-accent": resolvedThemeColors.accent,
     "--profile-background": resolvedThemeColors.background,
+    "--profile-primary-rgb": hexToRgbString(resolvedThemeColors.primary),
+    "--profile-secondary-rgb": hexToRgbString(resolvedThemeColors.secondary),
+    "--profile-accent-rgb": hexToRgbString(resolvedThemeColors.accent),
+    "--profile-background-rgb": hexToRgbString(resolvedThemeColors.background),
+    "--profile-text-rgb": hexToRgbString(resolvedThemeColors.text || null),
     ...(resolvedThemeColors.text ? { "--profile-text": resolvedThemeColors.text } : {})
   } as CSSProperties;
   const pageClassName = [
@@ -273,7 +291,7 @@ export function TapTaggProfileShell({
         <header className={styles.topbar}>
           <Link className={styles.brand} href="/">
             <span className={styles.brandStar}>✦</span>
-            <span>TapTagg</span>
+            <span>CapturePass</span>
           </Link>
 
           <nav className={styles.nav}>
@@ -477,7 +495,7 @@ export function TapTaggProfileShell({
                 className={styles.qrImage}
                 key={readableUrl}
                 src={qrImageUrl}
-                alt={`QR code for ${activeProfile.full_name || "TapTagg"} profile`}
+                alt={`QR code for ${activeProfile.full_name || "CapturePass"} profile`}
               />
             </div>
             <div className={styles.qrCaption}>
@@ -495,7 +513,7 @@ export function TapTaggProfileShell({
             <section className={styles.signupCtaSection}>
               <div className={styles.signupCta}>
                 <div>
-                  <div className={styles.signupCtaKicker}>TapTagg</div>
+                  <div className={styles.signupCtaKicker}>CapturePass</div>
                   <h2>Level up how you network.</h2>
                   <p>
                     Build a polished profile, share the right links, and make every follow-up easier.
@@ -510,7 +528,7 @@ export function TapTaggProfileShell({
         ) : null}
 
         <footer className={styles.footer}>
-          <span>{activeProfile.full_name || "TapTagg"}</span>
+          <span>{activeProfile.full_name || "CapturePass"}</span>
           <span>{profileLabel}</span>
         </footer>
       </div>

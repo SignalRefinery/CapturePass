@@ -45,7 +45,7 @@ export default async function DashboardPreviewPage() {
   return (
     <Shell
       footerLeft="Profile preview"
-      footerRight="TapTagg"
+      footerRight="CapturePass"
       initialAuth={{
         email: user.email || null,
         fullName: profile.full_name || null,
@@ -62,7 +62,7 @@ export default async function DashboardPreviewPage() {
           <h2>{plan.isActivated ? "This is your live profile preview." : "This profile is not publicly active yet."}</h2>
           <p className="editor-copy">
             {plan.isActivated
-              ? "Public visitors see this profile when they open your TapTagg link."
+              ? "Public visitors see this profile when they open your CapturePass link."
               : "Free profiles can be previewed here, but public profile, QR sharing, and NFC sharing unlock with Core."}
           </p>
         </div>

@@ -1,4 +1,4 @@
-const DEFAULT_QR_FILENAME_BASE = "taptagg-profile";
+const DEFAULT_QR_FILENAME_BASE = "capturepass-profile";
 
 export function buildQuickChartQrUrl(targetUrl?: string | null) {
   if (!targetUrl) return null;

@@ -59,7 +59,7 @@ export const RESOURCE_CATEGORIES = [
 export const RESOURCE_ARTICLES: ResourceArticle[] = [
   {
     category: "sales",
-    description: "A practical guide to how NFC business cards work, what happens on tap, and where they fit in a modern TapTagg workflow.",
+    description: "A practical guide to how NFC business cards work, what happens on tap, and where they fit in a modern CapturePass workflow.",
     excerpt: "Learn how NFC cards connect the physical handoff to a digital profile, a saved contact, and the next step in your funnel.",
     href: "/resources/how-nfc-business-cards-work",
     intro:
@@ -75,14 +75,14 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
         heading: "What NFC actually does",
         paragraphs: [
           "Near-field communication lets a phone open a link when it is brought close to a card. The card itself is simple; the value comes from the page it opens.",
-          "With TapTagg, that page can be a profile, contact capture flow, booking link, or industry-specific destination."
+          "With CapturePass, that page can be a profile, contact capture flow, booking link, or industry-specific destination."
         ]
       },
       {
         heading: "Why the workflow matters",
         paragraphs: [
           "The best NFC card does not just share a URL. It shortens the path between the conversation and the follow-up action.",
-          "That is why TapTagg pages focus on saved contacts, reusable links, and clear calls to action."
+          "That is why CapturePass pages focus on saved contacts, reusable links, and clear calls to action."
         ]
       },
       {
@@ -95,7 +95,7 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
   },
   {
     category: "sales",
-    description: "A guide comparing TapTagg-style contact capture with paper cards that are lost, delayed, or never followed up.",
+    description: "A guide comparing CapturePass-style contact capture with paper cards that are lost, delayed, or never followed up.",
     excerpt: "See why digital capture creates a cleaner follow-up workflow than a traditional business card exchange.",
     href: "/resources/contact-capture-vs-traditional-business-cards",
     intro:
@@ -122,9 +122,9 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
         ]
       },
       {
-        heading: "How TapTagg helps",
+        heading: "How CapturePass helps",
         paragraphs: [
-          "TapTagg combines a shareable profile, NFC or QR trigger, and a contact-oriented follow-up path so teams can keep the relationship moving."
+          "CapturePass combines a shareable profile, NFC or QR trigger, and a contact-oriented follow-up path so teams can keep the relationship moving."
         ]
       }
     ]
@@ -224,7 +224,7 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
         heading: "How CRM handoff should work",
         paragraphs: [
           "A dealership workflow should let the rep capture the contact, attach the right notes, and move the lead into the CRM without duplicate data entry.",
-          "TapTagg can sit in front of that process and make the capture moment easier."
+          "CapturePass can sit in front of that process and make the capture moment easier."
         ]
       },
       {
@@ -272,7 +272,7 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
   {
     category: "real-estate",
     description: "Why NFC business cards are useful for realtors, open houses, vendor networks, and property-specific workflows.",
-    excerpt: "An agent-focused guide to using TapTagg for property sharing and relationship building.",
+    excerpt: "An agent-focused guide to using CapturePass for property sharing and relationship building.",
     href: "/resources/nfc-business-cards-for-realtors",
     intro:
       "Real estate deals move through open houses, vendor referrals, mortgage conversations, and property-specific follow-up. NFC business cards make those handoffs easier to manage.",
@@ -287,7 +287,7 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
         heading: "Open houses and showings",
         paragraphs: [
           "At an open house, the goal is to make a visitor save the agent and keep the listing in front of them after they leave.",
-          "TapTagg can send them to listings, valuation pages, or a contact capture form."
+          "CapturePass can send them to listings, valuation pages, or a contact capture form."
         ]
       },
       {
@@ -310,10 +310,10 @@ export const SPRINGFIELD_PAGES: Record<string, SpringfieldPage> = {
   "springfield-il-nfc-business-cards": {
     title: "Springfield NFC Business Cards",
     description:
-      "TapTagg NFC business cards for Springfield, Illinois teams that want better contact capture, follow-up, and branded sharing.",
+      "CapturePass NFC business cards for Springfield, Illinois teams that want better contact capture, follow-up, and branded sharing.",
     href: "/springfield-il-nfc-business-cards",
     intro:
-      "If you are looking for NFC business cards in Springfield, Illinois, TapTagg helps you move from a quick in-person exchange to a branded page that supports contact capture, lead routing, and follow-up.",
+      "If you are looking for NFC business cards in Springfield, Illinois, CapturePass helps you move from a quick in-person exchange to a branded page that supports contact capture, lead routing, and follow-up.",
     relatedLinks: [
       { href: "/dealerships", label: "Dealerships" },
       { href: "/business", label: "Business" },
@@ -335,9 +335,9 @@ export const SPRINGFIELD_PAGES: Record<string, SpringfieldPage> = {
         ]
       },
       {
-        heading: "Where TapTagg fits",
+        heading: "Where CapturePass fits",
         paragraphs: [
-          "TapTagg can support individuals, teams, and vertical-specific workflows that need a better local follow-up path."
+          "CapturePass can support individuals, teams, and vertical-specific workflows that need a better local follow-up path."
         ]
       }
     ]
@@ -370,7 +370,7 @@ export const SPRINGFIELD_PAGES: Record<string, SpringfieldPage> = {
       {
         heading: "Built for follow-up",
         paragraphs: [
-          "TapTagg pages are designed to move people from a quick introduction into a contact or booking action."
+          "CapturePass pages are designed to move people from a quick introduction into a contact or booking action."
         ]
       }
     ]
@@ -378,7 +378,7 @@ export const SPRINGFIELD_PAGES: Record<string, SpringfieldPage> = {
   "springfield-il-contact-capture": {
     title: "Springfield Contact Capture",
     description:
-      "Springfield, Illinois contact capture pages from TapTagg that help teams turn conversations into saved contacts and next steps.",
+      "Springfield, Illinois contact capture pages from CapturePass that help teams turn conversations into saved contacts and next steps.",
     href: "/springfield-il-contact-capture",
     intro:
       "Contact capture is valuable anywhere people meet in person, and Springfield is no exception. A clean contact flow helps you preserve the relationship after the conversation ends.",
@@ -411,10 +411,10 @@ export const SPRINGFIELD_PAGES: Record<string, SpringfieldPage> = {
   "springfield-il-sales-team-business-cards": {
     title: "Springfield Sales Team Business Cards",
     description:
-      "Springfield sales team business cards from TapTagg for reps who need lead ownership, contact capture, and better follow-up.",
+      "Springfield sales team business cards from CapturePass for reps who need lead ownership, contact capture, and better follow-up.",
     href: "/springfield-il-sales-team-business-cards",
     intro:
-      "Sales teams in Springfield need cards that help reps stay on-brand while keeping the relationship attached to the person who made it. TapTagg supports that flow without adding friction.",
+      "Sales teams in Springfield need cards that help reps stay on-brand while keeping the relationship attached to the person who made it. CapturePass supports that flow without adding friction.",
     relatedLinks: [
       { href: "/sales-teams", label: "Sales Teams" },
       { href: "/business/pricing", label: "Business Pricing" },
@@ -436,7 +436,7 @@ export const SPRINGFIELD_PAGES: Record<string, SpringfieldPage> = {
       {
         heading: "Springfield-friendly use cases",
         paragraphs: [
-          "TapTagg works well for field sales, local B2B, service businesses, and any team that relies on in-person conversations."
+          "CapturePass works well for field sales, local B2B, service businesses, and any team that relies on in-person conversations."
         ]
       }
     ]

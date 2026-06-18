@@ -22,7 +22,7 @@ export function ResourceIndexPage({ categories, featuredArticles, localLinks }: 
   return (
     <Shell
       footerLeft="Resources"
-      footerRight="TapTagg"
+      footerRight="CapturePass"
       navLinks={[
         { href: "/", label: "Home" },
         { href: "/pricing", label: "Pricing" },
@@ -35,10 +35,10 @@ export function ResourceIndexPage({ categories, featuredArticles, localLinks }: 
           <span className="mini-star">✦</span>
           <span>Resource Center</span>
         </div>
-        <h1 style={heading}>TapTagg resources for smarter sharing and better follow-up.</h1>
+        <h1 style={heading}>CapturePass resources for smarter sharing and better follow-up.</h1>
         <p style={intro}>
-          Learn how NFC cards, digital business cards, and contact capture workflows work across industries,
-          then connect those ideas back to the right TapTagg product page.
+          Learn how contact capture, NFC cards, and digital business cards work across industries, then connect
+          those ideas back to the right CapturePass product page.
         </p>
       </section>
 

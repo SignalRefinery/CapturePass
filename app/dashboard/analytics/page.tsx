@@ -52,15 +52,15 @@ export default async function AnalyticsPage({
 
   if (!profile || !canUseAnalytics(plan)) {
     return (
-      <Shell footerLeft="Analytics" footerRight="TapTagg" initialAuth={initialAuth}>
+      <Shell footerLeft="Analytics" footerRight="CapturePass" initialAuth={initialAuth}>
         <section className="simple-hero">
           <div className="kicker">
             <span className="mini-star">✦</span>
             <span>Analytics</span>
           </div>
-          <h1>Analytics unlock with Tagg+.</h1>
+          <h1>Analytics unlock with Capture+.</h1>
           <p>
-            TapTagg still collects activity privately, but dashboard analytics are available on Tagg+ and Creator.
+            CapturePass still collects activity privately, but dashboard analytics are available on Capture+ and Creator.
           </p>
           <Link className="button primary" href="/pricing" style={{ marginTop: 22 }}>
             View plans
@@ -85,7 +85,7 @@ export default async function AnalyticsPage({
   ]);
 
   return (
-    <Shell footerLeft="Analytics" footerRight="TapTagg" initialAuth={initialAuth}>
+    <Shell footerLeft="Analytics" footerRight="CapturePass" initialAuth={initialAuth}>
       <section className="simple-hero">
         <div className="kicker">
           <span className="mini-star">✦</span>

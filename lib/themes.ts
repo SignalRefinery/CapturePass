@@ -1,7 +1,9 @@
+import { designTokens } from "@/lib/design-tokens";
 import type { PlanKey, PlanFeatures } from "@/lib/plans";
 
 export type ThemeKey =
   | "taptagg_brand"
+  | "tt_classic"
   | "executive_navy"
   | "modern_slate"
   | "executive_gold"
@@ -42,8 +44,21 @@ export const CUSTOM_THEME_KEY: ThemeKey = "custom";
 export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
   taptagg_brand: {
     key: "taptagg_brand",
-    name: "TapTagg Brand",
-    description: "The TapTagg purple palette for personal profiles.",
+    name: "CapturePass Brand",
+    description: "The core CapturePass blue, gold, and charcoal palette for personal profiles.",
+    colors: {
+      primary: designTokens.colors.primary,
+      secondary: designTokens.colors.deepBlue,
+      accent: designTokens.colors.insightGold,
+      text: designTokens.colors.white,
+      background: designTokens.colors.charcoal
+    },
+    allowedPlans: ["free", "core", "tagg_plus", "creator", "business_individual"]
+  },
+  tt_classic: {
+    key: "tt_classic",
+    name: "TT Classic",
+    description: "The original purple palette, preserved as a legacy profile theme.",
     colors: {
       primary: "#8B5CF6",
       secondary: "#A78BFA",
@@ -201,11 +216,11 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
     name: "Custom Brand Colors",
     description: "Use your own CTA, icon, glow, background, and text colors.",
     colors: {
-      primary: "#0F172A",
-      secondary: "#1E293B",
-      accent: "#2563EB",
-      background: "#F8FAFC",
-      text: "#111827"
+      primary: designTokens.colors.primary,
+      secondary: designTokens.colors.deepBlue,
+      accent: designTokens.colors.insightGold,
+      background: designTokens.colors.background,
+      text: designTokens.colors.charcoal
     },
     allowedPlans: ["creator", "business_individual"]
   }
@@ -213,6 +228,7 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
 
 const CANONICAL_THEME_KEYS: ThemeKey[] = [
   "taptagg_brand",
+  "tt_classic",
   "executive_navy",
   "modern_slate",
   "executive_gold",

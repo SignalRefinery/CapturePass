@@ -56,7 +56,7 @@ export default async function SignupPage({
 
   return (
     <Shell
-      footerLeft="TapTagg"
+      footerLeft="CapturePass"
       footerRight="Create account"
       initialAuth={initialAuth}
       navLinks={[
@@ -70,7 +70,7 @@ export default async function SignupPage({
           <span className="mini-star">✦</span>
           <span>New account</span>
         </div>
-        <h1>Start your TapTagg.</h1>
+        <h1>Start your CapturePass.</h1>
         <p>
           Make one fast page for your links, socials, bookings, music, business,
           and contact info. Share it with a tap.
@@ -90,7 +90,7 @@ export default async function SignupPage({
           <div className="card" style={{ marginTop: 18, padding: 16 }}>
             <div className="dashboard-kicker">Already signed up?</div>
             <p className="editor-copy" style={{ margin: "6px 0 0" }}>
-              If your email is already connected to a TapTagg account, use the login page instead.
+              If your email is already connected to a CapturePass account, use the login page instead.
               You can reset your password there if you need to get back in.
             </p>
           </div>

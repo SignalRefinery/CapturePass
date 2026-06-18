@@ -5,7 +5,7 @@ type ProfileUrlLike = {
 };
 
 function normalizedAppUrl() {
-  return (process.env.NEXT_PUBLIC_APP_URL || "https://taptagg.app").replace(/\/$/, "");
+  return (process.env.NEXT_PUBLIC_APP_URL || "https://capturepass.com").replace(/\/$/, "");
 }
 
 export function getReadableProfileUrl(profile: ProfileUrlLike) {

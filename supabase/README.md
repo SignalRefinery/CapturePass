@@ -2,7 +2,7 @@
 
 ## Fresh Project Setup
 
-Run `supabase/bootstrap.sql` once in the Supabase SQL editor for a new TapTagg project.
+Run `supabase/bootstrap.sql` once in the Supabase SQL editor for a new CapturePass project.
 
 That file creates the current expected schema in one pass:
 
@@ -55,3 +55,14 @@ The app expects these billing columns on `public.profiles`:
 - `card_notification_sent_at`
 
 For a fresh project, `bootstrap.sql` includes them all.
+
+## CapturePass Auth And Deployment URLs
+
+Use these values when configuring Supabase Auth, redirect URLs, and callback URLs for production:
+
+- Site URL: `https://capturepass.com`
+- Auth callback URL: `https://capturepass.com/auth/callback`
+- Password reset / update password URL: `https://capturepass.com/update-password`
+- Login redirect URLs: `https://capturepass.com/login` and `https://capturepass.com/*/login`
+
+For local development, keep the existing localhost values in your local environment while pointing production auth settings at `capturepass.com`.

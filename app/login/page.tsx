@@ -58,7 +58,7 @@ export default async function LoginPage({
 
   return (
     <Shell
-      footerLeft="TapTagg"
+      footerLeft="CapturePass"
       footerRight="Log in"
       initialAuth={initialAuth}
       navLinks={[
@@ -72,7 +72,7 @@ export default async function LoginPage({
           <span className="mini-star">✦</span>
           <span>Log in</span>
         </div>
-        <h1>Log in to manage your TapTagg.</h1>
+        <h1>Log in to manage your CapturePass.</h1>
         <p>
           Update your links, socials, contact actions, and everything people see when
           they tap.

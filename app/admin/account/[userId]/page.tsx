@@ -16,7 +16,7 @@ import { normalizeUrl } from "@/lib/utils";
 import { getCurrentTapTaggAdmin } from "@/lib/auth/admin";
 
 function appUrl() {
-  return (process.env.NEXT_PUBLIC_APP_URL || "https://taptagg.app").replace(/\/$/, "");
+  return (process.env.NEXT_PUBLIC_APP_URL || "https://capturepass.com").replace(/\/$/, "");
 }
 
 function passwordSetupUrl(nextPath: string) {

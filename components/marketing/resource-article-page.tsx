@@ -15,7 +15,7 @@ type ResourceArticlePageProps = {
 
 export function ResourceArticlePage({ article, navLinks }: ResourceArticlePageProps) {
   return (
-    <Shell footerLeft="Resources" footerRight="TapTagg" navLinks={navLinks}>
+    <Shell footerLeft="Resources" footerRight="CapturePass" navLinks={navLinks}>
       <section className="simple-hero" style={{ paddingBottom: 36 }}>
         <div className="kicker">
           <span className="mini-star">✦</span>
@@ -41,7 +41,7 @@ export function ResourceArticlePage({ article, navLinks }: ResourceArticlePagePr
         </div>
 
         <section className="card tagg-card tagg-card-feature" style={ctaPanel}>
-          <div className="dashboard-kicker">Try TapTagg</div>
+          <div className="dashboard-kicker">Try CapturePass</div>
           <h2 style={ctaHeading}>Use these ideas in your own workflow.</h2>
           <div style={ctaLinks}>
             <Link className="button primary" href="/business">
@@ -155,4 +155,3 @@ const relatedLinks = {
   flexWrap: "wrap" as const,
   gap: 12
 };
-

@@ -8,7 +8,7 @@ import {
 
 export const metadata = buildPageMetadata({
   description:
-    "Contact capture NFC cards from TapTagg: one tap or scan to share your profile, save a contact, and keep follow-up simple.",
+    "Contact capture NFC cards from CapturePass: one tap or scan to share your profile, save a contact, and keep follow-up simple.",
   path: "/contact-capture-nfc-cards",
   title: "Contact Capture NFC Cards"
 });
@@ -17,7 +17,7 @@ const faqItems = [
   {
     question: "What is a contact capture NFC card?",
     answer:
-      "It is a TapTagg card that opens your profile and contact capture flow so people can save you or share their information in seconds."
+      "It is a CapturePass card that opens your profile and contact capture flow so people can save you or share their information in seconds."
   },
   {
     question: "Do contacts need an app?",
@@ -33,8 +33,8 @@ const faqItems = [
 
 const softwareApplicationSchema = buildSoftwareApplicationJsonLd({
   description:
-    "TapTagg contact capture NFC cards for teams and individuals who want a fast tap-to-save workflow.",
-  name: "TapTagg Contact Capture NFC Cards",
+    "CapturePass contact capture NFC cards for teams and individuals who want a fast tap-to-save workflow.",
+  name: "CapturePass Contact Capture NFC Cards",
   path: "/contact-capture-nfc-cards",
 });
 
@@ -67,8 +67,8 @@ export default function ContactCaptureNfcCardsPage() {
           }
         ]}
         footerLeft="Contact Capture"
-        headline="TapTagg contact capture NFC cards that turn quick meetings into saved contacts."
-        intro="If your goal is to make people save your contact before they leave, this is the fastest path in the TapTagg funnel."
+        headline="CapturePass contact capture NFC cards that turn quick meetings into saved contacts."
+        intro="If your goal is to make people save your contact before they leave, this is the fastest path in the CapturePass funnel."
         navLinks={[
           { href: "/", label: "Home" },
           { href: "/business", label: "Business" },

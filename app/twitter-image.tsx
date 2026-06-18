@@ -1,5 +1,7 @@
 import { ImageResponse } from "next/og";
+import { CapturePassMark } from "@/components/shared/capturepass-mark";
 import { getSocialImageData } from "@/lib/social-image";
+import { designTokens } from "@/lib/design-tokens";
 
 export const size = {
   width: 1600,
@@ -21,11 +23,11 @@ export default function TwitterImage({
   return new ImageResponse(
     (
       <div
-        style={{
-          alignItems: "flex-end",
-          background:
-            "linear-gradient(135deg, rgba(8,8,10,.96), rgba(15,10,26,.96)), radial-gradient(circle at 20% 20%, rgba(167,139,250,.3), transparent 32%), radial-gradient(circle at 80% 20%, rgba(79,70,229,.18), transparent 30%)",
-          color: "#fff",
+          style={{
+            alignItems: "flex-end",
+            background:
+            `linear-gradient(135deg, rgba(8,8,10,.96), rgba(${designTokens.rgb.charcoal},.96)), radial-gradient(circle at 20% 20%, rgba(${designTokens.rgb.deepBlue},.3), transparent 32%), radial-gradient(circle at 80% 20%, rgba(${designTokens.rgb.primary},.18), transparent 30%)`,
+          color: designTokens.colors.white,
           display: "flex",
           fontFamily: "Inter, system-ui, sans-serif",
           height: "100%",
@@ -35,8 +37,32 @@ export default function TwitterImage({
         }}
       >
         <div style={{ display: "flex", flexDirection: "column", gap: 28, maxWidth: 1180 }}>
-          <div style={{ color: "#d8ccff", fontSize: 28, fontWeight: 800, letterSpacing: "0.16em", textTransform: "uppercase" }}>
-          TapTagg
+          <div
+            style={{
+              alignItems: "center",
+              color: designTokens.colors.insightGold,
+              display: "flex",
+              gap: 12,
+              fontSize: 28,
+              fontWeight: 800,
+              letterSpacing: "0.16em",
+              textTransform: "uppercase"
+            }}
+          >
+            <div
+              style={{
+                alignItems: "center",
+                background: `linear-gradient(135deg, ${designTokens.colors.primary}, ${designTokens.colors.deepBlue})`,
+                borderRadius: 14,
+                display: "flex",
+                height: 50,
+                justifyContent: "center",
+                width: 50
+              }}
+            >
+              <CapturePassMark />
+            </div>
+            <span>CapturePass</span>
           </div>
           <div style={{ fontSize: 94, fontWeight: 800, lineHeight: 0.93, letterSpacing: "-0.05em" }}>
             {title}
@@ -47,13 +73,13 @@ export default function TwitterImage({
         </div>
         <div
           style={{
-            color: "#fff",
+            color: designTokens.colors.white,
             fontSize: 24,
             fontWeight: 700,
             opacity: 0.92
           }}
         >
-          Play Tagg Everywhere.
+          Turn Every Handshake Into a Prospect.
         </div>
       </div>
     ),

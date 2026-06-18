@@ -4,33 +4,33 @@ import { buildFaqJsonLd, buildLocalBusinessJsonLd, buildPageMetadata } from "@/l
 
 export const metadata = buildPageMetadata({
   description:
-    "TapTagg for sales teams: capture contacts, share links fast, and keep lead ownership connected to the rep who built the relationship.",
+    "CapturePass for sales teams: capture contacts, share links fast, and keep lead ownership connected to the rep who built the relationship.",
   path: "/sales-teams",
   title: "Sales Teams"
 });
 
 const faqItems = [
   {
-    question: "How does TapTagg help sales teams?",
+    question: "How does CapturePass help sales teams?",
     answer:
       "It gives each rep a branded profile for quick contact sharing, lead capture, and follow-up links that can be reused across the team."
   },
   {
     question: "Can it help with lead ownership?",
     answer:
-      "Yes. TapTagg helps the rep who made the connection stay attached to the lead instead of losing the contact to a general company inbox."
+      "Yes. CapturePass helps the rep who made the connection stay attached to the lead instead of losing the contact to a general company inbox."
   },
   {
     question: "Is it good for field sales?",
     answer:
-      "Absolutely. TapTagg works anywhere you meet customers in person, including events, meetings, showrooms, and field visits."
+      "Absolutely. CapturePass works anywhere you meet customers in person, including events, meetings, showrooms, and field visits."
   }
 ];
 
 const localBusinessSchema = buildLocalBusinessJsonLd({
   description:
-    "Landing page for sales teams that want TapTagg contact capture and lead ownership tools.",
-  name: "TapTagg for Sales Teams",
+    "Landing page for sales teams that want CapturePass contact capture and lead ownership tools.",
+  name: "CapturePass for Sales Teams",
   path: "/sales-teams"
 });
 
@@ -63,8 +63,8 @@ export default function SalesTeamsPage() {
           }
         ]}
         footerLeft="Sales Teams"
-        headline="TapTagg for sales teams that need the lead to stay with the rep."
-        intro="Use TapTagg to move from conversation to contact to follow-up without adding friction to the meeting."
+        headline="CapturePass for sales teams that need the lead to stay with the rep."
+        intro="Use CapturePass to move from conversation to contact to follow-up without adding friction to the meeting."
         navLinks={[
           { href: "/", label: "Home" },
           { href: "/business", label: "Business" },
@@ -90,7 +90,7 @@ export default function SalesTeamsPage() {
             heading: "Team accountability",
             paragraphs: [
               "Sales leaders need to know the system is being used consistently across the team and that the follow-up path stays visible.",
-              "A branded TapTagg workflow makes the handoff easier to measure without forcing a heavy CRM replacement."
+              "A branded CapturePass workflow makes the handoff easier to measure without forcing a heavy CRM replacement."
             ]
           },
           {
@@ -103,7 +103,7 @@ export default function SalesTeamsPage() {
           {
             heading: "Contact capture",
             paragraphs: [
-              "TapTagg gives the team a simple way to move from a quick introduction into a saved contact and a clear next step.",
+              "CapturePass gives the team a simple way to move from a quick introduction into a saved contact and a clear next step.",
               "That reduces friction when the team needs to capture names, emails, and intent in the moment."
             ]
           },

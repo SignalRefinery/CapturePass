@@ -82,7 +82,7 @@ export function BusinessTeamSection({
                         {lockedPlatformAdmin ? (
                           <div>
                             <strong>Platform admin</strong>
-                            <div className="table-subtext">Locked TapTagg support access</div>
+                            <div className="table-subtext">Locked CapturePass support access</div>
                           </div>
                         ) : normalizeBusinessRole(member.role) === "super_admin" ? (
                           <div>
@@ -203,7 +203,7 @@ export function BusinessTeamSection({
                                     <button className="button secondary" type="submit">Save profile</button>
                                   </form>
                                   <p className="table-subtext">
-                                    Updates the public business profile. If the email changes, TapTagg also updates login access and sends a fresh setup invite.
+                                    Updates the public business profile. If the email changes, CapturePass also updates login access and sends a fresh setup invite.
                                   </p>
 
                                   {showLocationControls ? (

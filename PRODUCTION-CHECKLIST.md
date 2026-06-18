@@ -1,15 +1,17 @@
-# TapTagg — Production privacy checklist
+# CapturePass — Production privacy checklist
+
+For Stripe, Resend, Supabase, and Vercel dashboard tasks, see `docs/internal/external-service-dashboard-checklist.md`.
 
 ## Required environment values
-- `NEXT_PUBLIC_APP_URL=https://taptagg.app`
+- `NEXT_PUBLIC_APP_URL=https://capturepass.com`
 - `NEXT_PUBLIC_SUPABASE_URL=...`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY=...`
 - `SUPABASE_SERVICE_ROLE_KEY=...`
 - `STRIPE_SECRET_KEY=...`
 - `STRIPE_WEBHOOK_SECRET=...`
 - `RESEND_API_KEY=...`
-- `INTERNAL_ORDER_EMAIL=hello@taptagg.app`
-- `INTERNAL_FROM_EMAIL="TapTagg <noreply@taptagg.app>"`
+- `INTERNAL_ORDER_EMAIL=support@capturepass.com`
+- `INTERNAL_FROM_EMAIL="CapturePass <noreply@capturepass.com>"`
 
 ## Required database migrations already introduced
 For a fresh project, run `supabase/bootstrap.sql` first, then apply any phase files newer than that bootstrap snapshot. For existing projects, run any phase SQL files not yet applied:
@@ -26,14 +28,14 @@ For a fresh project, run `supabase/bootstrap.sql` first, then apply any phase fi
 - confirm profile pages return:
   - `X-Robots-Tag`
   - `Cache-Control: private, no-store, no-cache, must-revalidate`
-- confirm `/admin` is accessible only to TapTagg admins from the centralized admin helper/database flag
+- confirm `/admin` is accessible only to CapturePass admins from the centralized admin helper/database flag
 - confirm public profile only resolves when:
   - `is_active = true`
   - `consent_public_visibility = true`
   - `slug_status = approved`
 - confirm public profile pages and vCards use the limited public profile RPC instead of broad `profiles.select("*")`
 - confirm disabled profiles 404 immediately
-- confirm report flow emails `hello@taptagg.app`
+- confirm report flow emails `support@capturepass.com`
 - confirm `/u/[token]` private route works if using token mode
 
 ## Netlify / host checks

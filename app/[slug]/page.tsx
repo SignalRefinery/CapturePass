@@ -1,7 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { notFound, redirect } from "next/navigation";
 import { unstable_noStore as noStore } from "next/cache";
-import { createAdminClient } from "@/lib/supabase/admin";
 import {
   getDefaultProfileViewServer,
   getProfileBySlugServer,
@@ -13,14 +12,61 @@ import { profileMetadata } from "@/lib/privacy/profile-privacy";
 import { isSlugPubliclyAllowed } from "@/lib/slug-moderation";
 import { TapTaggProfileShell } from "@/components/profile/taptagg-profile-shell";
 import type { ProfileRecord } from "@/lib/types";
+import { resolvePublicBusinessProfile } from "@/lib/business/public-profile-route";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
   searchParams?: Promise<{ view?: string }>;
 };
 
-export async function generateMetadata() {
+export async function generateMetadata({ params }: PageProps) {
+  const { slug } = await params;
+  const normalizedSlug = slug.toLowerCase();
+  const profile = (await getProfileBySlugServer(normalizedSlug)) as ProfileRecord | null;
+
+  if (profile && profileCanRenderPublicly(profile) && profile.consent_public_visibility === true && isSlugPubliclyAllowed(profile.slug, profile.slug_status)) {
+    return buildPublicProfileMetadata({
+      description:
+        profile.intro ||
+        `${profile.full_name}${profile.organization_name ? ` at ${profile.organization_name}` : ""}`,
+      path: `/${profile.slug}`,
+      title: profile.full_name || profile.organization_name || "CapturePass Profile"
+    });
+  }
+
+  if (!profile) {
+    const businessResolution = await resolvePublicBusinessProfile({ businessSlug: normalizedSlug });
+
+    if (businessResolution.kind === "render") {
+      const { profile: businessProfile } = businessResolution;
+      return buildPublicProfileMetadata({
+        description:
+          businessProfile.intro ||
+          `${businessProfile.full_name}${businessProfile.organization_name ? ` at ${businessProfile.organization_name}` : ""}`,
+        path: `/${businessProfile.slug}`,
+        title: businessProfile.full_name || businessProfile.organization_name || "CapturePass Profile"
+      });
+    }
+  }
+
   return profileMetadata();
+}
+
+function buildPublicProfileMetadata({
+  description,
+  path,
+  title
+}: {
+  description: string;
+  path: string;
+  title: string;
+}) {
+  return profileMetadata({
+    description,
+    path,
+    title,
+    visibility: "public"
+  });
 }
 
 export default async function PublicProfilePage({ params, searchParams }: PageProps) {
@@ -32,15 +78,41 @@ export default async function PublicProfilePage({ params, searchParams }: PagePr
   const profile = (await getProfileBySlugServer(normalizedSlug)) as ProfileRecord | null;
 
   if (!profile) {
-    const admin = createAdminClient();
-    const { data: organization } = await admin
-      .from("organizations")
-      .select("slug")
-      .eq("slug", normalizedSlug)
-      .maybeSingle();
+    const businessResolution = await resolvePublicBusinessProfile({ businessSlug: normalizedSlug });
 
-    if (organization?.slug) {
-      redirect(`/${organization.slug}/login`);
+    if (businessResolution.kind === "redirect") {
+      redirect(businessResolution.redirectTo);
+    }
+
+    if (businessResolution.kind === "render") {
+      const { profile: businessProfile } = businessResolution;
+      const supabase = await createClient();
+
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      const initialAuth = user
+        ? {
+            email: user.email,
+            fullName:
+              user.user_metadata?.full_name ||
+              `${user.user_metadata?.first_name || ""} ${user.user_metadata?.last_name || ""}`.trim(),
+            slug: null,
+          }
+        : null;
+
+      return (
+        <TapTaggProfileShell
+          profile={businessProfile}
+          views={[businessProfile]}
+          navViews={[businessProfile]}
+          pageMode="single"
+          multiViewDisplayMode="favorite"
+          heroLabel="Business profile"
+          initialAuth={initialAuth}
+        />
+      );
     }
   }
 

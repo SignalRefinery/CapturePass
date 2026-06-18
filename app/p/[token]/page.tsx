@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 function appUrl() {
-  return (process.env.NEXT_PUBLIC_APP_URL || "https://taptagg.app").replace(/\/$/, "");
+  return (process.env.NEXT_PUBLIC_APP_URL || "https://capturepass.com").replace(/\/$/, "");
 }
 
 type BusinessPassOrganization = {
@@ -184,11 +184,11 @@ export default async function PassTokenPage({
 
   if (!canRender) {
     return (
-      <Shell footerLeft="TapTagg Pass" footerRight="TapTagg">
+      <Shell footerLeft="CapturePass Pass" footerRight="CapturePass">
         <section className="simple-hero">
           <div className="dashboard-card" style={{ maxWidth: 780, margin: "0 auto" }}>
             <div className="dashboard-kicker">Inactive pass</div>
-            <h1>This TapTagg pass is not active.</h1>
+            <h1>This CapturePass pass is not active.</h1>
             <p>
               This card or digital pass is not currently assigned to an active profile.
             </p>

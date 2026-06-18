@@ -2,9 +2,9 @@ export function AffiliateTerms() {
   return (
     <div className="dashboard-card">
       <div className="dashboard-kicker">Referral program</div>
-      <h2>Share TapTagg and earn rewards.</h2>
+      <h2>Share CapturePass and earn rewards.</h2>
       <p className="editor-copy">
-        TapTagg may offer rewards when a referral becomes a qualified customer.
+        CapturePass may offer rewards when a referral becomes a qualified customer.
         Rewards are based on eligible signups and purchases, and participants should
         clearly disclose when they share a referral link.
       </p>

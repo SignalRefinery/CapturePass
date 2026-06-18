@@ -5,7 +5,7 @@ import { RESOURCE_ARTICLES, RESOURCE_CATEGORIES } from "@/lib/marketing-content"
 
 export const metadata = buildPageMetadata({
   description:
-    "TapTagg’s resource center covers NFC business cards, contact capture, digital cards, and industry workflows for sales, dealerships, insurance, and real estate.",
+    "CapturePass’s resource center covers NFC business cards, contact capture, digital cards, and industry workflows for sales, dealerships, insurance, and real estate.",
   path: "/resources",
   title: "Resources"
 });

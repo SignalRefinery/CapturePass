@@ -239,7 +239,7 @@ export function ContactShareModal({ target, modalStyle }: ContactShareModalProps
                 </button>
                 <div className={styles.signupCtaKicker}>Contact Sharing</div>
                 <h2 id="contact-share-title">Share Your Contact</h2>
-                <p>Send your contact details directly to this TapTagg user.</p>
+                <p>Send your contact details directly to this CapturePass user.</p>
 
                 {status === "success" ? (
                   <div className={styles.contactSuccess}>Contact shared successfully.</div>

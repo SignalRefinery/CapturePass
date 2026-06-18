@@ -8,14 +8,14 @@ const CHALLENGE_METRICS = [
   ["contacts_captured", "Contacts captured"],
   ["profile_views", "Profile views"],
   ["qr_scans", "QR scans"],
-  ["taptagg_score", "TapTagg score"],
+  ["taptagg_score", "CapturePass score"],
   ["appointment_actions", "Appointment actions"],
   ["sales_logged", "Sales logged"],
   ["revenue_logged", "Revenue logged"]
 ];
 
 const COMPETITION_METRICS = [
-  ["taptagg_score", "TapTagg score"],
+  ["taptagg_score", "CapturePass score"],
   ["contacts_captured", "Contacts captured"],
   ["profile_views", "Profile views"],
   ["qr_scans", "QR scans"],

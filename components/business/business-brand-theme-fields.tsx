@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { CSSProperties } from "react";
 import { BUSINESS_THEME_OPTIONS, CUSTOM_THEME_KEY, THEME_COLOR_ROLE_LABELS, normalizeThemeKey, resolveThemeColors } from "@/lib/themes";
+import { designTokens } from "@/lib/design-tokens";
 import type { OrganizationRecord } from "@/lib/types";
 
 type BusinessBrandThemeFieldsProps = {
@@ -102,7 +103,7 @@ export function BusinessBrandThemeFields({ organization }: BusinessBrandThemeFie
               className="editor-input"
               name="brand_color_primary"
               type="color"
-              defaultValue={organization.brand_color_primary || organization.brand_color || "#0F172A"}
+              defaultValue={organization.brand_color_primary || organization.brand_color || designTokens.colors.primary}
             />
           </label>
           <label className="editor-label">
@@ -111,7 +112,7 @@ export function BusinessBrandThemeFields({ organization }: BusinessBrandThemeFie
               className="editor-input"
               name="brand_color_secondary"
               type="color"
-              defaultValue={organization.brand_color_secondary || "#1E293B"}
+              defaultValue={organization.brand_color_secondary || designTokens.colors.deepBlue}
             />
           </label>
           <label className="editor-label">
@@ -120,7 +121,7 @@ export function BusinessBrandThemeFields({ organization }: BusinessBrandThemeFie
               className="editor-input"
               name="brand_color_accent"
               type="color"
-              defaultValue={organization.brand_color_accent || "#2563EB"}
+              defaultValue={organization.brand_color_accent || designTokens.colors.insightGold}
             />
           </label>
           <label className="editor-label">
@@ -138,7 +139,7 @@ export function BusinessBrandThemeFields({ organization }: BusinessBrandThemeFie
               className="editor-input"
               name="brand_color_text"
               type="color"
-              defaultValue={organization.brand_color_text || customThemeColors.text || "#111827"}
+              defaultValue={organization.brand_color_text || customThemeColors.text || designTokens.colors.charcoal}
             />
           </label>
         </div>

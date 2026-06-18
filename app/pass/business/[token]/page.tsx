@@ -10,11 +10,11 @@ type PageProps = {
 };
 
 function appUrl() {
-  return (process.env.NEXT_PUBLIC_APP_URL || "https://taptagg.app").replace(/\/$/, "");
+  return (process.env.NEXT_PUBLIC_APP_URL || "https://capturepass.com").replace(/\/$/, "");
 }
 
 export async function generateMetadata() {
-  return profileMetadata();
+  return profileMetadata({ visibility: "private" });
 }
 
 export default async function BusinessDigitalPassPage({ params, searchParams }: PageProps) {

@@ -4,7 +4,7 @@ import { buildPageMetadata } from "@/lib/seo";
 
 export const metadata = buildPageMetadata({
   description:
-    "Learn how TapTagg works: build your profile once, use NFC or QR as the trigger, and share the right page instantly.",
+    "Learn how CapturePass works: build your profile once, use NFC or QR as the trigger, and share the right page instantly.",
   path: "/how-it-works",
   title: "How it works"
 });
@@ -13,7 +13,7 @@ export default function HowItWorksPage() {
   return (
     <Shell
       footerLeft="How it works"
-      footerRight="TapTagg"
+      footerRight="CapturePass"
       navLinks={[
         { href: "/", label: "Home" },
         { href: "/pricing", label: "Pricing" },
@@ -26,10 +26,10 @@ export default function HowItWorksPage() {
           <span className="mini-star">✦</span>
           <span>How it works</span>
         </div>
-        <h1>Play Tagg In Seconds.</h1>
+        <h1>Turn Every Handshake Into a Prospect.</h1>
         <p>
           Set up your links once. Share them anywhere with a tap or scan. No app,
-          no searching, no awkward spelling out handles.
+          no searching, and no awkward spelling out handles.
         </p>
       </section>
 
@@ -37,10 +37,9 @@ export default function HowItWorksPage() {
         <div className="step">
           <div className="num">01</div>
           <div>
-            <h2>Build your TapTagg</h2>
+            <h2>Build your CapturePass</h2>
             <p>
-              Add your socials, contact info, booking links, music, products, content,
-              and whatever you want people to open first.
+              Add your socials, contact info, booking links, and whatever you want people to open first.
             </p>
           </div>
         </div>
@@ -50,7 +49,7 @@ export default function HowItWorksPage() {
           <div>
             <h2>Use your card as the trigger</h2>
             <p>
-              Your TapTagg card points people to your page instantly. Update your profile
+              Your CapturePass card points people to your contact capture page instantly. Update your profile
               anytime without changing the card.
             </p>
           </div>
@@ -59,10 +58,10 @@ export default function HowItWorksPage() {
         <div className="step">
           <div className="num">03</div>
           <div>
-            <h2>Play Tagg anywhere</h2>
+            <h2>Share anywhere</h2>
             <p>
-              TapTagg someone in the real world and send them straight to the right place:
-              follow, book, buy, listen, call, or save your info.
+              CapturePass someone in the real world and send them straight to the right place:
+              follow, book, buy, call, or save your info.
             </p>
           </div>
         </div>
@@ -81,7 +80,7 @@ export default function HowItWorksPage() {
               fontWeight: 800
             }}
           >
-            Find the right TapTagg path for your use case.
+            Find the right CapturePass path for your use case.
           </h2>
           <p className="editor-copy" style={{ maxWidth: 760, margin: "0 0 18px" }}>
             Compare plans, explore business pricing, or jump into a landing page for your industry.

@@ -1,4 +1,4 @@
-# TapTagg — Final privacy surface audit
+# CapturePass — Final privacy surface audit
 
 ## Implemented
 

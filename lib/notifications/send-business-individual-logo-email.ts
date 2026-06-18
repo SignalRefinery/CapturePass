@@ -54,8 +54,8 @@ export async function sendBusinessIndividualLogoEmail({
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      from: process.env.INTERNAL_FROM_EMAIL || "TapTagg <noreply@taptagg.app>",
-      to: process.env.INTERNAL_ORDER_EMAIL || process.env.INTERNAL_REGISTRATION_EMAIL || "john@taptagg.app",
+      from: process.env.INTERNAL_FROM_EMAIL || "CapturePass <noreply@capturepass.com>",
+      to: process.env.INTERNAL_ORDER_EMAIL || process.env.INTERNAL_REGISTRATION_EMAIL || "john@capturepass.com",
       subject: `Business logo uploaded: ${customerName || customerEmail}`,
       html: `
         <div style="font-family:Arial,sans-serif;line-height:1.6;color:#111;">

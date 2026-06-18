@@ -17,8 +17,8 @@ const planCards: Array<{
     key: "core",
     price: "$29",
     billing: "/ year",
-    headline: "Activate your TapTagg.",
-    description: "Physical TapTagg card, NFC sharing, QR sharing, profile link sharing, add-to-contacts, basic customization, and themes.",
+    headline: "Activate your CapturePass.",
+    description: "Physical CapturePass card, NFC sharing, QR sharing, profile link sharing, add-to-contacts, basic customization, and themes.",
     cta: "Get Core"
   },
   {
@@ -27,7 +27,7 @@ const planCards: Array<{
     billing: "/ year",
     headline: "Capture contacts and understand engagement.",
     description: "Everything in Core plus Contact Capture, contacts dashboard, analytics, source tracking, custom buttons, advanced customization, and priority support.",
-    cta: "Upgrade to Tagg+",
+    cta: "Upgrade to Capture+",
     featured: true
   },
   {
@@ -58,11 +58,11 @@ export function InactiveState({ email }: InactiveStateProps) {
   return (
     <section className="dashboard-wrap">
       <div className="dashboard-card">
-        <div className="dashboard-kicker">Reserved Tagg</div>
+        <div className="dashboard-kicker">Reserved profile</div>
         <h2>Your profile is preview-only until activation.</h2>
         <p className="editor-copy">
           Your account for <strong>{email}</strong> can build a basic profile now. Choose Core
-          for card sharing, Tagg+ for contact capture and analytics, or Business Individual
+          for card sharing, Capture+ for contact capture and analytics, or Business Individual
           for a branded solo-professional profile.
         </p>
 

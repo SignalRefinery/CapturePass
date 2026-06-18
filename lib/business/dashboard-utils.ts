@@ -12,7 +12,7 @@ export function isPlatformAdminMember(member?: { email?: string | null } | null)
 }
 
 export function appUrl() {
-  return (process.env.NEXT_PUBLIC_APP_URL || "https://taptagg.app").replace(/\/$/, "");
+  return (process.env.NEXT_PUBLIC_APP_URL || "https://capturepass.com").replace(/\/$/, "");
 }
 
 export function cleanHexColor(value: FormDataEntryValue | null) {

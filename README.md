@@ -1,7 +1,7 @@
-TapTagg – Developer Handoff README
+CapturePass – Developer Handoff README
 
 Overview
-TapTagg is a one-tap sharing product for creators, businesses, salespeople, teams, and everyday operators. It connects NFC cards, QR codes, and direct links to fast TapTagg profiles for sharing socials, links, content, bookings, music, business info, and contact details.
+CapturePass is a contact capture platform for creators, businesses, salespeople, teams, and everyday operators. It connects NFC cards, QR codes, and direct links to fast CapturePass profiles for sharing socials, links, content, bookings, music, business info, and contact details.
 
 Profiles are:
 - Easy to update from one dashboard
@@ -50,7 +50,7 @@ The system has moved from prototype → **early production backend**.
 
 Primary Use Cases
 
-TapTagg is optimized for:
+CapturePass is optimized for:
 - Musicians and artists building their fanbase
 - Sales professionals closing deals
 - Small business owners and entrepreneurs
@@ -152,13 +152,19 @@ Auth / Onboarding:
 
 Environment Variables
 
+NEXT_PUBLIC_APP_URL=https://capturepass.com
+NEXT_PUBLIC_SITE_URL=https://capturepass.com
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
-NEXT_PUBLIC_SITE_URL=http://localhost:3000
 STRIPE_SECRET_KEY=
 STRIPE_WEBHOOK_SECRET=
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
+RESEND_API_KEY=
+INTERNAL_FROM_EMAIL="CapturePass <noreply@capturepass.com>"
+INTERNAL_ORDER_EMAIL=support@capturepass.com
+INTERNAL_REGISTRATION_EMAIL=hello@capturepass.com
+STRIPE_ADDITIONAL_CAPTUREPASS_CARD_PRICE_ID=
 
 ---
 
@@ -168,6 +174,8 @@ npm install
 npm run dev
 
 App runs at http://localhost:3000
+
+For local development, set `NEXT_PUBLIC_SITE_URL=http://localhost:3000`. Production should use `https://capturepass.com`.
 
 ---
 
@@ -270,7 +278,7 @@ High:
 - Verify Supabase migrations in a staging/production-like environment.
 - Run full production-style QA after the latest auth, QR, vCard, and multi-view changes deploy.
 - Verify Stripe webhook activation, checkout continuation, and portal behavior end-to-end.
-- Build an Add-to-Home-Screen / QR helper page for users to save their TapTagg to a phone home screen and access/share QR codes.
+- Build an Add-to-Home-Screen / QR helper page for users to save their CapturePass profile to a phone home screen and access/share QR codes.
 
 Medium:
 - Improve subscription UI + plan management clarity.

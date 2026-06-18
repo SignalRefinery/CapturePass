@@ -53,7 +53,7 @@ const PLAN_ORDER: Record<PlanKey, number> = {
 const PLAN_LABELS: Record<PlanKey, string> = {
   free: "Free",
   core: "Core",
-  tagg_plus: "Tagg+",
+  tagg_plus: "Capture+",
   creator: "Creator",
   business_individual: "Business Individual"
 };

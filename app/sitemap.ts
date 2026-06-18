@@ -1,10 +1,11 @@
 import type { MetadataRoute } from "next";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://taptagg.app";
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://capturepass.com";
 
-  // Keep this list marketing-only. Public profiles and token URLs are
-  // intentional direct-share destinations and must not be discoverable here.
+  // Keep this list marketing-only. Public profile pages are indexed through
+  // per-page metadata, while direct-share token URLs and private surfaces stay
+  // out of the sitemap entirely.
   const routes = [
     "",
     "/business",
@@ -28,6 +29,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/resources/nfc-business-cards-for-car-dealerships",
     "/resources/digital-business-cards-for-insurance-agents",
     "/resources/nfc-business-cards-for-realtors",
+    "/capturepass-vs-popl",
+    "/best-digital-business-card-for-sales-teams",
+    "/best-digital-business-card-for-insurance-agents",
+    "/best-digital-business-card-for-real-estate-agents",
+    "/best-nfc-business-card-for-car-dealerships",
     "/springfield-il-nfc-business-cards",
     "/springfield-il-digital-business-cards",
     "/springfield-il-contact-capture",

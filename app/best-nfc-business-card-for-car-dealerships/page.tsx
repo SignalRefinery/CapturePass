@@ -5,17 +5,17 @@ import { Shell } from "@/components/shared/shell";
 import { JsonLd } from "@/components/seo/json-ld";
 import { buildFaqJsonLd, buildOrganizationJsonLd, buildPageMetadata } from "@/lib/seo";
 
-export const canonicalUrl = "https://taptagg.app/best-nfc-business-card-for-car-dealerships";
+const canonicalUrl = "https://capturepass.com/best-nfc-business-card-for-car-dealerships";
 
 export const metadata: Metadata = buildPageMetadata({
   description:
-    "See why TapTagg is the best NFC business card platform for car dealerships, automotive sales teams, independent dealers, and multi-rooftop dealer groups.",
+    "See why CapturePass is the best NFC business card platform for car dealerships, automotive sales teams, independent dealers, and multi-rooftop dealer groups.",
   path: "/best-nfc-business-card-for-car-dealerships",
-  title: "Best NFC Business Card For Car Dealerships | Lead Capture Cards | TapTagg"
+  title: "Best NFC Business Card For Car Dealerships | Lead Capture Cards | CapturePass"
 });
 
-export const openGraph = metadata.openGraph;
-export const twitter = metadata.twitter;
+const openGraph = metadata.openGraph;
+const twitter = metadata.twitter;
 
 const faqItems = [
   {
@@ -26,7 +26,7 @@ const faqItems = [
   {
     question: "Do NFC business cards work on Android?",
     answer:
-      "Yes. Most modern Android phones support NFC. TapTagg cards can also include QR codes for customers who prefer scanning."
+      "Yes. Most modern Android phones support NFC. CapturePass cards can also include QR codes for customers who prefer scanning."
   },
   {
     question: "Are NFC business cards useful for car dealerships?",
@@ -36,26 +36,26 @@ const faqItems = [
   {
     question: "Can dealership managers track usage?",
     answer:
-      "Yes. TapTagg business plans include analytics and team visibility so managers can better understand platform usage and engagement."
+      "Yes. CapturePass business plans include analytics and team visibility so managers can better understand platform usage and engagement."
   },
   {
-    question: "Can TapTagg help with salesperson turnover?",
-    answer: "Yes. TapTagg helps dealerships maintain more visibility and continuity when staffing changes happen."
+    question: "Can CapturePass help with salesperson turnover?",
+    answer: "Yes. CapturePass helps dealerships maintain more visibility and continuity when staffing changes happen."
   },
   {
-    question: "Can TapTagg support multiple dealership locations?",
+    question: "Can CapturePass support multiple dealership locations?",
     answer:
-      "Yes. TapTagg supports multi-location organizations and can help dealer groups manage employees by rooftop."
+      "Yes. CapturePass supports multi-location organizations and can help dealer groups manage employees by rooftop."
   },
   {
-    question: "Is TapTagg only for large dealerships?",
+    question: "Is CapturePass only for large dealerships?",
     answer:
-      "No. TapTagg can work for independent dealers, franchise dealerships, and multi-rooftop dealer groups."
+      "No. CapturePass can work for independent dealers, franchise dealerships, and multi-rooftop dealer groups."
   },
   {
-    question: "Does TapTagg replace a dealership CRM?",
+    question: "Does CapturePass replace a dealership CRM?",
     answer:
-      "No. TapTagg does not replace your CRM. It helps capture more face-to-face opportunities that can support your existing follow-up process."
+      "No. CapturePass does not replace your CRM. It helps capture more face-to-face opportunities that can support your existing follow-up process."
   },
   {
     question: "How much do dealership NFC business cards cost?",
@@ -107,12 +107,12 @@ const comparisonRows = [
 const productSchema = {
   "@context": "https://schema.org",
   "@type": "Product",
-  name: "TapTagg",
+  name: "CapturePass",
   description:
-    "TapTagg is an NFC business card, lead capture, and relationship retention platform for automotive dealerships.",
+    "CapturePass is an NFC business card, lead capture, and relationship retention platform for automotive dealerships.",
   brand: {
     "@type": "Brand",
-    name: "TapTagg"
+    name: "CapturePass"
   },
   category: "NFC business card, lead capture, and relationship retention platform for automotive dealerships",
   url: canonicalUrl
@@ -149,21 +149,21 @@ const heroParagraphs = [
   "It cannot help your team see when someone engages.",
   "It cannot help a sales manager understand which employees are creating opportunities.",
   "It cannot protect the dealership when a salesperson leaves.",
-  "TapTagg was built for dealerships that want more from every handshake, every lot conversation, every test drive, every service interaction, and every referral opportunity.",
-  "If your dealership wants NFC business cards that do more than look modern, TapTagg was designed for that."
+  "CapturePass was built for dealerships that want more from every handshake, every lot conversation, every test drive, every service interaction, and every referral opportunity.",
+  "If your dealership wants NFC business cards that do more than look modern, CapturePass was designed for that."
 ];
 
 export default function BestNfcBusinessCardForCarDealershipsPage() {
   return (
     <Shell
       footerLeft="Dealerships"
-      footerRight="TapTagg"
+      footerRight="CapturePass"
       navLinks={[
         { href: "/", label: "Home" },
         { href: "/business", label: "Business" },
         { href: "/business/pricing", label: "Business Pricing" },
         { href: "/contact", label: "Contact" },
-        { href: "/taptagg-vs-popl", label: "TapTagg vs Popl" }
+        { href: "/capturepass-vs-popl", label: "CapturePass vs Popl" }
       ]}
     >
       <JsonLd data={organizationSchema} />
@@ -206,7 +206,7 @@ export default function BestNfcBusinessCardForCarDealershipsPage() {
             "They stay in a notebook.",
             "They get lost in text threads.",
             "They never make it into a system.",
-            "TapTagg helps dealerships turn more of those everyday conversations into captured opportunities."
+            "CapturePass helps dealerships turn more of those everyday conversations into captured opportunities."
           ])}
         </section>
 
@@ -228,7 +228,7 @@ export default function BestNfcBusinessCardForCarDealershipsPage() {
           <div className="business-list-grid" style={bulletGrid}>
             {renderBullets([
               "Was contact information captured?",
-              "Did the customer view the salesperson's profile?",
+              "Did the customer view the salesperson" + "'" + "s profile?",
               "Did they click to call?",
               "Did they save the contact?",
               "Did they request more information?",
@@ -237,7 +237,7 @@ export default function BestNfcBusinessCardForCarDealershipsPage() {
             ])}
           </div>
           <p style={bodyCopyStyle}>That is where NFC business cards become more than a novelty.</p>
-          <p style={bodyCopyStyle}>They become part of the dealership's sales process.</p>
+          <p style={bodyCopyStyle}>They become part of the dealership{"'"}s sales process.</p>
         </section>
 
         <section className="card tagg-card" style={sectionCard}>
@@ -270,12 +270,12 @@ export default function BestNfcBusinessCardForCarDealershipsPage() {
         </section>
 
         <section className="card tagg-card" style={sectionCard}>
-          <h2 style={sectionHeading}>TapTagg For Independent Dealers</h2>
+          <h2 style={sectionHeading}>CapturePass For Independent Dealers</h2>
           {renderParagraphs([
             "Independent dealers often run lean.",
             "A small team may handle sales, financing conversations, service coordination, follow-up, and customer relationships all at once.",
             "That makes every conversation valuable.",
-            "TapTagg helps independent dealers create a more professional experience without adding complicated software.",
+            "CapturePass helps independent dealers create a more professional experience without adding complicated software.",
             "Salespeople can tap or scan to share their profile.",
             "Customers can save contact information quickly.",
             "Prospects can share their own information back.",
@@ -285,7 +285,7 @@ export default function BestNfcBusinessCardForCarDealershipsPage() {
         </section>
 
         <section className="card tagg-card" style={sectionCard}>
-          <h2 style={sectionHeading}>TapTagg For Franchise Dealerships</h2>
+          <h2 style={sectionHeading}>CapturePass For Franchise Dealerships</h2>
           {renderParagraphs([
             "Franchise dealerships usually have larger teams, more structured processes, and more customer touchpoints.",
             "Sales.",
@@ -295,7 +295,7 @@ export default function BestNfcBusinessCardForCarDealershipsPage() {
             "Events.",
             "Community sponsorships.",
             "Referral relationships.",
-            "TapTagg gives dealership employees a simple way to connect face-to-face interactions with digital follow-up.",
+            "CapturePass gives dealership employees a simple way to connect face-to-face interactions with digital follow-up.",
             "A salesperson can share a profile during a test drive.",
             "A service advisor can make it easy for a customer to reconnect.",
             "A finance manager can provide a professional contact experience.",
@@ -305,11 +305,11 @@ export default function BestNfcBusinessCardForCarDealershipsPage() {
         </section>
 
         <section className="card tagg-card" style={sectionCard}>
-          <h2 style={sectionHeading}>TapTagg For Multi-Rooftop Dealer Groups</h2>
+          <h2 style={sectionHeading}>CapturePass For Multi-Rooftop Dealer Groups</h2>
           {renderParagraphs([
             "Multi-rooftop dealer groups have a different challenge.",
             "They need consistency across locations without losing local accountability.",
-            "TapTagg supports location-based organization so dealerships can manage employees by rooftop, maintain brand standards, and keep visibility across the group.",
+            "CapturePass supports location-based organization so dealerships can manage employees by rooftop, maintain brand standards, and keep visibility across the group.",
             "That matters when a dealer group wants to know:"
           ])}
           <div className="business-list-grid" style={bulletGrid}>
@@ -336,7 +336,7 @@ export default function BestNfcBusinessCardForCarDealershipsPage() {
             "They may still have the old paper card.",
             "They may not know who to contact next.",
             "They may end up following the salesperson to another dealership.",
-            "TapTagg helps dealerships reduce that risk by keeping the customer experience connected to the business.",
+            "CapturePass helps dealerships reduce that risk by keeping the customer experience connected to the business.",
             "The salesperson still gets a professional tool.",
             "The customer still gets a direct connection.",
             "But the dealership maintains more visibility and continuity.",
@@ -368,7 +368,7 @@ export default function BestNfcBusinessCardForCarDealershipsPage() {
           {renderParagraphs([
             "Traditional paper cards create a problem.",
             "The relationship often leaves with the salesperson.",
-            "TapTagg helps dealerships create more continuity.",
+            "CapturePass helps dealerships create more continuity.",
             "When staffing changes happen, the dealership can adjust employee access, manage assignments, and preserve visibility into business activity.",
             "That does not replace good management.",
             "It does not replace a CRM.",
@@ -378,13 +378,13 @@ export default function BestNfcBusinessCardForCarDealershipsPage() {
         </section>
 
         <section className="card tagg-card" style={sectionCard}>
-          <h2 style={sectionHeading}>Why Dealerships Choose TapTagg</h2>
+          <h2 style={sectionHeading}>Why Dealerships Choose CapturePass</h2>
           {renderParagraphs([
-            "Dealerships choose TapTagg because it is built around the real problems dealerships face.",
+            "Dealerships choose CapturePass because it is built around the real problems dealerships face.",
             "Not just networking.",
             "Not just looking modern.",
             "Not just replacing paper cards.",
-            "TapTagg helps dealerships:"
+            "CapturePass helps dealerships:"
           ])}
           <div className="business-list-grid" style={bulletGrid}>
             {renderBullets([
@@ -399,19 +399,19 @@ export default function BestNfcBusinessCardForCarDealershipsPage() {
               "Turn more face-to-face conversations into measurable opportunities"
             ])}
           </div>
-          <p style={bodyCopyStyle}>That is why TapTagg is more than an NFC business card.</p>
+          <p style={bodyCopyStyle}>That is why CapturePass is more than an NFC business card.</p>
           <p style={bodyCopyStyle}>
             It is a lead capture and relationship retention tool for automotive sales teams.
           </p>
         </section>
 
         <section className="card tagg-card" style={sectionCard}>
-          <h2 style={sectionHeading}>Is TapTagg The Best NFC Business Card For Every Dealership?</h2>
+          <h2 style={sectionHeading}>Is CapturePass The Best NFC Business Card For Every Dealership?</h2>
           {renderParagraphs([
             "Not every dealership needs the same thing.",
-            "If your dealership only wants the cheapest possible NFC card, TapTagg may not be the best fit.",
+            "If your dealership only wants the cheapest possible NFC card, CapturePass may not be the best fit.",
             "If your dealership only wants a simple digital profile with no contact capture, no team visibility, and no management layer, there are basic NFC card options that may be enough.",
-            "But if your dealership wants a platform built around sales activity, lead capture, team visibility, and relationship retention, TapTagg is worth a serious look."
+            "But if your dealership wants a platform built around sales activity, lead capture, team visibility, and relationship retention, CapturePass is worth a serious look."
           ])}
         </section>
 
@@ -436,7 +436,7 @@ export default function BestNfcBusinessCardForCarDealershipsPage() {
             "At community events.",
             "Through referrals.",
             "During service visits.",
-            "TapTagg helps make those conversations easier to capture, easier to measure, and easier to retain.",
+            "CapturePass helps make those conversations easier to capture, easier to measure, and easier to retain.",
             "If your dealership is ready for NFC business cards built around lead capture and relationship retention, request a demo today."
           ])}
           <div style={heroActions}>

@@ -1,5 +1,7 @@
 import { ImageResponse } from "next/og";
+import { CapturePassMark } from "@/components/shared/capturepass-mark";
 import { getSocialImageData } from "@/lib/social-image";
+import { designTokens } from "@/lib/design-tokens";
 
 export const size = {
   width: 1200,
@@ -21,11 +23,11 @@ export default function OpenGraphImage({
   return new ImageResponse(
     (
       <div
-        style={{
-          alignItems: "center",
-          background:
-            "radial-gradient(circle at 20% 15%, rgba(167,139,250,.38), transparent 30%), radial-gradient(circle at 80% 22%, rgba(79,70,229,.28), transparent 28%), linear-gradient(135deg, #050506 0%, #0b0b11 55%, #120a20 100%)",
-          color: "#fff",
+          style={{
+            alignItems: "center",
+            background:
+            `radial-gradient(circle at 20% 15%, rgba(${designTokens.rgb.deepBlue},.38), transparent 30%), radial-gradient(circle at 80% 22%, rgba(${designTokens.rgb.primary},.28), transparent 28%), linear-gradient(135deg, ${designTokens.colors.charcoal} 0%, #0b0b11 55%, #120a20 100%)`,
+          color: designTokens.colors.white,
           display: "flex",
           fontFamily: "Inter, system-ui, sans-serif",
           height: "100%",
@@ -47,25 +49,24 @@ export default function OpenGraphImage({
             <div
               style={{
                 alignItems: "center",
-                background: "linear-gradient(135deg, #8b5cf6, #a78bfa)",
+                background: `linear-gradient(135deg, ${designTokens.colors.primary}, ${designTokens.colors.deepBlue})`,
                 borderRadius: 16,
                 display: "flex",
-                fontSize: 28,
                 height: 56,
                 justifyContent: "center",
                 width: 56
               }}
             >
-              TT
+              <CapturePassMark />
             </div>
-            <span style={{ fontSize: 24, fontWeight: 800 }}>TapTagg</span>
+            <span style={{ fontSize: 24, fontWeight: 800 }}>CapturePass</span>
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
             <div style={{ fontSize: 78, fontWeight: 800, lineHeight: 0.94, letterSpacing: "-0.05em" }}>
               {title}
             </div>
-            <div style={{ color: "#d8ccff", fontSize: 30, fontWeight: 600, lineHeight: 1.25, maxWidth: 780 }}>
+            <div style={{ color: designTokens.colors.insightGold, fontSize: 30, fontWeight: 600, lineHeight: 1.25, maxWidth: 780 }}>
               {subtitle}
             </div>
           </div>
@@ -76,13 +77,13 @@ export default function OpenGraphImage({
             alignSelf: "flex-end",
             border: "1px solid rgba(255,255,255,.12)",
             borderRadius: 28,
-            color: "#d8ccff",
+            color: designTokens.colors.insightGold,
             fontSize: 22,
             fontWeight: 700,
             padding: "18px 22px"
           }}
         >
-          Play Tagg Everywhere.
+          Turn Every Handshake Into a Prospect.
         </div>
       </div>
     ),

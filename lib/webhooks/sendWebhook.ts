@@ -125,7 +125,7 @@ export function buildWebhookTestPayload(organization: OrganizationContext): Webh
       id: organization.id,
       name: organization.name
     },
-    message: "TapTagg Business webhook test event."
+    message: "CapturePass Business webhook test event."
   };
 }
 
@@ -266,9 +266,9 @@ export async function sendOrganizationWebhook({
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "X-TapTagg-Event": event,
-          "X-TapTagg-Signature": signature,
-          "X-TapTagg-Timestamp": timestamp
+          "X-CapturePass-Event": event,
+          "X-CapturePass-Signature": signature,
+          "X-CapturePass-Timestamp": timestamp
         },
         body: rawPayload,
         signal: controller.signal

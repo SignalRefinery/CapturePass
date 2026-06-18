@@ -13,8 +13,8 @@ export const metadata = buildPageMetadata({
 });
 
 const includedFeatures = [
-  "Active TapTagg business profile",
-  "Custom printed NFC TapTagg card",
+  "Active CapturePass business profile",
+  "Custom printed NFC CapturePass card",
   "NFC sharing",
   "QR sharing",
   "Profile link sharing",
@@ -50,11 +50,11 @@ const faqItems = [
   },
   {
     title: "Does this include a custom printed card?",
-    body: "Yes. Business Individual includes one custom printed NFC TapTagg card designed with your branding."
+    body: "Yes. Business Individual includes one custom printed NFC CapturePass card designed with your branding."
   },
   {
     title: "Does this include contact capture?",
-    body: "Yes. Visitors can share their contact information directly from your TapTagg profile. Leads are stored in your dashboard and can be exported to CSV at any time."
+    body: "Yes. Visitors can share their contact information directly from your CapturePass profile. Leads are stored in your dashboard and can be exported to CSV at any time."
   },
   {
     title: "Is this CRM ready?",
@@ -62,11 +62,11 @@ const faqItems = [
   },
   {
     title: "Can I add more cards?",
-    body: "Yes. Additional TapTagg cards can be ordered for $25 each and linked to the same profile."
+    body: "Yes. Additional CapturePass cards can be ordered for $25 each and linked to the same profile."
   },
   {
     title: "Do my contacts need an app?",
-    body: "No. TapTagg works through any modern web browser. Your contacts can view your profile, save your information, and share their contact details without downloading anything."
+    body: "No. CapturePass works through any modern web browser. Your contacts can view your profile, save your information, and share their contact details without downloading anything."
   },
   {
     title: "Is the $99 price permanent?",
@@ -83,8 +83,8 @@ const faqSchema = buildFaqJsonLd(
 );
 const productSchema = buildProductJsonLd({
   description:
-    "Business Individual launch offer with a branded TapTagg profile, contact capture, analytics, and a custom printed NFC card.",
-  name: "TapTagg Business Individual",
+    "Business Individual launch offer with a branded CapturePass profile, contact capture, analytics, and a custom printed NFC card.",
+  name: "CapturePass Business Individual",
   path: "/business-individual",
   price: "99"
 });
@@ -121,7 +121,7 @@ export default async function BusinessIndividualPage({
   return (
     <Shell
       footerLeft="Business Individual"
-      footerRight="TapTagg"
+      footerRight="CapturePass"
       navLinks={[
         { href: "/", label: "Home" },
         { href: "/pricing", label: "Pricing" },
@@ -143,7 +143,10 @@ export default async function BusinessIndividualPage({
           Built for professionals who depend on relationships, referrals, and follow-up.
         </p>
         <p style={heroCopy}>
-          Capture contacts, track engagement, and stay connected with prospects, clients, and referral partners — without needing a full team account.
+          Capture contacts, track engagement, and stay connected with prospects, clients, and referral partners - without needing a full team account.
+        </p>
+        <p style={{ ...heroCopy, marginTop: 10, fontSize: "clamp(15px, 1.6vw, 17px)", color: "var(--brand-gold)" }}>
+          Digital business cards are included, but the main value is contact capture, CRM-ready exports, and owned relationships.
         </p>
         <div style={launchCallout}>
           <span>Limited Launch Offer</span>
@@ -196,7 +199,7 @@ export default async function BusinessIndividualPage({
                 />
               </label>
               <button className="button primary" type="submit" style={{ width: "fit-content" }}>
-                Start Business Individual
+                Start Capturing Contacts
               </button>
             </form>
 
@@ -225,7 +228,7 @@ export default async function BusinessIndividualPage({
               <div className="dashboard-kicker">Additional Cards</div>
               <h2 style={sideHeading}>Additional Cards</h2>
               <p style={sideCopy}>
-                Need extra cards for events, backup use, or multiple locations? Add additional TapTagg cards for $25 each.
+                Need extra cards for events, backup use, or multiple locations? Add additional CapturePass cards for $25 each.
               </p>
               <div style={extraCardPrice}>$25 per card</div>
               <Link className="button primary" href="/api/checkout?plan=business_individual_extra_card" style={{ width: "fit-content" }}>
@@ -235,7 +238,7 @@ export default async function BusinessIndividualPage({
 
             <section className="card tagg-card" style={sideCard}>
               <div className="dashboard-kicker">More pages</div>
-              <h2 style={sideHeading}>See the broader TapTagg funnel.</h2>
+              <h2 style={sideHeading}>See the broader CapturePass funnel.</h2>
               <p style={sideCopy}>
                 Compare pricing, explore business plans, and visit the industry landing pages for dealerships,
                 real estate agents, insurance agents, sales teams, and NFC contact capture cards.
@@ -317,9 +320,9 @@ const launchCallout = {
   gap: 8,
   padding: "18px 22px",
   borderRadius: 24,
-  border: "1px solid rgba(167,139,250,.34)",
+  border: "1px solid rgba(var(--brand-deep-rgb),.34)",
   background:
-    "radial-gradient(300px 140px at 20% 0%, rgba(139,92,246,.22), transparent 70%), rgba(139,92,246,.1)",
+    "radial-gradient(300px 140px at 20% 0%, rgba(var(--brand-primary-rgb),.22), transparent 70%), rgba(var(--brand-primary-rgb),.1)",
   color: "#ffffff",
   textAlign: "center" as const
 };
@@ -348,7 +351,7 @@ const planCard = {
   gap: 22,
   padding: "clamp(24px, 4vw, 34px)",
   background:
-    "radial-gradient(520px 240px at 10% 0%, rgba(139,92,246,.2), transparent 62%), linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.016)), rgba(8,8,10,.94)"
+    "radial-gradient(520px 240px at 10% 0%, rgba(var(--brand-primary-rgb),.2), transparent 62%), linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.016)), rgba(8,8,10,.94)"
 };
 
 const planTopRow = {
@@ -364,8 +367,8 @@ const badge = {
   marginBottom: 14,
   padding: "8px 12px",
   borderRadius: 999,
-  background: "rgba(139,92,246,.18)",
-  color: "#d8ccff",
+  background: "rgba(var(--brand-primary-rgb),.18)",
+  color: "var(--brand-gold)",
   fontSize: 12,
   fontWeight: 900,
   letterSpacing: "0.08em",
@@ -404,7 +407,7 @@ const cadence = {
 
 const regularPrice = {
   margin: 0,
-  color: "#d8ccff",
+  color: "var(--brand-gold)",
   fontSize: 15,
   fontWeight: 800
 };
@@ -418,7 +421,7 @@ const checkoutForm = {
 const selectLabel = {
   display: "grid",
   gap: 8,
-  color: "#d8ccff",
+  color: "var(--brand-gold)",
   fontSize: 12,
   fontWeight: 900,
   letterSpacing: "0.08em",
@@ -429,7 +432,7 @@ const selectInput = {
   width: "100%",
   minHeight: 50,
   borderRadius: 16,
-  border: "1px solid rgba(167,139,250,.32)",
+  border: "1px solid rgba(var(--brand-deep-rgb),.32)",
   background: "rgba(255,255,255,.06)",
   color: "#ffffff",
   padding: "0 14px",

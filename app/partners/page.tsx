@@ -4,7 +4,7 @@ import { buildPageMetadata } from "@/lib/seo";
 
 export const metadata = buildPageMetadata({
   description:
-    "Partner with TapTagg to introduce NFC cards, QR profiles, and contact capture to creators, shops, teams, salespeople, and builders.",
+    "Partner with CapturePass to introduce NFC cards, QR profiles, and contact capture to creators, shops, teams, salespeople, and builders.",
   path: "/partners",
   title: "Partners"
 });
@@ -12,8 +12,8 @@ export const metadata = buildPageMetadata({
 export default function PartnersPage() {
   return (
     <Shell
-      footerLeft="Share TapTagg"
-      footerRight="TapTagg"
+      footerLeft="Share CapturePass"
+      footerRight="CapturePass"
       navLinks={[
         { href: "/", label: "Home" },
         { href: "/pricing", label: "Pricing" },
@@ -26,18 +26,18 @@ export default function PartnersPage() {
           <span className="mini-star">✦</span>
           <span>Partners</span>
         </div>
-        <h1>Put TapTagg in more hands.</h1>
+        <h1>Put CapturePass in more hands.</h1>
         <p>
-          TapTagg grows through people who know creators, shops, teams, salespeople,
+          CapturePass grows through people who know creators, shops, teams, salespeople,
           artists, and builders who need a faster way to share what they do.
         </p>
       </section>
 
       <section className="section-wrap">
         <div className="steps">
-          <div className="step"><div className="num">01</div><div><h2>Share TapTagg</h2><p>Introduce TapTagg to people who should be easier to find, follow, book, buy from, or contact.</p></div></div>
+          <div className="step"><div className="num">01</div><div><h2>Share CapturePass</h2><p>Introduce CapturePass to people who should be easier to find, follow, book, buy from, or contact.</p></div></div>
           <div className="step"><div className="num">02</div><div><h2>Use your referral code</h2><p>Approved partners get a code so referrals can be tracked cleanly.</p></div></div>
-          <div className="step"><div className="num">03</div><div><h2>Help people Play Tagg</h2><p>Send creators and businesses a tool they can use immediately in real life.</p></div></div>
+          <div className="step"><div className="num">03</div><div><h2>Help people capture contacts instantly</h2><p>Send creators and businesses a tool they can use immediately in real life.</p></div></div>
         </div>
       </section>
 
@@ -57,10 +57,10 @@ export default function PartnersPage() {
               fontWeight: 800
             }}
           >
-            Know people who should Play Tagg?
+            Know people who should share CapturePass?
           </h2>
           <p className="editor-copy" style={{ maxWidth: 720, margin: "0 auto 22px" }}>
-            Tell us who you work with, who you can reach, and how TapTagg fits
+            Tell us who you work with, who you can reach, and how CapturePass fits
             the way they share.
           </p>
           <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 12 }}>

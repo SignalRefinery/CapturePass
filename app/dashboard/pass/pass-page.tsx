@@ -67,7 +67,7 @@ export async function DashboardPassPageContent({
   return (
     <Shell
       footerLeft="Digital pass"
-      footerRight="TapTagg"
+      footerRight="CapturePass"
       myProfileHref={myProfileHref}
       initialAuth={initialAuth}
     >
@@ -75,14 +75,14 @@ export async function DashboardPassPageContent({
         <section className="dashboard-wrap">
           <div className="dashboard-card pass-alert">
             <div className="dashboard-kicker">Pass unavailable</div>
-            <p className="editor-copy">That pass was not found, so we brought you back to your TapTagg digital pass.</p>
+            <p className="editor-copy">That pass was not found, so we brought you back to your CapturePass digital pass.</p>
           </div>
         </section>
       ) : null}
 
       {fullAccess ? (
         <DigitalPassCard
-          name={profile.full_name || user.email || "TapTagg"}
+          name={profile.full_name || user.email || "CapturePass"}
           roleLine={profile.role_line || ""}
           organizationName={profile.organization_name}
           defaultViewId="main"

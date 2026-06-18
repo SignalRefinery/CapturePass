@@ -39,7 +39,7 @@ export async function sendSlugApprovedEmail(profile: ProfileForEmail) {
     return;
   }
 
-  const to = process.env.INTERNAL_ORDER_EMAIL || "hello@taptagg.app";
+  const to = process.env.INTERNAL_ORDER_EMAIL || "hello@capturepass.com";
   const issuedUrl = getIssuedProfileUrl(profile);
   const readableUrl = getReadableProfileUrl(profile);
   const qrAttachment = buildQrPngAttachment(issuedUrl, profile.slug || profile.private_token);
@@ -48,7 +48,7 @@ export async function sendSlugApprovedEmail(profile: ProfileForEmail) {
 
   const html = `
     <div style="font-family:Arial,sans-serif;line-height:1.6;color:#111;">
-      <h2 style="margin:0 0 16px;">TapTagg profile approved</h2>
+      <h2 style="margin:0 0 16px;">CapturePass profile approved</h2>
       <p style="margin:0 0 18px;">
         This profile is approved and ready for fulfillment. Issued QR and NFC materials should use the issued card URL below.
       </p>
@@ -78,7 +78,7 @@ export async function sendSlugApprovedEmail(profile: ProfileForEmail) {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      from: process.env.INTERNAL_FROM_EMAIL || "TapTagg <noreply@taptagg.app>",
+      from: process.env.INTERNAL_FROM_EMAIL || "CapturePass <noreply@capturepass.com>",
       to,
       subject,
       html,

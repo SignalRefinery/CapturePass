@@ -4,24 +4,24 @@ import { buildFaqJsonLd, buildLocalBusinessJsonLd, buildPageMetadata } from "@/l
 
 export const metadata = buildPageMetadata({
   description:
-    "TapTagg for dealerships: capture leads, share inventory, book test drives, and keep customers connected to the right salesperson.",
+    "CapturePass for dealerships: capture leads, share inventory, book test drives, and keep customers connected to the right salesperson.",
   path: "/dealerships",
   title: "Dealerships"
 });
 
 const faqItems = [
   {
-    question: "How does TapTagg help dealerships?",
+    question: "How does CapturePass help dealerships?",
     answer:
       "It gives salespeople a fast way to share their contact info, inventory links, test-drive booking, and follow-up pages while keeping lead ownership tied to the rep."
   },
   {
     question: "Can cards be reassigned when staff changes?",
     answer:
-      "Yes. TapTagg is built so dealership cards and profiles can move with the team instead of forcing a reprint every time someone leaves or changes roles."
+      "Yes. CapturePass is built so dealership cards and profiles can move with the team instead of forcing a reprint every time someone leaves or changes roles."
   },
   {
-    question: "Does TapTagg work without an app?",
+    question: "Does CapturePass work without an app?",
     answer:
       "Yes. Customers open the page in their browser after a tap or scan, which makes it easy to save the salesperson and keep moving through the sales process."
   }
@@ -29,8 +29,8 @@ const faqItems = [
 
 const localBusinessSchema = buildLocalBusinessJsonLd({
   description:
-    "Landing page for dealerships that need TapTagg contact capture, inventory sharing, and lead ownership.",
-  name: "TapTagg for Dealerships",
+    "Landing page for dealerships that need CapturePass contact capture, inventory sharing, and lead ownership.",
+  name: "CapturePass for Dealerships",
   path: "/dealerships"
 });
 
@@ -49,7 +49,7 @@ export default function DealershipsPage() {
           {
             title: "Keep the right rep attached to the deal",
             copy:
-              "Every salesperson can share a branded TapTagg profile that keeps leads tied to the rep, not just the showroom."
+              "Every salesperson can share a branded CapturePass profile that keeps leads tied to the rep, not just the showroom."
           },
           {
             title: "Move inventory and test drives faster",
@@ -59,12 +59,12 @@ export default function DealershipsPage() {
           {
             title: "Reassign cards without reprinting",
             copy:
-              "When staff changes, TapTagg profiles and cards can be updated instead of discarded."
+              "When staff changes, CapturePass profiles and cards can be updated instead of discarded."
           }
         ]}
         footerLeft="Dealerships"
-        headline="TapTagg for dealerships that want the lead to stay with the rep."
-        intro="Use TapTagg to bridge the gap between the conversation on the lot and the follow-up after the customer leaves."
+        headline="CapturePass for dealerships that want the lead to stay with the rep."
+        intro="Use CapturePass to bridge the gap between the conversation on the lot and the follow-up after the customer leaves."
         navLinks={[
           { href: "/", label: "Home" },
           { href: "/business", label: "Business" },
@@ -97,7 +97,7 @@ export default function DealershipsPage() {
             heading: "CRM integration and contact capture workflows",
             paragraphs: [
               "The strongest dealership workflow captures the lead once, routes it to the right rep, and keeps the follow-up path obvious.",
-              "TapTagg supports that handoff by making the card-to-contact step faster, cleaner, and easier to reuse across campaigns."
+              "CapturePass supports that handoff by making the card-to-contact step faster, cleaner, and easier to reuse across campaigns."
             ]
           },
           {
@@ -111,7 +111,7 @@ export default function DealershipsPage() {
             heading: "Test-drive follow-up challenges",
             paragraphs: [
               "The best follow-up happens immediately after the test drive when the customer's interest is highest.",
-              "A TapTagg page can point them to the next step before they leave the lot."
+              "A CapturePass page can point them to the next step before they leave the lot."
             ]
           }
         ]}

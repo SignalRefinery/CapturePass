@@ -1,5 +1,7 @@
+import { appUrl, fullDescription, productName } from "@/lib/brand";
+
 export const site = {
-  name: "TapTagg",
-  url: "https://taptagg.app",
-  description: "Share your world instantly. NFC tap cards for creators, professionals, and teams."
+  name: productName,
+  url: appUrl,
+  description: fullDescription
 } as const;

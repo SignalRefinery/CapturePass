@@ -65,7 +65,7 @@ export async function sendRegistrationEmail({
   const appUrl = (
     process.env.NEXT_PUBLIC_APP_URL ||
     process.env.NEXT_PUBLIC_SITE_URL ||
-    "https://taptagg.app"
+    "https://capturepass.com"
   ).replace(/\/$/, "");
 
   const readableUrl = getReadableProfileUrl(profile);
@@ -86,12 +86,12 @@ export async function sendRegistrationEmail({
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      from: process.env.INTERNAL_FROM_EMAIL || "TapTagg <noreply@taptagg.app>",
-      to: process.env.INTERNAL_REGISTRATION_EMAIL || process.env.INTERNAL_ORDER_EMAIL || "john@taptagg.app",
-      subject: `New TapTagg registration: ${customerName || customerEmail}`,
+      from: process.env.INTERNAL_FROM_EMAIL || "CapturePass <noreply@capturepass.com>",
+      to: process.env.INTERNAL_REGISTRATION_EMAIL || process.env.INTERNAL_ORDER_EMAIL || "john@capturepass.com",
+      subject: `New CapturePass registration: ${customerName || customerEmail}`,
       html: `
         <div style="font-family:Arial,sans-serif;line-height:1.6;color:#111;">
-          <h2 style="margin:0 0 16px;">New TapTagg registration</h2>
+          <h2 style="margin:0 0 16px;">New CapturePass registration</h2>
           <p style="margin:0 0 18px;">A new profile has been created and is ready for review, fulfillment, or onboarding follow-up.</p>
           <table cellpadding="8" cellspacing="0" border="0" style="border-collapse:collapse;">
             <tr><td><strong>Name</strong></td><td>${escapeEmailHtml(customerName)}</td></tr>

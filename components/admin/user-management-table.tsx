@@ -38,7 +38,7 @@ const headerStyle: React.CSSProperties = {
   top: 0,
   zIndex: 1,
   background: "rgba(26,26,26,.8)",
-  color: "#8B5CF6",
+  color: "var(--brand-primary)",
   fontSize: 11,
   fontWeight: 700,
   textTransform: "uppercase",
@@ -56,15 +56,15 @@ const stickyActionHeaderStyle: React.CSSProperties = {
 };
 
 const actionButtonStyle: React.CSSProperties = {
-  border: "1px solid rgba(139,92,246,.3)",
-  background: "rgba(139,92,246,.08)",
+  border: "1px solid rgba(var(--brand-primary-rgb),.3)",
+  background: "rgba(var(--brand-primary-rgb),.08)",
   borderRadius: 8,
   padding: "6px 10px",
   fontSize: 12,
   lineHeight: 1,
   cursor: "pointer",
   textDecoration: "none",
-  color: "#8B5CF6",
+  color: "var(--brand-primary)",
 };
 
 const actionCellStyle: React.CSSProperties = {
@@ -86,7 +86,7 @@ function Badge({
   tone?: "neutral" | "good" | "warn" | "risk";
 }) {
   const colorMap = {
-    neutral: { background: "rgba(139,92,246,.15)", color: "#A78BFA" },
+    neutral: { background: "rgba(var(--brand-primary-rgb),.15)", color: "var(--brand-deep)" },
     good: { background: "rgba(34,197,94,.15)", color: "#86efac" },
     warn: { background: "rgba(250,204,21,.15)", color: "#fde047" },
     risk: { background: "rgba(239,68,68,.15)", color: "#fca5a5" },
@@ -315,7 +315,7 @@ export function UserManagementTable({ rows }: { rows: Row[] }) {
       </div>
 
       {statusMessage ? (
-        <div style={{ padding: "10px 12px", borderBottom: "1px solid rgba(255,255,255,.08)", color: "#d8ccff", fontSize: 12 }}>
+        <div style={{ padding: "10px 12px", borderBottom: "1px solid rgba(255,255,255,.08)", color: "var(--brand-gold)", fontSize: 12 }}>
           {statusMessage}
         </div>
       ) : null}

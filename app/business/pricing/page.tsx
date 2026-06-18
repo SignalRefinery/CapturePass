@@ -7,7 +7,7 @@ import { buildPageMetadata, buildSoftwareApplicationJsonLd, SITE_DESCRIPTION } f
 
 export const metadata = buildPageMetadata({
   description:
-    "Business pricing for TapTagg teams: Small Team, Starter, Growth, and Pro with self-managed and managed options, reusable seats, and launch promotion pricing.",
+    "Business pricing for CapturePass teams: Small Team, Starter, Growth, and Pro with self-managed and managed options, reusable seats, and launch promotion pricing.",
   path: "/business/pricing",
   title: "Business Pricing"
 });
@@ -23,7 +23,7 @@ const selfManagedDescription =
   "Your team manages employee profiles, cards, branding, and updates directly.";
 
 const fullyManagedDescription =
-  "TapTagg helps with setup, onboarding, employee changes, card assignment, seat reassignment, and profile updates.";
+  "CapturePass helps with setup, onboarding, employee changes, card assignment, seat reassignment, and profile updates.";
 
 const businessFeatures = [
   "Customer contact capture",
@@ -82,7 +82,7 @@ const businessTiers = businessTierKeys.map(([selfKey, managedKey]) => {
 
 const softwareApplicationSchema = buildSoftwareApplicationJsonLd({
   description: SITE_DESCRIPTION,
-  name: "TapTagg Business Pricing",
+  name: "CapturePass Business Pricing",
   path: "/business/pricing"
 });
 
@@ -90,7 +90,7 @@ export default function BusinessPricingPage() {
   return (
     <Shell
       footerLeft="Business Pricing"
-      footerRight="TapTagg"
+      footerRight="CapturePass"
       navLinks={[
         { href: "/", label: "Home" },
         { href: "/pricing", label: "User Pricing" },
@@ -107,11 +107,15 @@ export default function BusinessPricingPage() {
         </div>
         <h1 style={heroHeading}>Turn every customer interaction into a saved contact.</h1>
         <p style={heroCopy}>
-          Choose a plan that fits your team and give every employee a branded TapTagg profile,
+          Choose a plan that fits your team and give every employee a branded CapturePass profile,
           instant contact sharing, lead capture, and reusable NFC/QR tools that keep customers
           connected after they walk away.
         </p>
-        <p style={{ ...heroCopy, marginTop: 14, fontSize: "clamp(15px, 1.6vw, 17px)", color: "#d8ccff" }}>
+        <p style={{ ...heroCopy, marginTop: 14, fontSize: "clamp(15px, 1.6vw, 17px)", color: "var(--brand-gold)" }}>
+          Digital business cards are included. CapturePass is the contact capture platform, and the business value
+          comes from analytics, CRM readiness, and relationship ownership.
+        </p>
+        <p style={{ ...heroCopy, marginTop: 14, fontSize: "clamp(15px, 1.6vw, 17px)", color: "var(--brand-gold)" }}>
           Works alongside your existing CRM. No replacement required.
         </p>
         <p style={planClarification}>
@@ -134,7 +138,7 @@ export default function BusinessPricingPage() {
             </div>
 
             <p style={businessIntro}>
-              TapTagg helps teams capture contact information, stay connected with customers,
+              CapturePass helps teams capture contact information, stay connected with customers,
               and protect valuable relationships when employees join, leave, or change roles.
             </p>
           </div>
@@ -154,7 +158,7 @@ export default function BusinessPricingPage() {
             <div style={outcomeHeader}>
               <div className="kicker" style={{ width: "fit-content" }}>
                 <span className="mini-star">✦</span>
-                <span>Why teams choose TapTagg</span>
+                <span>Why teams choose CapturePass</span>
               </div>
               <h2 style={outcomeHeading}>Built around the moments your team cannot afford to lose.</h2>
             </div>
@@ -232,7 +236,7 @@ export default function BusinessPricingPage() {
             Explore the playbook behind the rollout.
           </h2>
           <p style={{ margin: 0, color: "#b6bcc8", fontSize: 16, lineHeight: 1.62, fontWeight: 500 }}>
-            TapTagg resources explain the workflows behind contact capture, NFC business cards, and industry-specific use cases.
+            CapturePass resources explain the workflows behind contact capture, NFC business cards, and industry-specific use cases.
           </p>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginTop: 18 }}>
             <Link className="button secondary" href="/resources">
@@ -278,8 +282,8 @@ const planClarification = {
   margin: "22px auto 0",
   padding: "16px 18px",
   borderRadius: 18,
-  border: "1px solid rgba(167,139,250,.3)",
-  background: "rgba(139,92,246,.1)",
+  border: "1px solid rgba(var(--brand-deep-rgb),.3)",
+  background: "rgba(var(--brand-primary-rgb),.1)",
   color: "#ffffff",
   fontSize: "clamp(16px, 1.8vw, 19px)",
   lineHeight: 1.5,
@@ -295,7 +299,7 @@ const launchPromotion = {
   borderRadius: 22,
   border: "1px solid rgba(34,197,94,.32)",
   background:
-    "radial-gradient(320px 140px at 18% 0%, rgba(34,197,94,.18), transparent 72%), linear-gradient(135deg, rgba(34,197,94,.12), rgba(139,92,246,.1))",
+    "radial-gradient(320px 140px at 18% 0%, rgba(34,197,94,.18), transparent 72%), linear-gradient(135deg, rgba(34,197,94,.12), rgba(var(--brand-primary-rgb),.1))",
   color: "#ffffff",
   boxShadow: "0 22px 54px rgba(0,0,0,.28)"
 };
@@ -334,7 +338,7 @@ const businessPanel = {
   gap: 24,
   padding: "clamp(24px, 5vw, 36px)",
   background:
-    "radial-gradient(520px 240px at 18% 0%, rgba(139,92,246,.18), transparent 62%), radial-gradient(420px 220px at 92% 12%, rgba(79,70,229,.13), transparent 62%), linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.014)), linear-gradient(180deg, rgba(8,8,10,.96), rgba(4,4,6,.98))"
+    "radial-gradient(520px 240px at 18% 0%, rgba(var(--brand-primary-rgb),.18), transparent 62%), radial-gradient(420px 220px at 92% 12%, rgba(var(--brand-deep-rgb),.13), transparent 62%), linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.014)), linear-gradient(180deg, rgba(8,8,10,.96), rgba(4,4,6,.98))"
 };
 
 const businessIntro = {
@@ -356,12 +360,12 @@ const businessQuoteCard = {
   alignContent: "start",
   padding: 22,
   borderRadius: 20,
-  border: "1px solid rgba(167,139,250,.28)",
-  background: "rgba(139,92,246,.08)"
+  border: "1px solid rgba(var(--brand-deep-rgb),.28)",
+  background: "rgba(var(--brand-primary-rgb),.08)"
 };
 
 const quoteLabel = {
-  color: "#d8ccff",
+  color: "var(--brand-gold)",
   fontSize: 13,
   fontWeight: 800,
   letterSpacing: "0.08em",
@@ -389,7 +393,7 @@ const outcomeSection = {
   gap: 18,
   padding: 22,
   borderRadius: 24,
-  border: "1px solid rgba(167,139,250,.28)",
+  border: "1px solid rgba(var(--brand-deep-rgb),.28)",
   background:
     "linear-gradient(180deg, rgba(255,255,255,.052), rgba(255,255,255,.018)), rgba(8,8,10,.72)"
 };

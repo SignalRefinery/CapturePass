@@ -15,7 +15,7 @@ type SpringfieldPageProps = {
 
 export function SpringfieldPage({ navLinks, page }: SpringfieldPageProps) {
   return (
-    <Shell footerLeft="Springfield, Illinois" footerRight="TapTagg" navLinks={navLinks}>
+    <Shell footerLeft="Springfield, Illinois" footerRight="CapturePass" navLinks={navLinks}>
       <section className="simple-hero" style={{ paddingBottom: 36 }}>
         <div className="kicker">
           <span className="mini-star">✦</span>

@@ -24,7 +24,7 @@ export function IndustryLandingPage({
   audienceLabel,
   benefits,
   footerLeft,
-  footerRight = "TapTagg",
+  footerRight = "CapturePass",
   headline,
   intro,
   navLinks,
@@ -96,7 +96,7 @@ export function IndustryLandingPage({
 
         <section className="card tagg-card" style={relatedPanel}>
           <div className="dashboard-kicker">Related pages</div>
-          <h2 style={sectionHeading}>Keep exploring the TapTagg funnel.</h2>
+          <h2 style={sectionHeading}>Keep exploring the CapturePass funnel.</h2>
           <div style={relatedLinksWrap}>
             {relatedLinks.map((link) => (
               <Link key={link.href} className="button secondary" href={link.href}>
@@ -199,13 +199,13 @@ const proofGrid = {
 const proofItem = {
   padding: 18,
   borderRadius: 18,
-  border: "1px solid rgba(167,139,250,.22)",
+  border: "1px solid rgba(var(--brand-deep-rgb),.22)",
   background: "rgba(255,255,255,.022)"
 };
 
 const proofLabel = {
   marginBottom: 8,
-  color: "#d8ccff",
+  color: "var(--brand-gold)",
   fontSize: 13,
   fontWeight: 800,
   letterSpacing: "0.08em",

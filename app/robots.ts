@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 
 export default function robots(): MetadataRoute.Robots {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://taptagg.app";
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://capturepass.com";
 
   return {
     rules: [
@@ -42,9 +42,9 @@ export default function robots(): MetadataRoute.Robots {
           "/privacy",
           "/terms"
         ],
-        // TapTagg profiles are direct-share destinations, not discovery
-        // inventory. Disallow token/vCard/admin surfaces from crawler traversal.
-        disallow: ["/admin", "/account", "/dashboard", "/api/", "/u/", "/auth/"]
+        // CapturePass direct-share and private surfaces are not discovery
+        // inventory. Public readable profiles stay crawlable through metadata.
+        disallow: ["/admin", "/account", "/dashboard", "/api/", "/u/", "/p/", "/pass/", "/auth/"]
       }
     ],
     sitemap: `${appUrl}/sitemap.xml`

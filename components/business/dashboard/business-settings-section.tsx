@@ -11,7 +11,7 @@ export function BusinessSettingsSection({ organization }: { organization: Organi
         <div className="dashboard-kicker">Business settings</div>
         <h2>Choose the business type.</h2>
         <p className="editor-copy">
-          Business type helps TapTagg apply industry-friendly defaults, including default CTA buttons and real estate property configuration. Future business-specific customization can build on this setting later.
+          Business type helps CapturePass apply industry-friendly defaults, including default CTA buttons and real estate property configuration. Future business-specific customization can build on this setting later.
         </p>
         <form action={updateOrganizationBusinessType} className="editor-form" style={{ marginTop: 18 }}>
           <input type="hidden" name="organization_id" value={organization.id} />

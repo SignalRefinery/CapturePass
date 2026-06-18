@@ -139,7 +139,7 @@ export function AuthForm({ mode, nextPath, plan, businessType, initialPromoCode 
         ) {
           setExistingAuthEmail(true);
           setError(
-            "That email already exists in secure login, even if it does not have a TapTagg profile yet. Sign in or set a password to continue."
+            "That email already exists in secure login, even if it does not have a CapturePass profile yet. Sign in or set a password to continue."
           );
         } else if (
           signUpCode === "email_address_not_authorized" ||
@@ -148,7 +148,7 @@ export function AuthForm({ mode, nextPath, plan, businessType, initialPromoCode 
           normalizedMessage.includes("email address not authorized")
         ) {
           setError(
-            "TapTagg could not send the confirmation email. Check the Supabase Auth email/SMTP settings, then try creating the account again."
+            "CapturePass could not send the confirmation email. Check the Supabase Auth email/SMTP settings, then try creating the account again."
           );
         } else {
           setError(signUpMessage);
@@ -191,7 +191,7 @@ export function AuthForm({ mode, nextPath, plan, businessType, initialPromoCode 
       return;
     }
 
-    setMessage("Check your email for a password setup link, then sign in to finish your TapTagg profile.");
+    setMessage("Check your email for a password setup link, then sign in to finish your CapturePass profile.");
     setResetLoading(false);
   }
 
@@ -363,7 +363,7 @@ function getEmailRedirectUrl(nextPath: string, plan?: string | null, businessTyp
   const appOrigin =
     typeof window !== "undefined"
       ? window.location.origin
-      : process.env.NEXT_PUBLIC_APP_URL || "https://taptagg.app";
+      : process.env.NEXT_PUBLIC_APP_URL || "https://capturepass.com";
   const callbackUrl = new URL(
     "/auth/callback",
     appOrigin
@@ -386,7 +386,7 @@ function getPasswordResetRedirectUrl(nextPath: string) {
   const appOrigin =
     typeof window !== "undefined"
       ? window.location.origin
-      : process.env.NEXT_PUBLIC_APP_URL || "https://taptagg.app";
+      : process.env.NEXT_PUBLIC_APP_URL || "https://capturepass.com";
   const resetUrl = new URL("/update-password", appOrigin);
   resetUrl.searchParams.set("next", safeInternalRedirect(nextPath));
   return resetUrl.toString();

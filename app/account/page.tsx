@@ -127,7 +127,7 @@ export default async function AccountPage({
   return (
     <Shell
       footerLeft="Account"
-      footerRight="TapTagg"
+      footerRight="CapturePass"
       myProfileHref={hasAccess && account?.slug ? `/${account.slug}` : account ? "/dashboard/preview" : null}
       initialAuth={
         account
@@ -232,7 +232,7 @@ export default async function AccountPage({
                   </Link>
 
                   <p className="editor-copy" style={{ flexBasis: "100%", margin: "4px 0 0" }}>
-                    Billing is managed manually for this account. You can continue using TapTagg without opening Stripe billing.
+                  Billing is managed manually for this account. You can continue using CapturePass without opening Stripe billing.
                   </p>
                 </>
               ) : account?.customerId ? (
@@ -313,7 +313,7 @@ export default async function AccountPage({
             <h2 className="section-title">Security</h2>
 
             <p className="editor-copy" style={{ marginTop: 0 }}>
-              Update the password used to access your TapTagg account.
+              Update the password used to access your CapturePass account.
             </p>
 
             <Link href="/update-password" className="button secondary">

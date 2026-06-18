@@ -15,7 +15,7 @@ type PageProps = {
 };
 
 function appUrl() {
-  return (process.env.NEXT_PUBLIC_APP_URL || "https://taptagg.app").replace(/\/$/, "");
+  return (process.env.NEXT_PUBLIC_APP_URL || "https://capturepass.com").replace(/\/$/, "");
 }
 
 function tokenUrl(token: string) {
@@ -120,7 +120,7 @@ export default async function BusinessSlugLoginPage({ params }: PageProps) {
             <span>Business login</span>
           </div>
           <h1>{org.name}</h1>
-          <p>Log in with the email invited by your business to open your TapTagg console.</p>
+          <p>Log in with the email invited by your business to open your CapturePass console.</p>
         </section>
 
         <section className="auth-wrap">
@@ -202,7 +202,7 @@ export default async function BusinessSlugLoginPage({ params }: PageProps) {
             <div className="dashboard-kicker">Profile photo</div>
             <h2>Add your headshot.</h2>
             <p className="editor-copy">
-              This optional photo appears on your public TapTagg employee profile.
+              This optional photo appears on your public CapturePass employee profile.
             </p>
             <form action={uploadEmployeeHeadshot} className="editor-form" encType="multipart/form-data" style={{ marginTop: 18 }}>
               <input type="hidden" name="organization_id" value={org.id} />

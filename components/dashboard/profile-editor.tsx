@@ -16,6 +16,7 @@ import {
   normalizeProfileButtonType
 } from "@/lib/profile-buttons";
 import { CUSTOM_THEME_KEY, PROFILE_THEME_OPTIONS, THEME_COLOR_ROLE_LABELS, coerceThemeForPlan, resolveThemeColors, themeIsAllowedForPlan } from "@/lib/themes";
+import { designTokens } from "@/lib/design-tokens";
 import {
   deleteProfileViewClient,
   getProfileIdForUserClient,
@@ -816,7 +817,7 @@ export function ProfileEditor({
             fontWeight: 800
           }}
         >
-          Edit your TapTagg profile.
+          Edit your CapturePass profile.
         </h2>
 
         <p className="editor-copy">
@@ -850,7 +851,7 @@ export function ProfileEditor({
 
             <div className="auth-field">
               <span>Current public URL</span>
-              <input value={`taptagg.app/${form.slug || ""}`} readOnly disabled />
+              <input value={`capturepass.com/${form.slug || ""}`} readOnly disabled />
               {showCurrentUrlReviewNote ? (
                 <small className="auth-message">
                   Your current public URL remains active until approval.
@@ -973,7 +974,7 @@ export function ProfileEditor({
                       <strong>{theme.name}</strong>
                       <small>
                         {theme.description}
-                        {!allowed ? ` Upgrade to ${theme.key === CUSTOM_THEME_KEY ? "Creator" : "Tagg+"} to unlock.` : ""}
+                        {!allowed ? ` Upgrade to ${theme.key === CUSTOM_THEME_KEY ? "Creator" : "Capture+"} to unlock.` : ""}
                       </small>
                       <span
                         className="theme-preview-strip"
@@ -1003,7 +1004,7 @@ export function ProfileEditor({
                   <span>{THEME_COLOR_ROLE_LABELS.primary}</span>
                   <input
                     type="color"
-                    value={form.brand_color_primary || "#0F172A"}
+                    value={form.brand_color_primary || designTokens.colors.primary}
                     onChange={(event) => update("brand_color_primary", event.target.value)}
                   />
                 </label>
@@ -1011,7 +1012,7 @@ export function ProfileEditor({
                   <span>{THEME_COLOR_ROLE_LABELS.secondary}</span>
                   <input
                     type="color"
-                    value={form.brand_color_secondary || "#1E293B"}
+                    value={form.brand_color_secondary || designTokens.colors.deepBlue}
                     onChange={(event) => update("brand_color_secondary", event.target.value)}
                   />
                 </label>
@@ -1019,7 +1020,7 @@ export function ProfileEditor({
                   <span>{THEME_COLOR_ROLE_LABELS.accent}</span>
                   <input
                     type="color"
-                    value={form.brand_color_accent || "#2563EB"}
+                    value={form.brand_color_accent || designTokens.colors.insightGold}
                     onChange={(event) => update("brand_color_accent", event.target.value)}
                   />
                 </label>
@@ -1035,7 +1036,7 @@ export function ProfileEditor({
                   <span>{THEME_COLOR_ROLE_LABELS.text}</span>
                   <input
                     type="color"
-                    value={form.brand_color_text || "#FFFFFF"}
+                    value={form.brand_color_text || designTokens.colors.white}
                     onChange={(event) => update("brand_color_text", event.target.value)}
                   />
                 </label>
@@ -1118,7 +1119,7 @@ export function ProfileEditor({
               </label>
             </div>
             {!plan.hasAdvancedCustomization ? (
-              <UpgradeNotice>Advanced profile badges unlock with Tagg+.</UpgradeNotice>
+              <UpgradeNotice>Advanced profile badges unlock with Capture+.</UpgradeNotice>
             ) : null}
           </div>
 
@@ -1629,7 +1630,7 @@ export function ProfileEditor({
                         </button>
                       </div>
                       {!plan.hasCustomButtons ? (
-                        <UpgradeNotice>Custom profile buttons unlock with Tagg+.</UpgradeNotice>
+                        <UpgradeNotice>Custom profile buttons unlock with Capture+.</UpgradeNotice>
                       ) : null}
                     </div>
                   </div>

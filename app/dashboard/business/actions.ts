@@ -217,7 +217,7 @@ export async function createOrganization(formData: FormData) {
   if (adminEmail !== TAPTAGG_BOOTSTRAP_ADMIN_EMAIL) {
     await admin.from("organization_members").insert({
       organization_id: organization.id,
-      name: "TapTagg Admin",
+      name: "CapturePass Admin",
       email: TAPTAGG_BOOTSTRAP_ADMIN_EMAIL,
       title: "Platform admin",
       role: "super_admin",
@@ -852,14 +852,14 @@ export async function sendBusinessDigitalPass(formData: FormData) {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      from: process.env.INTERNAL_FROM_EMAIL || "TapTagg <noreply@taptagg.app>",
+      from: process.env.INTERNAL_FROM_EMAIL || "CapturePass <noreply@capturepass.com>",
       to: member.email,
-      subject: `Your ${organization.name} TapTagg digital pass`,
+      subject: `Your ${organization.name} CapturePass digital pass`,
       html: `
         <div style="font-family:Arial,sans-serif;line-height:1.6;color:#111;">
-          <h2 style="margin:0 0 16px;">Your TapTagg digital pass is ready</h2>
+          <h2 style="margin:0 0 16px;">Your CapturePass digital pass is ready</h2>
           <p style="margin:0 0 18px;">
-            ${escapeHtml(organization.name)} has assigned a TapTagg digital pass to ${escapeHtml(member.name)}.
+            ${escapeHtml(organization.name)} has assigned a CapturePass digital pass to ${escapeHtml(member.name)}.
           </p>
           <p style="margin:0 0 12px;">
             <a href="${escapeHtml(saveablePassUrl)}" style="display:inline-block;background:#111827;color:#fff;padding:12px 18px;border-radius:12px;text-decoration:none;font-weight:700;">

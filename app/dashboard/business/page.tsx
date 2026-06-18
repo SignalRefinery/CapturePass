@@ -111,7 +111,7 @@ export default async function BusinessDashboardPage({
     : analyticsEvents;
   if (isPlatformAdmin && !selectedOrganizationId && !showOnboarding) {
     return (
-      <Shell footerLeft="Business dashboard" footerRight="TapTagg" initialAuth={initialAuth} navLinks={businessNavLinks}>
+      <Shell footerLeft="Business dashboard" footerRight="CapturePass" initialAuth={initialAuth} navLinks={businessNavLinks}>
         <section className="simple-hero">
           <div className="kicker">
             <span className="mini-star">✦</span>
@@ -174,7 +174,7 @@ export default async function BusinessDashboardPage({
 
   if (!organization) {
     return (
-      <Shell footerLeft="Business dashboard" footerRight="TapTagg" initialAuth={initialAuth} navLinks={businessNavLinks}>
+      <Shell footerLeft="Business dashboard" footerRight="CapturePass" initialAuth={initialAuth} navLinks={businessNavLinks}>
         <section className="simple-hero">
           <div className="dashboard-card" style={{ maxWidth: 780, margin: "0 auto" }}>
             {isPlatformAdmin ? (
@@ -182,7 +182,7 @@ export default async function BusinessDashboardPage({
                 <div className="dashboard-kicker">Business setup</div>
                 <h1>Create your company account.</h1>
                 <p>
-                  Business TapTagg uses permanent card/pass URLs that can be reassigned as your team changes.
+                  Business CapturePass uses permanent card/pass URLs that can be reassigned as your team changes.
                   The business admin receives an email invite to set their own password.
                 </p>
                 <form action={createOrganization} className="editor-form" style={{ marginTop: 24 }}>
@@ -287,9 +287,9 @@ export default async function BusinessDashboardPage({
             ) : (
               <>
                 <div className="dashboard-kicker">Business quote</div>
-                <h1>Business accounts are created by TapTagg.</h1>
+                <h1>Business accounts are created by CapturePass.</h1>
                 <p>
-                  Business TapTagg is currently quote-based. Request a business quote and we will set up
+                  Business CapturePass is currently quote-based. Request a business quote and we will set up
                   the company console, admin login, employees, branding, and card/pass tokens.
                 </p>
                 <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap", marginTop: 24 }}>
@@ -319,7 +319,7 @@ export default async function BusinessDashboardPage({
 
   if (isLocationScopedViewer) {
     return (
-      <Shell footerLeft={dashboardFooterLeft} footerRight="TapTagg" initialAuth={initialAuth} navLinks={businessNavLinks}>
+      <Shell footerLeft={dashboardFooterLeft} footerRight="CapturePass" initialAuth={initialAuth} navLinks={businessNavLinks}>
         <section className="simple-hero location-hero">
           <div className="kicker">
             <span className="mini-star">✦</span>
@@ -451,7 +451,7 @@ export default async function BusinessDashboardPage({
                             {lockedPlatformAdmin ? (
                               <div>
                                 <strong>Platform admin</strong>
-                                <div className="table-subtext">Locked TapTagg support access</div>
+                                <div className="table-subtext">Locked CapturePass support access</div>
                               </div>
                             ) : (
                               <div>
@@ -599,7 +599,7 @@ export default async function BusinessDashboardPage({
   }
 
   return (
-    <Shell footerLeft="Business dashboard" footerRight="TapTagg" initialAuth={initialAuth} navLinks={businessNavLinks}>
+    <Shell footerLeft="Business dashboard" footerRight="CapturePass" initialAuth={initialAuth} navLinks={businessNavLinks}>
       <section className="simple-hero">
         <div className="kicker">
           <span className="mini-star">✦</span>

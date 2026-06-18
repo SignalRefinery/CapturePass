@@ -191,7 +191,7 @@ const billingToggleWrap = {
 };
 
 const billingToggleLabel = {
-  color: "#d8ccff",
+  color: "var(--brand-gold)",
   fontSize: 13,
   fontWeight: 900,
   letterSpacing: "0.08em",
@@ -205,7 +205,7 @@ const billingToggle = {
   gap: 8,
   padding: 7,
   borderRadius: 999,
-  border: "1px solid rgba(167,139,250,.32)",
+  border: "1px solid rgba(var(--brand-deep-rgb),.32)",
   background: "rgba(8,8,10,.72)",
   boxShadow: "0 18px 46px rgba(0,0,0,.28)"
 };
@@ -224,13 +224,13 @@ const billingToggleButton = {
 };
 
 const billingToggleButtonActive = {
-  background: "linear-gradient(135deg, #8b5cf6, #a78bfa)",
+  background: "linear-gradient(135deg, var(--brand-primary), var(--brand-deep))",
   color: "#fff",
-  boxShadow: "0 12px 28px rgba(139,92,246,.3)"
+  boxShadow: "0 12px 28px rgba(var(--brand-primary-rgb),.3)"
 };
 
 const billingSaveNote = {
-  color: "#d8ccff",
+  color: "var(--brand-gold)",
   fontSize: 13,
   fontWeight: 800
 };
@@ -250,7 +250,7 @@ const promoLabel = {
 };
 
 const promoLabelText = {
-  color: "#d8ccff",
+  color: "var(--brand-gold)",
   fontSize: 13,
   fontWeight: 900,
   letterSpacing: "0.08em",
@@ -261,7 +261,7 @@ const promoLabelText = {
 const promoInput = {
   width: "100%",
   borderRadius: 14,
-  border: "1px solid rgba(167,139,250,.28)",
+  border: "1px solid rgba(var(--brand-deep-rgb),.28)",
   background: "rgba(8,8,10,.72)",
   color: "#fff",
   padding: "12px 14px",
@@ -289,13 +289,13 @@ const businessTierCard = {
   gap: 18,
   padding: 22,
   borderRadius: 22,
-  border: "1px solid rgba(167,139,250,.28)",
+  border: "1px solid rgba(var(--brand-deep-rgb),.28)",
   background:
     "linear-gradient(180deg, rgba(255,255,255,.052), rgba(255,255,255,.018)), rgba(8,8,10,.72)"
 };
 
 const quoteLabel = {
-  color: "#d8ccff",
+  color: "var(--brand-gold)",
   fontSize: 13,
   fontWeight: 800,
   letterSpacing: "0.08em",
@@ -330,8 +330,8 @@ const businessTierDetails = {
 const rooftopSupport = {
   padding: "11px 13px",
   borderRadius: 15,
-  border: "1px solid rgba(167,139,250,.3)",
-  background: "rgba(139,92,246,.1)",
+  border: "1px solid rgba(var(--brand-deep-rgb),.3)",
+  background: "rgba(var(--brand-primary-rgb),.1)",
   color: "#f5f3ff",
   fontSize: 14,
   fontWeight: 900
@@ -344,7 +344,7 @@ const setupFeeWrap = {
   borderRadius: 16,
   border: "1px solid rgba(34,197,94,.28)",
   background:
-    "linear-gradient(135deg, rgba(34,197,94,.14), rgba(139,92,246,.08))",
+    "linear-gradient(135deg, rgba(34,197,94,.14), rgba(var(--brand-primary-rgb),.08))",
   color: "#dcfce7"
 };
 
@@ -367,14 +367,14 @@ const rooftopAddOnCard = {
   gap: 8,
   padding: 20,
   borderRadius: 20,
-  border: "1px solid rgba(167,139,250,.28)",
+  border: "1px solid rgba(var(--brand-deep-rgb),.28)",
   background:
-    "linear-gradient(135deg, rgba(139,92,246,.12), rgba(34,197,94,.08)), rgba(8,8,10,.72)"
+    "linear-gradient(135deg, rgba(var(--brand-primary-rgb),.12), rgba(34,197,94,.08)), rgba(8,8,10,.72)"
 };
 
 const addOnHeading = {
   margin: 0,
-  color: "#d8ccff",
+  color: "var(--brand-gold)",
   fontSize: "clamp(24px, 3vw, 34px)",
   lineHeight: 1,
   fontWeight: 950,

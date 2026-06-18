@@ -5,7 +5,7 @@ import { buildFaqJsonLd, buildPageMetadata, buildSoftwareApplicationJsonLd, SITE
 
 export const metadata = buildPageMetadata({
   description:
-    "Compare TapTagg individual plans, upgrade for contact capture and analytics, and move into business pricing when you need team tools.",
+    "Compare CapturePass individual plans, upgrade for contact capture and analytics, and move into business pricing when you need team tools.",
   path: "/pricing",
   title: "Pricing"
 });
@@ -15,11 +15,11 @@ const individualPlans = [
     name: "Digital",
     price: "$1.99",
     cadence: "/ month",
-    purpose: "Create a digital TapTagg profile and start sharing with your link or QR code.",
-    cta: "Start Digital",
+    purpose: "Create a digital CapturePass profile, capture contacts, and start sharing with your link or QR code.",
+    cta: "Start Capturing Contacts",
     href: "/api/checkout?plan=digital",
     features: [
-      "Active TapTagg profile",
+      "Active CapturePass profile",
       "Digital pass only",
       "QR sharing",
       "Profile link sharing",
@@ -32,13 +32,13 @@ const individualPlans = [
     name: "Core",
     price: "$29",
     cadence: "/ year",
-    purpose: "Activate your TapTagg profile, get your physical NFC card, and start sharing instantly with an introductory annual offer.",
-    cta: "Get Your Tagg",
+    purpose: "Activate your CapturePass profile, get your physical NFC card, and start capturing contacts instantly with an introductory annual offer.",
+    cta: "Start Capturing Contacts",
     href: "/api/checkout?plan=core",
     featured: true,
     features: [
-      "Active TapTagg profile",
-      "1 physical TapTagg NFC card",
+      "Active CapturePass profile",
+      "1 physical CapturePass NFC card",
       "NFC sharing",
       "QR sharing",
       "Profile link sharing",
@@ -49,11 +49,11 @@ const individualPlans = [
     ]
   },
   {
-    name: "Tagg+",
+    name: "Capture+",
     price: "$79",
     cadence: "/ year",
     purpose: "For people who share often and want contact capture, better branding, analytics, and more control.",
-    cta: "Upgrade to Tagg+",
+    cta: "Upgrade to Capture+",
     href: "/api/checkout?plan=tagg_plus",
     features: [
       "Everything in Core",
@@ -76,12 +76,12 @@ const faqItems = [
   {
     question: "Can I build a profile before buying?",
     answer:
-      "Yes. The Free / Reserved Tagg tier lets you claim a handle, build your profile, add basic links, and preview your page before activation."
+      "Yes. The free profile lets you claim a handle, build your CapturePass profile, add basic links, and preview your page before activation."
   },
   {
     question: "How long is my username reserved?",
     answer:
-      "Your @tagg is reserved for 14 days. We send reminder emails before the reservation expires."
+      "Your handle is reserved for 14 days. We send reminder emails before the reservation expires."
   },
   {
     question: "Do I need a physical card?",
@@ -89,7 +89,7 @@ const faqItems = [
       "No. You can start by building your profile and sharing a QR or link after activation. The card makes real-world sharing faster."
   },
   {
-    question: "Can businesses use branded TapTagg systems?",
+    question: "Can businesses use branded CapturePass systems?",
     answer:
       "Yes. Business plans can include company-branded cards, profile pages, shared templates, review links, and team controls."
   },
@@ -101,21 +101,21 @@ const faqItems = [
   {
     question: "Do you sell user data or usage patterns?",
     answer:
-      "No. TapTagg is built for sharing, not tracking. We do not sell your personal data or usage patterns."
+      "No. CapturePass is built for sharing, not tracking. We do not sell your personal data or usage patterns."
   }
 ];
 
 const faqSchema = buildFaqJsonLd(faqItems);
 const softwareApplicationSchema = buildSoftwareApplicationJsonLd({
   description: SITE_DESCRIPTION,
-  name: "TapTagg",
+  name: "CapturePass",
   path: "/pricing"
 });
 
 function checkoutNoticeFor(value?: string | null) {
   switch (value) {
     case "choose-plan":
-      return "Choose Digital, Core, or Tagg+ to start checkout.";
+      return "Choose Digital, Core, or Capture+ to start checkout.";
     case "unavailable":
       return "Checkout is temporarily unavailable. Please try again in a few minutes.";
     case "start-error":
@@ -137,8 +137,8 @@ export default async function PricingPage({
 
   return (
     <Shell
-      footerLeft="Built For Sharing. Not Tracking."
-      footerRight="TapTagg"
+      footerLeft="Contact Capture Platform"
+      footerRight="CapturePass"
       navLinks={[
         { href: "/", label: "Home" },
         { href: "/how-it-works", label: "How it works" },
@@ -155,7 +155,7 @@ export default async function PricingPage({
           <span>Pricing</span>
         </div>
 
-        <h1 style={heroHeading}>Choose the TapTagg plan that fits how you share.</h1>
+        <h1 style={heroHeading}>Choose the CapturePass plan that fits how you share.</h1>
 
         <p style={heroCopy}>
           Start digital, add a physical card, or upgrade for contact capture, analytics, and deeper customization.
@@ -167,7 +167,7 @@ export default async function PricingPage({
           </div>
         ) : null}
 
-        <div style={trustLine}>Built For Sharing. Not Tracking.</div>
+        <div style={trustLine}>Contact capture first. Digital business cards included.</div>
       </section>
 
       <section className="section-wrap">
@@ -211,7 +211,7 @@ export default async function PricingPage({
           </div>
           <h2 style={sectionHeading}>Need team pricing?</h2>
           <p style={sectionCopy}>
-            Business pricing now lives on its own page with Small Team, Starter, Growth, and Pro options for teams that need shared branding, reusable seats, employee management, and lead ownership.
+            Business pricing now lives on its own page with Small Team, Starter, Growth, and Pro options for teams that need shared branding, reusable seats, employee management, lead ownership, analytics, and CRM readiness.
           </p>
           <Link className="button primary" href="/business/pricing" style={{ width: "fit-content" }}>
             View Business Pricing
@@ -252,10 +252,9 @@ export default async function PricingPage({
             <span className="mini-star">✦</span>
             <span>Springfield</span>
           </div>
-          <h2 style={sectionHeading}>Looking for TapTagg in Springfield, Illinois?</h2>
+          <h2 style={sectionHeading}>Looking for CapturePass in Springfield, Illinois?</h2>
           <p style={sectionCopy}>
-            Explore local SEO pages that map TapTagg to NFC business cards, digital business cards, contact capture,
-            and sales team workflows for Springfield searchers.
+            Explore local SEO pages that map CapturePass to contact capture first, with NFC business cards and digital business cards supporting the SEO surface.
           </p>
           <div style={internalLinkGrid}>
             <Link className="button secondary" href="/springfield-il-nfc-business-cards">
@@ -317,9 +316,9 @@ const trustLine = {
   margin: "22px auto 0",
   padding: "9px 13px",
   borderRadius: 999,
-  border: "1px solid rgba(167,139,250,.28)",
-  background: "rgba(139,92,246,.08)",
-  color: "#d8ccff",
+  border: "1px solid rgba(var(--brand-deep-rgb),.28)",
+  background: "rgba(var(--brand-primary-rgb),.08)",
+  color: "var(--brand-gold)",
   fontSize: 13,
   fontWeight: 800,
   letterSpacing: "0.04em"
@@ -331,9 +330,9 @@ const checkoutNotice = {
   margin: "20px auto 0",
   padding: "12px 16px",
   borderRadius: 14,
-  border: "1px solid rgba(167,139,250,.34)",
-  background: "rgba(139,92,246,.12)",
-  color: "#f3efff",
+  border: "1px solid rgba(var(--brand-deep-rgb),.34)",
+  background: "rgba(var(--brand-primary-rgb),.12)",
+  color: "var(--brand-white)",
   fontSize: 15,
   lineHeight: 1.35,
   fontWeight: 800
@@ -354,9 +353,9 @@ const planCard = {
 };
 
 const featuredPlanCard = {
-  borderColor: "rgba(139,92,246,.52)",
+  borderColor: "rgba(var(--brand-primary-rgb),.52)",
   background:
-    "radial-gradient(360px 160px at 50% 0%, rgba(139,92,246,.18), transparent 72%), linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.014)), rgba(12,12,15,.74)"
+    "radial-gradient(360px 160px at 50% 0%, rgba(var(--brand-primary-rgb),.18), transparent 72%), linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.014)), rgba(12,12,15,.74)"
 };
 
 const planBadge = {
@@ -365,15 +364,15 @@ const planBadge = {
   right: 16,
   padding: "5px 9px",
   borderRadius: 999,
-  border: "1px solid rgba(139,92,246,.36)",
-  background: "rgba(139,92,246,.16)",
-  color: "#d8ccff",
+  border: "1px solid rgba(var(--brand-primary-rgb),.36)",
+  background: "rgba(var(--brand-primary-rgb),.16)",
+  color: "var(--brand-gold)",
   fontSize: 12,
   fontWeight: 800
 };
 
 const planName = {
-  color: "#d8ccff",
+  color: "var(--brand-gold)",
   fontSize: 14,
   fontWeight: 800,
   letterSpacing: "0.06em",
@@ -416,7 +415,7 @@ const featureList = {
 
 const featureItem = {
   paddingLeft: 14,
-  borderLeft: "2px solid rgba(139,92,246,.42)",
+  borderLeft: "2px solid rgba(var(--brand-primary-rgb),.42)",
   color: "#e5e7eb",
   fontSize: 14,
   lineHeight: 1.4,
@@ -430,7 +429,7 @@ const businessPanel = {
   gap: 24,
   padding: "clamp(24px, 5vw, 36px)",
   background:
-    "radial-gradient(520px 240px at 18% 0%, rgba(139,92,246,.18), transparent 62%), radial-gradient(420px 220px at 92% 12%, rgba(79,70,229,.13), transparent 62%), linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.014)), linear-gradient(180deg, rgba(8,8,10,.96), rgba(4,4,6,.98))"
+    "radial-gradient(520px 240px at 18% 0%, rgba(var(--brand-primary-rgb),.18), transparent 62%), radial-gradient(420px 220px at 92% 12%, rgba(var(--brand-deep-rgb),.13), transparent 62%), linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.014)), linear-gradient(180deg, rgba(8,8,10,.96), rgba(4,4,6,.98))"
 };
 
 const internalLinkPanel = {
@@ -478,8 +477,8 @@ const businessQuoteCard = {
   alignContent: "start",
   padding: 22,
   borderRadius: 20,
-  border: "1px solid rgba(167,139,250,.28)",
-  background: "rgba(139,92,246,.08)"
+  border: "1px solid rgba(var(--brand-deep-rgb),.28)",
+  background: "rgba(var(--brand-primary-rgb),.08)"
 };
 
 const managementCopyGrid = {
@@ -499,7 +498,7 @@ const businessTierCard = {
   gap: 18,
   padding: 22,
   borderRadius: 22,
-  border: "1px solid rgba(167,139,250,.28)",
+  border: "1px solid rgba(var(--brand-deep-rgb),.28)",
   background:
     "linear-gradient(180deg, rgba(255,255,255,.052), rgba(255,255,255,.018)), rgba(8,8,10,.72)"
 };
@@ -528,7 +527,7 @@ const businessPlanOption = {
 };
 
 const quoteLabel = {
-  color: "#d8ccff",
+  color: "var(--brand-gold)",
   fontSize: 13,
   fontWeight: 800,
   letterSpacing: "0.08em",

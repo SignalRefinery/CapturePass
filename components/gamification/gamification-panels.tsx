@@ -79,13 +79,13 @@ export function PersonalPerformancePanel({ summary }: { summary: PersonalGamific
           <div className="status-list">
             <div className="status-row"><span>This month</span><strong>{summary.contactsCapturedThisMonth}</strong></div>
             <div className="status-row"><span>All time</span><strong>{summary.contactsCaptured}</strong></div>
-            <div className="status-row"><span>TapTagg score</span><strong>{summary.monthlyScore}</strong></div>
+            <div className="status-row"><span>CapturePass score</span><strong>{summary.monthlyScore}</strong></div>
           </div>
         </article>
 
         <article className="dashboard-card">
           <div className="dashboard-kicker">Score</div>
-          <h2>Your TapTagg impact.</h2>
+          <h2>Your CapturePass impact.</h2>
           <div className="status-list">
             <div className="status-row"><span>Current month</span><strong>{summary.monthlyScore}</strong></div>
             <div className="status-row"><span>All time</span><strong>{summary.taptaggScore}</strong></div>

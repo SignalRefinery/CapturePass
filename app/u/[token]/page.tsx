@@ -15,11 +15,11 @@ type PageProps = {
 };
 
 export async function generateMetadata() {
-  return profileMetadata();
+  return profileMetadata({ visibility: "private" });
 }
 
 function appUrl() {
-  return (process.env.NEXT_PUBLIC_APP_URL || "https://taptagg.app").replace(/\/$/, "");
+  return (process.env.NEXT_PUBLIC_APP_URL || "https://capturepass.com").replace(/\/$/, "");
 }
 
 export default async function PrivateTokenProfilePage({ params, searchParams }: PageProps) {

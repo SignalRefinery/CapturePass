@@ -22,9 +22,9 @@ export function BusinessAutomationsSection({
     <section className="dashboard-wrap" id="business-automations">
       <div className="dashboard-card">
         <div className="dashboard-kicker">Automations</div>
-        <h2>Send TapTagg events to your workflows.</h2>
+        <h2>Send CapturePass events to your workflows.</h2>
         <p className="editor-copy">
-          Connect TapTagg Business to Zapier, Make, HubSpot workflows, Salesforce workflows, GoHighLevel, custom CRMs, or any system that accepts webhooks.
+          Connect CapturePass Business to Zapier, Make, HubSpot workflows, Salesforce workflows, GoHighLevel, custom CRMs, or any system that accepts webhooks.
         </p>
 
         <form action={saveOrganizationWebhooks} className="editor-form" style={{ marginTop: 18 }}>
@@ -45,7 +45,7 @@ export function BusinessAutomationsSection({
             <input
               className="editor-input"
               name="webhook_url"
-              placeholder="https://example.com/webhooks/taptagg"
+              placeholder="https://example.com/webhooks/capturepass"
               defaultValue={webhookSettings?.webhook_url || ""}
             />
           </label>

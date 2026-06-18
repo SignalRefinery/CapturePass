@@ -10,14 +10,14 @@ import {
 export const metadata = buildPageMetadata({
   description: SITE_DESCRIPTION,
   path: "/",
-  title: "TapTagg"
+  title: "CapturePass"
 });
 
 export default function HomePage() {
   return (
     <Shell
-      footerLeft="Play Tagg. Share instantly."
-      footerRight="TapTagg"
+      footerLeft="Turn Every Handshake Into a Prospect."
+      footerRight="CapturePass"
       navLinks={[
         { href: "/how-it-works", label: "How it works" },
         { href: "/pricing", label: "Pricing" },
@@ -30,7 +30,7 @@ export default function HomePage() {
       <section className="simple-hero" style={{ paddingBottom: 40 }}>
         <div className="kicker">
           <span className="mini-star">✦</span>
-          <span>TapTagg / Play Tagg</span>
+          <span>CapturePass</span>
         </div>
 
         <h1
@@ -44,7 +44,7 @@ export default function HomePage() {
             letterSpacing: "-0.04em"
           }}
         >
-          Play Tagg Everywhere.
+          Turn Every Handshake Into a Prospect.
         </h1>
 
         <p
@@ -57,7 +57,7 @@ export default function HomePage() {
             fontWeight: 500
           }}
         >
-          Share your profile, socials, links, and contact info instantly with one tap.
+          Capture contacts, share the right information instantly, and turn every handshake into a trackable business opportunity.
         </p>
 
         <div
@@ -70,7 +70,7 @@ export default function HomePage() {
           }}
         >
           <Link className="button primary" href="/signup">
-            Start Sharing
+            Start Capturing Contacts
           </Link>
 
           <Link
@@ -82,7 +82,7 @@ export default function HomePage() {
               color: "var(--text)"
             }}
           >
-            Get Your Tagg
+            Request a Demo
           </Link>
         </div>
 
@@ -91,9 +91,9 @@ export default function HomePage() {
           style={{
             display: "inline-block",
             marginTop: 18,
-            color: "var(--purple-light)",
+            color: "var(--brand-deep)",
             fontSize: 15,
-            borderBottom: "1px solid rgba(167,139,250,.55)"
+            borderBottom: "1px solid rgba(var(--brand-deep-rgb),.55)"
           }}
         >
           See how it works
@@ -119,8 +119,8 @@ export default function HomePage() {
             Built for individuals, teams, and contact capture.
           </h2>
           <p style={{ margin: 0, color: "#b6bcc8", fontSize: 16, lineHeight: 1.62, fontWeight: 500 }}>
-            TapTagg works for personal sharing, team rollouts, and industry-specific pages that need more
-            conversions than a generic homepage.
+            CapturePass works for personal sharing, team rollouts, and industry-specific pages built to capture
+            contacts instead of just handing out a link.
           </p>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginTop: 18 }}>
             <Link className="button secondary" href="/business">
@@ -150,7 +150,7 @@ export default function HomePage() {
                 fontWeight: 800
               }}
             >
-              No App. No Searching. Just Play Tagg.
+              No app. No searching. Just a faster way to capture the contact.
             </h2>
             <p
               style={{
@@ -161,8 +161,8 @@ export default function HomePage() {
                 fontWeight: 500
               }}
             >
-              One tap sends people straight to your profile, links, socials,
-              bookings, music, menu, drop, or contact info.
+              One tap sends people straight to your profile, contact capture flow, links, socials, bookings,
+              menu, or next-step page.
             </p>
           </div>
 
@@ -177,7 +177,7 @@ export default function HomePage() {
                 fontWeight: 800
               }}
             >
-              Your Links, Ready Anywhere.
+              One Profile. Every Follow-Up Path.
             </h2>
             <p
               style={{
@@ -188,8 +188,8 @@ export default function HomePage() {
                 fontWeight: 500
               }}
             >
-              Your card is just the trigger. TapTagg is where everything you
-              want to share stays ready, updated, and easy to open.
+              Your card is the trigger. CapturePass is where contact capture, relationship ownership, and follow-up
+              stay ready, updated, and easy to open.
             </p>
           </div>
 
@@ -204,7 +204,7 @@ export default function HomePage() {
                 fontWeight: 800
               }}
             >
-              Made For Creators And Businesses.
+              Built For People Who Need Relationship Ownership.
             </h2>
             <p
               style={{
@@ -215,8 +215,8 @@ export default function HomePage() {
                 fontWeight: 500
               }}
             >
-              Artists, salespeople, shops, teams, freelancers, and founders can
-              move people from real life to the right link in seconds.
+              Sales teams, creators, shops, and local businesses can move people from real life to the right
+              contact flow in seconds.
             </p>
           </div>
           <div className="card tagg-card" style={{ padding: 26 }}>
@@ -241,7 +241,8 @@ export default function HomePage() {
                 fontWeight: 500
               }}
             >
-              See how TapTagg fits dealerships, real estate, insurance, sales teams, and NFC contact capture.
+              See how CapturePass fits dealerships, real estate, insurance, sales teams, and NFC contact capture
+              workflows.
             </p>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
               <Link className="button secondary" href="/real-estate-agents">
@@ -277,7 +278,7 @@ export default function HomePage() {
                 fontWeight: 500
               }}
             >
-              Explore guides on NFC business cards, contact capture, and the workflows behind dealership,
+              Explore guides on contact capture, NFC business cards, and the workflows behind dealership,
               insurance, real estate, and sales use cases.
             </p>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
@@ -315,8 +316,8 @@ export default function HomePage() {
                 fontWeight: 500
               }}
             >
-              Localize your search path with Springfield pages built for NFC business cards, digital business cards,
-              contact capture, and sales team workflows.
+              Localize your search path with Springfield pages built for contact capture, NFC business cards, and
+              digital business cards as the SEO support category.
             </p>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
               <Link className="button secondary" href="/springfield-il-nfc-business-cards">
@@ -338,7 +339,7 @@ export default function HomePage() {
               padding: 28,
               textAlign: "center",
               background:
-                "radial-gradient(circle at 50% -10%, rgba(139,92,246,.16), rgba(139,92,246,.045) 34%, transparent 58%), radial-gradient(circle at 18% 16%, rgba(109,40,217,.10), transparent 34%), linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.014)), linear-gradient(180deg, rgba(10,10,13,.92), rgba(5,5,7,.96))"
+                "radial-gradient(circle at 50% -10%, rgba(var(--brand-primary-rgb),.16), rgba(var(--brand-primary-rgb),.045) 34%, transparent 58%), radial-gradient(circle at 18% 16%, rgba(var(--brand-deep-rgb),.10), transparent 34%), linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.014)), linear-gradient(180deg, rgba(10,10,13,.92), rgba(5,5,7,.96))"
             }}
           >
             <h3
@@ -351,7 +352,7 @@ export default function HomePage() {
                 fontWeight: 800
               }}
             >
-              Play Tagg In Real Life.
+            Make Every Handshake Count.
             </h3>
             <p
               style={{
@@ -363,8 +364,8 @@ export default function HomePage() {
                 fontWeight: 500
               }}
             >
-              Meet someone. TapTagg them. They get the page, profile, post, song,
-              booking link, shop, or contact details you wanted them to have.
+              Meet someone. Capture their contact. Send them the profile, page, booking link, or next step they
+              actually need.
             </p>
           </div>
         </div>

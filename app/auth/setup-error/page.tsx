@@ -25,7 +25,7 @@ export default async function AuthSetupErrorPage({
   return (
     <Shell
       footerLeft="Account setup"
-      footerRight="TapTagg"
+      footerRight="CapturePass"
       navLinks={[
         { href: "/", label: "Home" },
         { href: "/pricing", label: "Pricing" },
@@ -39,7 +39,7 @@ export default async function AuthSetupErrorPage({
         </div>
         <h1>Your account setup was not completed.</h1>
         <p>
-          Your email may be verified, but TapTagg could not finish creating your profile.
+          Your email may be verified, but CapturePass could not finish creating your profile.
           Please try setup again before continuing to the dashboard or checkout.
         </p>
         <div className="cta-row">

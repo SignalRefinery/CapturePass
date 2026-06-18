@@ -14,11 +14,11 @@ type PageProps = {
 };
 
 export async function generateMetadata() {
-  return profileMetadata();
+  return profileMetadata({ visibility: "private" });
 }
 
 function appUrl() {
-  return (process.env.NEXT_PUBLIC_APP_URL || "https://taptagg.app").replace(/\/$/, "");
+  return (process.env.NEXT_PUBLIC_APP_URL || "https://capturepass.com").replace(/\/$/, "");
 }
 
 export default async function PublicDigitalPassPage({ params, searchParams }: PageProps) {
@@ -51,7 +51,7 @@ export default async function PublicDigitalPassPage({ params, searchParams }: Pa
   return (
     <main className="public-pass-page">
       <DigitalPassCard
-        name={profile.full_name || "TapTagg"}
+        name={profile.full_name || "CapturePass"}
         roleLine={profile.role_line || ""}
         organizationName={profile.organization_name}
         defaultViewId="main"

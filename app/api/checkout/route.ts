@@ -38,6 +38,10 @@ type CheckoutPayload = {
 const BUSINESS_SETUP_FEES_WAIVED_FOR_LAUNCH = true;
 const PENDING_CHECKOUT_COOKIE = "taptagg_pending_checkout";
 const PENDING_CHECKOUT_COOKIE_MAX_AGE = 60 * 30;
+const ADDITIONAL_CARD_PRICE_ID =
+  process.env.STRIPE_ADDITIONAL_CAPTUREPASS_CARD_PRICE_ID ||
+  process.env.STRIPE_ADDITIONAL_TAPTAGG_CARD_PRICE_ID ||
+  undefined;
 
 function getStringId(value: string | { id?: string } | null | undefined) {
   if (!value) return null;
@@ -231,7 +235,7 @@ async function getOrCreateCheckoutOrganization({
 
   const businessName =
     fallbackName?.trim() ||
-    (email ? `${email.split("@")[0]}'s Business` : "TapTagg Business");
+    (email ? `${email.split("@")[0]}'s Business` : "CapturePass Business");
   const slug = await generateUniqueOrganizationSlug(businessName);
   const { data: organization, error } = await admin
     .from("organizations")
@@ -356,7 +360,7 @@ async function createCheckoutOrPortal(req: Request) {
       : checkoutSelection?.kind === "individual"
         ? getIndividualPlanPriceId(checkoutSelection.plan) || undefined
         : checkoutSelection?.kind === "additional_cards"
-          ? process.env.STRIPE_ADDITIONAL_TAPTAGG_CARD_PRICE_ID || undefined
+          ? ADDITIONAL_CARD_PRICE_ID
           : isBusinessIndividualExtraCardCheckout
             ? process.env.STRIPE_PRICE_BUSINESS_INDIVIDUAL_EXTRA_CARD || undefined
           : undefined;
@@ -378,7 +382,7 @@ async function createCheckoutOrPortal(req: Request) {
       }
 
       return NextResponse.json(
-        { error: "Choose a TapTagg plan before starting checkout." },
+        { error: "Choose a CapturePass plan before starting checkout." },
         { status: 400 }
       );
     }
@@ -389,7 +393,7 @@ async function createCheckoutOrPortal(req: Request) {
       }
 
       return NextResponse.json(
-        { error: "That checkout plan is not supported. Choose a TapTagg plan instead." },
+        { error: "That checkout plan is not supported. Choose a CapturePass plan instead." },
         { status: 400 }
       );
     }
@@ -400,7 +404,7 @@ async function createCheckoutOrPortal(req: Request) {
       }
 
       return NextResponse.json(
-        { error: "Choose a TapTagg plan before starting checkout." },
+        { error: "Choose a CapturePass plan before starting checkout." },
         { status: 400 }
       );
     }
@@ -503,7 +507,7 @@ async function createCheckoutOrPortal(req: Request) {
     const isAdditionalCardsCheckout =
       checkoutSelection?.kind === "additional_cards" ||
       isBusinessIndividualExtraCardCheckout ||
-      selectedPriceId === process.env.STRIPE_ADDITIONAL_TAPTAGG_CARD_PRICE_ID;
+      selectedPriceId === ADDITIONAL_CARD_PRICE_ID;
     const checkoutOrganization = businessPlan
       ? await getOrCreateCheckoutOrganization({
           userId: user.id,
@@ -569,7 +573,7 @@ async function createCheckoutOrPortal(req: Request) {
       }
 
       return NextResponse.json(
-        { error: "Checkout is temporarily unavailable for this TapTagg plan." },
+        { error: "Checkout is temporarily unavailable for this CapturePass plan." },
         { status: 500 }
       );
     }

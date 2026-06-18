@@ -20,12 +20,12 @@ function escapeVcf(value?: string | null) {
 }
 
 function safeVcardFilename(name?: string | null) {
-  const safeName = (name || "taptagg-contact")
+  const safeName = (name || "capturepass-contact")
     .toLowerCase()
     .replace(/[^a-z0-9-]/g, "-")
     .replace(/-+/g, "-")
     .replace(/^-|-$/g, "");
-  return `${safeName || "taptagg-contact"}.vcf`;
+  return `${safeName || "capturepass-contact"}.vcf`;
 }
 
 function cleanValue(value?: string | null) {

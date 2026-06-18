@@ -5,17 +5,17 @@ import { Shell } from "@/components/shared/shell";
 import { JsonLd } from "@/components/seo/json-ld";
 import { buildFaqJsonLd, buildOrganizationJsonLd, buildPageMetadata } from "@/lib/seo";
 
-export const canonicalUrl = "https://taptagg.app/best-digital-business-card-for-sales-teams";
+const canonicalUrl = "https://capturepass.com/best-digital-business-card-for-sales-teams";
 
 export const metadata: Metadata = buildPageMetadata({
   description:
-    "See why sales teams choose TapTagg to capture leads, improve follow-up, increase accountability, and turn more conversations into opportunities.",
+    "See why sales teams choose CapturePass to capture leads, improve follow-up, increase accountability, and turn more conversations into opportunities.",
   path: "/best-digital-business-card-for-sales-teams",
-  title: "Best Digital Business Card For Sales Teams | TapTagg"
+  title: "Best Digital Business Card For Sales Teams | CapturePass"
 });
 
-export const openGraph = metadata.openGraph;
-export const twitter = metadata.twitter;
+const openGraph = metadata.openGraph;
+const twitter = metadata.twitter;
 
 const heroCopy = [
   "Most digital business card platforms focus on one thing:",
@@ -30,7 +30,7 @@ const heroCopy = [
   "That changes the conversation.",
   "The best digital business card for a sales team is not the one with the prettiest profile.",
   "It is the one that helps create more business.",
-  "That is the philosophy behind TapTagg."
+  "That is the philosophy behind CapturePass."
 ];
 
 const realProblemCopy = [
@@ -54,7 +54,7 @@ const realProblemCopy = [
   "Many of those conversations never become opportunities.",
   "Not because they lacked potential.",
   "Because nobody captured them.",
-  "TapTagg was built to help sales teams reduce that loss."
+  "CapturePass was built to help sales teams reduce that loss."
 ];
 
 const needRows = [
@@ -136,29 +136,29 @@ const turnoverCopy = [
 
 const industries = [
   {
-    copy: "Dealerships use TapTagg to support lead capture, salesperson accountability, rooftop management, and relationship retention.",
+    copy: "Dealerships use CapturePass to support lead capture, salesperson accountability, rooftop management, and relationship retention.",
     title: "Automotive Sales"
   },
   {
-    copy: "Insurance teams use TapTagg to stay connected with prospects, referral partners, and policyholders while creating better visibility into team activity.",
+    copy: "Insurance teams use CapturePass to stay connected with prospects, referral partners, and policyholders while creating better visibility into team activity.",
     title: "Insurance Agencies"
   },
   {
-    copy: "Brokerages use TapTagg to help agents share information instantly, capture opportunities, and maintain professional branding.",
+    copy: "Brokerages use CapturePass to help agents share information instantly, capture opportunities, and maintain professional branding.",
     title: "Real Estate Brokerages"
   },
   {
-    copy: "Recruiters use TapTagg to connect with candidates, referral partners, and employers while maintaining a more organized follow-up process.",
+    copy: "Recruiters use CapturePass to connect with candidates, referral partners, and employers while maintaining a more organized follow-up process.",
     title: "Recruiting Teams"
   }
 ];
 
-const chooseTapTaggCopy = [
-  "Sales teams choose TapTagg because it was designed around business outcomes.",
+const chooseCapturePassCopy = [
+  "Sales teams choose CapturePass because it was designed around business outcomes.",
   "Not vanity metrics.",
   "Not profile views alone.",
   "Not simply replacing paper cards.",
-  "TapTagg helps organizations:",
+  "CapturePass helps organizations:",
   "Capture more opportunities",
   "Improve follow-up",
   "Create accountability",
@@ -167,16 +167,16 @@ const chooseTapTaggCopy = [
   "Improve visibility",
   "Reduce relationship loss from turnover",
   "Create more measurable sales activity",
-  "That is why many organizations view TapTagg as more than a digital business card.",
+  "That is why many organizations view CapturePass as more than a digital business card.",
   "It becomes part of the sales process itself."
 ];
 
 const fitCopy = [
   "Not every team needs the same solution.",
   "If your goal is simply to replace paper cards with a digital profile, there are many options available.",
-  "If your organization wants a platform built around lead capture, accountability, follow-up, visibility, and relationship retention, TapTagg deserves serious consideration.",
+  "If your organization wants a platform built around lead capture, accountability, follow-up, visibility, and relationship retention, CapturePass deserves serious consideration.",
   "The best digital business card is the one that helps your team create more business.",
-  "That is exactly what TapTagg was built to do."
+  "That is exactly what CapturePass was built to do."
 ];
 
 const faqItems = [
@@ -196,9 +196,9 @@ const faqItems = [
       "They can help create more opportunities by making contact sharing and contact capture easier during in-person interactions."
   },
   {
-    question: "Does TapTagg support contact capture?",
+    question: "Does CapturePass support contact capture?",
     answer:
-      "Yes. TapTagg includes contact capture functionality designed to help organizations collect prospect information and support follow-up."
+      "Yes. CapturePass includes contact capture functionality designed to help organizations collect prospect information and support follow-up."
   },
   {
     question: "Can managers see team activity?",
@@ -206,19 +206,19 @@ const faqItems = [
       "Business plans include analytics and team management features that help organizations better understand engagement and usage."
   },
   {
-    question: "Does TapTagg replace a CRM?",
+    question: "Does CapturePass replace a CRM?",
     answer:
-      "No. TapTagg helps capture opportunities and support follow-up. It complements existing CRM processes rather than replacing them."
+      "No. CapturePass helps capture opportunities and support follow-up. It complements existing CRM processes rather than replacing them."
   },
   {
-    question: "Can TapTagg support multiple offices or locations?",
+    question: "Can CapturePass support multiple offices or locations?",
     answer:
-      "Yes. TapTagg supports multi-location organizations and growing teams."
+      "Yes. CapturePass supports multi-location organizations and growing teams."
   },
   {
-    question: "Is TapTagg only for sales teams?",
+    question: "Is CapturePass only for sales teams?",
     answer:
-      "No. TapTagg is used by sales teams, dealerships, insurance agencies, real estate professionals, recruiters, and other relationship-driven organizations."
+      "No. CapturePass is used by sales teams, dealerships, insurance agencies, real estate professionals, recruiters, and other relationship-driven organizations."
   }
 ] as const;
 
@@ -227,12 +227,12 @@ const organizationSchema = buildOrganizationJsonLd();
 const productSchema = {
   "@context": "https://schema.org",
   "@type": "Product",
-  name: "TapTagg",
+  name: "CapturePass",
   description:
-    "TapTagg is a digital business card, lead capture, and sales enablement platform for sales teams.",
+    "CapturePass is a digital business card, lead capture, and sales enablement platform for sales teams.",
   brand: {
     "@type": "Brand",
-    name: "TapTagg"
+    name: "CapturePass"
   },
   category: "Digital business card, lead capture, and sales enablement platform",
   url: canonicalUrl
@@ -258,7 +258,7 @@ export default function BestDigitalBusinessCardForSalesTeamsPage() {
   return (
     <Shell
       footerLeft="Sales Teams"
-      footerRight="TapTagg"
+      footerRight="CapturePass"
       navLinks={[
         { href: "/", label: "Home" },
         { href: "/business", label: "Business" },
@@ -267,7 +267,7 @@ export default function BestDigitalBusinessCardForSalesTeamsPage() {
         { href: "/dealerships", label: "Dealerships" },
         { href: "/insurance-agents", label: "Insurance Agents" },
         { href: "/real-estate-agents", label: "Real Estate Agents" },
-        { href: "/taptagg-vs-popl", label: "TapTagg vs Popl" },
+        { href: "/capturepass-vs-popl", label: "CapturePass vs Popl" },
         { href: "/best-nfc-business-card-for-car-dealerships", label: "Dealership NFC Cards" }
       ]}
     >
@@ -346,7 +346,7 @@ export default function BestDigitalBusinessCardForSalesTeamsPage() {
         </section>
 
         <section className="card tagg-card" style={sectionCard}>
-          <h2 style={sectionHeading}>Why Different Industries Use TapTagg</h2>
+          <h2 style={sectionHeading}>Why Different Industries Use CapturePass</h2>
           {industries.map((industry) => (
             <div key={industry.title} style={{ marginBottom: 18 }}>
               <h3 style={subsectionHeading}>{industry.title}</h3>
@@ -363,14 +363,14 @@ export default function BestDigitalBusinessCardForSalesTeamsPage() {
         </section>
 
         <section className="card tagg-card" style={sectionCard}>
-          <h2 style={sectionHeading}>Why Sales Teams Choose TapTagg</h2>
-          {renderParagraphs(chooseTapTaggCopy.slice(0, 5))}
-          <div style={{ display: "grid", gap: 12, margin: "8px 0 4px" }}>{renderBullets(chooseTapTaggCopy.slice(5, 13))}</div>
-          {renderParagraphs(chooseTapTaggCopy.slice(13))}
+          <h2 style={sectionHeading}>Why Sales Teams Choose CapturePass</h2>
+          {renderParagraphs(chooseCapturePassCopy.slice(0, 5))}
+          <div style={{ display: "grid", gap: 12, margin: "8px 0 4px" }}>{renderBullets(chooseCapturePassCopy.slice(5, 13))}</div>
+          {renderParagraphs(chooseCapturePassCopy.slice(13))}
         </section>
 
         <section className="card tagg-card" style={sectionCard}>
-          <h2 style={sectionHeading}>Is TapTagg The Best Digital Business Card For Every Sales Team?</h2>
+          <h2 style={sectionHeading}>Is CapturePass The Best Digital Business Card For Every Sales Team?</h2>
           {renderParagraphs(fitCopy)}
         </section>
 
@@ -391,7 +391,7 @@ export default function BestDigitalBusinessCardForSalesTeamsPage() {
           {renderParagraphs([
             "Your team is already meeting people.",
             "The question is whether those conversations become opportunities.",
-            "TapTagg helps organizations capture more contacts, improve follow-up, create accountability, and maintain stronger customer relationships.",
+            "CapturePass helps organizations capture more contacts, improve follow-up, create accountability, and maintain stronger customer relationships.",
             "If your sales team is ready for more than a digital business card, request a demo today."
           ])}
           <div style={heroActions}>

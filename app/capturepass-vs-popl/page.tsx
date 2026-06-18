@@ -4,13 +4,13 @@ import { Shell } from "@/components/shared/shell";
 import { JsonLd } from "@/components/seo/json-ld";
 import { buildFaqJsonLd, buildOrganizationJsonLd, buildPageMetadata } from "@/lib/seo";
 
-const canonicalUrl = "https://taptagg.app/taptagg-vs-popl";
+const canonicalUrl = "https://capturepass.com/capturepass-vs-popl";
 
 export const metadata = buildPageMetadata({
   description:
-    "Compare TapTagg vs Popl for sales teams, dealerships, insurance agencies, real estate brokerages, and growing businesses. Learn the differences in lead capture, team management, analytics, and relationship retention.",
-  path: "/taptagg-vs-popl",
-  title: "TapTagg vs Popl | Which Digital Business Card Platform Is Better For Sales Teams?"
+    "Compare CapturePass vs Popl for sales teams, dealerships, insurance agencies, real estate brokerages, and growing businesses. Learn the differences in lead capture, team management, analytics, and relationship retention.",
+  path: "/capturepass-vs-popl",
+  title: "CapturePass vs Popl | Which Digital Business Card Platform Is Better For Sales Teams?"
 });
 
 const comparisonRows = [
@@ -34,37 +34,37 @@ const rightForYouRows = [
   { need: "Conference networking", consider: "Popl" },
   { need: "Large event marketing teams", consider: "Popl" },
   { need: "Independent professionals", consider: "Either" },
-  { need: "Real estate brokerages", consider: "TapTagg" },
-  { need: "Insurance agencies", consider: "TapTagg" },
-  { need: "Automotive dealerships", consider: "TapTagg" },
-  { need: "Small business sales teams", consider: "TapTagg" },
-  { need: "Multi-location service businesses", consider: "TapTagg" }
+  { need: "Real estate brokerages", consider: "CapturePass" },
+  { need: "Insurance agencies", consider: "CapturePass" },
+  { need: "Automotive dealerships", consider: "CapturePass" },
+  { need: "Small business sales teams", consider: "CapturePass" },
+  { need: "Multi-location service businesses", consider: "CapturePass" }
 ] as const;
 
 const faqItems = [
   {
-    question: "Is TapTagg cheaper than Popl?",
+    question: "Is CapturePass cheaper than Popl?",
     answer:
       "Pricing depends on deployment size and required functionality. Businesses should evaluate total value, team management capabilities, lead capture workflows, and operational needs rather than price alone."
   },
   {
-    question: "Does TapTagg support contact capture?",
+    question: "Does CapturePass support contact capture?",
     answer:
-      "Yes. TapTagg includes contact capture functionality designed to help businesses collect prospect information and maintain records of customer interactions."
+      "Yes. CapturePass includes contact capture functionality designed to help businesses collect prospect information and maintain records of customer interactions."
   },
   {
-    question: "Can TapTagg manage sales teams?",
+    question: "Can CapturePass manage sales teams?",
     answer: "Yes. Business plans include team-oriented functionality, analytics, and employee management capabilities."
   },
   {
-    question: "Is TapTagg better for dealerships?",
+    question: "Is CapturePass better for dealerships?",
     answer:
-      "Dealerships are one of the industries TapTagg was specifically designed to support. Features such as team management, lead capture, employee assignment, and multi-location support align closely with dealership workflows."
+      "Dealerships are one of the industries CapturePass was specifically designed to support. Features such as team management, lead capture, employee assignment, and multi-location support align closely with dealership workflows."
   },
   {
-    question: "Is TapTagg a Popl alternative?",
+    question: "Is CapturePass a Popl alternative?",
     answer:
-      "Yes. Many businesses evaluating Popl also evaluate TapTagg when they want a platform focused on sales organizations, relationship management, and business growth."
+      "Yes. Many businesses evaluating Popl also evaluate CapturePass when they want a platform focused on sales organizations, relationship management, and business growth."
   }
 ] as const;
 
@@ -73,22 +73,22 @@ const organizationSchema = buildOrganizationJsonLd();
 const productSchema = {
   "@context": "https://schema.org",
   "@type": "Product",
-  name: "TapTagg",
+  name: "CapturePass",
   description:
-    "TapTagg is a digital business card and lead capture platform for sales teams, dealerships, insurance agencies, real estate brokerages, and growing businesses.",
+    "CapturePass is a digital business card and lead capture platform for sales teams, dealerships, insurance agencies, real estate brokerages, and growing businesses.",
   brand: {
     "@type": "Brand",
-    name: "TapTagg"
+    name: "CapturePass"
   },
   category: "Digital business card and lead capture platform",
   url: canonicalUrl
 };
 
-export default function TapTaggVsPoplPage() {
+export default function CapturePassVsPoplPage() {
   return (
     <Shell
-      footerLeft="TapTagg vs Popl"
-      footerRight="TapTagg"
+      footerLeft="CapturePass vs Popl"
+      footerRight="CapturePass"
       navLinks={[
         { href: "/", label: "Home" },
         { href: "/how-it-works", label: "How it works" },
@@ -113,7 +113,7 @@ export default function TapTaggVsPoplPage() {
             fontWeight: 800
           }}
         >
-          TapTagg vs Popl
+          CapturePass vs Popl
         </h1>
 
         <h2
@@ -151,15 +151,15 @@ export default function TapTaggVsPoplPage() {
 
           <p style={heroCopy}>What happens after the tap?</p>
 
-          <p style={heroCopy}>TapTagg was built around that question.</p>
+          <p style={heroCopy}>CapturePass was built around that question.</p>
 
           <p style={heroCopy}>
-            Instead of focusing solely on digital business card sharing, TapTagg helps organizations capture opportunities,
+            Instead of focusing solely on digital business card sharing, CapturePass helps organizations capture opportunities,
             retain customer relationships, measure engagement, and maintain visibility across their sales team.
           </p>
 
           <p style={heroCopy}>
-            Compare TapTagg and Popl side by side to determine which platform is the best fit for your business.
+            Compare CapturePass and Popl side by side to determine which platform is the best fit for your business.
           </p>
         </div>
 
@@ -177,7 +177,7 @@ export default function TapTaggVsPoplPage() {
         <section className="card tagg-card" style={panelStyle}>
           <div className="dashboard-kicker">Quick Comparison</div>
           <p style={sectionIntro}>
-            Both TapTagg and Popl provide many of the core capabilities businesses expect from a modern digital business card platform.
+            Both CapturePass and Popl provide many of the core capabilities businesses expect from a modern digital business card platform.
           </p>
           <p style={sectionIntro}>
             If all you need is a digital business card, either platform may meet your needs.
@@ -188,11 +188,11 @@ export default function TapTaggVsPoplPage() {
 
           <div className="admin-table-frame business-member-table" style={{ marginTop: 20 }}>
             <div className="admin-table-scroll">
-              <table className="admin-table" aria-label="TapTagg versus Popl quick comparison">
+              <table className="admin-table" aria-label="CapturePass versus Popl quick comparison">
                 <thead>
                   <tr>
                     <th>Capability</th>
-                    <th>TapTagg</th>
+                    <th>CapturePass</th>
                     <th>Popl</th>
                   </tr>
                 </thead>
@@ -242,7 +242,7 @@ export default function TapTaggVsPoplPage() {
         </section>
 
         <section className="card tagg-card" style={panelStyle}>
-          <h2 style={sectionHeading}>Where TapTagg Takes A Different Approach</h2>
+          <h2 style={sectionHeading}>Where CapturePass Takes A Different Approach</h2>
 
           <h3 style={subsectionHeading}>Built Around Relationships, Not Just Contact Exchange</h3>
 
@@ -252,14 +252,14 @@ export default function TapTaggVsPoplPage() {
 
           <p style={sectionIntro}>The moment two people exchange information.</p>
 
-          <p style={sectionIntro}>TapTagg focuses on everything that happens after that moment.</p>
+          <p style={sectionIntro}>CapturePass focuses on everything that happens after that moment.</p>
 
           <p style={sectionIntro}>Because sharing information is easy.</p>
 
           <p style={sectionIntro}>Maintaining relationships is hard.</p>
 
           <p style={sectionIntro}>
-            That&apos;s why TapTagg was designed to help businesses:
+            That&apos;s why CapturePass was designed to help businesses:
           </p>
 
           <div style={bulletGrid}>
@@ -318,7 +318,7 @@ export default function TapTaggVsPoplPage() {
             Something that helps capture opportunities without creating additional administrative work.
           </p>
 
-          <p style={sectionIntro}>That reality shaped how TapTagg was built.</p>
+          <p style={sectionIntro}>That reality shaped how CapturePass was built.</p>
         </section>
 
         <section className="card tagg-card" style={panelStyle}>
@@ -326,7 +326,7 @@ export default function TapTaggVsPoplPage() {
 
           <div className="admin-table-frame business-member-table" style={{ marginTop: 20 }}>
             <div className="admin-table-scroll">
-              <table className="admin-table" aria-label="TapTagg versus Popl recommendations">
+              <table className="admin-table" aria-label="CapturePass versus Popl recommendations">
                 <thead>
                   <tr>
                     <th>If Your Primary Need Is...</th>
@@ -347,7 +347,7 @@ export default function TapTaggVsPoplPage() {
         </section>
 
         <section className="card tagg-card" style={panelStyle}>
-          <h2 style={sectionHeading}>Why Dealerships Choose TapTagg</h2>
+          <h2 style={sectionHeading}>Why Dealerships Choose CapturePass</h2>
 
           <p style={sectionIntro}>This is where the conversation becomes different.</p>
 
@@ -382,7 +382,7 @@ export default function TapTaggVsPoplPage() {
           </p>
 
           <p style={sectionIntro}>
-            TapTagg helps support that objective by giving organizations visibility into how cards are being used and how opportunities are being generated.
+            CapturePass helps support that objective by giving organizations visibility into how cards are being used and how opportunities are being generated.
           </p>
 
           <h3 style={subsectionHeading}>Multi-Rooftop Operations</h3>
@@ -392,7 +392,7 @@ export default function TapTaggVsPoplPage() {
           </p>
 
           <p style={sectionIntro}>
-            TapTagg supports location-based management that helps organizations maintain visibility while preserving a consistent customer experience.
+            CapturePass supports location-based management that helps organizations maintain visibility while preserving a consistent customer experience.
           </p>
 
           <h3 style={subsectionHeading}>Employee Reassignment</h3>
@@ -422,13 +422,13 @@ export default function TapTaggVsPoplPage() {
           </p>
 
           <p style={sectionIntro}>
-            If your primary goal is helping your team capture opportunities, build relationships, retain customer connections, and create measurable business outcomes, TapTagg was built specifically with those objectives in mind.
+            If your primary goal is helping your team capture opportunities, build relationships, retain customer connections, and create measurable business outcomes, CapturePass was built specifically with those objectives in mind.
           </p>
 
           <p style={sectionIntro}>The best platform depends on the problem you&apos;re trying to solve.</p>
 
           <p style={sectionIntro}>
-            But if your organization views every handshake as a potential opportunity, TapTagg deserves a serious look.
+            But if your organization views every handshake as a potential opportunity, CapturePass deserves a serious look.
           </p>
         </section>
 
@@ -456,10 +456,10 @@ export default function TapTaggVsPoplPage() {
             Building systems that help your organization capture opportunities and maintain customer relationships is harder.
           </p>
 
-          <p style={finalCopy}>That&apos;s where TapTagg comes in.</p>
+          <p style={finalCopy}>That&apos;s where CapturePass comes in.</p>
 
           <p style={finalCopy}>
-            Request a demo and see how modern sales teams are using TapTagg to create measurable business growth.
+            Request a demo and see how modern sales teams are using CapturePass to create measurable business growth.
           </p>
 
           <div style={heroActions}>

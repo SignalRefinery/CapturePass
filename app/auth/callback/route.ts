@@ -30,7 +30,7 @@ async function sendFounderCardNotification(userId: string) {
   const siteUrl = (
     process.env.NEXT_PUBLIC_APP_URL ||
     process.env.NEXT_PUBLIC_SITE_URL ||
-    "https://taptagg.app"
+    "https://capturepass.com"
   ).replace(/\/$/, "");
 
   const tokenUrl = profile.private_token
@@ -51,11 +51,11 @@ async function sendFounderCardNotification(userId: string) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      from: "TapTagg <notifications@taptagg.app>",
-      to: "john@taptagg.app",
-      subject: `New TapTagg founder card ready: ${customerName || customerEmail}`,
+      from: "CapturePass <notifications@capturepass.com>",
+      to: "john@capturepass.com",
+      subject: `New CapturePass founder card ready: ${customerName || customerEmail}`,
       html: `
-        <h2>New TapTagg founder card ready</h2>
+        <h2>New CapturePass founder card ready</h2>
         <p><strong>Name:</strong> ${customerName}</p>
         <p><strong>Email:</strong> ${customerEmail}</p>
         <p><strong>Promo:</strong> FOUNDERS</p>
