@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { UserMenu } from "@/components/auth/user-menu";
 import { isTapTaggBootstrapAdminEmail } from "@/lib/auth/admin-shared";
+import { CapturePassBrandArt } from "@/components/shared/capturepass-brand-art";
 
 const PUBLIC_NAV_LINKS = [
   { href: "/", label: "Home" },
@@ -20,7 +21,7 @@ export function Shell({
   footerRight,
   myProfileHref = null,
   initialAuth,
-  pageVariant = "default",
+  pageVariant = "light",
 }: {
   children: React.ReactNode;
   navLinks?: { href: string; label: string }[];
@@ -33,7 +34,7 @@ export function Shell({
     slug?: string | null;
     isAdmin?: boolean | null;
   } | null;
-  pageVariant?: "default" | "admin";
+  pageVariant?: "default" | "admin" | "light";
 }) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -85,12 +86,19 @@ export function Shell({
   }, [isSignedIn, isAdmin, profileHref, navLinks]);
 
   return (
-    <div className={pageVariant === "admin" ? "page page-admin" : "page"}>
+    <div
+      className={
+        pageVariant === "admin"
+          ? "page page-admin"
+          : pageVariant === "light"
+            ? "page page-light"
+            : "page"
+      }
+    >
       <div className={`shell ${mobileOpen ? "shell-menu-open" : ""}`}>
         <header className="topbar">
           <Link className="brand" href="/">
-            <span className="brand-star">✦</span>
-            <span>CapturePass</span>
+            <CapturePassBrandArt className="brand-logo brand-logo-lockup" variant="logoLockup" />
           </Link>
 
           <div className="desktop-nav-wrap">

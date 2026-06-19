@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { CSSProperties } from "react";
 import { useState } from "react";
 import { ProfileAnalyticsTracker, trackProfileAction } from "@/components/analytics/profile-analytics-tracker";
+import { CapturePassBrandArt } from "@/components/shared/capturepass-brand-art";
 import { getReadableProfileUrl } from "@/lib/urls/profile-url";
 import { CUSTOM_THEME_KEY, normalizeThemeKey, resolveThemeColors, themeUsesLightShell } from "@/lib/themes";
 import { ContactShareModal } from "@/components/profile/contact-share-modal";
@@ -290,8 +291,8 @@ export function TapTaggProfileShell({
       <div className={`${styles.shell} ${mobileOpen ? styles.shellMenuOpen : ""}`}>
         <header className={styles.topbar}>
           <Link className={styles.brand} href="/">
-            <span className={styles.brandStar}>✦</span>
-            <span>CapturePass</span>
+            <CapturePassBrandArt className={styles.brandLogoMark} variant="logoMark" />
+            <span className={styles.brandLabel}>CapturePass</span>
           </Link>
 
           <nav className={styles.nav}>

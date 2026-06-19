@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
-import { CapturePassMark } from "@/components/shared/capturepass-mark";
 import { getSocialImageData } from "@/lib/social-image";
 import { designTokens } from "@/lib/design-tokens";
+import { getBrandAssetDataUrl } from "@/lib/brand-assets.server";
 
 export const size = {
   width: 1600,
@@ -49,20 +49,13 @@ export default function TwitterImage({
               textTransform: "uppercase"
             }}
           >
-            <div
-              style={{
-                alignItems: "center",
-                background: `linear-gradient(135deg, ${designTokens.colors.primary}, ${designTokens.colors.deepBlue})`,
-                borderRadius: 14,
-                display: "flex",
-                height: 50,
-                justifyContent: "center",
-                width: 50
-              }}
-            >
-              <CapturePassMark />
-            </div>
-            <span>CapturePass</span>
+            <img
+              src={getBrandAssetDataUrl("logoLockup")}
+              alt="CapturePass"
+              width="440"
+              height="293"
+              style={{ display: "block", height: 50, width: "auto" }}
+            />
           </div>
           <div style={{ fontSize: 94, fontWeight: 800, lineHeight: 0.93, letterSpacing: "-0.05em" }}>
             {title}

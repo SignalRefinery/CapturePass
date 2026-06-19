@@ -1,4 +1,5 @@
 import { getBusinessTypeLabel } from "@/lib/business-types";
+import { buildEmailBrandHeaderHtml } from "@/lib/notifications/brand-header";
 import { escapeEmailHtml } from "@/lib/notifications/html";
 import { buildQrPngAttachment } from "@/lib/notifications/qr";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -59,6 +60,7 @@ export async function sendBusinessIndividualLogoEmail({
       subject: `Business logo uploaded: ${customerName || customerEmail}`,
       html: `
         <div style="font-family:Arial,sans-serif;line-height:1.6;color:#111;">
+          ${buildEmailBrandHeaderHtml("logoLockup")}
           <h2 style="margin:0 0 16px;">Business logo uploaded</h2>
           <p style="margin:0 0 18px;">A Business Individual customer uploaded a business logo for card/profile fulfillment.</p>
           <table cellpadding="8" cellspacing="0" border="0" style="border-collapse:collapse;">

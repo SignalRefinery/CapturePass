@@ -1,3 +1,4 @@
+import { buildEmailBrandHeaderHtml } from "@/lib/notifications/brand-header";
 import { escapeEmailHtml, formatShippingAddressHtml } from "@/lib/notifications/html";
 import { buildQrPngAttachment } from "@/lib/notifications/qr";
 import { getIssuedProfileUrl, getReadableProfileUrl } from "@/lib/urls/profile-url";
@@ -48,6 +49,7 @@ export async function sendSlugApprovedEmail(profile: ProfileForEmail) {
 
   const html = `
     <div style="font-family:Arial,sans-serif;line-height:1.6;color:#111;">
+      ${buildEmailBrandHeaderHtml("logoLockupWithTagline")}
       <h2 style="margin:0 0 16px;">CapturePass profile approved</h2>
       <p style="margin:0 0 18px;">
         This profile is approved and ready for fulfillment. Issued QR and NFC materials should use the issued card URL below.

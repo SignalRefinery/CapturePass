@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
-import { CapturePassMark } from "@/components/shared/capturepass-mark";
 import { getSocialImageData } from "@/lib/social-image";
 import { designTokens } from "@/lib/design-tokens";
+import { getBrandAssetDataUrl } from "@/lib/brand-assets.server";
 
 export const size = {
   width: 1200,
@@ -46,20 +46,13 @@ export default function OpenGraphImage({
               textTransform: "uppercase"
             }}
           >
-            <div
-              style={{
-                alignItems: "center",
-                background: `linear-gradient(135deg, ${designTokens.colors.primary}, ${designTokens.colors.deepBlue})`,
-                borderRadius: 16,
-                display: "flex",
-                height: 56,
-                justifyContent: "center",
-                width: 56
-              }}
-            >
-              <CapturePassMark />
-            </div>
-            <span style={{ fontSize: 24, fontWeight: 800 }}>CapturePass</span>
+            <img
+              src={getBrandAssetDataUrl("logoLockupWithTagline")}
+              alt="CapturePass"
+              width="440"
+              height="293"
+              style={{ display: "block", height: 56, width: "auto" }}
+            />
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>

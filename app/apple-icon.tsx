@@ -1,6 +1,5 @@
 import { ImageResponse } from "next/og";
-import { CapturePassMark } from "@/components/shared/capturepass-mark";
-import { designTokens } from "@/lib/design-tokens";
+import { getBrandAssetDataUrl } from "@/lib/brand-assets.server";
 
 export const size = {
   width: 180,
@@ -15,28 +14,20 @@ export default function AppleIcon() {
       <div
         style={{
           alignItems: "center",
-          background:
-            `radial-gradient(circle at 30% 28%, rgba(${designTokens.rgb.primary},.24), transparent 28%), linear-gradient(135deg, ${designTokens.colors.charcoal}, #080a12)`,
+          background: "#0f172a",
           display: "flex",
           height: "100%",
           justifyContent: "center",
           width: "100%"
         }}
       >
-        <div
-          style={{
-            alignItems: "center",
-            background: `linear-gradient(135deg, ${designTokens.colors.primary}, ${designTokens.colors.deepBlue})`,
-            borderRadius: 42,
-            boxShadow: "0 18px 42px rgba(0,0,0,.34)",
-            display: "flex",
-            height: 126,
-            justifyContent: "center",
-            width: 126
-          }}
-        >
-          <CapturePassMark />
-        </div>
+        <img
+          src={getBrandAssetDataUrl("logoMark")}
+          alt="CapturePass"
+          width="1536"
+          height="1024"
+          style={{ display: "block", height: 126, width: "auto" }}
+        />
       </div>
     ),
     size
