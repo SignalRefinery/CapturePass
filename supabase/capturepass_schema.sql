@@ -1,3 +1,10 @@
+-- CapturePass consolidated Supabase schema for a fresh project.
+-- Generated from the current bootstrap plus later feature phases.
+
+-- ============================================================
+-- Source: supabase/bootstrap.sql
+-- ============================================================
+
 -- TapTagg fresh Supabase project bootstrap.
 --
 -- Run this once in the Supabase SQL editor for a new project. Existing
@@ -24,7 +31,6 @@ create table if not exists public.profiles (
   text_phone text not null default '',
   website_url text not null default '',
   show_text boolean default true,
-  secondary_action_mode text,
   theme_key text not null default 'taptagg_brand',
   brand_color_primary text,
   brand_color_secondary text,
@@ -1119,7 +1125,7 @@ as $$
     when 'clean_horizon' then plan_key in ('core', 'tagg_plus', 'creator', 'business')
     when 'executive_gold' then plan_key in ('tagg_plus', 'creator', 'business')
     when 'sage_professional' then plan_key in ('tagg_plus', 'creator', 'business')
-    when 'custom' then plan_key in ('creator', 'business', 'business_individual')
+    when 'custom' then plan_key in ('creator', 'business')
     else false
   end
 $$;
@@ -1466,6 +1472,1438 @@ is 'Business offices, rooftops, or locations under a parent TapTagg business org
 
 comment on column public.organization_members.location_id
 is 'Optional business location assignment for an employee or member. Null means the member belongs to the business globally.';
+
+comment on column public.profiles.consent_public_visibility
+is 'When true, the approved profile slug can resolve publicly. When false, the personalized slug is hidden for privacy.';
+
+comment on column public.profile_views.show_text
+is 'Secondary hero action mode: true=text, false=email, null=none.';
+
+-- ============================================================
+-- Source: supabase/phase73_contact_sharing.sql
+-- ============================================================
+
+-- Contact Sharing.
+--
+-- Visitors can privately share contact details with an individual profile owner
+-- or a business/team profile. Inserts are handled by the server route.
+
+create table if not exists public.contact_submissions (
+  id uuid primary key default gen_random_uuid(),
+  profile_id uuid not null,
+  organization_id uuid,
+  profile_view_id uuid,
+  submitted_to_user_id uuid,
+  name text not null,
+  email text,
+  phone text,
+  company text,
+  title text,
+  note text,
+  source text,
+  consent_to_contact boolean not null default false,
+  consent_text text,
+  consent_given_at timestamptz,
+  source_profile_slug text,
+  source_url text,
+  user_agent text,
+  ip_address text,
+  created_at timestamptz not null default timezone('utc', now())
+);
+
+create index if not exists contact_submissions_profile_id_idx
+on public.contact_submissions (profile_id, created_at desc);
+
+create index if not exists contact_submissions_organization_id_idx
+on public.contact_submissions (organization_id, created_at desc);
+
+create index if not exists contact_submissions_submitted_to_user_id_idx
+on public.contact_submissions (submitted_to_user_id, created_at desc);
+
+alter table public.contact_submissions enable row level security;
+
+drop policy if exists "Profile owners can read profile contacts" on public.contact_submissions;
+create policy "Profile owners can read profile contacts"
+on public.contact_submissions for select
+using (
+  exists (
+    select 1
+    from public.profiles p
+    where p.id = contact_submissions.profile_id
+      and p.user_id = auth.uid()
+  )
+);
+
+drop policy if exists "Organization admins can read organization contacts" on public.contact_submissions;
+create policy "Organization admins can read organization contacts"
+on public.contact_submissions for select
+using (
+  organization_id is not null
+  and exists (
+    select 1
+    from public.organization_members m
+    where m.organization_id = contact_submissions.organization_id
+      and m.user_id = auth.uid()
+      and m.status = 'active'
+      and m.role in ('owner', 'admin')
+  )
+);
+
+drop policy if exists "Team members can read own contacts" on public.contact_submissions;
+create policy "Team members can read own contacts"
+on public.contact_submissions for select
+using (
+  submitted_to_user_id = auth.uid()
+  or exists (
+    select 1
+    from public.organization_members m
+    where m.id = contact_submissions.profile_id
+      and m.user_id = auth.uid()
+      and m.status = 'active'
+  )
+);
+
+comment on table public.contact_submissions
+is 'Private contact details shared by visitors from public TapTagg profile pages.';
+
+-- ============================================================
+-- Source: supabase/phase76_contact_submission_consent.sql
+-- ============================================================
+
+-- Contact Sharing consent audit fields.
+--
+-- Visitors must explicitly consent to being contacted about their inquiry.
+-- This is not a marketing opt-in.
+
+alter table public.contact_submissions
+add column if not exists consent_to_contact boolean not null default false,
+add column if not exists consent_text text,
+add column if not exists consent_given_at timestamptz,
+add column if not exists source_profile_slug text,
+add column if not exists source_url text,
+add column if not exists ip_address text;
+
+create index if not exists contact_submissions_consent_given_at_idx
+on public.contact_submissions (consent_given_at desc);
+
+comment on column public.contact_submissions.consent_to_contact
+is 'True when the submitter explicitly agreed to be contacted about this inquiry.';
+
+comment on column public.contact_submissions.consent_text
+is 'Exact consent language shown to the submitter at the time of submission.';
+
+comment on column public.contact_submissions.consent_given_at
+is 'Timestamp when inquiry-response contact consent was granted.';
+
+comment on column public.contact_submissions.source_url
+is 'Public page URL or referrer where the consented contact submission originated.';
+
+comment on column public.contact_submissions.ip_address
+is 'Request IP available from platform headers at time of submission, used for consent audit context.';
+
+-- ============================================================
+-- Source: supabase/phase74_analytics_events.sql
+-- ============================================================
+
+-- TapTagg Analytics.
+--
+-- Centralized anonymous event collection for profile exposure, engagement,
+-- contact sharing, and business/team operations.
+
+create table if not exists public.analytics_events (
+  id uuid primary key default gen_random_uuid(),
+  event_type text not null,
+  profile_id uuid references public.profiles(id) on delete set null,
+  organization_id uuid references public.organizations(id) on delete set null,
+  organization_member_id uuid references public.organization_members(id) on delete set null,
+  profile_view_id uuid,
+  user_id uuid references auth.users(id) on delete set null,
+  card_id uuid,
+  source text,
+  action_type text,
+  action_label text,
+  action_url text,
+  visitor_id text,
+  session_id text,
+  user_agent text,
+  referrer text,
+  ip_hash text,
+  metadata jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default timezone('utc', now()),
+  constraint analytics_events_event_type_check check (
+    event_type in (
+      'profile_view',
+      'qr_scan',
+      'nfc_tap',
+      'direct_visit',
+      'shared_link_visit',
+      'button_click',
+      'vcard_download',
+      'contact_save',
+      'contact_shared',
+      'card_assigned',
+      'card_reassigned',
+      'employee_activated',
+      'employee_deactivated'
+    )
+  )
+);
+
+create index if not exists analytics_events_created_at_idx
+on public.analytics_events (created_at desc);
+
+create index if not exists analytics_events_event_type_idx
+on public.analytics_events (event_type, created_at desc);
+
+create index if not exists analytics_events_profile_id_idx
+on public.analytics_events (profile_id, created_at desc);
+
+create index if not exists analytics_events_organization_id_idx
+on public.analytics_events (organization_id, created_at desc);
+
+create index if not exists analytics_events_organization_member_id_idx
+on public.analytics_events (organization_member_id, created_at desc);
+
+create index if not exists analytics_events_visitor_id_idx
+on public.analytics_events (visitor_id, created_at desc);
+
+create index if not exists analytics_events_source_idx
+on public.analytics_events (source, created_at desc);
+
+alter table public.analytics_events enable row level security;
+
+drop policy if exists "Profile owners can read own analytics" on public.analytics_events;
+create policy "Profile owners can read own analytics"
+on public.analytics_events for select
+using (
+  exists (
+    select 1
+    from public.profiles p
+    where p.id = analytics_events.profile_id
+      and p.user_id = auth.uid()
+  )
+);
+
+drop policy if exists "Organization admins can read organization analytics" on public.analytics_events;
+create policy "Organization admins can read organization analytics"
+on public.analytics_events for select
+using (
+  organization_id is not null
+  and exists (
+    select 1
+    from public.organization_members m
+    where m.organization_id = analytics_events.organization_id
+      and m.user_id = auth.uid()
+      and m.status = 'active'
+      and m.role in ('owner', 'admin')
+  )
+);
+
+drop policy if exists "Team members can read own analytics" on public.analytics_events;
+create policy "Team members can read own analytics"
+on public.analytics_events for select
+using (
+  user_id = auth.uid()
+  or exists (
+    select 1
+    from public.organization_members m
+    where m.id = analytics_events.organization_member_id
+      and m.user_id = auth.uid()
+      and m.status = 'active'
+  )
+);
+
+comment on table public.analytics_events
+is 'Anonymous profile, engagement, contact sharing, and team operation events for TapTagg analytics.';
+
+-- ============================================================
+-- Source: supabase/phase75_gamification.sql
+-- ============================================================
+
+-- TapTagg gamification foundation.
+--
+-- Adds badge definitions, earned badges, team challenges, competitions,
+-- sales attribution, and normalized event support for scoring.
+
+alter table public.analytics_events
+  drop constraint if exists analytics_events_event_type_check;
+
+alter table public.analytics_events
+  add constraint analytics_events_event_type_check check (
+    event_type in (
+      'profile_view',
+      'qr_scan',
+      'nfc_tap',
+      'direct_visit',
+      'shared_link_visit',
+      'button_click',
+      'email_click',
+      'phone_click',
+      'website_click',
+      'social_click',
+      'appointment_click',
+      'manual_follow_up_logged',
+      'sale_logged',
+      'revenue_logged',
+      'vcard_download',
+      'contact_save',
+      'contact_shared',
+      'contact_submission',
+      'card_assigned',
+      'card_reassigned',
+      'employee_activated',
+      'employee_deactivated'
+    )
+  );
+
+create table if not exists public.gamification_badge_definitions (
+  id uuid primary key default gen_random_uuid(),
+  badge_key text unique not null,
+  name text not null,
+  description text not null,
+  category text not null,
+  icon text,
+  point_bonus integer default 0,
+  threshold_value integer,
+  metric_key text,
+  is_active boolean default true,
+  created_at timestamptz default timezone('utc', now())
+);
+
+create index if not exists gamification_badge_definitions_metric_key_idx
+on public.gamification_badge_definitions (metric_key);
+
+create index if not exists gamification_badge_definitions_badge_key_idx
+on public.gamification_badge_definitions (badge_key);
+
+create table if not exists public.gamification_user_badges (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  badge_key text not null,
+  earned_at timestamptz default timezone('utc', now()),
+  period_start timestamptz,
+  period_end timestamptz,
+  metadata jsonb default '{}'::jsonb,
+  unique(user_id, badge_key, period_start, period_end)
+);
+
+create index if not exists gamification_user_badges_user_id_idx
+on public.gamification_user_badges (user_id, earned_at desc);
+
+create index if not exists gamification_user_badges_badge_key_idx
+on public.gamification_user_badges (badge_key);
+
+create table if not exists public.gamification_team_challenges (
+  id uuid primary key default gen_random_uuid(),
+  organization_id uuid not null references public.organizations(id) on delete cascade,
+  created_by uuid references auth.users(id) on delete set null,
+  title text not null,
+  description text,
+  metric_key text not null,
+  goal_value integer not null,
+  start_date date not null,
+  end_date date not null,
+  prize text,
+  status text default 'active',
+  created_at timestamptz default timezone('utc', now()),
+  updated_at timestamptz default timezone('utc', now()),
+  constraint gamification_team_challenges_status_check check (status in ('active', 'completed', 'expired', 'paused'))
+);
+
+create index if not exists gamification_team_challenges_organization_id_idx
+on public.gamification_team_challenges (organization_id, created_at desc);
+
+create index if not exists gamification_team_challenges_metric_key_idx
+on public.gamification_team_challenges (metric_key);
+
+create table if not exists public.gamification_challenge_progress_snapshots (
+  id uuid primary key default gen_random_uuid(),
+  challenge_id uuid not null references public.gamification_team_challenges(id) on delete cascade,
+  organization_id uuid not null references public.organizations(id) on delete cascade,
+  progress_value integer not null default 0,
+  goal_value integer not null,
+  snapshot_date date default current_date,
+  metadata jsonb default '{}'::jsonb,
+  created_at timestamptz default timezone('utc', now())
+);
+
+create index if not exists gamification_challenge_progress_snapshots_challenge_id_idx
+on public.gamification_challenge_progress_snapshots (challenge_id, snapshot_date desc);
+
+create unique index if not exists gamification_challenge_progress_snapshots_unique_day_idx
+on public.gamification_challenge_progress_snapshots (challenge_id, snapshot_date);
+
+create index if not exists gamification_challenge_progress_snapshots_organization_id_idx
+on public.gamification_challenge_progress_snapshots (organization_id, snapshot_date desc);
+
+create table if not exists public.gamification_competitions (
+  id uuid primary key default gen_random_uuid(),
+  organization_id uuid not null references public.organizations(id) on delete cascade,
+  title text not null,
+  metric_key text not null,
+  start_date date not null,
+  end_date date not null,
+  prize text,
+  status text default 'active',
+  created_by uuid references auth.users(id) on delete set null,
+  created_at timestamptz default timezone('utc', now()),
+  constraint gamification_competitions_status_check check (status in ('active', 'completed', 'expired', 'paused'))
+);
+
+create index if not exists gamification_competitions_organization_id_idx
+on public.gamification_competitions (organization_id, created_at desc);
+
+create index if not exists gamification_competitions_metric_key_idx
+on public.gamification_competitions (metric_key);
+
+create table if not exists public.gamification_competition_results (
+  id uuid primary key default gen_random_uuid(),
+  competition_id uuid not null references public.gamification_competitions(id) on delete cascade,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  rank integer not null,
+  score_value integer not null,
+  calculated_at timestamptz default timezone('utc', now()),
+  metadata jsonb default '{}'::jsonb
+);
+
+create index if not exists gamification_competition_results_competition_id_idx
+on public.gamification_competition_results (competition_id, rank asc);
+
+create index if not exists gamification_competition_results_user_id_idx
+on public.gamification_competition_results (user_id, calculated_at desc);
+
+create unique index if not exists gamification_competition_results_unique_user_idx
+on public.gamification_competition_results (competition_id, user_id);
+
+create table if not exists public.sales_attribution_events (
+  id uuid primary key default gen_random_uuid(),
+  organization_id uuid references public.organizations(id) on delete set null,
+  profile_id uuid references public.profiles(id) on delete set null,
+  owner_user_id uuid not null references auth.users(id) on delete cascade,
+  contact_submission_id uuid references public.contact_submissions(id) on delete set null,
+  attribution_type text not null,
+  revenue_amount numeric(12,2),
+  deal_name text,
+  customer_name text,
+  notes text,
+  source text default 'manual',
+  occurred_at timestamptz default timezone('utc', now()),
+  created_at timestamptz default timezone('utc', now()),
+  updated_at timestamptz default timezone('utc', now()),
+  constraint sales_attribution_events_attribution_type_check check (
+    attribution_type in (
+      'appointment_booked',
+      'follow_up_logged',
+      'opportunity_created',
+      'sale_logged',
+      'revenue_logged'
+    )
+  )
+);
+
+create index if not exists sales_attribution_events_owner_user_id_idx
+on public.sales_attribution_events (owner_user_id, created_at desc);
+
+create index if not exists sales_attribution_events_organization_id_idx
+on public.sales_attribution_events (organization_id, created_at desc);
+
+create index if not exists sales_attribution_events_created_at_idx
+on public.sales_attribution_events (created_at desc);
+
+create index if not exists sales_attribution_events_occurred_at_idx
+on public.sales_attribution_events (occurred_at desc);
+
+alter table public.gamification_badge_definitions enable row level security;
+alter table public.gamification_user_badges enable row level security;
+alter table public.gamification_team_challenges enable row level security;
+alter table public.gamification_challenge_progress_snapshots enable row level security;
+alter table public.gamification_competitions enable row level security;
+alter table public.gamification_competition_results enable row level security;
+alter table public.sales_attribution_events enable row level security;
+
+drop policy if exists "Authenticated users can read active badge definitions" on public.gamification_badge_definitions;
+create policy "Authenticated users can read active badge definitions"
+on public.gamification_badge_definitions for select
+using (auth.role() = 'authenticated');
+
+drop policy if exists "Users can read their own badges" on public.gamification_user_badges;
+create policy "Users can read their own badges"
+on public.gamification_user_badges for select
+using (user_id = auth.uid());
+
+drop policy if exists "Users can read org badges through metadata" on public.gamification_user_badges;
+create policy "Users can read org badges through metadata"
+on public.gamification_user_badges for select
+using (
+  exists (
+    select 1
+    from public.organization_members m
+    where m.user_id = auth.uid()
+      and m.status = 'active'
+      and m.role in ('owner', 'admin')
+      and coalesce(metadata->>'organization_id', '') = m.organization_id::text
+  )
+);
+
+drop policy if exists "Organization admins can read challenges" on public.gamification_team_challenges;
+create policy "Organization admins can read challenges"
+on public.gamification_team_challenges for select
+using (
+  exists (
+    select 1
+    from public.organization_members m
+    where m.organization_id = gamification_team_challenges.organization_id
+      and m.user_id = auth.uid()
+      and m.status = 'active'
+      and m.role in ('owner', 'admin')
+  )
+  or (
+    status = 'active'
+    and exists (
+      select 1
+      from public.organization_members m
+      where m.organization_id = gamification_team_challenges.organization_id
+        and m.user_id = auth.uid()
+        and m.status = 'active'
+    )
+  )
+);
+
+drop policy if exists "Organization admins can manage challenges" on public.gamification_team_challenges;
+create policy "Organization admins can manage challenges"
+on public.gamification_team_challenges for insert
+with check (
+  exists (
+    select 1
+    from public.organization_members m
+    where m.organization_id = gamification_team_challenges.organization_id
+      and m.user_id = auth.uid()
+      and m.status = 'active'
+      and m.role in ('owner', 'admin')
+  )
+);
+
+drop policy if exists "Organization admins can update challenges" on public.gamification_team_challenges;
+create policy "Organization admins can update challenges"
+on public.gamification_team_challenges for update
+using (
+  exists (
+    select 1
+    from public.organization_members m
+    where m.organization_id = gamification_team_challenges.organization_id
+      and m.user_id = auth.uid()
+      and m.status = 'active'
+      and m.role in ('owner', 'admin')
+  )
+)
+with check (
+  exists (
+    select 1
+    from public.organization_members m
+    where m.organization_id = gamification_team_challenges.organization_id
+      and m.user_id = auth.uid()
+      and m.status = 'active'
+      and m.role in ('owner', 'admin')
+  )
+);
+
+drop policy if exists "Organization admins can delete challenges" on public.gamification_team_challenges;
+create policy "Organization admins can delete challenges"
+on public.gamification_team_challenges for delete
+using (
+  exists (
+    select 1
+    from public.organization_members m
+    where m.organization_id = gamification_team_challenges.organization_id
+      and m.user_id = auth.uid()
+      and m.status = 'active'
+      and m.role in ('owner', 'admin')
+  )
+);
+
+drop policy if exists "Organization admins can read challenge snapshots" on public.gamification_challenge_progress_snapshots;
+create policy "Organization admins can read challenge snapshots"
+on public.gamification_challenge_progress_snapshots for select
+using (
+  exists (
+    select 1
+    from public.organization_members m
+    where m.organization_id = gamification_challenge_progress_snapshots.organization_id
+      and m.user_id = auth.uid()
+      and m.status = 'active'
+      and m.role in ('owner', 'admin')
+  )
+  or exists (
+    select 1
+    from public.organization_members m
+    join public.gamification_team_challenges c on c.id = gamification_challenge_progress_snapshots.challenge_id
+    where c.organization_id = m.organization_id
+      and m.user_id = auth.uid()
+      and m.status = 'active'
+      and c.status = 'active'
+  )
+);
+
+drop policy if exists "Organization admins can manage challenge snapshots" on public.gamification_challenge_progress_snapshots;
+create policy "Organization admins can manage challenge snapshots"
+on public.gamification_challenge_progress_snapshots for insert
+with check (
+  exists (
+    select 1
+    from public.organization_members m
+    where m.organization_id = gamification_challenge_progress_snapshots.organization_id
+      and m.user_id = auth.uid()
+      and m.status = 'active'
+      and m.role in ('owner', 'admin')
+  )
+);
+
+drop policy if exists "Organization admins can read competitions" on public.gamification_competitions;
+create policy "Organization admins can read competitions"
+on public.gamification_competitions for select
+using (
+  exists (
+    select 1
+    from public.organization_members m
+    where m.organization_id = gamification_competitions.organization_id
+      and m.user_id = auth.uid()
+      and m.status = 'active'
+      and m.role in ('owner', 'admin')
+  )
+  or (
+    status = 'active'
+    and exists (
+      select 1
+      from public.organization_members m
+      where m.organization_id = gamification_competitions.organization_id
+        and m.user_id = auth.uid()
+        and m.status = 'active'
+    )
+  )
+);
+
+drop policy if exists "Organization admins can manage competitions" on public.gamification_competitions;
+create policy "Organization admins can manage competitions"
+on public.gamification_competitions for insert
+with check (
+  exists (
+    select 1
+    from public.organization_members m
+    where m.organization_id = gamification_competitions.organization_id
+      and m.user_id = auth.uid()
+      and m.status = 'active'
+      and m.role in ('owner', 'admin')
+  )
+);
+
+drop policy if exists "Organization admins can update competitions" on public.gamification_competitions;
+create policy "Organization admins can update competitions"
+on public.gamification_competitions for update
+using (
+  status not in ('completed', 'expired')
+  and
+  exists (
+    select 1
+    from public.organization_members m
+    where m.organization_id = gamification_competitions.organization_id
+      and m.user_id = auth.uid()
+      and m.status = 'active'
+      and m.role in ('owner', 'admin')
+  )
+)
+with check (
+  status not in ('completed', 'expired')
+  and
+  exists (
+    select 1
+    from public.organization_members m
+    where m.organization_id = gamification_competitions.organization_id
+      and m.user_id = auth.uid()
+      and m.status = 'active'
+      and m.role in ('owner', 'admin')
+  )
+);
+
+drop policy if exists "Organization admins can delete competitions" on public.gamification_competitions;
+create policy "Organization admins can delete competitions"
+on public.gamification_competitions for delete
+using (
+  status not in ('completed', 'expired')
+  and
+  exists (
+    select 1
+    from public.organization_members m
+    where m.organization_id = gamification_competitions.organization_id
+      and m.user_id = auth.uid()
+      and m.status = 'active'
+      and m.role in ('owner', 'admin')
+  )
+);
+
+drop policy if exists "Users can read their own competition results" on public.gamification_competition_results;
+create policy "Users can read their own competition results"
+on public.gamification_competition_results for select
+using (user_id = auth.uid());
+
+drop policy if exists "Organization admins can read competition results" on public.gamification_competition_results;
+create policy "Organization admins can read competition results"
+on public.gamification_competition_results for select
+using (
+  exists (
+    select 1
+    from public.gamification_competitions c
+    join public.organization_members m on m.organization_id = c.organization_id
+    where c.id = gamification_competition_results.competition_id
+      and m.user_id = auth.uid()
+      and m.status = 'active'
+      and m.role in ('owner', 'admin')
+  )
+);
+
+drop policy if exists "Users can read own attribution events" on public.sales_attribution_events;
+create policy "Users can read own attribution events"
+on public.sales_attribution_events for select
+using (owner_user_id = auth.uid());
+
+drop policy if exists "Organization admins can read attribution events" on public.sales_attribution_events;
+create policy "Organization admins can read attribution events"
+on public.sales_attribution_events for select
+using (
+  organization_id is not null
+  and exists (
+    select 1
+    from public.organization_members m
+    where m.organization_id = sales_attribution_events.organization_id
+      and m.user_id = auth.uid()
+      and m.status = 'active'
+      and m.role in ('owner', 'admin')
+  )
+);
+
+drop policy if exists "Users can create own attribution events" on public.sales_attribution_events;
+create policy "Users can create own attribution events"
+on public.sales_attribution_events for insert
+with check (
+  owner_user_id = auth.uid()
+  and (
+    organization_id is null
+    or exists (
+      select 1
+      from public.organization_members m
+      where m.organization_id = sales_attribution_events.organization_id
+        and m.user_id = auth.uid()
+        and m.status = 'active'
+    )
+  )
+);
+
+drop policy if exists "Users can update own attribution events" on public.sales_attribution_events;
+create policy "Users can update own attribution events"
+on public.sales_attribution_events for update
+using (
+  owner_user_id = auth.uid()
+  and (
+    organization_id is null
+    or exists (
+      select 1
+      from public.organization_members m
+      where m.organization_id = sales_attribution_events.organization_id
+        and m.user_id = auth.uid()
+        and m.status = 'active'
+    )
+  )
+)
+with check (
+  owner_user_id = auth.uid()
+  and (
+    organization_id is null
+    or exists (
+      select 1
+      from public.organization_members m
+      where m.organization_id = sales_attribution_events.organization_id
+        and m.user_id = auth.uid()
+        and m.status = 'active'
+    )
+  )
+);
+
+drop policy if exists "Users can delete own attribution events" on public.sales_attribution_events;
+create policy "Users can delete own attribution events"
+on public.sales_attribution_events for delete
+using (owner_user_id = auth.uid());
+
+comment on table public.gamification_badge_definitions
+is 'Global badge catalog for TapTagg gamification.';
+
+comment on table public.gamification_user_badges
+is 'Earned badge records for individual TapTagg users.';
+
+comment on table public.gamification_team_challenges
+is 'Organization-scoped team challenges and goals.';
+
+comment on table public.gamification_challenge_progress_snapshots
+is 'Daily or ad hoc challenge progress snapshots.';
+
+comment on table public.gamification_competitions
+is 'Organization-scoped manager competitions and standings windows.';
+
+comment on table public.gamification_competition_results
+is 'Stored competition result snapshots and rankings.';
+
+comment on table public.sales_attribution_events
+is 'Manual attribution and revenue logging for TapTagg users and organizations.';
+
+-- ============================================================
+-- Source: supabase/phase80_business_asset_uploads.sql
+-- ============================================================
+
+-- Business asset uploads.
+--
+-- Business logos and employee headshots are stored in Supabase Storage while
+-- profile records keep only the public URL.
+
+insert into storage.buckets (
+  id,
+  name,
+  public,
+  file_size_limit,
+  allowed_mime_types
+)
+values (
+  'business-assets',
+  'business-assets',
+  true,
+  5242880,
+  array['image/png', 'image/jpeg', 'image/webp']
+)
+on conflict (id) do update
+set
+  public = excluded.public,
+  file_size_limit = excluded.file_size_limit,
+  allowed_mime_types = excluded.allowed_mime_types;
+
+alter table public.organization_members
+  add column if not exists headshot_url text;
+
+comment on column public.organization_members.headshot_url
+is 'Optional employee headshot URL stored in the business-assets storage bucket.';
+
+-- ============================================================
+-- Source: supabase/phase81_business_webhooks.sql
+-- ============================================================
+
+-- Business webhooks.
+--
+-- Stores outbound webhook settings and delivery attempts for TapTagg Business.
+
+create table if not exists public.organization_webhooks (
+  id uuid primary key default gen_random_uuid(),
+  organization_id uuid not null unique references public.organizations(id) on delete cascade,
+  enabled boolean not null default false,
+  webhook_url text,
+  webhook_secret text,
+  created_at timestamptz not null default timezone('utc', now()),
+  updated_at timestamptz not null default timezone('utc', now())
+);
+
+create table if not exists public.webhook_deliveries (
+  id uuid primary key default gen_random_uuid(),
+  organization_id uuid not null references public.organizations(id) on delete cascade,
+  event_type text not null,
+  status_code integer,
+  success boolean not null default false,
+  attempted_at timestamptz not null default timezone('utc', now()),
+  response_body text,
+  error_message text
+);
+
+create index if not exists organization_webhooks_organization_id_idx
+on public.organization_webhooks (organization_id);
+
+create index if not exists webhook_deliveries_organization_id_attempted_at_idx
+on public.webhook_deliveries (organization_id, attempted_at desc);
+
+create index if not exists webhook_deliveries_attempted_at_idx
+on public.webhook_deliveries (attempted_at desc);
+
+create or replace function public.touch_updated_at()
+returns trigger
+language plpgsql
+as $$
+begin
+  new.updated_at := timezone('utc', now());
+  return new;
+end;
+$$;
+
+drop trigger if exists touch_organization_webhooks_updated_at_trigger on public.organization_webhooks;
+create trigger touch_organization_webhooks_updated_at_trigger
+before update on public.organization_webhooks
+for each row execute function public.touch_updated_at();
+
+alter table public.organization_webhooks enable row level security;
+alter table public.webhook_deliveries enable row level security;
+
+drop policy if exists "Organization admins can view webhooks" on public.organization_webhooks;
+create policy "Organization admins can view webhooks"
+on public.organization_webhooks for select
+using (
+  exists (
+    select 1
+    from public.organization_members m
+    where m.organization_id = organization_webhooks.organization_id
+      and m.user_id = auth.uid()
+      and m.status = 'active'
+      and m.role in ('owner', 'admin')
+  )
+);
+
+drop policy if exists "Organization admins can view webhook deliveries" on public.webhook_deliveries;
+create policy "Organization admins can view webhook deliveries"
+on public.webhook_deliveries for select
+using (
+  exists (
+    select 1
+    from public.organization_members m
+    where m.organization_id = webhook_deliveries.organization_id
+      and m.user_id = auth.uid()
+      and m.status = 'active'
+      and m.role in ('owner', 'admin')
+  )
+);
+
+comment on table public.organization_webhooks
+is 'Outbound webhook settings for TapTagg Business organizations.';
+
+comment on table public.webhook_deliveries
+is 'Outbound webhook delivery attempts emitted by TapTagg Business.';
+
+-- ============================================================
+-- Source: supabase/phase87_multilocation_business.sql
+-- ============================================================
+
+-- Multi-location business foundation.
+--
+-- Adds parent-business locations, future regions, location assignment on
+-- business employees, and analytics fields that can later be filtered by
+-- business, location, or region without changing existing business flows.
+
+create table if not exists public.business_regions (
+  id uuid primary key default gen_random_uuid(),
+  business_id uuid not null references public.organizations(id) on delete cascade,
+  name text not null,
+  description text,
+  state_codes text[],
+  created_at timestamptz not null default timezone('utc', now()),
+  updated_at timestamptz not null default timezone('utc', now())
+);
+
+create table if not exists public.business_locations (
+  id uuid primary key default gen_random_uuid(),
+  business_id uuid not null references public.organizations(id) on delete cascade,
+  name text not null,
+  slug text,
+  address text,
+  city text,
+  state text,
+  phone text,
+  region_id uuid references public.business_regions(id) on delete set null,
+  created_at timestamptz not null default timezone('utc', now()),
+  updated_at timestamptz not null default timezone('utc', now())
+);
+
+alter table public.organization_members
+  add column if not exists location_id uuid references public.business_locations(id) on delete set null;
+
+alter table public.analytics_events
+  add column if not exists location_id uuid references public.business_locations(id) on delete set null,
+  add column if not exists region_id uuid references public.business_regions(id) on delete set null;
+
+alter table public.organization_members
+  drop constraint if exists organization_members_role_check;
+
+alter table public.organization_members
+  add constraint organization_members_role_check
+  check (role in ('owner', 'admin', 'member', 'super_admin', 'business_admin', 'location_admin', 'employee'));
+
+create unique index if not exists business_regions_business_id_name_idx
+on public.business_regions (business_id, name);
+
+create index if not exists business_regions_business_id_idx
+on public.business_regions (business_id, created_at desc);
+
+create index if not exists business_locations_business_id_idx
+on public.business_locations (business_id, created_at desc);
+
+create unique index if not exists business_locations_business_id_slug_idx
+on public.business_locations (business_id, slug)
+where slug is not null;
+
+create index if not exists business_locations_region_id_idx
+on public.business_locations (region_id, created_at desc);
+
+create index if not exists organization_members_location_id_idx
+on public.organization_members (location_id, created_at desc);
+
+create index if not exists analytics_events_location_id_idx
+on public.analytics_events (location_id, created_at desc);
+
+create index if not exists analytics_events_region_id_idx
+on public.analytics_events (region_id, created_at desc);
+
+alter table public.business_regions enable row level security;
+alter table public.business_locations enable row level security;
+
+drop policy if exists "Business admins can view regions" on public.business_regions;
+create policy "Business admins can view regions"
+on public.business_regions for select
+using (
+  exists (
+    select 1
+    from public.organization_members m
+    where m.organization_id = business_regions.business_id
+      and m.user_id = auth.uid()
+      and m.status = 'active'
+      and m.role in ('owner', 'admin', 'super_admin', 'business_admin')
+  )
+);
+
+drop policy if exists "Business admins can manage regions" on public.business_regions;
+create policy "Business admins can manage regions"
+on public.business_regions for insert
+with check (
+  exists (
+    select 1
+    from public.organization_members m
+    where m.organization_id = business_regions.business_id
+      and m.user_id = auth.uid()
+      and m.status = 'active'
+      and m.role in ('owner', 'admin', 'super_admin', 'business_admin')
+  )
+);
+
+drop policy if exists "Business admins can update regions" on public.business_regions;
+create policy "Business admins can update regions"
+on public.business_regions for update
+using (
+  exists (
+    select 1
+    from public.organization_members m
+    where m.organization_id = business_regions.business_id
+      and m.user_id = auth.uid()
+      and m.status = 'active'
+      and m.role in ('owner', 'admin', 'super_admin', 'business_admin')
+  )
+)
+with check (
+  exists (
+    select 1
+    from public.organization_members m
+    where m.organization_id = business_regions.business_id
+      and m.user_id = auth.uid()
+      and m.status = 'active'
+      and m.role in ('owner', 'admin', 'super_admin', 'business_admin')
+  )
+);
+
+drop policy if exists "Business admins can delete regions" on public.business_regions;
+create policy "Business admins can delete regions"
+on public.business_regions for delete
+using (
+  exists (
+    select 1
+    from public.organization_members m
+    where m.organization_id = business_regions.business_id
+      and m.user_id = auth.uid()
+      and m.status = 'active'
+      and m.role in ('owner', 'admin', 'super_admin', 'business_admin')
+  )
+);
+
+drop policy if exists "Business admins can view locations" on public.business_locations;
+create policy "Business admins can view locations"
+on public.business_locations for select
+using (
+  exists (
+    select 1
+    from public.organization_members m
+    where m.organization_id = business_locations.business_id
+      and m.user_id = auth.uid()
+      and m.status = 'active'
+      and m.role in ('owner', 'admin', 'super_admin', 'business_admin')
+  )
+  or exists (
+    select 1
+    from public.organization_members m
+    where m.organization_id = business_locations.business_id
+      and m.user_id = auth.uid()
+      and m.status = 'active'
+      and m.role = 'location_admin'
+      and m.location_id = business_locations.id
+  )
+);
+
+drop policy if exists "Business admins can manage locations" on public.business_locations;
+create policy "Business admins can manage locations"
+on public.business_locations for insert
+with check (
+  exists (
+    select 1
+    from public.organization_members m
+    where m.organization_id = business_locations.business_id
+      and m.user_id = auth.uid()
+      and m.status = 'active'
+      and m.role in ('owner', 'admin', 'super_admin', 'business_admin')
+  )
+);
+
+drop policy if exists "Business admins can update locations" on public.business_locations;
+create policy "Business admins can update locations"
+on public.business_locations for update
+using (
+  exists (
+    select 1
+    from public.organization_members m
+    where m.organization_id = business_locations.business_id
+      and m.user_id = auth.uid()
+      and m.status = 'active'
+      and m.role in ('owner', 'admin', 'super_admin', 'business_admin')
+  )
+  or exists (
+    select 1
+    from public.organization_members m
+    where m.organization_id = business_locations.business_id
+      and m.user_id = auth.uid()
+      and m.status = 'active'
+      and m.role = 'location_admin'
+      and m.location_id = business_locations.id
+  )
+)
+with check (
+  exists (
+    select 1
+    from public.organization_members m
+    where m.organization_id = business_locations.business_id
+      and m.user_id = auth.uid()
+      and m.status = 'active'
+      and m.role in ('owner', 'admin', 'super_admin', 'business_admin')
+  )
+  or exists (
+    select 1
+    from public.organization_members m
+    where m.organization_id = business_locations.business_id
+      and m.user_id = auth.uid()
+      and m.status = 'active'
+      and m.role = 'location_admin'
+      and m.location_id = business_locations.id
+  )
+);
+
+drop policy if exists "Business admins can delete locations" on public.business_locations;
+create policy "Business admins can delete locations"
+on public.business_locations for delete
+using (
+  exists (
+    select 1
+    from public.organization_members m
+    where m.organization_id = business_locations.business_id
+      and m.user_id = auth.uid()
+      and m.status = 'active'
+      and m.role in ('owner', 'admin', 'super_admin', 'business_admin')
+  )
+);
+
+comment on table public.business_regions
+is 'Future-facing region groupings for parent businesses, such as state-based or custom territories.';
+
+comment on table public.business_locations
+is 'Business offices, rooftops, or locations under a parent TapTagg business organization.';
+
+comment on column public.organization_members.location_id
+is 'Optional business location assignment for an employee or member. Null means the member belongs to the business globally.';
+
+comment on column public.analytics_events.location_id
+is 'Optional location context for business analytics filtering.';
+
+comment on column public.analytics_events.region_id
+is 'Optional region context for business analytics filtering.';
+
+-- ============================================================
+-- Source: supabase/phase95_profile_secondary_button.sql
+-- ============================================================
+
+-- Main profile secondary hero button support.
+--
+-- The main profile now uses the same tri-state secondary action model as
+-- profile views:
+-- true  = show Text as the secondary action
+-- false = show Email as the secondary action
+-- null  = show no secondary action
+
+alter table public.profiles
+  add column if not exists show_text boolean default true;
+
+comment on column public.profiles.show_text
+is 'Secondary hero action mode for the main profile: true=text, false=email, null=none.';
+
+drop function if exists public.get_public_profile_by_slug(text);
+drop function if exists public.get_public_profile_by_token(text);
+
+create or replace function public.get_public_profile_by_slug(profile_slug text)
+returns table (
+  id uuid,
+  user_id uuid,
+  slug text,
+  business_type text,
+  page_mode text,
+  multi_view_display_mode text,
+  default_view_id uuid,
+  full_name text,
+  organization_name text,
+  role_line text,
+  intro text,
+  email text,
+  phone text,
+  text_phone text,
+  website_url text,
+  show_text boolean,
+  theme_key text,
+  brand_color_primary text,
+  brand_color_secondary text,
+  brand_color_accent text,
+  brand_color_background text,
+  brand_color_text text,
+  brand_logo_url text,
+  profile_badge_1 text,
+  profile_badge_2 text,
+  profile_badge_3 text,
+  primary_link_1_title text,
+  primary_link_1_url text,
+  primary_link_1_type text,
+  primary_link_2_title text,
+  primary_link_2_url text,
+  primary_link_2_type text,
+  primary_link_3_title text,
+  primary_link_3_url text,
+  primary_link_3_type text,
+  primary_link_4_title text,
+  primary_link_4_url text,
+  primary_link_4_type text,
+  is_active boolean,
+  stripe_plan_key text,
+  billing_exempt boolean,
+  lifetime_free boolean,
+  promo_code_used text,
+  slug_status text,
+  consent_public_visibility boolean
+)
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select
+    p.id,
+    p.user_id,
+    p.slug,
+    p.business_type,
+    p.page_mode,
+    p.multi_view_display_mode,
+    p.default_view_id,
+    p.full_name,
+    p.organization_name,
+    p.role_line,
+    p.intro,
+    p.email,
+    p.phone,
+    p.text_phone,
+    p.website_url,
+    p.show_text,
+    p.theme_key,
+    p.brand_color_primary,
+    p.brand_color_secondary,
+    p.brand_color_accent,
+    p.brand_color_background,
+    p.brand_color_text,
+    p.brand_logo_url,
+    p.profile_badge_1,
+    p.profile_badge_2,
+    p.profile_badge_3,
+    p.primary_link_1_title,
+    p.primary_link_1_url,
+    p.primary_link_1_type,
+    p.primary_link_2_title,
+    p.primary_link_2_url,
+    p.primary_link_2_type,
+    p.primary_link_3_title,
+    p.primary_link_3_url,
+    p.primary_link_3_type,
+    p.primary_link_4_title,
+    p.primary_link_4_url,
+    p.primary_link_4_type,
+    true as is_active,
+    coalesce(
+      nullif(p.stripe_plan_key, ''),
+      case
+        when coalesce(p.billing_exempt, false)
+          or coalesce(p.lifetime_free, false)
+          or upper(coalesce(p.promo_code_used, '')) = 'FOUNDERS'
+        then 'creator'
+        else 'core'
+      end
+    ) as stripe_plan_key,
+    false as billing_exempt,
+    false as lifetime_free,
+    null::text as promo_code_used,
+    'approved'::text as slug_status,
+    true as consent_public_visibility
+  from public.profiles p
+  where lower(p.slug) = lower(profile_slug)
+    and p.is_active = true
+    and p.consent_public_visibility = true
+    and p.slug_status = 'approved'
+    and not public.slug_is_blocked_db(p.slug)
+  limit 1;
+$$;
+
+create or replace function public.get_public_profile_by_token(profile_token text)
+returns table (
+  id uuid,
+  user_id uuid,
+  slug text,
+  business_type text,
+  page_mode text,
+  multi_view_display_mode text,
+  default_view_id uuid,
+  full_name text,
+  organization_name text,
+  role_line text,
+  intro text,
+  email text,
+  phone text,
+  text_phone text,
+  website_url text,
+  show_text boolean,
+  theme_key text,
+  brand_color_primary text,
+  brand_color_secondary text,
+  brand_color_accent text,
+  brand_color_background text,
+  brand_color_text text,
+  brand_logo_url text,
+  profile_badge_1 text,
+  profile_badge_2 text,
+  profile_badge_3 text,
+  primary_link_1_title text,
+  primary_link_1_url text,
+  primary_link_1_type text,
+  primary_link_2_title text,
+  primary_link_2_url text,
+  primary_link_2_type text,
+  primary_link_3_title text,
+  primary_link_3_url text,
+  primary_link_3_type text,
+  primary_link_4_title text,
+  primary_link_4_url text,
+  primary_link_4_type text,
+  is_active boolean,
+  stripe_plan_key text,
+  billing_exempt boolean,
+  lifetime_free boolean,
+  promo_code_used text,
+  slug_status text,
+  consent_public_visibility boolean
+)
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select
+    p.id,
+    p.user_id,
+    p.slug,
+    p.business_type,
+    p.page_mode,
+    p.multi_view_display_mode,
+    p.default_view_id,
+    p.full_name,
+    p.organization_name,
+    p.role_line,
+    p.intro,
+    p.email,
+    p.phone,
+    p.text_phone,
+    p.website_url,
+    p.show_text,
+    p.theme_key,
+    p.brand_color_primary,
+    p.brand_color_secondary,
+    p.brand_color_accent,
+    p.brand_color_background,
+    p.brand_color_text,
+    p.brand_logo_url,
+    p.profile_badge_1,
+    p.profile_badge_2,
+    p.profile_badge_3,
+    p.primary_link_1_title,
+    p.primary_link_1_url,
+    p.primary_link_1_type,
+    p.primary_link_2_title,
+    p.primary_link_2_url,
+    p.primary_link_2_type,
+    p.primary_link_3_title,
+    p.primary_link_3_url,
+    p.primary_link_3_type,
+    p.primary_link_4_title,
+    p.primary_link_4_url,
+    p.primary_link_4_type,
+    true as is_active,
+    coalesce(
+      nullif(p.stripe_plan_key, ''),
+      case
+        when coalesce(p.billing_exempt, false)
+          or coalesce(p.lifetime_free, false)
+          or upper(coalesce(p.promo_code_used, '')) = 'FOUNDERS'
+        then 'creator'
+        else 'core'
+      end
+    ) as stripe_plan_key,
+    false as billing_exempt,
+    false as lifetime_free,
+    null::text as promo_code_used,
+    'approved'::text as slug_status,
+    coalesce(p.consent_public_visibility, false) as consent_public_visibility
+  from public.profiles p
+  where p.private_token = profile_token
+    and p.is_active = true
+    and p.slug_status = 'approved'
+    and not public.slug_is_blocked_db(p.slug)
+  limit 1;
+$$;
+
+revoke all on function public.get_public_profile_by_slug(text) from public;
+revoke all on function public.get_public_profile_by_token(text) from public;
+grant execute on function public.get_public_profile_by_slug(text) to anon, authenticated, service_role;
+grant execute on function public.get_public_profile_by_token(text) to anon, authenticated, service_role;
+
+comment on function public.get_public_profile_by_slug(text)
+is 'Returns the limited public profile payload for active, visible, approved slug pages, including secondary button mode.';
+
+comment on function public.get_public_profile_by_token(text)
+is 'Returns the limited public profile payload for active, approved issued-token pages without exposing private_token.';
+
+
+-- ============================================================
+-- Fresh-project overrides
+-- ============================================================
+
+alter table public.profiles
+  alter column consent_public_visibility set default false;
+
+alter table public.profile_views
+  alter column show_text set default false,
+  alter column show_text set not null;
 
 comment on column public.profiles.consent_public_visibility
 is 'When true, the approved profile slug can resolve publicly. When false, the personalized slug is hidden for privacy.';

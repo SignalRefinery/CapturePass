@@ -4,6 +4,7 @@ import { classifySlug } from "@/lib/slug-moderation";
 import { normalizeProfileButtonFieldsForStorage } from "@/lib/profile-buttons";
 import { coerceThemeForPlan, isHexColor } from "@/lib/themes";
 import { getProfilePlan } from "@/lib/plans";
+import { resolveSecondaryActionMode, secondaryActionModeToLegacyShowText } from "@/lib/profiles/secondary-action";
 
 function safeFallbackSlugForUser(userId: string) {
   return `profile-${userId.replace(/-/g, "").slice(0, 12)}`;
@@ -78,6 +79,7 @@ export async function saveProfileClient(record: ProfileRecord, userId: string) {
       };
   const themeKey = coerceThemeForPlan(effectivePlanRecord.theme_key, getProfilePlan(effectivePlanRecord));
   const useCustomColors = themeKey === "custom";
+  const secondaryActionMode = resolveSecondaryActionMode(record);
 
   const profilePayload = {
     user_id: userId,
@@ -87,13 +89,10 @@ export async function saveProfileClient(record: ProfileRecord, userId: string) {
     intro: record.intro,
     email: record.email,
     phone: record.phone,
+    text_phone: record.text_phone || "",
     website_url: record.website_url,
-    show_text:
-      record.show_text === null
-        ? null
-        : record.show_text === false
-          ? false
-          : true,
+    show_text: secondaryActionModeToLegacyShowText(secondaryActionMode),
+    secondary_action_mode: secondaryActionMode,
     business_type:
       record.business_type && record.business_type !== "general_business"
         ? record.business_type
@@ -167,6 +166,7 @@ export async function saveProfileViewClient(record: ProfileViewRecord) {
         intro: record.intro,
         email: record.email,
         phone: record.phone,
+        text_phone: record.text_phone || "",
         website_url: record.website_url,
         profile_badge_1: record.profile_badge_1 || "",
         profile_badge_2: record.profile_badge_2 || "",
@@ -196,6 +196,7 @@ export async function saveProfileViewClient(record: ProfileViewRecord) {
       intro: record.intro,
       email: record.email,
       phone: record.phone,
+      text_phone: record.text_phone || "",
       website_url: record.website_url,
       profile_badge_1: record.profile_badge_1 || "",
       profile_badge_2: record.profile_badge_2 || "",

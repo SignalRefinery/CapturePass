@@ -1,5 +1,6 @@
 import type { BusinessType } from "@/lib/business-types";
 import type { ProfileButtonType } from "@/lib/profile-buttons";
+import type { SecondaryActionMode } from "@/lib/profiles/secondary-action";
 
 export type NavLink = {
   href: string;
@@ -40,8 +41,10 @@ export type ProfileRecord = {
   intro: string;
   email: string;
   phone: string;
+  text_phone?: string;
   website_url: string;
   show_text?: boolean | null;
+  secondary_action_mode?: SecondaryActionMode | null;
   theme_key?: string | null;
   brand_color_primary?: string | null;
   brand_color_secondary?: string | null;
@@ -284,6 +287,7 @@ export type ProfileViewRecord = {
   intro: string;
   email: string;
   phone: string;
+  text_phone?: string;
   website_url: string;
   profile_badge_1?: string | null;
   profile_badge_2?: string | null;

@@ -7,6 +7,7 @@ import { ProfileAnalyticsTracker, trackProfileAction } from "@/components/analyt
 import { CapturePassBrandArt } from "@/components/shared/capturepass-brand-art";
 import { getReadableProfileUrl } from "@/lib/urls/profile-url";
 import { CUSTOM_THEME_KEY, normalizeThemeKey, resolveThemeColors, themeUsesLightShell } from "@/lib/themes";
+import { resolveSecondaryActionMode } from "@/lib/profiles/secondary-action";
 import { ContactShareModal } from "@/components/profile/contact-share-modal";
 import { ReportIssueForm } from "@/components/profile/report-issue-form";
 import { buildProfileButtons, getProfileButtonAnalyticsContext } from "@/lib/profile-buttons";
@@ -42,6 +43,8 @@ type ProfileLike = {
   show_email?: boolean | null;
   show_phone?: boolean | null;
   show_text?: boolean | null;
+  secondary_action_mode?: string | null;
+  text_phone?: string | null;
   show_in_public_nav?: boolean | null;
   primary_link_1_title?: string | null;
   primary_link_1_url?: string | null;
@@ -89,6 +92,12 @@ function hexToRgbString(value?: string | null) {
     hex.slice(4, 6),
     16
   )}`;
+}
+
+function callHref(phone?: string | null) {
+  const digits = digitsOnly(phone);
+  if (!digits) return "";
+  return `tel:+${digits.length === 10 ? "1" : ""}${digits}`;
 }
 
 function textHref(phone?: string | null) {
@@ -208,13 +217,16 @@ export function TapTaggProfileShell({
   const pills = getPills(activeProfile);
   const showEmail = activeProfile.show_email !== false;
   const showPhone = activeProfile.show_phone !== false;
-  const secondaryActionMode = activeProfile.show_text;
+  const secondaryActionMode = resolveSecondaryActionMode(activeProfile);
+  const textPhone = activeProfile.text_phone || activeProfile.phone || "";
   const secondaryAction =
-    secondaryActionMode === true && activeProfile.phone
-      ? { label: "Text", href: textHref(activeProfile.phone) }
-      : secondaryActionMode === false && showEmail && activeProfile.email
-        ? { label: "Email", href: `mailto:${activeProfile.email}` }
-        : null;
+    secondaryActionMode === "call" && activeProfile.phone
+      ? { label: "Call", href: callHref(activeProfile.phone) }
+      : secondaryActionMode === "text" && textPhone
+        ? { label: "Text", href: textHref(textPhone) }
+        : secondaryActionMode === "email" && showEmail && activeProfile.email
+          ? { label: "Email", href: `mailto:${activeProfile.email}` }
+          : null;
   const intro =
     activeProfile.intro ||
     "A cleaner way to connect, save contact details, and move the right information forward without clutter.";
@@ -420,7 +432,7 @@ export function TapTaggProfileShell({
             <div className={styles.heroSignalRow} aria-label="Profile features">
               <span>Contact card</span>
               <span>Direct links</span>
-              <span>{showPhone ? "Text ready" : "QR ready"}</span>
+              <span>{secondaryAction ? `${secondaryAction.label} ready` : showPhone ? "Contact ready" : "QR ready"}</span>
             </div>
           </div>
         </section>

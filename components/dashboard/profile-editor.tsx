@@ -16,6 +16,7 @@ import {
   normalizeProfileButtonType
 } from "@/lib/profile-buttons";
 import { CUSTOM_THEME_KEY, PROFILE_THEME_OPTIONS, THEME_COLOR_ROLE_LABELS, coerceThemeForPlan, resolveThemeColors, themeIsAllowedForPlan } from "@/lib/themes";
+import { resolveSecondaryActionMode } from "@/lib/profiles/secondary-action";
 import { designTokens } from "@/lib/design-tokens";
 import {
   deleteProfileViewClient,
@@ -185,6 +186,7 @@ function createViewFromProfile(
     intro: cleanIntroValue(profile.intro),
     email: profile.email || "",
     phone: profile.phone || "",
+    text_phone: profile.text_phone || "",
     website_url: "",
     profile_badge_1: profile.profile_badge_1 || "",
     profile_badge_2: profile.profile_badge_2 || "",
@@ -222,6 +224,7 @@ function normalizeViewForSave(view: ProfileViewRecord, fallbackName = "Profile v
     intro: view.intro.trim(),
     email: view.email.trim(),
     phone: view.phone.trim(),
+    text_phone: (view.text_phone || "").trim(),
     website_url: normalizeUrl(view.website_url || ""),
     profile_badge_1: (view.profile_badge_1 || "").trim(),
     profile_badge_2: (view.profile_badge_2 || "").trim(),
@@ -259,7 +262,9 @@ export function ProfileEditor({
     ...initialProfile,
     intro: cleanIntroValue(initialProfile.intro),
     consent_public_visibility: initialProfile.consent_public_visibility !== false,
-    theme_key: coerceThemeForPlan(initialProfile.theme_key, getProfilePlan(initialProfile))
+    text_phone: initialProfile.text_phone || "",
+    theme_key: coerceThemeForPlan(initialProfile.theme_key, getProfilePlan(initialProfile)),
+    secondary_action_mode: resolveSecondaryActionMode(initialProfile)
   });
   const [views, setViews] = useState<ProfileViewRecord[]>(
     initialProfileViews.map((view) => ({
@@ -286,7 +291,7 @@ export function ProfileEditor({
   const profileLogoInputRef = useRef<HTMLInputElement | null>(null);
   const plan = getProfilePlan(form);
   const canManageBusinessIndividualLogo = plan.key === "business_individual";
-  const secondaryButtonMode = typeof form.show_text === "undefined" ? true : form.show_text;
+  const secondaryActionMode = resolveSecondaryActionMode(form);
   const selectedThemeKey = coerceThemeForPlan(form.theme_key, plan);
   const showCustomThemeColors = selectedThemeKey === CUSTOM_THEME_KEY;
   const customThemeColors = resolveThemeColors({
@@ -1144,45 +1149,45 @@ export function ProfileEditor({
               />
               {!form.phone ? (
                 <small className="auth-error">
-                  Phone is required to enable the Call action.
+                  Phone is required for the Call and Text actions.
                 </small>
               ) : (
                 <small className="auth-message">
-                  Used to automatically generate your Call button.
+                  Used to automatically generate your Call and Text actions.
                 </small>
               )}
+            </label>
+
+            <label className="auth-field">
+              <span>Text phone</span>
+              <input
+                type="tel"
+                value={form.text_phone || ""}
+                onChange={(event) => update("text_phone", event.target.value)}
+                placeholder="5551234567"
+              />
+              <small className="auth-message">
+                Optional separate number for text-based contact actions and contact downloads.
+              </small>
             </label>
           </div>
 
           <div className="action-choice-row" style={{ marginTop: 18 }}>
-            <span className="action-choice-label">Secondary button</span>
-            <div className="action-choice-options" aria-label="Current profile secondary button">
-              <button
-                className={secondaryButtonMode === true ? "action-choice is-active" : "action-choice"}
-                type="button"
-                onClick={() => update("show_text", true)}
+            <label className="auth-field" style={{ width: "100%" }}>
+              <span>Secondary action</span>
+              <select
+                value={secondaryActionMode}
+                onChange={(event) => update("secondary_action_mode", event.target.value as ProfileRecord["secondary_action_mode"])}
+                style={{ width: "100%", padding: 10, marginTop: 8 }}
               >
-                Text
-              </button>
-
-              <button
-                className={form.show_text === false ? "action-choice is-active" : "action-choice"}
-                type="button"
-                onClick={() => update("show_text", false)}
-              >
-                Email
-              </button>
-
-              <button
-                className={form.show_text === null ? "action-choice is-active" : "action-choice"}
-                type="button"
-                onClick={() => update("show_text", null)}
-              >
-                None
-              </button>
-            </div>
+                <option value="call">Call</option>
+                <option value="text">Text</option>
+                <option value="email">Email</option>
+                <option value="none">None</option>
+              </select>
+            </label>
             <small className="auth-message">
-              Choose whether the hero button next to Add to Contacts opens a text, email, or stays hidden.
+              Choose whether the hero button next to Add to Contacts opens a call, text, email, or stays hidden.
             </small>
           </div>
 
@@ -1483,6 +1488,21 @@ export function ProfileEditor({
                       onChange={(event) => updateView("website_url", event.target.value)}
                       placeholder={isRealEstateBusinessProfile ? "https://listing-page.com" : "https://your-site.com"}
                     />
+                  </label>
+                </div>
+
+                <div className="editor-grid" style={{ marginTop: 14 }}>
+                  <label className="auth-field">
+                    <span>Text phone</span>
+                    <input
+                      type="tel"
+                      value={activeView.text_phone || ""}
+                      onChange={(event) => updateView("text_phone", event.target.value)}
+                      placeholder="5551234567"
+                    />
+                    <small className="auth-message">
+                      Optional separate number for text-based contact actions.
+                    </small>
                   </label>
                 </div>
 

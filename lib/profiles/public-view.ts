@@ -1,5 +1,6 @@
 import type { ProfileRecord, ProfileViewRecord } from "@/lib/types";
 import { getProfilePlan } from "@/lib/plans";
+import { resolveSecondaryActionMode, secondaryActionModeToLegacyShowText } from "@/lib/profiles/secondary-action";
 import {
   inferProfileButtonType,
   normalizeProfileButtonType
@@ -23,6 +24,7 @@ export function profileViewToPublicProfile(profile: ProfileRecord, view: Profile
     intro: view.intro,
     email: view.email,
     phone: view.phone,
+    text_phone: view.text_phone || "",
     website_url: view.website_url,
     theme_key: profile.theme_key,
     brand_color_primary: profile.brand_color_primary,
@@ -31,13 +33,14 @@ export function profileViewToPublicProfile(profile: ProfileRecord, view: Profile
     brand_color_background: profile.brand_color_background,
     brand_color_text: profile.brand_color_text,
     brand_logo_url: profile.brand_logo_url,
+    secondary_action_mode: resolveSecondaryActionMode(view),
     is_business_individual: plan.key === "business_individual",
     profile_badge_1: plan.hasAdvancedCustomization ? view.profile_badge_1 : "",
     profile_badge_2: plan.hasAdvancedCustomization ? view.profile_badge_2 : "",
     profile_badge_3: plan.hasAdvancedCustomization ? view.profile_badge_3 : "",
     show_email: view.show_email,
     show_phone: view.show_phone,
-    show_text: plan.hasCustomButtons ? view.show_text : !!view.phone,
+    show_text: secondaryActionModeToLegacyShowText(resolveSecondaryActionMode(view)),
     show_in_public_nav: view.show_in_public_nav !== false,
     primary_link_1_title: view.primary_link_1_title,
     primary_link_1_url: view.primary_link_1_url,
@@ -82,6 +85,7 @@ export function profileRecordToPublicProfile(profile: ProfileRecord) {
     intro: profile.intro,
     email: profile.email,
     phone: profile.phone,
+    text_phone: profile.text_phone || "",
     website_url: profile.website_url,
     theme_key: profile.theme_key,
     brand_color_primary: profile.brand_color_primary,
@@ -90,16 +94,14 @@ export function profileRecordToPublicProfile(profile: ProfileRecord) {
     brand_color_background: profile.brand_color_background,
     brand_color_text: profile.brand_color_text,
     brand_logo_url: profile.brand_logo_url,
+    secondary_action_mode: resolveSecondaryActionMode(profile),
     is_business_individual: plan.key === "business_individual",
     profile_badge_1: plan.hasAdvancedCustomization ? profile.profile_badge_1 : "",
     profile_badge_2: plan.hasAdvancedCustomization ? profile.profile_badge_2 : "",
     profile_badge_3: plan.hasAdvancedCustomization ? profile.profile_badge_3 : "",
     show_email: true,
     show_phone: true,
-    show_text:
-      typeof profile.show_text === "undefined"
-        ? !!profile.phone
-        : profile.show_text,
+    show_text: secondaryActionModeToLegacyShowText(resolveSecondaryActionMode(profile)),
     show_in_public_nav: true,
     primary_link_1_title: profile.primary_link_1_title,
     primary_link_1_url: profile.primary_link_1_url,
