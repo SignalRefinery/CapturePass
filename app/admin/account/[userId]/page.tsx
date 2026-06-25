@@ -15,6 +15,9 @@ import { classifySlug } from "@/lib/slug-moderation";
 import { normalizeUrl } from "@/lib/utils";
 import { getCurrentTapTaggAdmin } from "@/lib/auth/admin";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 function appUrl() {
   return (process.env.NEXT_PUBLIC_APP_URL || "https://capturepass.com").replace(/\/$/, "");
 }
@@ -121,6 +124,7 @@ async function updateUserAction(formData: FormData) {
     case "organization_name":
     case "intro":
     case "phone":
+    case "text_phone":
     case "primary_link_1_title":
     case "primary_link_2_title":
     case "primary_link_3_title":
@@ -312,6 +316,7 @@ export default async function AdminUserPage({ params, searchParams }: PageProps)
         footerRight="User not found"
         myProfileHref={myProfileHref}
         initialAuth={initialAuth}
+        pageVariant="admin"
         navLinks={[{ href: "/admin", label: "Back to admin" }]}
       >
         <section className="section-wrap">
@@ -329,6 +334,7 @@ export default async function AdminUserPage({ params, searchParams }: PageProps)
       footerRight="User detail"
       myProfileHref={myProfileHref}
       initialAuth={initialAuth}
+      pageVariant="admin"
       navLinks={[{ href: "/admin", label: "Back to admin" }]}
     >
       <section className="section-wrap">
@@ -544,6 +550,24 @@ export default async function AdminUserPage({ params, searchParams }: PageProps)
                   />
                   <button className="button primary" type="submit">
                     Save phone
+                  </button>
+                </form>
+
+                <form action={updateUserAction} className="card" style={{ padding: 14 }}>
+                  <input type="hidden" name="userId" value={profile.user_id} />
+                  <input type="hidden" name="field" value="text_phone" />
+                  <label className="label" htmlFor="profile-text-phone">
+                    Text phone
+                  </label>
+                  <input
+                    id="profile-text-phone"
+                    name="value"
+                    defaultValue={profile.text_phone || ""}
+                    placeholder="5551234567"
+                    style={{ width: "100%", padding: 10, margin: "8px 0" }}
+                  />
+                  <button className="button primary" type="submit">
+                    Save text phone
                   </button>
                 </form>
 

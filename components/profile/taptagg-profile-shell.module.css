@@ -167,12 +167,24 @@
 .brand{
   display:flex;
   align-items:center;
-  gap:12px;
-  font-size:12px;
-  letter-spacing:.22em;
-  text-transform:uppercase;
+  gap:10px;
   color:var(--brand-copy);
   font-weight:700;
+  white-space:nowrap;
+}
+
+.brandLabel{
+  font-size:14px;
+  letter-spacing:-.015em;
+  text-transform:none;
+}
+
+.brandLogoMark{
+  display:block;
+  height:22px;
+  width:auto;
+  user-select:none;
+  -webkit-user-drag:none;
 }
 
 .brandStar{

@@ -109,7 +109,7 @@ export async function PATCH(
 
   const { data: currentProfile, error: currentError } = await admin
     .from("profiles")
-    .select("user_id, full_name, email, slug, private_token, slug_requested, slug_status, slug_review_reason, is_active, billing_exempt, is_affiliate, affiliate_tier, is_public_official, stripe_customer_id, stripe_plan_key, promo_code_used, consent_public_visibility, role_line, intro, phone, website_url, primary_link_1_title, primary_link_1_url, primary_link_1_type, primary_link_2_title, primary_link_2_url, primary_link_2_type, primary_link_3_title, primary_link_3_url, primary_link_3_type, primary_link_4_title, primary_link_4_url, primary_link_4_type, subscription_status, card_notification_sent_at")
+    .select("user_id, full_name, email, slug, private_token, slug_requested, slug_status, slug_review_reason, is_active, billing_exempt, is_affiliate, affiliate_tier, is_public_official, stripe_customer_id, stripe_plan_key, promo_code_used, consent_public_visibility, role_line, intro, phone, text_phone, website_url, primary_link_1_title, primary_link_1_url, primary_link_1_type, primary_link_2_title, primary_link_2_url, primary_link_2_type, primary_link_3_title, primary_link_3_url, primary_link_3_type, primary_link_4_title, primary_link_4_url, primary_link_4_type, subscription_status, card_notification_sent_at")
     .eq("user_id", userId)
     .single();
 
@@ -188,6 +188,7 @@ export async function PATCH(
     case "role_line":
     case "intro":
     case "phone":
+    case "text_phone":
     case "website_url":
     case "promo_code_used":
     case "subscription_status":

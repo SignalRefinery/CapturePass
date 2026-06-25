@@ -14,6 +14,7 @@ export const PROFILE_VIEW_PUBLIC_SELECT = `
   intro,
   email,
   phone,
+  text_phone,
   website_url,
   profile_badge_1,
   profile_badge_2,

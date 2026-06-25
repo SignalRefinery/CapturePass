@@ -52,7 +52,7 @@ export default async function AnalyticsPage({
 
   if (!profile || !canUseAnalytics(plan)) {
     return (
-      <Shell footerLeft="Analytics" footerRight="CapturePass" initialAuth={initialAuth}>
+      <Shell footerLeft="Analytics" footerRight="CapturePass" initialAuth={initialAuth} pageVariant="default">
         <section className="simple-hero">
           <div className="kicker">
             <span className="mini-star">✦</span>
@@ -62,8 +62,8 @@ export default async function AnalyticsPage({
           <p>
             CapturePass still collects activity privately, but dashboard analytics are available on Capture+ and Creator.
           </p>
-          <Link className="button primary" href="/pricing" style={{ marginTop: 22 }}>
-            View plans
+          <Link className="button primary" href="/business/pricing" style={{ marginTop: 22 }}>
+            View business plans
           </Link>
         </section>
       </Shell>
@@ -85,7 +85,7 @@ export default async function AnalyticsPage({
   ]);
 
   return (
-    <Shell footerLeft="Analytics" footerRight="CapturePass" initialAuth={initialAuth}>
+    <Shell footerLeft="Analytics" footerRight="CapturePass" initialAuth={initialAuth} pageVariant="default">
       <section className="simple-hero">
         <div className="kicker">
           <span className="mini-star">✦</span>

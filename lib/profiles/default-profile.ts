@@ -1,5 +1,6 @@
 import type { User } from "@supabase/supabase-js";
 import type { ProfileRecord } from "@/lib/types";
+import { resolveSecondaryActionMode } from "@/lib/profiles/secondary-action";
 import { slugify } from "@/lib/utils";
 
 function fallbackSlug(user: User, fullName: string, email: string) {
@@ -17,7 +18,9 @@ export function buildDashboardProfile(user: User, existing: ProfileRecord | null
       ...existing,
       full_name: existing.full_name || `${user.user_metadata?.first_name || ""} ${user.user_metadata?.last_name || ""}`.trim(),
       email: existing.email || user.email || "",
+      text_phone: existing.text_phone || "",
       theme_key: existing.theme_key || "taptagg_brand",
+      secondary_action_mode: resolveSecondaryActionMode(existing),
       consent_public_visibility: existing.consent_public_visibility !== false
     };
   }
@@ -38,8 +41,10 @@ export function buildDashboardProfile(user: User, existing: ProfileRecord | null
     intro: "",
     email,
     phone: "",
+    text_phone: "",
     website_url: "",
     show_text: true,
+    secondary_action_mode: "text",
     theme_key: "taptagg_brand",
     primary_link_1_title: "Call",
     primary_link_1_url: "15551234",

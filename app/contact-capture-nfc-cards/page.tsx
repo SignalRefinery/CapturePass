@@ -46,7 +46,7 @@ export default function ContactCaptureNfcCardsPage() {
       <IndustryLandingPage
         actionLinks={[
           { href: "/business-individual", label: "Business Individual", primary: true },
-          { href: "/pricing", label: "Pricing" }
+          { href: "/business/pricing", label: "Business Pricing" }
         ]}
         audienceLabel="Contact Capture NFC Cards"
         benefits={[
@@ -73,7 +73,7 @@ export default function ContactCaptureNfcCardsPage() {
           { href: "/", label: "Home" },
           { href: "/business", label: "Business" },
           { href: "/business/pricing", label: "Business Pricing" },
-          { href: "/pricing", label: "Pricing" },
+          { href: "/business/pricing", label: "Business Pricing" },
           { href: "/dealerships", label: "Dealerships" }
         ]}
         proofPoints={[
@@ -85,7 +85,7 @@ export default function ContactCaptureNfcCardsPage() {
           { href: "/business-individual", label: "Business Individual" },
           { href: "/business", label: "Business" },
           { href: "/business/pricing", label: "Business Pricing" },
-          { href: "/pricing", label: "Pricing" },
+          { href: "/business/pricing", label: "Business Pricing" },
           { href: "/resources/contact-capture-vs-traditional-business-cards", label: "Traditional Cards vs Contact Capture" },
           { href: "/springfield-il-contact-capture", label: "Springfield Contact Capture" }
         ]}

@@ -161,6 +161,7 @@ function buildBusinessProfile({
     intro: `Connect with ${member.name}${organization.name ? ` at ${organization.name}` : ""}.`,
     email: member.email || "",
     phone: member.phone || "",
+    text_phone: member.phone || "",
     website_url: "",
     show_email: !!member.email,
     show_phone: !!member.phone,

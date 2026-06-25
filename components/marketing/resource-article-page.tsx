@@ -50,9 +50,6 @@ export function ResourceArticlePage({ article, navLinks }: ResourceArticlePagePr
             <Link className="button secondary" href="/business/pricing">
               Business Pricing
             </Link>
-            <Link className="button secondary" href="/pricing">
-              Pricing
-            </Link>
           </div>
         </section>
 

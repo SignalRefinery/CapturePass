@@ -11,6 +11,7 @@ create table if not exists public.profiles (
   intro text not null default '',
   email text not null default '',
   phone text not null default '',
+  text_phone text not null default '',
   website_url text not null default '',
   show_text boolean default true,
   brand_logo_url text,

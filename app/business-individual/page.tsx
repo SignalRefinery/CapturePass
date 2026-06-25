@@ -124,7 +124,6 @@ export default async function BusinessIndividualPage({
       footerRight="CapturePass"
       navLinks={[
         { href: "/", label: "Home" },
-        { href: "/pricing", label: "Pricing" },
         { href: "/business", label: "Business" },
         { href: "/business/pricing", label: "Business Pricing" },
         { href: "/contact-capture-nfc-cards", label: "Contact Capture" }
@@ -244,9 +243,6 @@ export default async function BusinessIndividualPage({
                 real estate agents, insurance agents, sales teams, and NFC contact capture cards.
               </p>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
-                <Link className="button secondary" href="/pricing" style={{ width: "fit-content" }}>
-                  Pricing
-                </Link>
                 <Link className="button secondary" href="/business/pricing" style={{ width: "fit-content" }}>
                   Business Pricing
                 </Link>

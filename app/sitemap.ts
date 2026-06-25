@@ -38,7 +38,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/springfield-il-digital-business-cards",
     "/springfield-il-contact-capture",
     "/springfield-il-sales-team-business-cards",
-    "/pricing",
     "/how-it-works",
     "/partners",
     "/login",

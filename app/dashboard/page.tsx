@@ -323,8 +323,10 @@ export default async function DashboardPage({
           intro: "",
           email,
           phone: "",
+          text_phone: "",
           website_url: "",
           show_text: true,
+          secondary_action_mode: "text",
           theme_key: "taptagg_brand",
           profile_badge_1: "",
           profile_badge_2: "",
@@ -449,9 +451,10 @@ export default async function DashboardPage({
       footerRight="CapturePass"
       myProfileHref={myProfileHref}
       initialAuth={initialAuth}
+      pageVariant="default"
       navLinks={[
         { href: "/", label: "Home" },
-        { href: "/pricing", label: "Pricing" },
+        { href: "/business/pricing", label: "Business Pricing" },
         { href: "/dashboard", label: "Dashboard" },
         { href: "/dashboard#performance", label: "Performance" },
         { href: "/dashboard/contacts", label: "Contacts" },

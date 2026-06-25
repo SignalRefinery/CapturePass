@@ -21,8 +21,10 @@ create table if not exists public.profiles (
   intro text not null default '',
   email text not null default '',
   phone text not null default '',
+  text_phone text not null default '',
   website_url text not null default '',
   show_text boolean default true,
+  secondary_action_mode text,
   theme_key text not null default 'taptagg_brand',
   brand_color_primary text,
   brand_color_secondary text,
@@ -138,6 +140,7 @@ create table if not exists public.profile_views (
   intro text not null default '',
   email text not null default '',
   phone text not null default '',
+  text_phone text not null default '',
   website_url text not null default '',
   profile_badge_1 text not null default '',
   profile_badge_2 text not null default '',
@@ -1116,7 +1119,7 @@ as $$
     when 'clean_horizon' then plan_key in ('core', 'tagg_plus', 'creator', 'business')
     when 'executive_gold' then plan_key in ('tagg_plus', 'creator', 'business')
     when 'sage_professional' then plan_key in ('tagg_plus', 'creator', 'business')
-    when 'custom' then plan_key in ('creator', 'business')
+    when 'custom' then plan_key in ('creator', 'business', 'business_individual')
     else false
   end
 $$;

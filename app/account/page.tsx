@@ -140,7 +140,7 @@ export default async function AccountPage({
       }
       navLinks={[
         { href: "/dashboard", label: "Dashboard" },
-        { href: "/pricing", label: "Pricing" },
+        { href: "/business/pricing", label: "Business Pricing" },
       ]}
     >
       <section className="section-wrap">
@@ -259,8 +259,8 @@ export default async function AccountPage({
                 </>
               ) : (
                 <>
-                  <Link href="/pricing" className="button primary">
-                    Activate account
+                  <Link href="/business/pricing" className="button primary">
+                    View business plans
                   </Link>
 
                   <p className="editor-copy" style={{ flexBasis: "100%", margin: "4px 0 0" }}>

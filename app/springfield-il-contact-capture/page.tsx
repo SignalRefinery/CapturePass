@@ -27,11 +27,10 @@ export default function SpringfieldContactCapturePage() {
           { href: "/", label: "Home" },
           { href: "/resources", label: "Resources" },
           { href: "/contact-capture-nfc-cards", label: "Contact Capture NFC Cards" },
-          { href: "/pricing", label: "Pricing" }
+          { href: "/business/pricing", label: "Business Pricing" }
         ]}
         page={page}
       />
     </>
   );
 }
-

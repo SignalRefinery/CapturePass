@@ -1,4 +1,5 @@
 import { getBusinessTypeLabel } from "@/lib/business-types";
+import { buildEmailBrandHeaderHtml } from "@/lib/notifications/brand-header";
 import { escapeEmailHtml, formatShippingAddressHtml } from "@/lib/notifications/html";
 import { buildQrPngAttachment } from "@/lib/notifications/qr";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -91,6 +92,7 @@ export async function sendRegistrationEmail({
       subject: `New CapturePass registration: ${customerName || customerEmail}`,
       html: `
         <div style="font-family:Arial,sans-serif;line-height:1.6;color:#111;">
+          ${buildEmailBrandHeaderHtml("logoLockupWithTagline")}
           <h2 style="margin:0 0 16px;">New CapturePass registration</h2>
           <p style="margin:0 0 18px;">A new profile has been created and is ready for review, fulfillment, or onboarding follow-up.</p>
           <table cellpadding="8" cellspacing="0" border="0" style="border-collapse:collapse;">

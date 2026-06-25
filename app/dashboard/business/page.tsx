@@ -111,7 +111,7 @@ export default async function BusinessDashboardPage({
     : analyticsEvents;
   if (isPlatformAdmin && !selectedOrganizationId && !showOnboarding) {
     return (
-      <Shell footerLeft="Business dashboard" footerRight="CapturePass" initialAuth={initialAuth} navLinks={businessNavLinks}>
+      <Shell footerLeft="Business dashboard" footerRight="CapturePass" initialAuth={initialAuth} navLinks={businessNavLinks} pageVariant="default">
         <section className="simple-hero">
           <div className="kicker">
             <span className="mini-star">✦</span>
@@ -174,7 +174,7 @@ export default async function BusinessDashboardPage({
 
   if (!organization) {
     return (
-      <Shell footerLeft="Business dashboard" footerRight="CapturePass" initialAuth={initialAuth} navLinks={businessNavLinks}>
+      <Shell footerLeft="Business dashboard" footerRight="CapturePass" initialAuth={initialAuth} navLinks={businessNavLinks} pageVariant="default">
         <section className="simple-hero">
           <div className="dashboard-card" style={{ maxWidth: 780, margin: "0 auto" }}>
             {isPlatformAdmin ? (
@@ -319,7 +319,7 @@ export default async function BusinessDashboardPage({
 
   if (isLocationScopedViewer) {
     return (
-      <Shell footerLeft={dashboardFooterLeft} footerRight="CapturePass" initialAuth={initialAuth} navLinks={businessNavLinks}>
+      <Shell footerLeft={dashboardFooterLeft} footerRight="CapturePass" initialAuth={initialAuth} navLinks={businessNavLinks} pageVariant="default">
         <section className="simple-hero location-hero">
           <div className="kicker">
             <span className="mini-star">✦</span>
@@ -599,7 +599,7 @@ export default async function BusinessDashboardPage({
   }
 
   return (
-    <Shell footerLeft="Business dashboard" footerRight="CapturePass" initialAuth={initialAuth} navLinks={businessNavLinks}>
+    <Shell footerLeft="Business dashboard" footerRight="CapturePass" initialAuth={initialAuth} navLinks={businessNavLinks} pageVariant="default">
       <section className="simple-hero">
         <div className="kicker">
           <span className="mini-star">✦</span>

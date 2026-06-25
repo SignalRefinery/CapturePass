@@ -44,7 +44,7 @@ export default async function ResourceCategoryPage({
       navLinks={[
         { href: "/", label: "Home" },
         { href: "/resources", label: "Resources" },
-        { href: "/pricing", label: "Pricing" },
+        { href: "/business/pricing", label: "Business Pricing" },
         { href: "/business", label: "Business" }
       ]}
     >

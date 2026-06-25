@@ -6,6 +6,7 @@ export type AdminUserUpdateField =
   | "role_line"
   | "intro"
   | "phone"
+  | "text_phone"
   | "website_url"
   | "primary_link_1_title"
   | "primary_link_2_title"
@@ -50,6 +51,7 @@ const ADMIN_UPDATE_FIELDS = new Set<AdminUserUpdateField>([
   "role_line",
   "intro",
   "phone",
+  "text_phone",
   "website_url",
   "primary_link_1_title",
   "primary_link_2_title",
