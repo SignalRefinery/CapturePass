@@ -14,6 +14,7 @@ create table if not exists public.profiles (
   text_phone text not null default '',
   website_url text not null default '',
   show_text boolean default true,
+  secondary_action_mode text,
   primary_link_1_title text not null default 'Call',
   primary_link_1_url text not null default '',
   primary_link_1_type text not null default 'website',
