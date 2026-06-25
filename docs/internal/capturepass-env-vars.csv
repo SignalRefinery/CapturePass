@@ -1,0 +1,21 @@
+category,variable,required,notes
+runtime,NEXT_PUBLIC_APP_URL,yes,Primary site and app base URL used for links and redirects
+runtime,NEXT_PUBLIC_SUPABASE_URL,yes,Client and server Supabase URL
+runtime,NEXT_PUBLIC_SUPABASE_ANON_KEY,yes,Client-side Supabase anon key
+runtime,SUPABASE_SERVICE_ROLE_KEY,yes,Server admin Supabase service role key
+runtime,STRIPE_SECRET_KEY,yes,Stripe API secret used for checkout and billing
+runtime,STRIPE_WEBHOOK_SECRET,yes,Stripe webhook signature secret
+runtime,RESEND_API_KEY,yes,Email delivery for registration and approval notifications
+runtime,INTERNAL_FROM_EMAIL,yes,Default sender for internal email notifications
+runtime,INTERNAL_ORDER_EMAIL,yes,Primary fulfillment inbox for internal notifications
+runtime,NEXT_PUBLIC_SITE_URL,no,Fallback site URL used in some email flows
+runtime,ANALYTICS_IP_SALT,no,Preferred salt for analytics IP hashing; falls back if missing
+runtime,CRON_SECRET,no,Protects the cron reconcile endpoint
+stripe-plan,STRIPE_CORE_PRICE_ID,feature,Core plan price ID; STRIPE_DIGITAL_PRICE_ID is an accepted alias
+stripe-plan,STRIPE_DIGITAL_PRICE_ID,feature,Legacy or alternate price ID alias for Core
+stripe-plan,STRIPE_TAGG_PLUS_PRICE_ID,feature,Tagg+ or Capture+ plan price ID
+stripe-plan,STRIPE_CREATOR_PRICE_ID,feature,Creator plan price ID
+stripe-plan,STRIPE_PRICE_BUSINESS_INDIVIDUAL_LAUNCH_YEARLY,feature,Launch yearly price ID for Business Individual
+stripe-plan,STRIPE_PRICE_BUSINESS_INDIVIDUAL_YEARLY,feature,Standard yearly price ID for Business Individual
+stripe-plan,STRIPE_ADDITIONAL_CAPTUREPASS_CARD_PRICE_ID,feature,Additional card price ID used by checkout
+stripe-plan,STRIPE_ADDITIONAL_TAPTAGG_CARD_PRICE_ID,feature,Legacy alias for the additional card price ID

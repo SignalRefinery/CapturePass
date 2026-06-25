@@ -21,7 +21,7 @@ export function HomepagePage({ businessCards, footerLeft, resourceLinks, teamCap
       pageVariant="light"
       navLinks={[
         { href: "/how-it-works", label: "How it works" },
-        { href: "/pricing", label: "Pricing" },
+        { href: "/business/pricing", label: "Business Pricing" },
         { href: "/business", label: "Business" },
         { href: "/contact-capture-nfc-cards", label: "Contact Capture" }
       ]}
@@ -45,7 +45,7 @@ export function HomepagePage({ businessCards, footerLeft, resourceLinks, teamCap
           <Link className="button primary" href="/signup">
             Start Capturing Contacts
           </Link>
-          <Link className="button secondary" href="/pricing">
+          <Link className="button secondary" href="/business/pricing">
             Request a Demo
           </Link>
         </div>
@@ -226,7 +226,7 @@ export function HomepagePage({ businessCards, footerLeft, resourceLinks, teamCap
           <Link className="button primary" href="/signup">
             Get started
           </Link>
-          <Link className="button secondary" href="/pricing">
+          <Link className="button secondary" href="/business/pricing">
             View business plans
           </Link>
         </div>

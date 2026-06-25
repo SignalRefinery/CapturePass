@@ -69,7 +69,7 @@ export default function SalesTeamsPage() {
           { href: "/", label: "Home" },
           { href: "/business", label: "Business" },
           { href: "/business/pricing", label: "Business Pricing" },
-          { href: "/pricing", label: "Pricing" },
+          { href: "/business/pricing", label: "Business Pricing" },
           { href: "/contact-capture-nfc-cards", label: "Contact Capture" }
         ]}
         proofPoints={[
@@ -81,7 +81,7 @@ export default function SalesTeamsPage() {
           { href: "/business", label: "Business" },
           { href: "/business/pricing", label: "Business Pricing" },
           { href: "/contact-capture-nfc-cards", label: "Contact Capture NFC Cards" },
-          { href: "/pricing", label: "Pricing" },
+          { href: "/business/pricing", label: "Business Pricing" },
           { href: "/resources/digital-business-cards-for-sales-teams", label: "Sales Guide" },
           { href: "/springfield-il-sales-team-business-cards", label: "Springfield Sales Cards" }
         ]}

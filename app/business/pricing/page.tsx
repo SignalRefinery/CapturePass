@@ -93,7 +93,6 @@ export default function BusinessPricingPage() {
       footerRight="CapturePass"
       navLinks={[
         { href: "/", label: "Home" },
-        { href: "/pricing", label: "User Pricing" },
         { href: "/business", label: "Business" },
         { href: "/contact-capture-nfc-cards", label: "Contact Capture" }
       ]}

@@ -1125,7 +1125,7 @@ as $$
     when 'clean_horizon' then plan_key in ('core', 'tagg_plus', 'creator', 'business')
     when 'executive_gold' then plan_key in ('tagg_plus', 'creator', 'business')
     when 'sage_professional' then plan_key in ('tagg_plus', 'creator', 'business')
-    when 'custom' then plan_key in ('creator', 'business')
+    when 'custom' then plan_key in ('creator', 'business', 'business_individual')
     else false
   end
 $$;

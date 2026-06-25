@@ -330,7 +330,7 @@ async function createCheckoutOrPortal(req: Request) {
     if (!process.env.STRIPE_SECRET_KEY) {
       console.error("Checkout configuration missing", { route: "/api/checkout" });
       if (req.method === "GET") {
-        return redirectWithParam(req, "/pricing", "checkout", "unavailable");
+        return redirectWithParam(req, "/business/pricing", "checkout", "unavailable");
       }
       return NextResponse.json({ error: "Checkout is temporarily unavailable." }, { status: 500 });
     }
@@ -378,7 +378,7 @@ async function createCheckoutOrPortal(req: Request) {
 
     if (!requestedPlan) {
       if (req.method === "GET") {
-        return redirectWithParam(req, "/pricing", "checkout", "choose-plan");
+        return redirectWithParam(req, "/business/pricing", "checkout", "choose-plan");
       }
 
       return NextResponse.json(
@@ -389,7 +389,7 @@ async function createCheckoutOrPortal(req: Request) {
 
     if (!checkoutSelection) {
       if (req.method === "GET") {
-        return redirectWithParam(req, "/pricing", "checkout", "invalid-plan");
+        return redirectWithParam(req, "/business/pricing", "checkout", "invalid-plan");
       }
 
       return NextResponse.json(
@@ -400,7 +400,7 @@ async function createCheckoutOrPortal(req: Request) {
 
     if (individualPlan === "free") {
       if (req.method === "GET") {
-        return redirectWithParam(req, "/pricing", "checkout", "choose-plan");
+        return redirectWithParam(req, "/business/pricing", "checkout", "choose-plan");
       }
 
       return NextResponse.json(
@@ -566,7 +566,7 @@ async function createCheckoutOrPortal(req: Request) {
           req,
           isBusinessIndividualCheckout || isBusinessIndividualExtraCardCheckout
             ? "/business-individual"
-            : "/pricing",
+            : "/business/pricing",
           "checkout",
           "unavailable"
         );
@@ -594,7 +594,7 @@ async function createCheckoutOrPortal(req: Request) {
           error: error instanceof Error ? error.message : "Unknown Stripe portal error"
         });
         if (req.method === "GET") {
-          return redirectWithParam(req, "/pricing", "checkout", "start-error");
+          return redirectWithParam(req, "/business/pricing", "checkout", "start-error");
         }
         return NextResponse.json({ error: "Unable to open billing management. Please try again." }, { status: 500 });
       }
@@ -638,7 +638,7 @@ async function createCheckoutOrPortal(req: Request) {
     const checkoutErrorPath =
       isBusinessIndividualCheckout || isBusinessIndividualExtraCardCheckout
         ? "/business-individual"
-        : "/pricing";
+        : "/business/pricing";
     const metadataPlanKey = sessionPlanKey || "";
     const checkoutMetadata: Stripe.MetadataParam = {
       user_id: user.id,
@@ -831,7 +831,7 @@ async function createCheckoutOrPortal(req: Request) {
       error: message
     });
     if (req.method === "GET") {
-      return redirectWithParam(req, "/pricing", "checkout", "start-error");
+      return redirectWithParam(req, "/business/pricing", "checkout", "start-error");
     }
     return NextResponse.json({ error: "Unable to start checkout. Please try again." }, { status: 500 });
   }

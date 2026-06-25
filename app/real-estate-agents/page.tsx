@@ -69,7 +69,7 @@ export default function RealEstateAgentsPage() {
           { href: "/", label: "Home" },
           { href: "/business", label: "Business" },
           { href: "/business/pricing", label: "Business Pricing" },
-          { href: "/pricing", label: "Pricing" },
+          { href: "/business/pricing", label: "Business Pricing" },
           { href: "/contact-capture-nfc-cards", label: "Contact Capture" }
         ]}
         proofPoints={[
@@ -81,7 +81,7 @@ export default function RealEstateAgentsPage() {
           { href: "/business", label: "Business" },
           { href: "/business/pricing", label: "Business Pricing" },
           { href: "/contact-capture-nfc-cards", label: "Contact Capture NFC Cards" },
-          { href: "/pricing", label: "Pricing" },
+          { href: "/business/pricing", label: "Business Pricing" },
           { href: "/resources/nfc-business-cards-for-realtors", label: "Real Estate Guide" },
           { href: "/springfield-il-digital-business-cards", label: "Springfield Digital Cards" }
         ]}

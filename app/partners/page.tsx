@@ -16,7 +16,7 @@ export default function PartnersPage() {
       footerRight="CapturePass"
       navLinks={[
         { href: "/", label: "Home" },
-        { href: "/pricing", label: "Pricing" },
+        { href: "/business/pricing", label: "Business Pricing" },
         { href: "/how-it-works", label: "How it works" },
         { href: "/contact-capture-nfc-cards", label: "Contact Capture" }
       ]}

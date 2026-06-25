@@ -25,7 +25,7 @@ export function ResourceIndexPage({ categories, featuredArticles, localLinks }: 
       footerRight="CapturePass"
       navLinks={[
         { href: "/", label: "Home" },
-        { href: "/pricing", label: "Pricing" },
+        { href: "/business/pricing", label: "Business Pricing" },
         { href: "/business", label: "Business" },
         { href: "/business/pricing", label: "Business Pricing" }
       ]}

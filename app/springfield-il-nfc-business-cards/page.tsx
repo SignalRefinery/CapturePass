@@ -27,11 +27,10 @@ export default function SpringfieldNfcBusinessCardsPage() {
           { href: "/", label: "Home" },
           { href: "/resources", label: "Resources" },
           { href: "/business", label: "Business" },
-          { href: "/pricing", label: "Pricing" }
+          { href: "/business/pricing", label: "Business Pricing" }
         ]}
         page={page}
       />
     </>
   );
 }
-

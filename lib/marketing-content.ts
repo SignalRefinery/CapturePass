@@ -66,7 +66,7 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
       "NFC business cards are useful because they move someone from a quick in-person exchange into a digital page where they can save your contact, open your links, and continue the conversation without friction.",
     title: "How NFC Business Cards Work",
     relatedLinks: [
-      { href: "/pricing", label: "Pricing" },
+      { href: "/business/pricing", label: "Business Pricing" },
       { href: "/business", label: "Business" },
       { href: "/contact-capture-nfc-cards", label: "Contact Capture NFC Cards" }
     ],
@@ -175,7 +175,7 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
     relatedLinks: [
       { href: "/contact-capture-nfc-cards", label: "Contact Capture NFC Cards" },
       { href: "/business", label: "Business" },
-      { href: "/pricing", label: "Pricing" }
+      { href: "/business/pricing", label: "Business Pricing" }
     ],
     sections: [
       {
@@ -317,7 +317,7 @@ export const SPRINGFIELD_PAGES: Record<string, SpringfieldPage> = {
     relatedLinks: [
       { href: "/dealerships", label: "Dealerships" },
       { href: "/business", label: "Business" },
-      { href: "/pricing", label: "Pricing" },
+      { href: "/business/pricing", label: "Business Pricing" },
       { href: "/resources/how-nfc-business-cards-work", label: "How NFC Business Cards Work" }
     ],
     sections: [
@@ -350,7 +350,7 @@ export const SPRINGFIELD_PAGES: Record<string, SpringfieldPage> = {
     intro:
       "Digital business cards work well in Springfield because they can be shared in person, by text, or after a meeting, while still keeping the same branded profile in front of the recipient.",
     relatedLinks: [
-      { href: "/pricing", label: "Pricing" },
+      { href: "/business/pricing", label: "Business Pricing" },
       { href: "/business-individual", label: "Business Individual" },
       { href: "/resources/digital-business-cards-for-sales-teams", label: "Digital Business Cards for Sales Teams" }
     ],

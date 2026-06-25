@@ -9,7 +9,7 @@ import { CapturePassBrandArt } from "@/components/shared/capturepass-brand-art";
 const PUBLIC_NAV_LINKS = [
   { href: "/", label: "Home" },
   { href: "/how-it-works", label: "How it works" },
-  { href: "/pricing", label: "Pricing" },
+  { href: "/business/pricing", label: "Business Pricing" },
   { href: "/business", label: "Business" },
   { href: "/partners", label: "Partners" },
 ];
@@ -64,7 +64,7 @@ export function Shell({
 
     const links = [
       { href: "/", label: "Home" },
-      { href: "/pricing", label: "Pricing" },
+      { href: "/business/pricing", label: "Business Pricing" },
       { href: "/business", label: "Business" },
       { href: "/partners", label: "Partners" },
       { href: "/dashboard#performance", label: "Performance" },

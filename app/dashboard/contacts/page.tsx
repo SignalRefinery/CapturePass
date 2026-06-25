@@ -45,7 +45,7 @@ export default async function ContactsPage() {
 
   if (!profile || !canUseContactsDashboard(plan)) {
     return (
-      <Shell footerLeft="Contacts" footerRight="CapturePass" initialAuth={initialAuth}>
+      <Shell footerLeft="Contacts" footerRight="CapturePass" initialAuth={initialAuth} pageVariant="default">
         <section className="simple-hero">
           <div className="kicker">
             <span className="mini-star">✦</span>
@@ -53,8 +53,8 @@ export default async function ContactsPage() {
           </div>
           <h1>Contacts unlock with Core.</h1>
           <p>Contact Sharing and the Contacts dashboard are available on Core, Capture+, and Creator.</p>
-          <Link className="button primary" href="/pricing" style={{ marginTop: 22 }}>
-            View plans
+          <Link className="button primary" href="/business/pricing" style={{ marginTop: 22 }}>
+            View business plans
           </Link>
         </section>
       </Shell>
@@ -67,7 +67,7 @@ export default async function ContactsPage() {
     .order("created_at", { ascending: false });
 
   return (
-    <Shell footerLeft="Contacts" footerRight="CapturePass" initialAuth={initialAuth}>
+    <Shell footerLeft="Contacts" footerRight="CapturePass" initialAuth={initialAuth} pageVariant="default">
       <section className="simple-hero">
         <div className="kicker">
           <span className="mini-star">✦</span>

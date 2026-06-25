@@ -69,7 +69,7 @@ export default function InsuranceAgentsPage() {
           { href: "/", label: "Home" },
           { href: "/business", label: "Business" },
           { href: "/business/pricing", label: "Business Pricing" },
-          { href: "/pricing", label: "Pricing" },
+          { href: "/business/pricing", label: "Business Pricing" },
           { href: "/contact-capture-nfc-cards", label: "Contact Capture" }
         ]}
         proofPoints={[
@@ -81,7 +81,7 @@ export default function InsuranceAgentsPage() {
           { href: "/business", label: "Business" },
           { href: "/business/pricing", label: "Business Pricing" },
           { href: "/contact-capture-nfc-cards", label: "Contact Capture NFC Cards" },
-          { href: "/pricing", label: "Pricing" },
+          { href: "/business/pricing", label: "Business Pricing" },
           { href: "/resources/digital-business-cards-for-insurance-agents", label: "Insurance Guide" },
           { href: "/springfield-il-contact-capture", label: "Springfield Contact Capture" }
         ]}

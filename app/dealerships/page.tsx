@@ -69,7 +69,7 @@ export default function DealershipsPage() {
           { href: "/", label: "Home" },
           { href: "/business", label: "Business" },
           { href: "/business/pricing", label: "Business Pricing" },
-          { href: "/pricing", label: "Pricing" },
+          { href: "/business/pricing", label: "Business Pricing" },
           { href: "/contact-capture-nfc-cards", label: "Contact Capture" }
         ]}
         proofPoints={[
@@ -81,7 +81,7 @@ export default function DealershipsPage() {
           { href: "/business", label: "Business" },
           { href: "/business/pricing", label: "Business Pricing" },
           { href: "/contact-capture-nfc-cards", label: "Contact Capture NFC Cards" },
-          { href: "/pricing", label: "Pricing" },
+          { href: "/business/pricing", label: "Business Pricing" },
           { href: "/resources/nfc-business-cards-for-car-dealerships", label: "Dealership Guide" },
           { href: "/springfield-il-nfc-business-cards", label: "Springfield NFC Cards" }
         ]}

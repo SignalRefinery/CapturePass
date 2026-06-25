@@ -51,9 +51,10 @@ export default async function DashboardPreviewPage() {
         fullName: profile.full_name || null,
         slug: profile.slug || null
       }}
+      pageVariant="default"
       navLinks={[
         { href: "/dashboard", label: "Dashboard" },
-        { href: "/pricing", label: "Pricing" }
+        { href: "/business/pricing", label: "Business Pricing" }
       ]}
     >
       <section className="dashboard-wrap">

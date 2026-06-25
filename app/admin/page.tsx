@@ -9,6 +9,9 @@ import { AdminTableFrame } from "@/components/admin/admin-table-frame";
 import { classifySlug } from "@/lib/slug-moderation";
 import { getCurrentTapTaggAdmin } from "@/lib/auth/admin";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 async function getInitialAuth() {
   const adminUser = await getCurrentTapTaggAdmin();
   if (!adminUser) return null;
@@ -89,7 +92,7 @@ export default async function AdminPage() {
       navLinks={[
         { href: "/", label: "Home" },
         { href: "/dashboard", label: "Dashboard" },
-        { href: "/pricing", label: "Pricing" }
+        { href: "/business/pricing", label: "Business Pricing" }
       ]}
     >
       <section className="section-wrap">

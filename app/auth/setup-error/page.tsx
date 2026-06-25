@@ -28,7 +28,7 @@ export default async function AuthSetupErrorPage({
       footerRight="CapturePass"
       navLinks={[
         { href: "/", label: "Home" },
-        { href: "/pricing", label: "Pricing" },
+        { href: "/business/pricing", label: "Business Pricing" },
         { href: "/login", label: "Log in" }
       ]}
     >

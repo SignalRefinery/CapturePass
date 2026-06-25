@@ -2,9 +2,9 @@
 
 ## Fresh Project Setup
 
-Run `supabase/bootstrap.sql` once in the Supabase SQL editor for a new CapturePass project.
+Run `supabase/capturepass_schema.sql` once in the Supabase SQL editor for a new CapturePass project.
 
-That file creates the current expected schema in one pass:
+That file is the consolidated fresh-project schema. It folds the current bootstrap plus the later feature phases into one pass:
 
 - `public.profiles`
 - `public.profile_views`
@@ -16,16 +16,10 @@ That file creates the current expected schema in one pass:
 - slug moderation helpers
 - profile access and public visibility RLS policies
 - billing, referral, card fulfillment, business-token, and profile-view columns
+- contact sharing, analytics, gamification, business webhooks, business assets, and public profile RPCs
 
-After `bootstrap.sql`, apply any later phase files that are newer than the
-bootstrap snapshot. Keep this order when those files are present:
-
-1. Public profile RLS hardening, currently `phase92_public_profile_rls.sql`.
-2. Limited public profile RPCs, currently `phase93_public_profile_rpc.sql`.
-3. Any newer `phase*.sql` files in chronological/order-of-dependency order.
-
-Do not apply late phase files before the base schema/bootstrap step. Phase files
-assume earlier tables, functions, and policies already exist.
+If you need to regenerate the file after editing any of the source phase SQL
+files, run `node scripts/build_capturepass_schema.js`.
 
 ## Existing Project Upgrades
 

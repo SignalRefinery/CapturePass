@@ -61,7 +61,7 @@ export default async function SignupPage({
       initialAuth={initialAuth}
       navLinks={[
         { href: "/", label: "Home" },
-        { href: "/pricing", label: "Pricing" },
+        { href: "/business/pricing", label: "Business Pricing" },
         { href: "/partners", label: "Partners" }
       ]}
     >

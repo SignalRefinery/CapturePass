@@ -10,7 +10,7 @@ const STATIC_TITLES: Record<string, SocialImageData> = {
   "/business": { title: "CapturePass for Business", subtitle: "Contact capture, reusable profiles, and lead ownership." },
   "/business-individual": { title: "Business Individual", subtitle: "Launch offer for solo professionals." },
   "/business/pricing": { title: "Business Pricing", subtitle: "Self-managed and managed plans for teams." },
-  "/pricing": { title: "CapturePass Pricing", subtitle: "Digital sharing, contact capture, and team tools." },
+  "/pricing": { title: "CapturePass Business Pricing", subtitle: "Digital sharing, contact capture, and team tools." },
   "/resources": { title: "CapturePass Resources", subtitle: "Guides for NFC cards and lead capture." },
   "/dealerships": { title: "CapturePass for Dealerships", subtitle: "Lead capture and showroom follow-up." },
   "/insurance-agents": { title: "CapturePass for Insurance Agents", subtitle: "Referral networking and long-term follow-up." },
