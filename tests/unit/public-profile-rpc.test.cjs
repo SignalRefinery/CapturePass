@@ -3,7 +3,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const test = require("node:test");
 
-const sqlPath = path.resolve(__dirname, "../../supabase/phase93_public_profile_rpc.sql");
+const sqlPath = path.resolve(__dirname, "../../supabase/archive/phase93_public_profile_rpc.sql");
 const publicProfileSourcePath = path.resolve(__dirname, "../../lib/profiles/public-profile-source.ts");
 
 function returnsTableBlock(functionName) {

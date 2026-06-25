@@ -50,6 +50,6 @@ test("builds business dashboard URLs from the configured app URL", () => {
 });
 
 test("platform admin email check delegates to the centralized bootstrap helper", () => {
-  assert.equal(isPlatformAdminEmail(" john@signalrefinery.pro "), true);
+  assert.equal(isPlatformAdminEmail(" john@handshakeiq.org "), true);
   assert.equal(isPlatformAdminEmail("admin@taptagg.app"), false);
 });

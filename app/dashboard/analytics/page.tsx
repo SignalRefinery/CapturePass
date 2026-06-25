@@ -58,9 +58,9 @@ export default async function AnalyticsPage({
             <span className="mini-star">✦</span>
             <span>Analytics</span>
           </div>
-          <h1>Analytics unlock with Capture+.</h1>
+          <h1>Analytics unlock with Business Individual.</h1>
           <p>
-            CapturePass still collects activity privately, but dashboard analytics are available on Capture+ and Creator.
+            CapturePass still collects activity privately, but dashboard analytics are available on Business Individual and business plans.
           </p>
           <Link className="button primary" href="/business/pricing" style={{ marginTop: 22 }}>
             View business plans

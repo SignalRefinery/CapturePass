@@ -264,7 +264,8 @@ export default async function AccountPage({
                   </Link>
 
                   <p className="editor-copy" style={{ flexBasis: "100%", margin: "4px 0 0" }}>
-                    Choose Core or above to activate your public profile, QR sharing, and physical NFC card.
+                    Choose Business Individual or a business plan to activate your public profile,
+                    QR sharing, and physical NFC card.
                   </p>
                 </>
               )}

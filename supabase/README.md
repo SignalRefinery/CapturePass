@@ -25,16 +25,15 @@ files, run `node scripts/build_capturepass_schema.js`.
 
 Use the individual `phase*.sql` files only when upgrading an existing database that already has the earlier phases applied.
 
+Historical phase files are archived under `supabase/archive/`. Treat that
+folder as the migration history for older databases, not the fresh-project
+entry point.
+
 For older databases, apply phase files in chronological/order-of-dependency order. Do not start with a late phase file, because many of them assume `public.profiles` and related functions already exist.
 
 Recent upgrades:
 
-- `phase76_contact_submission_consent.sql` adds contact consent audit fields for inquiry follow-up consent. This is not a marketing opt-in.
-- `phase77_theme_presets.sql` adds curated profile/business themes, custom color storage, and profile theme entitlement enforcement.
-- `phase78_custom_theme_text_color.sql` adds a custom text color for readable custom themes.
-- `phase87_multilocation_business.sql` adds business locations, future regions, employee location assignment, and analytics filter fields.
-- `phase92_public_profile_rls.sql` tightens public profile/profile-view row access.
-- `phase93_public_profile_rpc.sql` adds limited public profile RPCs for slug/token profile rendering without exposing internal profile columns.
+- `phase100_bootstrap_admin_handshakeiq.sql` updates the bootstrap admin seed for the `john@handshakeiq.org` rebrand.
 
 ## Stripe Billing Note
 
@@ -49,6 +48,18 @@ The app expects these billing columns on `public.profiles`:
 - `card_notification_sent_at`
 
 For a fresh project, `bootstrap.sql` includes them all.
+
+## Bootstrap Admin Setup
+
+If you need to create or recover the platform admin account, use the operator note
+at `supabase/manual_admin_setup_handshakeiq.md`.
+
+That note covers the intended `john@handshakeiq.org` bootstrap admin flow:
+
+- create or invite the Supabase Auth user
+- confirm the matching `public.profiles` row exists
+- mark the profile as admin if needed
+- send the password setup email to `/update-password`
 
 ## CapturePass Auth And Deployment URLs
 

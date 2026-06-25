@@ -3,7 +3,9 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { checkoutContinuationPath } from "@/lib/auth/checkout-continuation";
 import { safeInternalRedirect } from "@/lib/auth/redirect";
+import { isBusinessIndividualPromoCode } from "@/lib/plans";
 import { createClient } from "@/lib/supabase/client";
 import { slugify } from "@/lib/utils";
 
@@ -75,6 +77,19 @@ export function AuthForm({ mode, nextPath, plan, businessType, initialPromoCode 
         slugify(fullName) || slugify(email.split("@")[0] || "");
       const normalizedPromoCode = promoCode.trim().toUpperCase();
       const isFounderSignup = normalizedPromoCode === "FOUNDERS";
+      const isBusinessIndividualSignup = isBusinessIndividualPromoCode(normalizedPromoCode);
+      const effectivePlan = isFounderSignup
+        ? null
+        : isBusinessIndividualSignup
+          ? "business_individual"
+          : plan || null;
+      const callbackNextPath = isBusinessIndividualSignup
+        ? checkoutContinuationPath({
+            businessType,
+            plan: effectivePlan,
+            promoCode: normalizedPromoCode || null
+          })
+        : redirectTo;
 
       if (password !== confirmPassword) {
         setError("Passwords do not match.");
@@ -100,8 +115,8 @@ export function AuthForm({ mode, nextPath, plan, businessType, initialPromoCode 
         password,
         options: {
           emailRedirectTo: getEmailRedirectUrl(
-            isFounderSignup ? "/dashboard" : redirectTo,
-            isFounderSignup ? null : plan,
+            isFounderSignup ? "/dashboard" : callbackNextPath,
+            isFounderSignup ? null : effectivePlan,
             isFounderSignup ? null : businessType
           ),
           data: {
@@ -112,8 +127,8 @@ export function AuthForm({ mode, nextPath, plan, businessType, initialPromoCode 
             referral_code_used: referral.trim() || null,
             promo_code: normalizedPromoCode || null,
             selected_business_type: businessType || null,
-            selected_plan: isFounderSignup ? null : plan || null,
-            checkout_next_path: isFounderSignup ? null : redirectTo
+            selected_plan: isFounderSignup ? null : effectivePlan,
+            checkout_next_path: isFounderSignup ? null : callbackNextPath
           }
         }
       });
@@ -159,7 +174,7 @@ export function AuthForm({ mode, nextPath, plan, businessType, initialPromoCode 
       }
 
       setMessage(
-        plan && promoCode.trim().toUpperCase() !== "FOUNDERS"
+        effectivePlan && promoCode.trim().toUpperCase() !== "FOUNDERS"
           ? "Check your email to verify your account. After verification, you will continue to checkout."
           : "Check your email to verify your account."
       );

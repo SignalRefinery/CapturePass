@@ -1,7 +1,7 @@
 -- Business branding and TapTagg central admin access.
 --
 -- Adds the three-color business brand palette used by /p/[token] pages and
--- ensures john@signalrefinery.pro is listed as an admin member on every org.
+-- ensures john@handshakeiq.org is listed as an admin member on every org.
 
 alter table public.organizations
   add column if not exists brand_color_primary text,
@@ -29,16 +29,16 @@ select
   o.id,
   u.id,
   'TapTagg Admin',
-  'john@signalrefinery.pro',
+  'john@handshakeiq.org',
   'Platform admin',
   'admin',
   'active'
 from public.organizations o
 left join auth.users u
-  on lower(u.email) = 'john@signalrefinery.pro'
+  on lower(u.email) = 'john@handshakeiq.org'
 where not exists (
   select 1
   from public.organization_members m
   where m.organization_id = o.id
-    and lower(coalesce(m.email, '')) = 'john@signalrefinery.pro'
+    and lower(coalesce(m.email, '')) = 'john@handshakeiq.org'
 );

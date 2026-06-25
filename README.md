@@ -184,25 +184,10 @@ Supabase Setup
 For a fresh Supabase project, start with `supabase/bootstrap.sql`, then apply any newer phase files that are not yet folded into the bootstrap snapshot.
 
 For an existing Supabase project, apply SQL files in order:
-- schema.sql
-- signup_profile_bootstrap.sql
-- signup_slug_moderation_fix.sql
-- slug_fulfillment_columns.sql
-- phase2_profile_safety.sql
-- phase5_randomized_slug.sql
-- phase8_token_issuance.sql
-- phase55_billing.sql
-- phase60_profile_views.sql
-- phase_slug_db_enforcement.sql
-- phase62_profile_view_secondary_action.sql
-- phase92_public_profile_rls.sql
-- phase93_public_profile_rpc.sql
+Historical phase files are archived under `supabase/archive/`. If you need to replay the older migration history, use the archived SQL files there rather than the consolidated fresh-project bootstrap.
 
 Important:
 - Fresh-project SQL order is documented in `supabase/README.md`.
-- `phase_slug_db_enforcement.sql` should be applied in Supabase before production onboarding.
-- `phase62_profile_view_secondary_action.sql` should be applied before using the "None" secondary action option on profile views.
-- `phase92_public_profile_rls.sql` and `phase93_public_profile_rpc.sql` should be applied before public profile traffic uses the limited public profile read path.
 - Test dashboard profile saves, profile view saves, admin slug review, Stripe webhook updates, and auth signup bootstrap after applying migrations.
 
 ---

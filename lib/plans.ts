@@ -52,9 +52,9 @@ const PLAN_ORDER: Record<PlanKey, number> = {
 
 const PLAN_LABELS: Record<PlanKey, string> = {
   free: "Free",
-  core: "Core",
-  tagg_plus: "Capture+",
-  creator: "Creator",
+  core: "Business Starter",
+  tagg_plus: "Business Plus",
+  creator: "Business Pro",
   business_individual: "Business Individual"
 };
 
@@ -164,7 +164,7 @@ export function planUnlocksTaggPlusFeatures(
   return isActivated && planAtLeast(normalized, "tagg_plus");
 }
 
-export function planUnlocksCreatorFeatures(
+export function planUnlocksAdvancedFeatures(
   plan: PlanKey | string | null | undefined,
   isActivated = true
 ) {
@@ -200,7 +200,7 @@ export function getPlanPricingDescription(
 
   if (normalized === "core") {
     if (legacySource === "digital" || legacySource === "digital-monthly" || legacySource === "digital_monthly") {
-      return "Legacy digital subscription, now treated as Core access.";
+      return "Legacy digital subscription, now treated as Business Starter access.";
     }
 
     return "Physical card activated. No renewal required.";
@@ -290,32 +290,32 @@ export function getPlanFeatures(
 ): PlanFeatures {
   const hasPaidAccess = isActivated && plan !== "free";
   const isBusinessIndividual = isActivated && plan === "business_individual";
-  const isCore = isActivated && (planAtLeast(plan, "core") || isBusinessIndividual);
+  const isStarterTier = isActivated && (planAtLeast(plan, "core") || isBusinessIndividual);
   const isTaggPlus = isActivated && (planAtLeast(plan, "tagg_plus") || isBusinessIndividual);
-  const isCreator = isActivated && plan === "creator";
-  const hasMultipleViews = isCreator || isRealEstateBusiness(profileBusinessType);
+  const isAdvancedTier = isActivated && plan === "creator";
+  const hasMultipleViews = isAdvancedTier || isRealEstateBusiness(profileBusinessType);
 
   return {
     key: plan,
     label: getPlanDisplayLabel(plan),
     isActivated,
     hasDigitalProfile: hasPaidAccess,
-    hasNfcSharing: isCore,
+    hasNfcSharing: isStarterTier,
     hasQrSharing: hasPaidAccess,
     hasExpandedLinks: hasPaidAccess,
-    hasBasicThemes: isCore,
-    hasAdvancedCustomization: isTaggPlus || isCreator,
-    hasBasicAnalytics: isTaggPlus || isCreator,
+    hasBasicThemes: isStarterTier,
+    hasAdvancedCustomization: isTaggPlus || isAdvancedTier,
+    hasBasicAnalytics: isTaggPlus || isAdvancedTier,
     hasContactSharing: hasPaidAccess,
     hasContactsDashboard: hasPaidAccess,
     hasLeadCapture: hasPaidAccess,
-    hasCustomButtons: isTaggPlus || isCreator,
-    hasPrioritySupport: isTaggPlus || isCreator,
-    hasAdvancedAnalytics: isCreator || isBusinessIndividual,
+    hasCustomButtons: isTaggPlus || isAdvancedTier,
+    hasPrioritySupport: isTaggPlus || isAdvancedTier,
+    hasAdvancedAnalytics: isAdvancedTier || isBusinessIndividual,
     hasMoreProfileSections: hasMultipleViews,
-    hasEmbeds: isCreator,
-    hasBookingLinks: isCreator,
-    hasSmartRedirects: isCreator,
+    hasEmbeds: isAdvancedTier,
+    hasBookingLinks: isAdvancedTier,
+    hasSmartRedirects: isAdvancedTier,
     hasContactExport: hasPaidAccess
   };
 }

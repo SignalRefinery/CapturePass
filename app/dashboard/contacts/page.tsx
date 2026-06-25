@@ -51,8 +51,8 @@ export default async function ContactsPage() {
             <span className="mini-star">✦</span>
             <span>Contacts</span>
           </div>
-          <h1>Contacts unlock with Core.</h1>
-          <p>Contact Sharing and the Contacts dashboard are available on Core, Capture+, and Creator.</p>
+          <h1>Contacts unlock with Business Individual.</h1>
+          <p>Contact Sharing and the Contacts dashboard are available on Business Individual and business plans.</p>
           <Link className="button primary" href="/business/pricing" style={{ marginTop: 22 }}>
             View business plans
           </Link>

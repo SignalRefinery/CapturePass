@@ -64,7 +64,7 @@ export default async function DashboardPreviewPage() {
           <p className="editor-copy">
             {plan.isActivated
               ? "Public visitors see this profile when they open your CapturePass link."
-              : "Free profiles can be previewed here, but public profile, QR sharing, and NFC sharing unlock with Core."}
+              : "Reserved profiles can be previewed here, but public profile, QR sharing, and NFC sharing unlock with Business Individual or a business plan."}
           </p>
         </div>
       </section>

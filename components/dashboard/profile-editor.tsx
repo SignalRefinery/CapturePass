@@ -828,10 +828,11 @@ export function ProfileEditor({
         <p className="editor-copy">
           {plan.isActivated
             ? "Shape how people encounter you. Keep the next step clear, make follow-up easier, and present yourself with less clutter."
-            : "Your reserved profile is preview-only. Save the basics now, then activate Core or above when you are ready to go public."}
+            : "Your reserved profile is preview-only. Save the basics now, then activate Business Individual or a business plan when you are ready to go public."}
         </p>
         <p className="auth-message" style={{ marginTop: 10 }}>
-          Current plan: <strong>{plan.label}</strong>
+          Current plan:{" "}
+          <strong>{plan.isActivated ? (plan.key === "business_individual" ? "Business Individual" : "Business plan") : "Reserved profile"}</strong>
         </p>
 
         <form className="editor-form" onSubmit={handleSave} style={{ marginTop: 24 }}>
@@ -907,7 +908,7 @@ export function ProfileEditor({
                 <br />
                 {plan.isActivated
                   ? "Leave this checked so your approved slug can open your profile. Uncheck it for added privacy; your personalized slug will not be publicly findable, and sharing should use the exact issued link from your QR code."
-                  : "Free profiles are preview-only, so this link will stay private until you activate Core or above."}
+                  : "Reserved profiles are preview-only, so this link will stay private until you activate Business Individual or a business plan."}
               </span>
             </label>
           </div>
@@ -979,7 +980,7 @@ export function ProfileEditor({
                       <strong>{theme.name}</strong>
                       <small>
                         {theme.description}
-                        {!allowed ? ` Upgrade to ${theme.key === CUSTOM_THEME_KEY ? "Creator" : "Capture+"} to unlock.` : ""}
+                        {!allowed ? ` Upgrade to Business Individual or a business plan to unlock.` : ""}
                       </small>
                       <span
                         className="theme-preview-strip"
@@ -1063,13 +1064,13 @@ export function ProfileEditor({
             </label>
 
             <label className="auth-field">
-              <span>Role/Title</span>
-              <input
-                value={form.role_line || ""}
-                onChange={(event) => update("role_line", event.target.value)}
-                placeholder="Creator, Stylist, Founder"
-              />
-            </label>
+                <span>Role/Title</span>
+                <input
+                  value={form.role_line || ""}
+                  onChange={(event) => update("role_line", event.target.value)}
+                  placeholder="Advisor, Stylist, Founder"
+                />
+              </label>
 
             <label className="auth-field">
               <span>Website URL</span>
@@ -1124,7 +1125,7 @@ export function ProfileEditor({
               </label>
             </div>
             {!plan.hasAdvancedCustomization ? (
-              <UpgradeNotice>Advanced profile badges unlock with Capture+.</UpgradeNotice>
+              <UpgradeNotice>Advanced profile badges unlock with Business Individual and business plans.</UpgradeNotice>
             ) : null}
           </div>
 
@@ -1266,7 +1267,7 @@ export function ProfileEditor({
               </div>
             ))}
             {!plan.hasExpandedLinks ? (
-              <UpgradeNotice>Free profiles include basic CTA buttons. Expanded buttons unlock with Core.</UpgradeNotice>
+              <UpgradeNotice>Business Individual and business plans include expanded CTA buttons.</UpgradeNotice>
             ) : null}
           </div>
 
@@ -1302,7 +1303,7 @@ export function ProfileEditor({
                   </option>
                 </select>
                 {!plan.hasMoreProfileSections ? (
-                  <UpgradeNotice>More profile sections and multi-view profiles unlock with Creator.</UpgradeNotice>
+                  <UpgradeNotice>More profile sections and multi-view profiles unlock with Business Individual and business plans.</UpgradeNotice>
                 ) : null}
               </label>
 
@@ -1475,7 +1476,7 @@ export function ProfileEditor({
                     <input
                       value={activeView.role_line || ""}
                       onChange={(event) => updateView("role_line", event.target.value)}
-                      placeholder="Creator, Stylist, Founder"
+                      placeholder="Advisor, Stylist, Founder"
                     />
                   </label>
                 </div>
@@ -1650,7 +1651,7 @@ export function ProfileEditor({
                         </button>
                       </div>
                       {!plan.hasCustomButtons ? (
-                        <UpgradeNotice>Custom profile buttons unlock with Capture+.</UpgradeNotice>
+                        <UpgradeNotice>Custom profile buttons unlock with Business Individual and business plans.</UpgradeNotice>
                       ) : null}
                     </div>
                   </div>
@@ -1759,7 +1760,15 @@ export function ProfileEditor({
               <div className="auth-field">
                 <span>Access</span>
                 <input
-                  value={form.lifetime_free ? "Founder lifetime access" : plan.label}
+                  value={
+                    form.lifetime_free
+                      ? "Founder lifetime access"
+                      : plan.isActivated
+                        ? plan.key === "business_individual"
+                          ? "Business Individual"
+                          : "Business plan"
+                        : "Reserved profile"
+                  }
                   readOnly
                   disabled
                 />

@@ -17,7 +17,7 @@ export function checkoutContinuationPath({
   promoCode
 }: CheckoutContinuationOptions) {
   const cleanPlan = clean(plan);
-  if (!cleanPlan) return "/dashboard";
+  if (!cleanPlan) return "/business/pricing";
 
   const params = new URLSearchParams();
   params.set("plan", cleanPlan);

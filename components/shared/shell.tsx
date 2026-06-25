@@ -132,7 +132,7 @@ export function Shell({
                 <Link href="/login" style={{ whiteSpace: "nowrap" }}>
                   Sign in
                 </Link>
-                <Link href="/signup" className="button primary">
+                <Link href="/business/pricing" className="button primary">
                   Get started
                 </Link>
               </div>

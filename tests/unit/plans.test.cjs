@@ -5,7 +5,7 @@ require("./require-ts.cjs");
 const {
   getPlanDisplayLabel,
   normalizeIndividualPlanKey,
-  planUnlocksCreatorFeatures,
+  planUnlocksAdvancedFeatures,
   planUnlocksTaggPlusFeatures,
   resolveCheckoutPlanSelection
 } = require("../../lib/plans.ts");
@@ -29,9 +29,9 @@ test("keeps checkout parsing from treating generic business as an individual pla
 });
 
 test("reports labels and feature thresholds from canonical plans", () => {
-  assert.equal(getPlanDisplayLabel("tagg_plus"), "Capture+");
+  assert.equal(getPlanDisplayLabel("tagg_plus"), "Business Plus");
   assert.equal(planUnlocksTaggPlusFeatures("core"), false);
   assert.equal(planUnlocksTaggPlusFeatures("tagg_plus"), true);
-  assert.equal(planUnlocksCreatorFeatures("tagg_plus"), false);
-  assert.equal(planUnlocksCreatorFeatures("creator"), true);
+  assert.equal(planUnlocksAdvancedFeatures("tagg_plus"), false);
+  assert.equal(planUnlocksAdvancedFeatures("creator"), true);
 });

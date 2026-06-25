@@ -1,58 +1,15 @@
 "use client";
 
 import { AffiliateTerms } from "@/components/legal/affiliate-terms";
-import { getPlanDisplayLabel, getPlanPricingDescription, type PlanKey } from "@/lib/plans";
-
-const planCards: Array<{
-  key: PlanKey;
-  price: string;
-  billing: string;
-  headline: string;
-  description: string;
-  cta: string;
-  href?: string;
-  featured?: boolean;
-}> = [
-  {
-    key: "core",
-    price: "$29",
-    billing: "/ year",
-    headline: "Activate your CapturePass.",
-    description: "Physical CapturePass card, NFC sharing, QR sharing, profile link sharing, add-to-contacts, basic customization, and themes.",
-    cta: "Get Core"
-  },
-  {
-    key: "tagg_plus",
-    price: "$79",
-    billing: "/ year",
-    headline: "Capture contacts and understand engagement.",
-    description: "Everything in Core plus Contact Capture, contacts dashboard, analytics, source tracking, custom buttons, advanced customization, and priority support.",
-    cta: "Upgrade to Capture+",
-    featured: true
-  },
-  {
-    key: "business_individual",
-    price: "$99",
-    billing: "/ year",
-    headline: "Business Individual.",
-    description: "For solo professionals who need lead capture, business branding, a custom printed card, analytics, and onboarding support.",
-    cta: "Open Business Individual",
-    href: "/business-individual"
-  }
-];
+import Link from "next/link";
 
 type InactiveStateProps = {
   email: string;
 };
 
 export function InactiveState({ email }: InactiveStateProps) {
-  function handleCheckout(plan: PlanKey, href?: string) {
-    if (href) {
-      window.location.assign(href);
-      return;
-    }
-
-    window.location.assign(`/api/checkout?plan=${encodeURIComponent(plan)}`);
+  function handleCheckout(href: string) {
+    window.location.assign(href);
   }
 
   return (
@@ -61,29 +18,53 @@ export function InactiveState({ email }: InactiveStateProps) {
         <div className="dashboard-kicker">Reserved profile</div>
         <h2>Your profile is preview-only until activation.</h2>
         <p className="editor-copy">
-          Your account for <strong>{email}</strong> can build a basic profile now. Choose Core
-          for card sharing, Capture+ for contact capture and analytics, or Business Individual
-          for a branded solo-professional profile.
+          Your account for <strong>{email}</strong> can build a basic profile now. Choose Business
+          Individual for a branded solo-professional profile, or open Business Pricing for team
+          plans.
         </p>
 
         <div className="pricing-grid" style={{ marginTop: 20 }}>
-          {planCards.map((plan) => (
-            <div className={`card pricing-card${plan.featured ? " featured" : ""}`} key={plan.key}>
-              <div className="plan-label">{getPlanDisplayLabel(plan.key)}</div>
-              <h2>{plan.headline}</h2>
-              <div className="plan-price">
-                <span className="setup">{plan.price}</span>
-                <span className="monthly">{plan.billing}</span>
-              </div>
-              <p className="muted">{plan.description}</p>
-              <p className="muted" style={{ marginTop: 8 }}>
-                {getPlanPricingDescription(plan.key, { isActivated: true })}
-              </p>
-              <button className="button primary" type="button" onClick={() => handleCheckout(plan.key, plan.href)}>
-                {plan.cta}
-              </button>
+          <div className="card pricing-card featured">
+            <div className="plan-label">Business Individual</div>
+            <h2>Activate your solo business profile.</h2>
+            <div className="plan-price">
+              <span className="setup">$99</span>
+              <span className="monthly">/ year</span>
             </div>
-          ))}
+            <p className="muted">
+              Built for solo professionals who need lead capture, branded NFC cards, QR sharing,
+              analytics, and CRM-ready exports.
+            </p>
+            <p className="muted" style={{ marginTop: 8 }}>
+              Business Individual launch subscription.
+            </p>
+            <button
+              className="button primary"
+              type="button"
+              onClick={() => handleCheckout("/business-individual")}
+            >
+              Open Business Individual
+            </button>
+          </div>
+
+          <div className="card pricing-card">
+            <div className="plan-label">Business Plans</div>
+            <h2>Choose a team plan.</h2>
+            <div className="plan-price">
+              <span className="setup">From $29</span>
+              <span className="monthly">/ month</span>
+            </div>
+            <p className="muted">
+              Shared branding, team contact management, reusable seats, and managed options for
+              businesses of every size.
+            </p>
+            <p className="muted" style={{ marginTop: 8 }}>
+              Compare business plans and launch pricing on the business pricing page.
+            </p>
+            <Link className="button secondary" href="/business/pricing">
+              View Business Pricing
+            </Link>
+          </div>
         </div>
       </div>
 
