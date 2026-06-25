@@ -1,7 +1,6 @@
 type ProfileUrlLike = {
   slug?: string | null;
   private_token?: string | null;
-  consent_public_visibility?: boolean | null;
 };
 
 function normalizedAppUrl() {
@@ -24,9 +23,5 @@ export function getIssuedProfileUrl(profile: ProfileUrlLike) {
 }
 
 export function getPreferredProfileShareUrl(profile: ProfileUrlLike) {
-  return (
-    profile.consent_public_visibility === false && profile.private_token
-      ? getIssuedProfileUrl(profile)
-      : getReadableProfileUrl(profile)
-  );
+  return getReadableProfileUrl(profile);
 }

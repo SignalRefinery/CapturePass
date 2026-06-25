@@ -109,7 +109,7 @@ export async function PATCH(
 
   const { data: currentProfile, error: currentError } = await admin
     .from("profiles")
-    .select("user_id, full_name, email, slug, private_token, slug_requested, slug_status, slug_review_reason, is_active, billing_exempt, is_affiliate, affiliate_tier, is_public_official, stripe_customer_id, stripe_plan_key, promo_code_used, consent_public_visibility, role_line, intro, phone, text_phone, website_url, primary_link_1_title, primary_link_1_url, primary_link_1_type, primary_link_2_title, primary_link_2_url, primary_link_2_type, primary_link_3_title, primary_link_3_url, primary_link_3_type, primary_link_4_title, primary_link_4_url, primary_link_4_type, subscription_status, card_notification_sent_at")
+    .select("user_id, full_name, email, slug, private_token, slug_requested, slug_status, slug_review_reason, is_active, billing_exempt, is_affiliate, affiliate_tier, is_public_official, stripe_customer_id, stripe_plan_key, promo_code_used, role_line, intro, phone, text_phone, website_url, primary_link_1_title, primary_link_1_url, primary_link_1_type, primary_link_2_title, primary_link_2_url, primary_link_2_type, primary_link_3_title, primary_link_3_url, primary_link_3_type, primary_link_4_title, primary_link_4_url, primary_link_4_type, subscription_status, card_notification_sent_at")
     .eq("user_id", userId)
     .single();
 
@@ -219,7 +219,6 @@ export async function PATCH(
       (profileUpdates as Record<string, unknown>).is_affiliate = !!tier;
       break;
     }
-    case "consent_public_visibility":
     case "is_active":
     case "billing_exempt":
     case "is_affiliate":

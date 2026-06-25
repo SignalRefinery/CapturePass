@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: PageProps) {
   const normalizedSlug = slug.toLowerCase();
   const profile = (await getProfileBySlugServer(normalizedSlug)) as ProfileRecord | null;
 
-  if (profile && profileCanRenderPublicly(profile) && profile.consent_public_visibility === true && isSlugPubliclyAllowed(profile.slug, profile.slug_status)) {
+  if (profile && profileCanRenderPublicly(profile) && isSlugPubliclyAllowed(profile.slug, profile.slug_status)) {
     return buildPublicProfileMetadata({
       description:
         profile.intro ||
@@ -119,7 +119,6 @@ export default async function PublicProfilePage({ params, searchParams }: PagePr
   if (
     !profile ||
     !profileCanRenderPublicly(profile) ||
-    profile.consent_public_visibility !== true ||
     !isSlugPubliclyAllowed(profile.slug, profile.slug_status)
   ) {
     notFound();

@@ -17,10 +17,6 @@ export async function generateMetadata() {
   return profileMetadata({ visibility: "private" });
 }
 
-function appUrl() {
-  return (process.env.NEXT_PUBLIC_APP_URL || "https://capturepass.com").replace(/\/$/, "");
-}
-
 export default async function PublicDigitalPassPage({ params, searchParams }: PageProps) {
   noStore();
 
@@ -43,7 +39,7 @@ export default async function PublicDigitalPassPage({ params, searchParams }: Pa
     {
       id: "main",
       label: "Profile",
-      url: profile.consent_public_visibility === false ? `${appUrl()}/u/${token}` : getPreferredProfileShareUrl(profile),
+      url: getPreferredProfileShareUrl(profile),
       passUrl: `/pass/${token}`
     }
   ];

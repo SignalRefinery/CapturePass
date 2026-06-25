@@ -106,7 +106,7 @@ export async function saveProfileClient(record: ProfileRecord, userId: string) {
     profile_badge_1: record.profile_badge_1 || "",
     profile_badge_2: record.profile_badge_2 || "",
     profile_badge_3: record.profile_badge_3 || "",
-    consent_public_visibility: record.consent_public_visibility !== false,
+    consent_public_visibility: true,
     is_active: record.is_active ?? false,
     stripe_plan_key: record.stripe_plan_key || null,
     billing_exempt: record.billing_exempt ?? false,

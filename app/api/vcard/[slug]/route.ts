@@ -81,7 +81,6 @@ export async function GET(request: Request, context: RouteContext) {
   if (
     !profile ||
     !profileCanRenderPublicly(profile) ||
-    profile.consent_public_visibility !== true ||
     !isSlugPubliclyAllowed(profile.slug, profile.slug_status)
   ) {
     return new NextResponse("Not found", { status: 404, headers: PROFILE_CACHE_HEADERS });

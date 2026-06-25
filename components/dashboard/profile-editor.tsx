@@ -895,24 +895,6 @@ export function ProfileEditor({
             </div>
           </div>
 
-          <div className="card" style={{ marginTop: 18, padding: 18 }}>
-            <label className="toggle-row" style={{ margin: 0 }}>
-              <input
-                type="checkbox"
-                checked={form.consent_public_visibility !== false}
-                onChange={(event) => update("consent_public_visibility", event.target.checked)}
-              />
-                <span>
-                Use my personalized public profile link.
-                <br />
-                <br />
-                {plan.isActivated
-                  ? "Leave this checked so your approved slug can open your profile. Uncheck it for added privacy; your personalized slug will not be publicly findable, and sharing should use the exact issued link from your QR code."
-                  : "Reserved profiles are preview-only, so this link will stay private until you activate Business Individual or a business plan."}
-              </span>
-            </label>
-          </div>
-
           {canManageBusinessIndividualLogo ? (
             <div className="card" style={{ marginTop: 18, padding: 18 }}>
               <div className="dashboard-kicker">Business logo</div>

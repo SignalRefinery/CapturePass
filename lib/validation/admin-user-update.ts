@@ -25,7 +25,6 @@ export type AdminUserUpdateField =
   | "primary_link_3"
   | "primary_link_4"
   | "promo_code_used"
-  | "consent_public_visibility"
   | "is_active"
   | "billing_exempt"
   | "is_affiliate"
@@ -70,7 +69,6 @@ const ADMIN_UPDATE_FIELDS = new Set<AdminUserUpdateField>([
   "primary_link_3",
   "primary_link_4",
   "promo_code_used",
-  "consent_public_visibility",
   "is_active",
   "billing_exempt",
   "is_affiliate",
@@ -87,7 +85,6 @@ const ALLOWED_BODY_KEYS = new Set(["userId", "field", "value", "overrideRestrict
 export const ALLOWED_AFFILIATE_TIERS = new Set(["standard", "founder", "partner"]);
 
 export const ALLOWED_BOOLEAN_FIELDS = new Set([
-  "consent_public_visibility",
   "is_active",
   "billing_exempt",
   "is_affiliate",

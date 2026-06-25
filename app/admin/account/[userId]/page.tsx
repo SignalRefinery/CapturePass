@@ -183,9 +183,6 @@ async function updateUserAction(formData: FormData) {
       }
       break;
     }
-    case "consent_public_visibility":
-      updates.consent_public_visibility = value === "true";
-      break;
     case "is_active":
     case "billing_exempt":
     case "is_affiliate":
@@ -606,26 +603,6 @@ export default async function AdminUserPage({ params, searchParams }: PageProps)
                 />
                 <button className="button primary" type="submit">
                   Save intro
-                </button>
-              </form>
-
-              <form action={updateUserAction} className="card" style={{ padding: 14, marginTop: 12 }}>
-                <input type="hidden" name="userId" value={profile.user_id} />
-                <input type="hidden" name="field" value="consent_public_visibility" />
-                <label className="label" htmlFor="profile-consent-public-visibility">
-                  Public visibility consent
-                </label>
-                <select
-                  id="profile-consent-public-visibility"
-                  name="value"
-                  defaultValue={profile.consent_public_visibility ? "true" : "false"}
-                  style={{ width: "100%", padding: 10, margin: "8px 0" }}
-                >
-                  <option value="true">Visible / consent granted</option>
-                  <option value="false">Discreet / consent not granted</option>
-                </select>
-                <button className="button primary" type="submit">
-                  Save visibility
                 </button>
               </form>
 
