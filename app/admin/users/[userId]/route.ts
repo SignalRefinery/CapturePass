@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { classifySlug } from "@/lib/slug-moderation";
-import { requireTapTaggAdmin } from "@/lib/auth/admin";
+import { requireCapturePassAdmin } from "@/lib/auth/admin";
 import { normalizeIndividualPlanKey } from "@/lib/plans";
 
 type AdminUserPayload = {
@@ -72,7 +72,7 @@ export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ userId: string }> }
 ) {
-  const adminUser = await requireTapTaggAdmin();
+  const adminUser = await requireCapturePassAdmin();
   if (!adminUser) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
   }
@@ -166,7 +166,7 @@ export async function DELETE(
   _request: Request,
   { params }: { params: Promise<{ userId: string }> }
 ) {
-  const adminUser = await requireTapTaggAdmin();
+  const adminUser = await requireCapturePassAdmin();
   if (!adminUser) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
   }

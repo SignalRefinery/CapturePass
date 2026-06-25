@@ -4,7 +4,7 @@ import { classifySlug } from "@/lib/slug-moderation";
 import { buildQuickChartQrUrl } from "@/lib/notifications/qr";
 import { sendSlugApprovedEmail } from "@/lib/notifications/send-slug-approved-email";
 import { normalizeIndividualPlanKey } from "@/lib/plans";
-import { requireTapTaggAdmin } from "@/lib/auth/admin";
+import { requireCapturePassAdmin } from "@/lib/auth/admin";
 import {
   ALLOWED_AFFILIATE_TIERS,
   ALLOWED_BOOLEAN_FIELDS,
@@ -83,7 +83,7 @@ export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ userId: string }> }
 ) {
-  const adminUser = await requireTapTaggAdmin();
+  const adminUser = await requireCapturePassAdmin();
   if (!adminUser) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
   }
@@ -335,7 +335,7 @@ export async function POST(
   _request: Request,
   { params }: { params: Promise<{ userId: string }> }
 ) {
-  const adminUser = await requireTapTaggAdmin();
+  const adminUser = await requireCapturePassAdmin();
   if (!adminUser) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
   }
@@ -392,7 +392,7 @@ export async function DELETE(
   _request: Request,
   { params }: { params: Promise<{ userId: string }> }
 ) {
-  const adminUser = await requireTapTaggAdmin();
+  const adminUser = await requireCapturePassAdmin();
   if (!adminUser) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
   }

@@ -13,7 +13,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { classifySlug } from "@/lib/slug-moderation";
 import { normalizeUrl } from "@/lib/utils";
-import { getCurrentTapTaggAdmin } from "@/lib/auth/admin";
+import { getCurrentCapturePassAdmin } from "@/lib/auth/admin";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -34,7 +34,7 @@ type PageProps = {
 };
 
 async function requireAdmin() {
-  const adminUser = await getCurrentTapTaggAdmin();
+  const adminUser = await getCurrentCapturePassAdmin();
   if (!adminUser) {
     redirect("/dashboard");
   }

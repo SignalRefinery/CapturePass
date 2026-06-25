@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { notFound, redirect } from "next/navigation";
 import { unstable_noStore as noStore } from "next/cache";
 import { profileMetadata } from "@/lib/privacy/profile-privacy";
-import { TapTaggProfileShell } from "@/components/profile/taptagg-profile-shell";
+import { CapturePassProfileShell } from "@/components/profile/taptagg-profile-shell";
 import { resolvePublicBusinessProfile } from "@/lib/business/public-profile-route";
 
 function buildPublicProfileMetadata({
@@ -78,7 +78,7 @@ export default async function PublicBusinessMemberProfilePage({ params, searchPa
     : null;
 
   return (
-    <TapTaggProfileShell
+    <CapturePassProfileShell
       profile={profile}
       views={[profile]}
       navViews={[profile]}

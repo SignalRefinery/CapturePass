@@ -2,10 +2,10 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { buildWebhookTestPayload, sendOrganizationWebhook } from "@/lib/webhooks/sendWebhook";
-import { getCurrentTapTaggAdmin } from "@/lib/auth/admin";
+import { getCurrentCapturePassAdmin } from "@/lib/auth/admin";
 
 async function requireBusinessAdmin(organizationId: string) {
-  const platformAdmin = await getCurrentTapTaggAdmin();
+  const platformAdmin = await getCurrentCapturePassAdmin();
   if (platformAdmin) return platformAdmin;
 
   const supabase = await createClient();

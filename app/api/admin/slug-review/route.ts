@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { classifySlug } from "@/lib/slug-moderation";
 import { sendSlugApprovedEmail } from "@/lib/notifications/send-slug-approved-email";
-import { requireTapTaggAdmin } from "@/lib/auth/admin";
+import { requireCapturePassAdmin } from "@/lib/auth/admin";
 
 async function writeAdminAuditLog({
   adminEmail,
@@ -31,7 +31,7 @@ async function writeAdminAuditLog({
 }
 
 export async function POST(request: Request) {
-  const adminUser = await requireTapTaggAdmin();
+  const adminUser = await requireCapturePassAdmin();
   if (!adminUser?.email) {
     return NextResponse.json({ error: "Sign in is required." }, { status: 401 });
   }

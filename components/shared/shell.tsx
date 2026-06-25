@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { UserMenu } from "@/components/auth/user-menu";
-import { isTapTaggBootstrapAdminEmail } from "@/lib/auth/admin-shared";
+import { isCapturePassBootstrapAdminEmail } from "@/lib/auth/admin-shared";
 import { CapturePassBrandArt } from "@/components/shared/capturepass-brand-art";
 
 const PUBLIC_NAV_LINKS = [
@@ -39,7 +39,7 @@ export function Shell({
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const isSignedIn = !!initialAuth?.email;
-  const isAdmin = !!initialAuth?.isAdmin || isTapTaggBootstrapAdminEmail(initialAuth?.email);
+  const isAdmin = !!initialAuth?.isAdmin || isCapturePassBootstrapAdminEmail(initialAuth?.email);
 
   useEffect(() => {
     function handleResize() {

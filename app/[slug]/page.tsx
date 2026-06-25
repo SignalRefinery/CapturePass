@@ -10,7 +10,7 @@ import { buildPublicProfileViews, profileRecordToPublicProfile } from "@/lib/pro
 import { getProfilePlan, profileCanRenderPublicly } from "@/lib/plans";
 import { profileMetadata } from "@/lib/privacy/profile-privacy";
 import { isSlugPubliclyAllowed } from "@/lib/slug-moderation";
-import { TapTaggProfileShell } from "@/components/profile/taptagg-profile-shell";
+import { CapturePassProfileShell } from "@/components/profile/taptagg-profile-shell";
 import type { ProfileRecord } from "@/lib/types";
 import { resolvePublicBusinessProfile } from "@/lib/business/public-profile-route";
 
@@ -103,7 +103,7 @@ export default async function PublicProfilePage({ params, searchParams }: PagePr
         : null;
 
       return (
-        <TapTaggProfileShell
+        <CapturePassProfileShell
           profile={businessProfile}
           views={[businessProfile]}
           navViews={[businessProfile]}
@@ -154,7 +154,7 @@ export default async function PublicProfilePage({ params, searchParams }: PagePr
     : null;
 
   return (
-    <TapTaggProfileShell
+      <CapturePassProfileShell
       profile={defaultPublicView}
       views={orderedPublicViews}
       navViews={publicNavViews}

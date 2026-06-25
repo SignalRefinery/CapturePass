@@ -188,7 +188,7 @@ function legacyThemeClassName(theme?: string | null) {
   }
 }
 
-export function TapTaggProfileShell({
+export function CapturePassProfileShell({
   profile,
   views: _views = [profile],
   navViews: _navViews,
@@ -548,3 +548,5 @@ export function TapTaggProfileShell({
     </div>
   );
 }
+
+export { CapturePassProfileShell as TapTaggProfileShell };

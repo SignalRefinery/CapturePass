@@ -3,7 +3,7 @@ import { claimBusinessOrganizationForUser } from "@/lib/business/organization-ac
 import { buildBusinessPermissionScope } from "@/lib/business/roles";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
-import { getCurrentTapTaggAdmin } from "@/lib/auth/admin";
+import { getCurrentCapturePassAdmin } from "@/lib/auth/admin";
 import type {
   OrganizationMemberRecord,
   BusinessLocationRecord,
@@ -55,7 +55,7 @@ export async function getBusinessAccessScope({
 }) {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
-  const isPlatformAdmin = !!(await getCurrentTapTaggAdmin());
+  const isPlatformAdmin = !!(await getCurrentCapturePassAdmin());
 
   const admin = createAdminClient();
   const { data: organization } = await admin

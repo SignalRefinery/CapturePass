@@ -33,12 +33,11 @@ Result:
 
 ### Remaining TapTagg references
 
-The remaining matches are safe internal or historical leftovers:
+The remaining matches are safe compatibility aliases or historical leftovers:
 
 - `taptagg_brand` theme key and legacy theme identifiers
 - `taptagg_pending_checkout` cookie name
-- `TapTaggProfileShell`, `TapTaggMark`, `TapTaggAdminUser`, and `requireTapTaggAdmin` helper names
-- `isTapTaggBootstrapAdminEmail` admin bootstrap helper
+- `TapTaggProfileShell`, `TapTaggAdminUser`, `requireTapTaggAdmin`, and `isTapTaggBootstrapAdminEmail` compatibility aliases
 - `calculateTapTaggScore` and `taptagg_score` gamification internals
 - `taptagg` row keys in the comparison page and internal table data
 - historical docs and Supabase migration comments in `docs/internal/` and `supabase/`
@@ -60,11 +59,10 @@ These are compatibility or historical references, not user-visible brand surface
 - Verify Resend sender/domain branding.
 - Verify Supabase auth URLs and email template branding.
 - Verify Vercel production domain and deployment settings.
-- If desired later, do a separate internal cleanup pass for legacy helper names and theme keys.
+- If desired later, do a separate internal cleanup pass for legacy theme keys or gamification identifiers.
 
 ## Non-Blocking Follow-Up Items
 
-- Rename legacy internal helper names if you want zero TapTagg identifiers in code symbols.
 - Consider whether the legacy purple theme should be kept only for existing users or removed later.
 - Consider cleaning historical docs if you want a fully debranded archive.
 

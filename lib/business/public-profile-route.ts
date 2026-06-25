@@ -1,6 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getBusinessTypePrimaryLinkDefaults } from "@/lib/business-types";
-import { isTapTaggBootstrapAdminEmail } from "@/lib/auth/admin-shared";
+import { isCapturePassBootstrapAdminEmail } from "@/lib/auth/admin-shared";
 import { slugify } from "@/lib/utils";
 import type { OrganizationMemberRecord, OrganizationRecord, PassTokenRecord, ProfileRecord } from "@/lib/types";
 
@@ -54,7 +54,7 @@ function buildBusinessLinks(organization: OrganizationRecord) {
 }
 
 function pickMainMember(members: OrganizationMemberRecord[]) {
-  const activeMembers = members.filter((member) => member.status === "active" && !isTapTaggBootstrapAdminEmail(member.email));
+  const activeMembers = members.filter((member) => member.status === "active" && !isCapturePassBootstrapAdminEmail(member.email));
   const privilegedMember = activeMembers.find((member) =>
     ["owner", "admin", "super_admin", "business_admin"].includes(String(member.role || ""))
   );

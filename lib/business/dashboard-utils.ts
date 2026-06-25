@@ -1,10 +1,10 @@
-import { isTapTaggBootstrapAdminEmail } from "@/lib/auth/admin";
+import { isCapturePassBootstrapAdminEmail } from "@/lib/auth/admin";
 import { normalizeThemeKey, isHexColor } from "@/lib/themes";
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export function isPlatformAdminEmail(email?: string | null) {
-  return isTapTaggBootstrapAdminEmail(email);
+  return isCapturePassBootstrapAdminEmail(email);
 }
 
 export function isPlatformAdminMember(member?: { email?: string | null } | null) {

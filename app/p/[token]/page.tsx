@@ -1,8 +1,8 @@
 import { Shell } from "@/components/shared/shell";
-import { TapTaggProfileShell } from "@/components/profile/taptagg-profile-shell";
+import { CapturePassProfileShell } from "@/components/profile/taptagg-profile-shell";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getBusinessTypePrimaryLinkDefaults } from "@/lib/business-types";
-import { isTapTaggBootstrapAdminEmail } from "@/lib/auth/admin";
+import { isCapturePassBootstrapAdminEmail } from "@/lib/auth/admin";
 import { unstable_noStore as noStore } from "next/cache";
 
 export const dynamic = "force-dynamic";
@@ -104,7 +104,7 @@ async function getBusinessHomeUrl(
   if (adminsError || !admins?.length) return null;
 
   const businessAdmin = admins.find(
-    (member) => !isTapTaggBootstrapAdminEmail(member.email)
+    (member) => !isCapturePassBootstrapAdminEmail(member.email)
   ) || admins[0];
 
   if (!businessAdmin?.id) return null;
@@ -261,7 +261,7 @@ export default async function PassTokenPage({
   };
 
   return (
-    <TapTaggProfileShell
+    <CapturePassProfileShell
       profile={profile}
       views={[profile]}
       navViews={[profile]}

@@ -146,13 +146,11 @@ These remain in the codebase by design for compatibility or internal identity re
 
 - `taptagg_brand` theme key and related default theme storage
 - `taptagg_pending_checkout` cookie name
-- `TapTaggProfileShell` component name and file names
-- `TapTaggMark` export alias
-- `TapTaggAdminUser`, `getCurrentTapTaggAdmin`, `requireTapTaggAdmin`, and `isTapTaggBootstrapAdminEmail`
+- `TapTaggProfileShell`, `TapTaggAdminUser`, `getCurrentTapTaggAdmin`, `requireTapTaggAdmin`, and `isTapTaggBootstrapAdminEmail` compatibility aliases
 - `calculateTapTaggScore` and `taptagg_score` gamification internals
 - `taptagg` keys in the comparison page data model
 - `taptagg.local` internal redirect fallback
-- `package.json` / `package-lock.json` repo name `taptagg-repo`
+- `package.json` / `package-lock.json` repo name `capturepass-repo`
 
 ### Historical Migration / Doc References
 
@@ -262,7 +260,7 @@ These are archival references from the TapTagg phases and can be deferred unless
 
 ## Product Follow-Up List
 
-- Decide whether to keep or eventually rename legacy internal helpers like `TapTaggProfileShell`.
+- Decide whether to eventually remove legacy compatibility aliases like `TapTaggProfileShell`.
 - Decide whether to eventually rename `taptagg_brand` and `taptagg_score` internally.
 - Decide whether to leave the `tt_classic` legacy theme available long term.
 - Verify the public profile journey and dashboard save flows on real devices.

@@ -22,7 +22,7 @@ import {
 import { businessPlanIncludesAdditionalLocations } from "@/lib/business/plans";
 import { businessRoleLabel, normalizeBusinessRole } from "@/lib/business/roles";
 import { getOrganizationGamificationSummary } from "@/lib/gamification/server";
-import { getCurrentTapTaggAdmin } from "@/lib/auth/admin";
+import { getCurrentCapturePassAdmin } from "@/lib/auth/admin";
 import {
   createOrganization,
   deleteEmployeeHeadshot,
@@ -42,7 +42,7 @@ export default async function BusinessDashboardPage({
   if (!user) redirect("/login");
 
   const params = searchParams ? await searchParams : {};
-  const isPlatformAdmin = !!(await getCurrentTapTaggAdmin());
+  const isPlatformAdmin = !!(await getCurrentCapturePassAdmin());
   const selectedOrganizationId = params?.org || null;
   const showOnboarding = isPlatformAdmin && params?.onboard === "1";
   const businessIndex = isPlatformAdmin ? await getBusinessIndex() : [];

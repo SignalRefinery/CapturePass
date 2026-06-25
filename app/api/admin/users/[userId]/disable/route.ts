@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { requireTapTaggAdmin } from "@/lib/auth/admin";
+import { requireCapturePassAdmin } from "@/lib/auth/admin";
 
 export async function POST(
   _request: Request,
   { params }: { params: Promise<{ userId: string }> }
 ) {
-  const adminUser = await requireTapTaggAdmin();
+  const adminUser = await requireCapturePassAdmin();
   if (!adminUser) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
   }
@@ -33,7 +33,7 @@ export async function DELETE(
   _request: Request,
   { params }: { params: Promise<{ userId: string }> }
 ) {
-  const adminUser = await requireTapTaggAdmin();
+  const adminUser = await requireCapturePassAdmin();
   if (!adminUser) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
   }

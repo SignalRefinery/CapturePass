@@ -2,7 +2,7 @@
 
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { requireTapTaggAdmin } from "@/lib/auth/admin";
+import { requireCapturePassAdmin } from "@/lib/auth/admin";
 
 async function writeAdminAuditLog({
   adminEmail,
@@ -32,7 +32,7 @@ export async function POST(
   request: Request,
   { params }: { params: Promise<{ profileId: string }> }
 ) {
-  const adminUser = await requireTapTaggAdmin();
+  const adminUser = await requireCapturePassAdmin();
 
   if (!adminUser) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });

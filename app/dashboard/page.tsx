@@ -55,7 +55,7 @@ function getCheckoutSearchParam(path: string | null, key: string) {
   if (!path?.startsWith("/api/checkout")) return null;
 
   try {
-    return cleanMetadataValue(new URL(path, "https://taptagg.local").searchParams.get(key));
+    return cleanMetadataValue(new URL(path, "https://capturepass.local").searchParams.get(key));
   } catch {
     return null;
   }

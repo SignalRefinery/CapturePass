@@ -7,13 +7,13 @@ import { SlugReviewQueue } from "@/components/admin/slug-review-queue";
 import { UserManagementTable } from "@/components/admin/user-management-table";
 import { AdminTableFrame } from "@/components/admin/admin-table-frame";
 import { classifySlug } from "@/lib/slug-moderation";
-import { getCurrentTapTaggAdmin } from "@/lib/auth/admin";
+import { getCurrentCapturePassAdmin } from "@/lib/auth/admin";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 async function getInitialAuth() {
-  const adminUser = await getCurrentTapTaggAdmin();
+  const adminUser = await getCurrentCapturePassAdmin();
   if (!adminUser) return null;
 
   const supabase = await createClient();
@@ -38,7 +38,7 @@ async function getInitialAuth() {
 }
 
 export default async function AdminPage() {
-  const adminUser = await getCurrentTapTaggAdmin();
+  const adminUser = await getCurrentCapturePassAdmin();
   if (!adminUser) {
     redirect("/dashboard");
   }

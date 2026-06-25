@@ -1,20 +1,29 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import {
-  isTapTaggBootstrapAdminEmail,
-  TAPTAGG_BOOTSTRAP_ADMIN_EMAIL
+  CAPTUREPASS_BOOTSTRAP_ADMIN_EMAIL,
+  TAPTAGG_BOOTSTRAP_ADMIN_EMAIL,
+  isCapturePassBootstrapAdminEmail,
+  isTapTaggBootstrapAdminEmail
 } from "@/lib/auth/admin-shared";
 
-export { isTapTaggBootstrapAdminEmail, TAPTAGG_BOOTSTRAP_ADMIN_EMAIL };
+export {
+  CAPTUREPASS_BOOTSTRAP_ADMIN_EMAIL,
+  TAPTAGG_BOOTSTRAP_ADMIN_EMAIL,
+  isCapturePassBootstrapAdminEmail,
+  isTapTaggBootstrapAdminEmail
+};
 
-export type TapTaggAdminUser = {
+export type CapturePassAdminUser = {
   id: string;
   email: string | null;
   isBootstrapAdmin: boolean;
   isDatabaseAdmin: boolean;
 };
 
-export async function getCurrentTapTaggAdmin(): Promise<TapTaggAdminUser | null> {
+export type TapTaggAdminUser = CapturePassAdminUser;
+
+export async function getCurrentCapturePassAdmin(): Promise<CapturePassAdminUser | null> {
   const supabase = await createClient();
   const {
     data: { user }
@@ -25,7 +34,7 @@ export async function getCurrentTapTaggAdmin(): Promise<TapTaggAdminUser | null>
   }
 
   const email = user.email.trim().toLowerCase();
-  if (email === TAPTAGG_BOOTSTRAP_ADMIN_EMAIL) {
+  if (email === CAPTUREPASS_BOOTSTRAP_ADMIN_EMAIL) {
     return {
       id: user.id,
       email: user.email,
@@ -53,6 +62,10 @@ export async function getCurrentTapTaggAdmin(): Promise<TapTaggAdminUser | null>
   };
 }
 
-export async function requireTapTaggAdmin() {
-  return getCurrentTapTaggAdmin();
+export const getCurrentTapTaggAdmin = getCurrentCapturePassAdmin;
+
+export async function requireCapturePassAdmin() {
+  return getCurrentCapturePassAdmin();
 }
+
+export const requireTapTaggAdmin = requireCapturePassAdmin;

@@ -35,7 +35,7 @@ import { buildEmployeeWebhookPayload, generateWebhookSecret, normalizeWebhookUrl
 import { slugify } from "@/lib/utils";
 import { generatePrivateToken } from "@/lib/utils/generate-token";
 import { CUSTOM_THEME_KEY, normalizeThemeKey } from "@/lib/themes";
-import { getCurrentTapTaggAdmin, TAPTAGG_BOOTSTRAP_ADMIN_EMAIL } from "@/lib/auth/admin";
+import { CAPTUREPASS_BOOTSTRAP_ADMIN_EMAIL, getCurrentCapturePassAdmin } from "@/lib/auth/admin";
 import type { OrganizationMemberRecord, OrganizationRecord } from "@/lib/types";
 
 async function sendBusinessInviteEmail({
@@ -142,7 +142,7 @@ export async function createOrganization(formData: FormData) {
 
   const user = await getCurrentUser();
   if (!user) redirect("/login");
-  const isPlatformAdmin = !!(await getCurrentTapTaggAdmin());
+  const isPlatformAdmin = !!(await getCurrentCapturePassAdmin());
   if (!isPlatformAdmin) redirect("/business");
 
   const name = String(formData.get("name") || "").trim();
@@ -214,11 +214,11 @@ export async function createOrganization(formData: FormData) {
     });
   }
 
-  if (adminEmail !== TAPTAGG_BOOTSTRAP_ADMIN_EMAIL) {
+  if (adminEmail !== CAPTUREPASS_BOOTSTRAP_ADMIN_EMAIL) {
     await admin.from("organization_members").insert({
       organization_id: organization.id,
       name: "CapturePass Admin",
-      email: TAPTAGG_BOOTSTRAP_ADMIN_EMAIL,
+      email: CAPTUREPASS_BOOTSTRAP_ADMIN_EMAIL,
       title: "Platform admin",
       role: "super_admin",
       status: "active"
