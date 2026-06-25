@@ -51,7 +51,7 @@ export default async function DashboardPreviewPage() {
         fullName: profile.full_name || null,
         slug: profile.slug || null
       }}
-      pageVariant="default"
+      pageVariant="light"
       navLinks={[
         { href: "/dashboard", label: "Dashboard" },
         { href: "/business/pricing", label: "Business Pricing" }

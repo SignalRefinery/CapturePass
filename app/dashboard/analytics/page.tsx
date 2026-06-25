@@ -52,7 +52,7 @@ export default async function AnalyticsPage({
 
   if (!profile || !canUseAnalytics(plan)) {
     return (
-      <Shell footerLeft="Analytics" footerRight="CapturePass" initialAuth={initialAuth} pageVariant="default">
+      <Shell footerLeft="Analytics" footerRight="CapturePass" initialAuth={initialAuth} pageVariant="light">
         <section className="simple-hero">
           <div className="kicker">
             <span className="mini-star">✦</span>
@@ -85,7 +85,7 @@ export default async function AnalyticsPage({
   ]);
 
   return (
-    <Shell footerLeft="Analytics" footerRight="CapturePass" initialAuth={initialAuth} pageVariant="default">
+    <Shell footerLeft="Analytics" footerRight="CapturePass" initialAuth={initialAuth} pageVariant="light">
       <section className="simple-hero">
         <div className="kicker">
           <span className="mini-star">✦</span>

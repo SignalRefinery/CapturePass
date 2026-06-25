@@ -45,7 +45,7 @@ export default async function ContactsPage() {
 
   if (!profile || !canUseContactsDashboard(plan)) {
     return (
-      <Shell footerLeft="Contacts" footerRight="CapturePass" initialAuth={initialAuth} pageVariant="default">
+      <Shell footerLeft="Contacts" footerRight="CapturePass" initialAuth={initialAuth} pageVariant="light">
         <section className="simple-hero">
           <div className="kicker">
             <span className="mini-star">✦</span>
@@ -67,7 +67,7 @@ export default async function ContactsPage() {
     .order("created_at", { ascending: false });
 
   return (
-    <Shell footerLeft="Contacts" footerRight="CapturePass" initialAuth={initialAuth} pageVariant="default">
+    <Shell footerLeft="Contacts" footerRight="CapturePass" initialAuth={initialAuth} pageVariant="light">
       <section className="simple-hero">
         <div className="kicker">
           <span className="mini-star">✦</span>

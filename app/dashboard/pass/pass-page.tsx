@@ -70,7 +70,7 @@ export async function DashboardPassPageContent({
       footerRight="CapturePass"
       myProfileHref={myProfileHref}
       initialAuth={initialAuth}
-      pageVariant="default"
+      pageVariant="light"
     >
       {passError === "missing-view" ? (
         <section className="dashboard-wrap">

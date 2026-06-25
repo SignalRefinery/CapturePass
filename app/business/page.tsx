@@ -158,7 +158,7 @@ export default async function BusinessPage({
     <Shell
       footerLeft="Business"
       footerRight="CapturePass"
-      pageVariant="default"
+      pageVariant="light"
       navLinks={[
         { href: "/", label: "Home" },
         { href: "/how-it-works", label: "How it works" },

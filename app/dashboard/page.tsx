@@ -451,7 +451,7 @@ export default async function DashboardPage({
       footerRight="CapturePass"
       myProfileHref={myProfileHref}
       initialAuth={initialAuth}
-      pageVariant="default"
+      pageVariant="light"
       navLinks={[
         { href: "/", label: "Home" },
         { href: "/business/pricing", label: "Business Pricing" },
