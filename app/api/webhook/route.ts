@@ -5,6 +5,7 @@ import { normalizeBusinessType } from "@/lib/business-types";
 import { buildQuickChartQrUrl } from "@/lib/notifications/qr";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendRegistrationEmail } from "@/lib/notifications/send-registration-email";
+import { getSiteOrigin } from "@/lib/site-url";
 import {
   BUSINESS_INDIVIDUAL_EXTRA_CARD_PLAN_KEY,
   BUSINESS_INDIVIDUAL_PLAN_KEY,
@@ -408,7 +409,7 @@ async function sendCardNotification(userId: string, session?: Stripe.Checkout.Se
 
   if (error || !profile || profile.card_notification_sent_at) return;
 
-  const siteUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://capturepass.com").replace(/\/$/, "");
+  const siteUrl = getSiteOrigin();
   const tokenUrl = profile.private_token ? `${siteUrl}/u/${profile.private_token}` : null;
   const qrUrl = buildQuickChartQrUrl(tokenUrl);
 

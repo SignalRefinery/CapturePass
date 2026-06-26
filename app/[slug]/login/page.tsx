@@ -6,6 +6,7 @@ import { CopyLinkButton } from "@/components/business/copy-link-button";
 import { Shell } from "@/components/shared/shell";
 import { BUSINESS_HEADSHOT_MAX_BYTES, uploadBusinessAsset } from "@/lib/business/assets";
 import { claimBusinessMembershipForUser } from "@/lib/business/organization-access";
+import { getSiteOrigin } from "@/lib/site-url";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import type { ContactSubmissionRecord, OrganizationMemberRecord, OrganizationRecord, PassTokenRecord } from "@/lib/types";
@@ -15,7 +16,7 @@ type PageProps = {
 };
 
 function appUrl() {
-  return (process.env.NEXT_PUBLIC_APP_URL || "https://capturepass.com").replace(/\/$/, "");
+  return getSiteOrigin();
 }
 
 function tokenUrl(token: string) {

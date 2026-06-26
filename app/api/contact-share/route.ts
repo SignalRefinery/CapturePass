@@ -5,6 +5,7 @@ import { getPublicProfileBySlug } from "@/lib/profiles/public-profile-source";
 import { isSlugPubliclyAllowed } from "@/lib/slug-moderation";
 import { parseContactPayload, type ContactPayload } from "@/lib/validation/api-payloads";
 import { buildContactSharedWebhookPayload, queueOrganizationWebhook } from "@/lib/webhooks/sendWebhook";
+import { getSiteOrigin } from "@/lib/site-url";
 
 const rateLimit = new Map<string, { count: number; resetAt: number }>();
 const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
@@ -92,7 +93,7 @@ function checkRateLimit(key: string) {
 }
 
 function appUrl() {
-  return (process.env.NEXT_PUBLIC_APP_URL || "https://capturepass.com").replace(/\/$/, "");
+  return getSiteOrigin();
 }
 
 function sourceFor(value?: string | null) {

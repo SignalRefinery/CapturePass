@@ -5,6 +5,7 @@ import { buildQuickChartQrUrl } from "@/lib/notifications/qr";
 import { sendSlugApprovedEmail } from "@/lib/notifications/send-slug-approved-email";
 import { normalizeIndividualPlanKey } from "@/lib/plans";
 import { requireCapturePassAdmin } from "@/lib/auth/admin";
+import { getSiteOrigin } from "@/lib/site-url";
 import {
   ALLOWED_AFFILIATE_TIERS,
   ALLOWED_BOOLEAN_FIELDS,
@@ -44,7 +45,7 @@ async function writeAdminAuditLog({
 async function sendCardProductionEmail(profile: ProfileRecord) {
   if (!process.env.RESEND_API_KEY || profile.card_notification_sent_at) return;
 
-  const siteUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://capturepass.com").replace(/\/$/, "");
+  const siteUrl = getSiteOrigin();
   const tokenUrl = profile.private_token ? `${siteUrl}/u/${profile.private_token}` : null;
   const qrUrl = buildQuickChartQrUrl(tokenUrl);
 

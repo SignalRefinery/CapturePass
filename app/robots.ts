@@ -1,7 +1,8 @@
 import type { MetadataRoute } from "next";
+import { getSiteOrigin } from "@/lib/site-url";
 
 export default function robots(): MetadataRoute.Robots {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://capturepass.com";
+  const appUrl = getSiteOrigin();
 
   return {
     rules: [

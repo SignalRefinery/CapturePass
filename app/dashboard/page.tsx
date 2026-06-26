@@ -24,6 +24,7 @@ import { slugify } from "@/lib/utils";
 import { getPersonalGamificationSummary } from "@/lib/gamification/server";
 import { buildQuickChartQrUrl } from "@/lib/notifications/qr";
 import type { ProfileRecord } from "@/lib/types";
+import { getSiteOrigin } from "@/lib/site-url";
 import {
   applyBusinessTypePrimaryLinkDefaults,
   getBusinessTypePrimaryLinkDefaults
@@ -197,7 +198,7 @@ async function submitFounderCardClaim(formData: FormData) {
     redirect("/dashboard?claim_founder_card=1&claim_error=missing_fields");
   }
 
-  const siteUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://capturepass.com").replace(/\/$/, "");
+  const siteUrl = getSiteOrigin();
   const tokenUrl = profile?.private_token ? `${siteUrl}/u/${profile.private_token}` : null;
   const qrUrl = buildQuickChartQrUrl(tokenUrl);
 

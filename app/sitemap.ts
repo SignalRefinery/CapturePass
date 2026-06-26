@@ -1,7 +1,8 @@
 import type { MetadataRoute } from "next";
+import { getSiteOrigin } from "@/lib/site-url";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://capturepass.com";
+  const appUrl = getSiteOrigin();
 
   // Keep this list marketing-only. Public profile pages are indexed through
   // per-page metadata, while direct-share token URLs and private surfaces stay

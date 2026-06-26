@@ -13,13 +13,14 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { classifySlug } from "@/lib/slug-moderation";
 import { normalizeUrl } from "@/lib/utils";
+import { getSiteOrigin } from "@/lib/site-url";
 import { getCurrentCapturePassAdmin } from "@/lib/auth/admin";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 function appUrl() {
-  return (process.env.NEXT_PUBLIC_APP_URL || "https://capturepass.com").replace(/\/$/, "");
+  return getSiteOrigin();
 }
 
 function passwordSetupUrl(nextPath: string) {
