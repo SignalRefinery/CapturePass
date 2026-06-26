@@ -2,6 +2,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getBusinessTypePrimaryLinkDefaults } from "@/lib/business-types";
 import { isCapturePassBootstrapAdminEmail } from "@/lib/auth/admin-shared";
 import { slugify } from "@/lib/utils";
+import { getSiteOrigin } from "@/lib/site-url";
 import type { OrganizationMemberRecord, OrganizationRecord, PassTokenRecord, ProfileRecord } from "@/lib/types";
 
 type PublicBusinessProfile = ProfileRecord & {
@@ -30,10 +31,6 @@ type ResolvePublicBusinessProfileArgs = {
   businessSlug: string;
   memberSlug?: string | null;
 };
-
-function appUrl() {
-  return (process.env.NEXT_PUBLIC_APP_URL || "https://capturepass.com").replace(/\/$/, "");
-}
 
 function normalizeRouteSlug(value?: string | null) {
   return slugify(value || "");
@@ -116,8 +113,9 @@ function buildBusinessProfile({
   token: PassTokenRecord;
   publicSlug: string;
 }): PublicBusinessProfile {
-  const publicUrl = `${appUrl()}/${publicSlug}`;
-  const homeUrl = `${appUrl()}/${organization.slug || ""}`.replace(/\/$/, "");
+  const siteOrigin = getSiteOrigin();
+  const publicUrl = `${siteOrigin}/${publicSlug}`;
+  const homeUrl = `${siteOrigin}/${organization.slug || ""}`.replace(/\/$/, "");
   const businessTypeDefaults = getBusinessTypePrimaryLinkDefaults(organization.business_type) || {
     primary_link_1_title: member.phone ? "Call" : "",
     primary_link_1_url: member.phone ? `tel:${member.phone.replace(/\D/g, "")}` : "",

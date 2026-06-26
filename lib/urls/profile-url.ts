@@ -1,19 +1,17 @@
+import { getSiteOrigin } from "@/lib/site-url";
+
 type ProfileUrlLike = {
   slug?: string | null;
   private_token?: string | null;
 };
 
-function normalizedAppUrl() {
-  return (process.env.NEXT_PUBLIC_APP_URL || "https://capturepass.com").replace(/\/$/, "");
-}
-
 export function getReadableProfileUrl(profile: ProfileUrlLike) {
-  const appUrl = normalizedAppUrl();
+  const appUrl = getSiteOrigin();
   return `${appUrl}/${profile.slug || ""}`;
 }
 
 export function getIssuedProfileUrl(profile: ProfileUrlLike) {
-  const appUrl = normalizedAppUrl();
+  const appUrl = getSiteOrigin();
 
   if (!profile.private_token) {
     return `${appUrl}/${profile.slug || ""}`;

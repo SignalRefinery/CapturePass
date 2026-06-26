@@ -1,5 +1,6 @@
 import { isCapturePassBootstrapAdminEmail } from "@/lib/auth/admin";
 import { normalizeThemeKey, isHexColor } from "@/lib/themes";
+import { getSiteOrigin } from "@/lib/site-url";
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -12,7 +13,7 @@ export function isPlatformAdminMember(member?: { email?: string | null } | null)
 }
 
 export function appUrl() {
-  return (process.env.NEXT_PUBLIC_APP_URL || "https://capturepass.com").replace(/\/$/, "");
+  return getSiteOrigin();
 }
 
 export function cleanHexColor(value: FormDataEntryValue | null) {

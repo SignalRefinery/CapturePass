@@ -3,13 +3,14 @@ import { CapturePassProfileShell } from "@/components/profile/taptagg-profile-sh
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getBusinessTypePrimaryLinkDefaults } from "@/lib/business-types";
 import { isCapturePassBootstrapAdminEmail } from "@/lib/auth/admin";
+import { getSiteOrigin } from "@/lib/site-url";
 import { unstable_noStore as noStore } from "next/cache";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 function appUrl() {
-  return (process.env.NEXT_PUBLIC_APP_URL || "https://capturepass.com").replace(/\/$/, "");
+  return getSiteOrigin();
 }
 
 type BusinessPassOrganization = {

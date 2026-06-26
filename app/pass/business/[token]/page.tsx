@@ -3,6 +3,7 @@ import { unstable_noStore as noStore } from "next/cache";
 import { DigitalPassCard } from "@/components/dashboard/digital-pass-card";
 import { profileMetadata } from "@/lib/privacy/profile-privacy";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getSiteOrigin } from "@/lib/site-url";
 
 type PageProps = {
   params: Promise<{ token: string }>;
@@ -10,7 +11,7 @@ type PageProps = {
 };
 
 function appUrl() {
-  return (process.env.NEXT_PUBLIC_APP_URL || "https://capturepass.com").replace(/\/$/, "");
+  return getSiteOrigin();
 }
 
 export async function generateMetadata() {
