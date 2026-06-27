@@ -66,7 +66,7 @@ async function sendCardProductionEmail(profile: ProfileRecord) {
         <p><strong>Name:</strong> ${profile.full_name || "—"}</p>
         <p><strong>Email:</strong> ${profile.email || "—"}</p>
         <p><strong>Slug:</strong> ${profile.slug || "—"}</p>
-        <p><strong>Issued card URL:</strong> <a href="${tokenUrl}">${tokenUrl}</a></p>
+        <p><strong>Card / QR URL:</strong> <a href="${tokenUrl}">${tokenUrl}</a></p>
         <p><strong>QR image URL:</strong> <a href="${qrUrl}">${qrUrl}</a></p>
         <p><img src="${qrUrl}" alt="QR code" width="300" height="300" /></p>
       `

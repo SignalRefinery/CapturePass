@@ -229,7 +229,7 @@ async function submitFounderCardClaim(formData: FormData) {
           US
         </p>
         <p><strong>Slug:</strong> ${profile?.slug || "—"}</p>
-        ${tokenUrl ? `<p><strong>Issued card URL:</strong> <a href="${tokenUrl}">${tokenUrl}</a></p>` : ""}
+        ${tokenUrl ? `<p><strong>Card / QR URL:</strong> <a href="${tokenUrl}">${tokenUrl}</a></p>` : ""}
         ${qrUrl ? `<p><strong>QR image URL:</strong> <a href="${qrUrl}">${qrUrl}</a></p><p><img src="${qrUrl}" alt="QR code" width="300" height="300" /></p>` : ""}
       `
     })

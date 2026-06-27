@@ -18,6 +18,7 @@ import {
 import { BUSINESS_HEADSHOT_MAX_BYTES } from "@/lib/business/assets";
 import { isPlatformAdminMember, tokenUrl } from "@/lib/business/dashboard-utils";
 import { businessRoleLabel, normalizeBusinessRole } from "@/lib/business/roles";
+import { getBusinessMemberProfileUrl } from "@/lib/urls/profile-url";
 import type {
   BusinessLocationRecord,
   OrganizationMemberRecord,
@@ -70,7 +71,9 @@ export function BusinessTeamSection({
               <tbody>
                 {members.map((member) => {
                   const assignedToken = tokens.find((token) => token.assigned_member_id === member.id);
-                  const assignedProfileUrl = assignedToken ? tokenUrl(assignedToken.token) : null;
+                  const assignedProfileUrl = organization.slug
+                    ? getBusinessMemberProfileUrl(organization.slug, member.name)
+                    : null;
                   const lockedPlatformAdmin = isPlatformAdminMember(member);
                   const memberLocation = member.location_id ? locationById.get(member.location_id) : null;
                   return (
@@ -99,13 +102,18 @@ export function BusinessTeamSection({
                       {showLocationControls ? <td>{memberLocation ? memberLocation.name : "No location"}</td> : null}
                       <td>{member.email || "—"}</td>
                       <td>
-                        {assignedToken && assignedProfileUrl ? (
+                        {assignedProfileUrl ? (
                           <div>
-                            <strong>{assignedToken.token_type.replace("_", " ")}</strong>
+                            <strong>Public profile</strong>
                             <div className="table-subtext">{assignedProfileUrl}</div>
+                            {assignedToken ? (
+                              <div className="table-subtext">{assignedToken.token_type.replace("_", " ")} card assigned</div>
+                            ) : (
+                              <div className="table-subtext">No card assigned</div>
+                            )}
                           </div>
                         ) : (
-                          "No token"
+                          "No public profile"
                         )}
                       </td>
                       <td>
@@ -373,7 +381,7 @@ export function BusinessTeamSection({
                     </tr>
                   );
                 })}
-                {unassignedTokens.map((token) => {
+              {unassignedTokens.map((token) => {
                   const url = tokenUrl(token.token);
 
                   return (
@@ -386,7 +394,7 @@ export function BusinessTeamSection({
                       <td>—</td>
                       <td>
                         <strong>{`/p/${token.token}`}</strong>
-                        <div className="table-subtext">{url}</div>
+                        <div className="table-subtext">Card / QR URL: {url}</div>
                       </td>
                       <td>
                         <span className="status-pill">{token.status}</span>

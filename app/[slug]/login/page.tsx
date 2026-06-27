@@ -6,22 +6,14 @@ import { CopyLinkButton } from "@/components/business/copy-link-button";
 import { Shell } from "@/components/shared/shell";
 import { BUSINESS_HEADSHOT_MAX_BYTES, uploadBusinessAsset } from "@/lib/business/assets";
 import { claimBusinessMembershipForUser } from "@/lib/business/organization-access";
-import { getSiteOrigin } from "@/lib/site-url";
+import { getBusinessMemberProfileUrl } from "@/lib/urls/profile-url";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
-import type { ContactSubmissionRecord, OrganizationMemberRecord, OrganizationRecord, PassTokenRecord } from "@/lib/types";
+import type { ContactSubmissionRecord, OrganizationMemberRecord, OrganizationRecord } from "@/lib/types";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
 };
-
-function appUrl() {
-  return getSiteOrigin();
-}
-
-function tokenUrl(token: string) {
-  return `${appUrl()}/p/${token}`;
-}
 
 function businessLoginPath(slug: string) {
   return `/${slug}/login`;
@@ -166,16 +158,8 @@ export default async function BusinessSlugLoginPage({ params }: PageProps) {
   }
 
   const member = membership.member as OrganizationMemberRecord;
-  const { data: tokens } = await admin
-    .from("pass_tokens")
-    .select("*")
-    .eq("organization_id", org.id)
-    .eq("assigned_member_id", member.id)
-    .eq("status", "active")
-    .order("created_at", { ascending: true });
-  const activeTokens = (tokens || []) as PassTokenRecord[];
-  const primaryToken = activeTokens[0] || null;
-  const primaryUrl = primaryToken ? tokenUrl(primaryToken.token) : null;
+  const memberName = (member.name || "").trim();
+  const primaryUrl = getBusinessMemberProfileUrl(org.slug, memberName);
   const qrUrl = primaryUrl
     ? `https://api.qrserver.com/v1/create-qr-code/?size=520x520&data=${encodeURIComponent(primaryUrl)}`
     : null;
@@ -231,7 +215,7 @@ export default async function BusinessSlugLoginPage({ params }: PageProps) {
       <section className="dashboard-wrap">
         <div className="dashboard-card">
           <div className="dashboard-kicker">Your public profile link</div>
-          {primaryToken && primaryUrl && qrUrl ? (
+          {primaryUrl && qrUrl ? (
             <>
               <h2>Ready to share.</h2>
               <div className="pass-qr-frame" style={{ maxWidth: 260 }}>
@@ -240,7 +224,7 @@ export default async function BusinessSlugLoginPage({ params }: PageProps) {
               </div>
               <p className="editor-copy" style={{ wordBreak: "break-all" }}>{primaryUrl}</p>
               <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-                <Link className="button secondary" href={`/p/${primaryToken.token}`}>
+                <Link className="button secondary" href={primaryUrl}>
                   Open public page
                 </Link>
                 <CopyLinkButton value={primaryUrl} />

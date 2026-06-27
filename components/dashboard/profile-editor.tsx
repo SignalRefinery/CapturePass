@@ -26,7 +26,7 @@ import {
   saveProfileViewClient,
   setDefaultProfileViewClient
 } from "@/lib/profile-service-client";
-import { getIssuedProfileUrl, getReadableProfileUrl } from "@/lib/urls/profile-url";
+import { getReadableProfileUrl, getIssuedProfileUrl } from "@/lib/urls/profile-url";
 
 type ProfileEditorProps = {
   userId: string;
@@ -311,13 +311,13 @@ export function ProfileEditor({
   const slugHasChanged = !!normalizedSlugInput && !slugMatchesActive;
   const slugIsApproved = form.slug_status === "approved" && activeSlugModeration.state !== "blocked";
   const readableUrl = useMemo(() => getReadableProfileUrl(form), [form]);
-  const issuedUrl = useMemo(() => getIssuedProfileUrl(form), [form]);
+  const cardUrl = useMemo(() => getIssuedProfileUrl(form), [form]);
   const safeReadableUrl = slugIsApproved && plan.isActivated ? readableUrl : null;
-  const safeIssuedUrl = form.private_token && plan.isActivated ? issuedUrl : null;
+  const safeCardUrl = form.private_token && plan.isActivated ? cardUrl : null;
   const profileStatusLabel = slugIsApproved
     ? form.private_token
-      ? "Ready for use"
-      : "Pending QR"
+      ? "Ready to share"
+      : "Pending card"
     : form.slug_status === "pending_review"
       ? "Pending slug approval"
       : activeSlugModeration.state === "blocked"
@@ -438,16 +438,30 @@ export function ProfileEditor({
     );
   }
 
-  async function copyIssuedUrl() {
+  async function copyPublicProfileUrl() {
     try {
-      if (!safeIssuedUrl) {
-        throw new Error("Issued link is not available yet.");
+      if (!safeReadableUrl) {
+        throw new Error("Public profile link is not available yet.");
       }
-      await navigator.clipboard.writeText(safeIssuedUrl);
-      setMessage("Issued card link copied.");
+      await navigator.clipboard.writeText(safeReadableUrl);
+      setMessage("Public profile link copied.");
       setError("");
     } catch {
-      setError("Unable to copy the issued link.");
+      setError("Unable to copy the public profile link.");
+      setMessage("");
+    }
+  }
+
+  async function copyCardUrl() {
+    try {
+      if (!safeCardUrl) {
+        throw new Error("Card URL is not available yet.");
+      }
+      await navigator.clipboard.writeText(safeCardUrl);
+      setMessage("Card URL copied.");
+      setError("");
+    } catch {
+      setError("Unable to copy the card URL.");
       setMessage("");
     }
   }
@@ -1775,11 +1789,9 @@ export function ProfileEditor({
               </div>
 
               <div className="metadata-row">
-                <span className="metadata-label">Issued card / QR</span>
+                <span className="metadata-label">Card / QR</span>
                 <strong className="metadata-value">
-                  {safeIssuedUrl
-                    ? safeIssuedUrl.replace(/^https?:\/\//, "")
-                    : "Not issued"}
+                  {safeCardUrl ? safeCardUrl.replace(/^https?:\/\//, "") : "Not issued"}
                 </strong>
               </div>
 
@@ -1806,16 +1818,22 @@ export function ProfileEditor({
             <button
               className="button secondary"
               type="button"
-              onClick={copyIssuedUrl}
-              disabled={!safeIssuedUrl}
+              onClick={copyPublicProfileUrl}
+              disabled={!safeReadableUrl}
             >
-              Copy issued link
+              Copy public profile link
             </button>
 
-            {safeIssuedUrl ? (
-              <a className="button secondary" href={safeIssuedUrl} target="_blank" rel="noreferrer">
-                Open issued profile
+            {safeReadableUrl ? (
+              <a className="button secondary" href={safeReadableUrl} target="_blank" rel="noreferrer">
+                Open public profile
               </a>
+            ) : null}
+
+            {safeCardUrl ? (
+              <button className="button secondary" type="button" onClick={copyCardUrl}>
+                Copy card URL
+              </button>
             ) : null}
           </div>
         </form>

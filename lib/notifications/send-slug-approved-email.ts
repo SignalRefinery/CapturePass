@@ -45,7 +45,7 @@ export async function sendSlugApprovedEmail(profile: ProfileForEmail) {
   const readableUrl = getReadableProfileUrl(profile);
   const qrAttachment = buildQrPngAttachment(issuedUrl, profile.slug || profile.private_token);
 
-  const subject = `Profile issued: ${profile.slug || profile.private_token || "unknown-profile"}`;
+  const subject = `Profile approved: ${profile.slug || profile.private_token || "unknown-profile"}`;
 
   const html = `
     <div style="font-family:Arial,sans-serif;line-height:1.6;color:#111;">
@@ -60,7 +60,7 @@ export async function sendSlugApprovedEmail(profile: ProfileForEmail) {
         <tr><td><strong>Email</strong></td><td>${escapeEmailHtml(profile.email || "")}</td></tr>
         <tr><td><strong>Phone</strong></td><td>${escapeEmailHtml(profile.phone || "")}</td></tr>
         <tr><td><strong>Readable profile URL</strong></td><td>${escapeEmailHtml(readableUrl)}</td></tr>
-        <tr><td><strong>NFC source URL</strong></td><td>${escapeEmailHtml(issuedUrl)}</td></tr>
+        <tr><td><strong>Card / QR URL</strong></td><td>${escapeEmailHtml(issuedUrl)}</td></tr>
         <tr><td><strong>Plan</strong></td><td>${escapeEmailHtml(profile.stripe_plan_key || "Not set")}</td></tr>
         <tr><td><strong>Affiliate</strong></td><td>${profile.is_affiliate ? escapeEmailHtml(profile.affiliate_tier || "affiliate") : "No"}</td></tr>
       </table>
