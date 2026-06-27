@@ -88,20 +88,34 @@
   --button-start:var(--profile-cta);
   --button-end:var(--profile-glow);
   --button-text:#ffffff;
-  --shadow:0 22px 70px rgba(15,23,42,.18);
+  --shadow:0 22px 70px rgba(15,23,42,.12);
   --shell-bg:var(--profile-background, #ffffff);
-  --topbar-bg:rgba(255,255,255,.72);
+  --topbar-bg:rgba(255,255,255,.9);
   --brand-copy:#111827;
-  --icon-button-bg:rgba(255,255,255,.72);
-  --hero-wash:none;
+  --icon-button-bg:
+    linear-gradient(180deg, rgba(255,255,255,.96), rgba(248,250,252,.9)),
+    rgba(255,255,255,.86);
+  --hero-wash:linear-gradient(180deg, rgba(255,255,255,.96), rgba(248,250,252,.94));
   --grid-line:rgba(15,23,42,.055);
   --grid-line-2:rgba(15,23,42,.045);
   --eyebrow-bg:rgba(255,255,255,.62);
   --chip-bg:rgba(255,255,255,.58);
-  --panel-bg:color-mix(in srgb, var(--profile-glow) 8%, #ffffff);
-  --link-bg:rgba(255,255,255,.62);
-  --link-hover-bg:rgba(255,255,255,.82);
-  --subtle-button-bg:rgba(255,255,255,.62);
+  --panel-bg:color-mix(in srgb, var(--profile-glow) 6%, #ffffff);
+  --link-bg:rgba(255,255,255,.82);
+  --link-hover-bg:rgba(255,255,255,.96);
+  --subtle-button-bg:rgba(255,255,255,.8);
+  --profile-background:#ffffff;
+  --profile-text:#111827;
+  --profile-icon:#0F4C81;
+  --profile-glow:#F5B301;
+}
+
+.themeCleanLight .mobileMenuToggle{
+  border-color:rgba(15,23,42,.12);
+}
+
+.themeCleanLight .mobileMenuToggle span{
+  background:var(--text);
 }
 
 .themeCleanHorizon{
@@ -246,12 +260,12 @@
   gap:14px;
   padding:18px;
   border-radius:24px;
-  border:1px solid rgba(255,255,255,.08);
+  border:1px solid rgba(15,23,42,.08);
   background:
-    linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02)),
-    rgba(26,26,26,.82);
+    linear-gradient(180deg, rgba(255,255,255,.98), rgba(248,250,252,.92)),
+    rgba(255,255,255,.94);
   backdrop-filter:blur(18px);
-  box-shadow:0 20px 48px rgba(0,0,0,.42);
+  box-shadow:0 20px 48px rgba(15,23,42,.14);
   pointer-events:auto;
 }
 
@@ -266,8 +280,8 @@
   min-height:46px;
   padding:12px 14px;
   border-radius:14px;
-  border:1px solid rgba(255,255,255,.06);
-  background:rgba(255,255,255,.02);
+  border:1px solid rgba(15,23,42,.08);
+  background:rgba(255,255,255,.86);
   color:var(--text);
   font-size:15px;
   font-weight:500;
