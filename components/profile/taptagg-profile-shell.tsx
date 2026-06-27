@@ -153,7 +153,7 @@ function themeClassName(theme?: string | null, background?: string | null) {
   const themeKey = normalizeThemeKey(theme);
 
   if (themeKey === "taptagg_brand") {
-    return "";
+    return styles.themeCleanLight;
   }
 
   if (themeKey === "sage_professional") {

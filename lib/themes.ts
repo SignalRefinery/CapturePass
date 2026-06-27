@@ -50,8 +50,8 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
       primary: designTokens.colors.primary,
       secondary: designTokens.colors.deepBlue,
       accent: designTokens.colors.insightGold,
-      text: designTokens.colors.white,
-      background: designTokens.colors.charcoal
+      text: designTokens.colors.charcoal,
+      background: designTokens.colors.background
     },
     allowedPlans: ["free", "core", "tagg_plus", "creator", "business_individual"]
   },
@@ -294,6 +294,7 @@ export function coerceThemeForPlan(themeKey: string | null | undefined, plan: Pl
 }
 
 const LIGHT_THEME_KEYS = new Set<ThemeKey>([
+  "taptagg_brand",
   "clean_horizon",
   "arctic_white",
   "ivory_executive",
