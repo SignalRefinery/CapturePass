@@ -76,13 +76,22 @@ export function PersonalPerformancePanel({ summary }: { summary: PersonalGamific
           <div className="dashboard-kicker">Analytics</div>
           <h2>Performance, score, streak, activity, and badges.</h2>
           <p className="editor-copy">
-            Tap to collapse or expand your personal analytics snapshot.
+            Click or tap the header to collapse or expand your personal analytics snapshot.
           </p>
         </div>
-        <span className="analytics-summary-meta">
-          <strong>{summary.contactsCapturedThisMonth}</strong>
-          <span>contacts this month</span>
-        </span>
+        <div className="analytics-summary-side">
+          <span className="analytics-summary-meta">
+            <strong>{summary.contactsCapturedThisMonth}</strong>
+            <span>contacts this month</span>
+          </span>
+          <span className="analytics-summary-action" aria-hidden="true">
+            <span className="analytics-summary-action-text analytics-summary-action-text-open">Collapse</span>
+            <span className="analytics-summary-action-text analytics-summary-action-text-closed">Expand</span>
+            <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+              <path d="M5.5 7.5L10 12l4.5-4.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </span>
+        </div>
       </summary>
 
       <div className="dashboard-grid analytics-grid">
