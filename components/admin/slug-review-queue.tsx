@@ -25,7 +25,7 @@ export function SlugReviewQueue({ rows }: { rows: PendingSlugRow[] }) {
         action === "approve" ? "Approve this slug request?" : "Deny this slug request?",
         "",
         `Profile: ${profileLabel}`,
-        `Current slug: ${row.slug || "not issued"}`,
+        `Current slug: ${row.slug || "not set"}`,
         `Requested slug: ${row.slug_requested || "none"}`,
         `Review reason: ${row.slug_review_reason || "title review"}`,
         "",

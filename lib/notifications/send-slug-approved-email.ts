@@ -52,7 +52,7 @@ export async function sendSlugApprovedEmail(profile: ProfileForEmail) {
       ${buildEmailBrandHeaderHtml("logoLockupWithTagline")}
       <h2 style="margin:0 0 16px;">CapturePass profile approved</h2>
       <p style="margin:0 0 18px;">
-        This profile is approved and ready for fulfillment. Issued QR and NFC materials should use the issued card URL below.
+        This profile is approved and ready for fulfillment. QR and NFC materials should use the card URL below.
       </p>
 
       <table cellpadding="8" cellspacing="0" border="0" style="border-collapse:collapse;">

@@ -78,7 +78,7 @@ export async function sendBusinessIndividualLogoEmail({
           <p style="margin:24px 0 8px;"><strong>Logo preview</strong></p>
           <p style="margin:0;"><img src="${escapeEmailHtml(logoUrl)}" alt="Business logo" style="max-width:420px;width:100%;height:auto;" /></p>
           <p style="margin:24px 0 0;">
-            The QR PNG is attached to this email for matching this logo to the issued card/profile assets.
+            The QR PNG is attached to this email for matching this logo to the card/profile assets.
           </p>
           <p style="margin:12px 0 0;">
             <img src="${qrUrl}" alt="QR code" width="300" height="300" />

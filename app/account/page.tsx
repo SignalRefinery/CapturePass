@@ -279,7 +279,7 @@ export default async function AccountPage({
               <div>
                 <span className="label">Profile URL</span>
                 <div>
-                  {account?.slug ? `/${account.slug}` : "Not issued yet"}
+                  {account?.slug ? `/${account.slug}` : "Not ready yet"}
                 </div>
               </div>
             </div>

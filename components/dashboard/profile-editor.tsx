@@ -149,7 +149,7 @@ function friendlySlugReviewReason(reason?: string | null) {
   }
 
   if (reason === "blocked_name_based_slug_fallback") {
-    return "We issued a QR link for added privacy.";
+    return "We generated a card QR link for added privacy.";
   }
 
   if (reason === "public_office_title") {
@@ -1791,7 +1791,7 @@ export function ProfileEditor({
               <div className="metadata-row">
                 <span className="metadata-label">Card / QR</span>
                 <strong className="metadata-value">
-                  {safeCardUrl ? safeCardUrl.replace(/^https?:\/\//, "") : "Not issued"}
+                  {safeCardUrl ? safeCardUrl.replace(/^https?:\/\//, "") : "Not ready"}
                 </strong>
               </div>
 
