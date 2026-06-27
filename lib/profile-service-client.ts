@@ -2,6 +2,7 @@ import type { ProfileRecord, ProfileViewRecord } from "@/lib/types";
 import { createClient as createBrowserClient } from "@/lib/supabase/client";
 import { classifySlug } from "@/lib/slug-moderation";
 import { normalizeProfileButtonFieldsForStorage } from "@/lib/profile-buttons";
+import { isRealEstateBusiness } from "@/lib/business-types";
 import { coerceThemeForPlan, isHexColor } from "@/lib/themes";
 import { getProfilePlan } from "@/lib/plans";
 import { resolveSecondaryActionMode, secondaryActionModeToLegacyShowText } from "@/lib/profiles/secondary-action";
@@ -47,6 +48,7 @@ export async function saveProfileClient(record: ProfileRecord, userId: string) {
     promo_code_used: currentProfile?.promo_code_used ?? record.promo_code_used,
     is_admin: currentProfile?.is_admin ?? record.is_admin
   };
+  const supportsMultiViewProfiles = isRealEstateBusiness(effectivePlanRecord.business_type);
 
   if (moderation.normalized !== currentSlugModeration.normalized) {
     const slugTaken = await isSlugTakenClient(moderation.normalized, userId);
@@ -112,9 +114,9 @@ export async function saveProfileClient(record: ProfileRecord, userId: string) {
     billing_exempt: record.billing_exempt ?? false,
     lifetime_free: record.lifetime_free ?? false,
     promo_code_used: record.promo_code_used || null,
-    page_mode: record.page_mode || "single",
-    multi_view_display_mode: record.multi_view_display_mode || "favorite",
-    default_view_id: record.default_view_id || null,
+    page_mode: supportsMultiViewProfiles ? record.page_mode || "single" : "single",
+    multi_view_display_mode: supportsMultiViewProfiles ? record.multi_view_display_mode || "favorite" : "favorite",
+    default_view_id: supportsMultiViewProfiles ? record.default_view_id || null : null,
     ...normalizeProfileButtonFieldsForStorage(record),
     ...moderatedSlugFields,
     updated_at: new Date().toISOString()

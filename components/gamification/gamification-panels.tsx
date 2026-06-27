@@ -70,8 +70,22 @@ export function PersonalPerformancePanel({ summary }: { summary: PersonalGamific
     .slice(0, 4);
 
   return (
-    <section className="dashboard-wrap" id="performance">
-      <div className="dashboard-grid">
+    <details className="dashboard-wrap analytics-collapsible" id="performance" open>
+      <summary className="analytics-collapsible-summary">
+        <div>
+          <div className="dashboard-kicker">Analytics</div>
+          <h2>Performance, score, streak, activity, and badges.</h2>
+          <p className="editor-copy">
+            Tap to collapse or expand your personal analytics snapshot.
+          </p>
+        </div>
+        <span className="analytics-summary-meta">
+          <strong>{summary.contactsCapturedThisMonth}</strong>
+          <span>contacts this month</span>
+        </span>
+      </summary>
+
+      <div className="dashboard-grid analytics-grid">
         <article className="dashboard-card">
           <div className="dashboard-kicker">Performance</div>
           <h2>Contacts captured this month.</h2>
@@ -103,7 +117,7 @@ export function PersonalPerformancePanel({ summary }: { summary: PersonalGamific
         </article>
       </div>
 
-      <div className="dashboard-grid" style={{ marginTop: 24 }}>
+      <div className="dashboard-grid analytics-grid" style={{ marginTop: 24 }}>
         <article className="dashboard-card">
           <div className="dashboard-kicker">Activity</div>
           <h2>Profile signals.</h2>
@@ -144,7 +158,7 @@ export function PersonalPerformancePanel({ summary }: { summary: PersonalGamific
           </div>
         </article>
       </div>
-    </section>
+    </details>
   );
 }
 

@@ -40,41 +40,49 @@ const LINK_FIELD_CONFIG = [
     typeKey: "primary_link_1_type" as const,
     titleKey: "primary_link_1_title" as const,
     urlKey: "primary_link_1_url" as const,
-    titleLabel: "Button label",
+    titleLabel: "Button title",
     typeLabel: "Button type",
-    urlLabel: "Button value",
+    urlLabel: "Button destination",
     titlePlaceholder: "Call",
-    urlPlaceholder: "5551234567"
+    urlPlaceholder: "5551234567",
+    titleHint: "What users see on the button.",
+    urlHint: "Phone number, email, or link target."
   },
   {
     typeKey: "primary_link_2_type" as const,
     titleKey: "primary_link_2_title" as const,
     urlKey: "primary_link_2_url" as const,
-    titleLabel: "Button label",
+    titleLabel: "Button title",
     typeLabel: "Button type",
-    urlLabel: "Button value",
+    urlLabel: "Button destination",
     titlePlaceholder: "Email",
-    urlPlaceholder: "you@example.com"
+    urlPlaceholder: "you@example.com",
+    titleHint: "What users see on the button.",
+    urlHint: "Phone number, email, or link target."
   },
   {
     typeKey: "primary_link_3_type" as const,
     titleKey: "primary_link_3_title" as const,
     urlKey: "primary_link_3_url" as const,
-    titleLabel: "Button label",
+    titleLabel: "Button title",
     typeLabel: "Button type",
-    urlLabel: "Button value",
+    urlLabel: "Button destination",
     titlePlaceholder: "Website",
-    urlPlaceholder: "https://your-link.com"
+    urlPlaceholder: "https://your-link.com",
+    titleHint: "What users see on the button.",
+    urlHint: "Phone number, email, or link target."
   },
   {
     typeKey: "primary_link_4_type" as const,
     titleKey: "primary_link_4_title" as const,
     urlKey: "primary_link_4_url" as const,
-    titleLabel: "Button label",
+    titleLabel: "Button title",
     typeLabel: "Button type",
-    urlLabel: "Button value",
+    urlLabel: "Button destination",
     titlePlaceholder: "Custom link",
-    urlPlaceholder: "https://your-link.com"
+    urlPlaceholder: "https://your-link.com",
+    titleHint: "What users see on the button.",
+    urlHint: "Phone number, email, or link target."
   }
 ];
 
@@ -254,10 +262,6 @@ export function ProfileEditor({
   const resolvedBusinessType =
     businessType && businessType !== "general_business" ? businessType : initialProfile.business_type;
   const isRealEstateBusinessProfile = isRealEstateBusiness(resolvedBusinessType);
-  const profileSectionLabel = isRealEstateBusinessProfile ? "Property" : "View";
-  const profileSectionPlural = isRealEstateBusinessProfile ? "Properties" : "Profile views";
-  const profileSectionLower = isRealEstateBusinessProfile ? "property" : "view";
-  const maxProfileViews = isRealEstateBusinessProfile ? 5 : 3;
   const [form, setForm] = useState<ProfileRecord>({
     ...initialProfile,
     intro: cleanIntroValue(initialProfile.intro),
@@ -380,7 +384,12 @@ export function ProfileEditor({
   const activeView =
     views.find((view) => (view.id || view.view_key) === activeViewKey) || views[0] || null;
   const defaultViewId = form.default_view_id || views[0]?.id || null;
-  const isMultiViewMode = plan.hasMoreProfileSections && (form.page_mode || "single") === "multi";
+  const canUseMultiViewProfile = isRealEstateBusinessProfile && plan.hasMoreProfileSections;
+  const profileSectionLabel = isRealEstateBusinessProfile ? "Property" : "View";
+  const profileSectionPlural = isRealEstateBusinessProfile ? "Properties" : "Profile views";
+  const profileSectionLower = isRealEstateBusinessProfile ? "property" : "view";
+  const maxProfileViews = canUseMultiViewProfile ? 5 : 0;
+  const isMultiViewMode = canUseMultiViewProfile && (form.page_mode || "single") === "multi";
 
   useEffect(() => {
     setSlugTaken(false);
@@ -419,6 +428,8 @@ export function ProfileEditor({
   }
 
   function updateMultiViewDisplayMode(value: ProfileRecord["multi_view_display_mode"]) {
+    if (!canUseMultiViewProfile) return;
+
     setForm((current) => ({
       ...current,
       page_mode: "multi",
@@ -587,8 +598,8 @@ export function ProfileEditor({
         ...form,
         slug: normalizedSlugInput || form.slug,
         organization_name: (form.organization_name || "").trim(),
-        page_mode: plan.hasMoreProfileSections ? form.page_mode || "single" : "single",
-        multi_view_display_mode: form.multi_view_display_mode || "favorite",
+        page_mode: canUseMultiViewProfile ? form.page_mode || "single" : "single",
+        multi_view_display_mode: canUseMultiViewProfile ? form.multi_view_display_mode || "favorite" : "favorite",
         website_url: normalizeUrl(form.website_url || ""),
         profile_badge_1: (form.profile_badge_1 || "").trim(),
         profile_badge_2: (form.profile_badge_2 || "").trim(),
@@ -667,7 +678,7 @@ export function ProfileEditor({
   }
 
   async function handleCreateView() {
-    if (viewSaving || views.length >= maxProfileViews || !plan.hasMoreProfileSections) return;
+    if (viewSaving || views.length >= maxProfileViews || !canUseMultiViewProfile) return;
 
     setViewSaving(true);
     setViewError("");
@@ -1212,6 +1223,7 @@ export function ProfileEditor({
                     placeholder={field.titlePlaceholder}
                     disabled={!plan.hasExpandedLinks && index > 1}
                   />
+                  <small className="auth-message">{field.titleHint}</small>
                 </label>
 
                 <label className="auth-field">
@@ -1259,6 +1271,7 @@ export function ProfileEditor({
                     ]}
                     disabled={!plan.hasExpandedLinks && index > 1}
                   />
+                  <small className="auth-message">{field.urlHint}</small>
                 </label>
               </div>
             ))}
@@ -1267,8 +1280,8 @@ export function ProfileEditor({
             ) : null}
           </div>
 
-          {plan.hasMoreProfileSections ? (
-          <div className="card" style={{ marginTop: 24, padding: 22 }}>
+          {canUseMultiViewProfile ? (
+            <div className="card" style={{ marginTop: 24, padding: 22 }}>
             <div className="dashboard-kicker">{profileSectionPlural}</div>
             <h3 style={{ margin: "6px 0 10px", fontSize: "1.25rem", lineHeight: 1.1 }}>
               {isRealEstateBusinessProfile
@@ -1418,13 +1431,7 @@ export function ProfileEditor({
                 </button>
               </div>
             </div>
-            ) : (
-              <p className="editor-copy" style={{ marginTop: 18 }}>
-                {isRealEstateBusinessProfile
-                  ? "Use your main profile information for now. Choose property collection to manage separate properties."
-                  : "Single mode uses your main profile information. Switch to multi to manage separate views."}
-              </p>
-            )}
+          ) : null}
 
             {isMultiViewMode && activeView ? (
               <div className="card" style={{ marginTop: 20, padding: 18 }}>
@@ -1668,6 +1675,7 @@ export function ProfileEditor({
                           onChange={(event) => updateView(field.titleKey, event.target.value)}
                           placeholder={field.titlePlaceholder}
                         />
+                        <small className="auth-message">{field.titleHint}</small>
                       </label>
 
                       <label className="auth-field">
@@ -1713,6 +1721,7 @@ export function ProfileEditor({
                             )
                           ]}
                         />
+                        <small className="auth-message">{field.urlHint}</small>
                       </label>
                     </div>
                   ))}

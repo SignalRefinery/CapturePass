@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { checkoutContinuationPath } from "@/lib/auth/checkout-continuation";
 import { safeInternalRedirect } from "@/lib/auth/redirect";
+import { BUSINESS_TYPE_DESCRIPTIONS, BUSINESS_TYPE_LABELS, BUSINESS_TYPES, normalizeBusinessType } from "@/lib/business-types";
 import { isBusinessIndividualPromoCode } from "@/lib/plans";
 import { createClient } from "@/lib/supabase/client";
 import { slugify } from "@/lib/utils";
@@ -36,6 +37,13 @@ export function AuthForm({ mode, nextPath, plan, businessType, initialPromoCode 
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const [organizationName, setOrganizationName] = useState("");
+  const [roleLine, setRoleLine] = useState("");
+  const [voicePhone, setVoicePhone] = useState("");
+  const [textPhone, setTextPhone] = useState("");
+  const [selectedBusinessType, setSelectedBusinessType] = useState(() =>
+    normalizeBusinessType(businessType)
+  );
   const [referral, setReferral] = useState("");
   const [promoCode, setPromoCode] = useState((initialPromoCode || "").toUpperCase());
 
@@ -72,6 +80,11 @@ export function AuthForm({ mode, nextPath, plan, businessType, initialPromoCode 
 
       const trimmedFirst = firstName.trim();
       const trimmedLast = lastName.trim();
+      const trimmedOrganizationName = organizationName.trim();
+      const trimmedRoleLine = roleLine.trim();
+      const trimmedVoicePhone = voicePhone.trim();
+      const trimmedTextPhone = textPhone.trim();
+      const normalizedSelectedBusinessType = normalizeBusinessType(selectedBusinessType);
       const fullName = `${trimmedFirst} ${trimmedLast}`.trim();
       const suggestedSlug =
         slugify(fullName) || slugify(email.split("@")[0] || "");
@@ -85,11 +98,29 @@ export function AuthForm({ mode, nextPath, plan, businessType, initialPromoCode 
           : plan || null;
       const callbackNextPath = isBusinessIndividualSignup
         ? checkoutContinuationPath({
-            businessType,
+            businessType: normalizedSelectedBusinessType,
             plan: effectivePlan,
             promoCode: normalizedPromoCode || null
           })
         : redirectTo;
+
+      if (!trimmedVoicePhone) {
+        setError("Voice phone number is required.");
+        setLoading(false);
+        return;
+      }
+
+      if (!trimmedTextPhone) {
+        setError("Text phone number is required.");
+        setLoading(false);
+        return;
+      }
+
+      if (!normalizedSelectedBusinessType) {
+        setError("Business type is required.");
+        setLoading(false);
+        return;
+      }
 
       if (password !== confirmPassword) {
         setError("Passwords do not match.");
@@ -117,16 +148,20 @@ export function AuthForm({ mode, nextPath, plan, businessType, initialPromoCode 
           emailRedirectTo: getEmailRedirectUrl(
             isFounderSignup ? "/dashboard" : callbackNextPath,
             isFounderSignup ? null : effectivePlan,
-            isFounderSignup ? null : businessType
+            isFounderSignup ? null : normalizedSelectedBusinessType
           ),
           data: {
             first_name: trimmedFirst,
             last_name: trimmedLast,
             full_name: fullName,
+            organization_name: trimmedOrganizationName || null,
+            role_line: trimmedRoleLine || null,
+            phone: trimmedVoicePhone,
+            text_phone: trimmedTextPhone,
             suggested_slug: suggestedSlug,
             referral_code_used: referral.trim() || null,
             promo_code: normalizedPromoCode || null,
-            selected_business_type: businessType || null,
+            selected_business_type: normalizedSelectedBusinessType,
             selected_plan: isFounderSignup ? null : effectivePlan,
             checkout_next_path: isFounderSignup ? null : callbackNextPath
           }
@@ -233,6 +268,72 @@ export function AuthForm({ mode, nextPath, plan, businessType, initialPromoCode 
                 autoComplete="family-name"
                 value={lastName}
                 onChange={(event) => setLastName(event.target.value)}
+                required
+              />
+            </label>
+          </div>
+
+          <label className="auth-field">
+            <span>Organization (optional)</span>
+            <input
+              type="text"
+              autoComplete="organization"
+              value={organizationName}
+              onChange={(event) => setOrganizationName(event.target.value)}
+              placeholder="Company or organization name"
+            />
+          </label>
+
+          <label className="auth-field">
+            <span>Role / title (optional)</span>
+            <input
+              type="text"
+              autoComplete="organization-title"
+              value={roleLine}
+              onChange={(event) => setRoleLine(event.target.value)}
+              placeholder="Agent, owner, advisor, etc."
+            />
+          </label>
+
+          <label className="auth-field">
+            <span>Business type</span>
+            <select
+              value={selectedBusinessType}
+              onChange={(event) => setSelectedBusinessType(normalizeBusinessType(event.target.value))}
+              required
+            >
+              {BUSINESS_TYPES.map((value) => (
+                <option key={value} value={value}>
+                  {BUSINESS_TYPE_LABELS[value]}
+                </option>
+              ))}
+            </select>
+            <small className="auth-message">
+              {BUSINESS_TYPE_DESCRIPTIONS[selectedBusinessType]}
+            </small>
+          </label>
+
+          <div className="editor-grid">
+            <label className="auth-field">
+              <span>Voice phone</span>
+              <input
+                type="tel"
+                autoComplete="tel"
+                value={voicePhone}
+                onChange={(event) => setVoicePhone(event.target.value)}
+                placeholder="Main phone number"
+                required
+              />
+            </label>
+
+            <label className="auth-field">
+              <span>Text phone</span>
+              <input
+                type="tel"
+                autoComplete="tel-national"
+                value={textPhone}
+                onChange={(event) => setTextPhone(event.target.value)}
+                placeholder="Text-enabled number"
                 required
               />
             </label>

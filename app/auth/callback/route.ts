@@ -211,6 +211,10 @@ export async function GET(req: Request) {
   const fullName =
     cleanValue(meta.full_name) ||
     cleanValue([firstName, lastName].filter(Boolean).join(" "));
+  const organizationName = cleanValue(meta.organization_name);
+  const roleLine = cleanValue(meta.role_line);
+  const voicePhone = cleanValue(meta.phone);
+  const textPhone = cleanValue(meta.text_phone);
   const rawSuggestedSlug =
     cleanValue(meta.suggested_slug) ||
     (fullName || (user.email ? user.email.split("@")[0] : null));
@@ -269,6 +273,10 @@ export async function GET(req: Request) {
       business_type: assignedBusinessType,
       email: user.email || null,
       full_name: fullName,
+      organization_name: organizationName,
+      role_line: roleLine,
+      phone: voicePhone,
+      text_phone: textPhone,
       ...bootstrapSlugFields,
       promo_code_used: promoCode,
       referred_by: referralCode,
