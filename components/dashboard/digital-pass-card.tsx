@@ -53,12 +53,20 @@ export function DigitalPassCard({
     <section className="pass-wrap">
       <div className="pass-card">
         <div className="pass-kicker">Digital pass</div>
+        <div className="pass-status-row">
+          <span className="pass-status-pill">Public access</span>
+          <span className="pass-status-note">No sign-in required</span>
+        </div>
         {views.length > 1 ? (
           <div className="pass-selected-view">
             <span>Profile</span>
             <strong>{selectedView.label}</strong>
           </div>
         ) : null}
+
+        <p className="pass-support-line">
+          Scan the code, copy the link, or open the profile on another device.
+        </p>
 
         <div className="pass-qr-frame">
           {/* eslint-disable-next-line @next/next/no-img-element -- QR provider returns a generated runtime image URL. */}
