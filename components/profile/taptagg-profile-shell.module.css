@@ -95,19 +95,20 @@
   --icon-button-bg:
     linear-gradient(180deg, rgba(255,255,255,.98), rgba(246,250,255,.94)),
     rgba(255,255,255,.9);
-  --hero-wash:linear-gradient(180deg, rgba(249,252,255,.98), rgba(242,247,255,.95));
-  --grid-line:rgba(11,95,255,.055);
-  --grid-line-2:rgba(15,76,129,.04);
-  --eyebrow-bg:rgba(255,255,255,.72);
-  --chip-bg:rgba(11,95,255,.08);
-  --panel-bg:linear-gradient(180deg, rgba(255,255,255,.98), rgba(244,248,255,.96));
-  --link-bg:linear-gradient(180deg, rgba(255,255,255,.98), rgba(244,248,255,.92));
-  --link-hover-bg:linear-gradient(180deg, rgba(237,244,255,.98), rgba(225,236,255,.94));
+  --hero-wash:linear-gradient(180deg, rgba(249,252,255,.98), rgba(241,246,255,.96));
+  --grid-line:rgba(11,95,255,.06);
+  --grid-line-2:rgba(15,76,129,.045);
+  --eyebrow-bg:rgba(11,95,255,.05);
+  --chip-bg:rgba(47,141,255,.08);
+  --panel-bg:linear-gradient(180deg, rgba(255,255,255,.99), rgba(244,248,255,.95));
+  --link-bg:linear-gradient(180deg, rgba(255,255,255,.99), rgba(243,247,255,.94));
+  --link-hover-bg:linear-gradient(180deg, rgba(236,243,255,.99), rgba(223,234,255,.95));
   --subtle-button-bg:rgba(255,255,255,.82);
   --profile-background:#ffffff;
   --profile-text:#111827;
   --profile-icon:#0F4C81;
-  --profile-glow:#F5B301;
+  --profile-glow:#2F8DFF;
+  --profile-accent:#58B9FF;
 }
 
 .themeCleanLight .mobileMenuToggle{
@@ -120,8 +121,8 @@
 
 .themeCleanHorizon{
   --panel-bg:#ffffff;
-  --link-bg:rgba(248,250,252,.86);
-  --link-hover-bg:#ffffff;
+  --link-bg:linear-gradient(180deg, rgba(255,255,255,.99), rgba(243,247,255,.94));
+  --link-hover-bg:linear-gradient(180deg, rgba(236,243,255,.99), rgba(223,234,255,.95));
 }
 
 .themeSageProfessional{
@@ -1035,16 +1036,18 @@
   gap:24px;
   padding:24px;
   border-radius:28px;
-  border:1px solid rgba(var(--profile-primary-rgb),.16);
+  border:1px solid rgba(var(--profile-primary-rgb),.22);
   background:
-    linear-gradient(180deg, rgba(var(--profile-primary-rgb),.065), rgba(255,255,255,.012)),
-    linear-gradient(180deg, rgba(15,15,15,.84), rgba(26,26,26,.92));
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.035);
+    radial-gradient(circle at top left, rgba(var(--profile-primary-rgb),.18), transparent 42%),
+    linear-gradient(180deg, rgba(11,18,31,.98), rgba(18,28,46,.98));
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.06),
+    0 24px 48px rgba(15,23,42,.12);
 }
 
 .signupCtaKicker{
   margin-bottom:8px;
-  color:var(--profile-secondary);
+  color:rgba(96,165,250,.92);
   font-size:11px;
   font-weight:700;
   letter-spacing:.2em;
@@ -1057,14 +1060,24 @@
   font-size:36px;
   line-height:.96;
   letter-spacing:-.02em;
+  color:#ffffff;
 }
 
 .signupCta p{
   max-width:620px;
   margin:10px 0 0;
-  color:var(--muted);
+  color:rgba(226,232,240,.82);
   font-size:15px;
   line-height:1.65;
+}
+
+.signupCta .profilePrimaryButton{
+  align-self:center;
+  color:#ffffff;
+  box-shadow:
+    0 18px 44px rgba(47,141,255,.32),
+    0 0 56px rgba(88,185,255,.18),
+    inset 0 1px 0 rgba(255,255,255,.3);
 }
 
 .footer{
