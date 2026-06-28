@@ -961,116 +961,6 @@ export function ProfileEditor({
             </div>
           ) : null}
 
-          <details className="card collapsible-section theme-section" style={{ marginTop: 18, padding: 18 }} open>
-            <summary className="collapsible-summary">
-              <div>
-                <div className="dashboard-kicker">Profile Theme</div>
-                <h3 style={{ margin: "6px 0 8px" }}>Choose a polished look.</h3>
-                <p className="editor-copy">
-                  Presets keep your profile sharp without needing to tune colors manually. Your plan controls which
-                  themes are available.
-                </p>
-              </div>
-              <span className="collapsible-summary-chip" aria-hidden="true">
-                <span className="collapsible-summary-chip-text open">Collapse</span>
-                <span className="collapsible-summary-chip-text closed">Expand</span>
-                <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
-                  <path d="M5.5 7.5L10 12l4.5-4.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </span>
-            </summary>
-
-            <div className="theme-section-body">
-              <div className="theme-choice-list" role="radiogroup" aria-label="Profile theme">
-                {PROFILE_THEME_OPTIONS.map((theme) => {
-                  const allowed = themeIsAllowedForPlan(theme.key, plan.key);
-                  const colors = theme.key === CUSTOM_THEME_KEY ? customThemeColors : theme.colors;
-
-                  return (
-                    <label className={`theme-choice-card${allowed ? "" : " is-disabled"}`} key={theme.key}>
-                      <input
-                        type="radio"
-                        name="theme_key"
-                        value={theme.key}
-                        checked={selectedThemeKey === theme.key}
-                        disabled={!allowed}
-                        onChange={() => update("theme_key", theme.key)}
-                      />
-                      <span>
-                        <strong>{theme.name}</strong>
-                        <small>
-                          {theme.description}
-                          {!allowed ? ` Upgrade to Business Individual or a business plan to unlock.` : ""}
-                        </small>
-                        <span
-                          className="theme-preview-strip"
-                          style={{
-                            "--theme-preview-primary": colors.primary,
-                            "--theme-preview-secondary": colors.secondary,
-                            "--theme-preview-accent": colors.accent,
-                            "--theme-preview-background": colors.background,
-                            "--theme-preview-text": colors.text || "#FFFFFF"
-                          } as React.CSSProperties}
-                          aria-hidden="true"
-                        >
-                          <i />
-                          <i />
-                          <i />
-                          <i />
-                          <i />
-                        </span>
-                      </span>
-                    </label>
-                  );
-                })}
-              </div>
-              {showCustomThemeColors ? (
-                <div className="editor-grid theme-custom-grid">
-                  <label className="auth-field">
-                    <span>{THEME_COLOR_ROLE_LABELS.primary}</span>
-                    <input
-                      type="color"
-                      value={form.brand_color_primary || designTokens.colors.primary}
-                      onChange={(event) => update("brand_color_primary", event.target.value)}
-                    />
-                  </label>
-                  <label className="auth-field">
-                    <span>{THEME_COLOR_ROLE_LABELS.secondary}</span>
-                    <input
-                      type="color"
-                      value={form.brand_color_secondary || designTokens.colors.deepBlue}
-                      onChange={(event) => update("brand_color_secondary", event.target.value)}
-                    />
-                  </label>
-                  <label className="auth-field">
-                    <span>{THEME_COLOR_ROLE_LABELS.accent}</span>
-                    <input
-                      type="color"
-                      value={form.brand_color_accent || designTokens.colors.insightGold}
-                      onChange={(event) => update("brand_color_accent", event.target.value)}
-                    />
-                  </label>
-                  <label className="auth-field">
-                    <span>{THEME_COLOR_ROLE_LABELS.background}</span>
-                    <input
-                      type="color"
-                      value={form.brand_color_background || customThemeColors.background}
-                      onChange={(event) => update("brand_color_background", event.target.value)}
-                    />
-                  </label>
-                  <label className="auth-field">
-                    <span>{THEME_COLOR_ROLE_LABELS.text}</span>
-                    <input
-                      type="color"
-                      value={form.brand_color_text || designTokens.colors.white}
-                      onChange={(event) => update("brand_color_text", event.target.value)}
-                    />
-                  </label>
-                </div>
-              ) : null}
-            </div>
-          </details>
-
           <div className="editor-grid" style={{ marginTop: 18 }}>
             <label className="auth-field">
               <span>Organization or business name</span>
@@ -1763,6 +1653,116 @@ export function ProfileEditor({
             ) : null}
           </div>
           ) : null}
+
+          <details className="card collapsible-section theme-section" style={{ marginTop: 18, padding: 18 }}>
+            <summary className="collapsible-summary">
+              <div>
+                <div className="dashboard-kicker">Profile Theme</div>
+                <h3 style={{ margin: "6px 0 8px" }}>Choose a polished look.</h3>
+                <p className="editor-copy">
+                  Presets keep your profile sharp without needing to tune colors manually. Your plan controls which
+                  themes are available.
+                </p>
+              </div>
+              <span className="collapsible-summary-chip" aria-hidden="true">
+                <span className="collapsible-summary-chip-text open">Collapse</span>
+                <span className="collapsible-summary-chip-text closed">Expand</span>
+                <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                  <path d="M5.5 7.5L10 12l4.5-4.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </span>
+            </summary>
+
+            <div className="theme-section-body">
+              <div className="theme-choice-list" role="radiogroup" aria-label="Profile theme">
+                {PROFILE_THEME_OPTIONS.map((theme) => {
+                  const allowed = themeIsAllowedForPlan(theme.key, plan.key);
+                  const colors = theme.key === CUSTOM_THEME_KEY ? customThemeColors : theme.colors;
+
+                  return (
+                    <label className={`theme-choice-card${allowed ? "" : " is-disabled"}`} key={theme.key}>
+                      <input
+                        type="radio"
+                        name="theme_key"
+                        value={theme.key}
+                        checked={selectedThemeKey === theme.key}
+                        disabled={!allowed}
+                        onChange={() => update("theme_key", theme.key)}
+                      />
+                      <span>
+                        <strong>{theme.name}</strong>
+                        <small>
+                          {theme.description}
+                          {!allowed ? ` Upgrade to Business Individual or a business plan to unlock.` : ""}
+                        </small>
+                        <span
+                          className="theme-preview-strip"
+                          style={{
+                            "--theme-preview-primary": colors.primary,
+                            "--theme-preview-secondary": colors.secondary,
+                            "--theme-preview-accent": colors.accent,
+                            "--theme-preview-background": colors.background,
+                            "--theme-preview-text": colors.text || "#FFFFFF"
+                          } as React.CSSProperties}
+                          aria-hidden="true"
+                        >
+                          <i />
+                          <i />
+                          <i />
+                          <i />
+                          <i />
+                        </span>
+                      </span>
+                    </label>
+                  );
+                })}
+              </div>
+              {showCustomThemeColors ? (
+                <div className="editor-grid theme-custom-grid">
+                  <label className="auth-field">
+                    <span>{THEME_COLOR_ROLE_LABELS.primary}</span>
+                    <input
+                      type="color"
+                      value={form.brand_color_primary || designTokens.colors.primary}
+                      onChange={(event) => update("brand_color_primary", event.target.value)}
+                    />
+                  </label>
+                  <label className="auth-field">
+                    <span>{THEME_COLOR_ROLE_LABELS.secondary}</span>
+                    <input
+                      type="color"
+                      value={form.brand_color_secondary || designTokens.colors.deepBlue}
+                      onChange={(event) => update("brand_color_secondary", event.target.value)}
+                    />
+                  </label>
+                  <label className="auth-field">
+                    <span>{THEME_COLOR_ROLE_LABELS.accent}</span>
+                    <input
+                      type="color"
+                      value={form.brand_color_accent || designTokens.colors.insightGold}
+                      onChange={(event) => update("brand_color_accent", event.target.value)}
+                    />
+                  </label>
+                  <label className="auth-field">
+                    <span>{THEME_COLOR_ROLE_LABELS.background}</span>
+                    <input
+                      type="color"
+                      value={form.brand_color_background || customThemeColors.background}
+                      onChange={(event) => update("brand_color_background", event.target.value)}
+                    />
+                  </label>
+                  <label className="auth-field">
+                    <span>{THEME_COLOR_ROLE_LABELS.text}</span>
+                    <input
+                      type="color"
+                      value={form.brand_color_text || designTokens.colors.white}
+                      onChange={(event) => update("brand_color_text", event.target.value)}
+                    />
+                  </label>
+                </div>
+              ) : null}
+            </div>
+          </details>
 
           <div className="card" style={{ marginTop: 24, padding: 22 }}>
             <div className="dashboard-kicker">Account flags</div>

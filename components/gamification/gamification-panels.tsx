@@ -70,7 +70,7 @@ export function PersonalPerformancePanel({ summary }: { summary: PersonalGamific
     .slice(0, 4);
 
   return (
-    <details className="dashboard-wrap analytics-collapsible" id="performance" open>
+    <details className="dashboard-wrap analytics-collapsible" id="performance">
       <summary className="analytics-collapsible-summary">
         <div>
           <div className="dashboard-kicker">Analytics</div>
