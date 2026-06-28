@@ -529,16 +529,24 @@
 }
 
 .profilePrimaryButton{
-  color:var(--button-text);
-  background:var(--button-start);
-  box-shadow:0 18px 44px color-mix(in srgb, var(--profile-cta) 34%, transparent), 0 0 60px color-mix(in srgb, var(--profile-glow) 18%, transparent), inset 0 1px 0 rgba(255,255,255,.26);
+  color:#ffffff;
+  background:linear-gradient(180deg, #58b9ff 0%, #2f8dff 100%);
+  box-shadow:
+    0 18px 44px rgba(47,141,255,.34),
+    0 0 60px rgba(88,185,255,.22),
+    inset 0 1px 0 rgba(255,255,255,.32);
 }
 
 .profileSubtleButton{
-  border:1px solid rgba(255,255,255,.1);
-  background:rgba(255,255,255,.018);
-  color:var(--text);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.035);
+  border:1px solid rgba(88,185,255,.32);
+  background:rgba(88,185,255,.12);
+  color:#1457b8;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.28);
+}
+
+.profileSubtleButton:hover{
+  background:rgba(88,185,255,.18);
+  border-color:rgba(47,141,255,.42);
 }
 
 .profileActions{margin-top:26px}

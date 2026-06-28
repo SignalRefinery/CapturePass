@@ -1,41 +1,42 @@
 import { JsonLd } from "@/components/seo/json-ld";
 import { HomepagePage } from "@/components/marketing/homepage-page";
-import { buildOrganizationJsonLd, buildPageMetadata, SITE_DESCRIPTION } from "@/lib/seo";
+import { buildOrganizationJsonLd, buildPageMetadata } from "@/lib/seo";
 
 export const metadata = buildPageMetadata({
-  description: SITE_DESCRIPTION,
+  description:
+    "CapturePass helps professionals and teams share contact information instantly, capture leads, track engagement, and turn everyday introductions into customers.",
   path: "/",
-  title: "CapturePass"
+  title: "CapturePass | Digital Business Cards with Lead Capture"
 });
 
 const businessCards = [
   {
     href: "/sales-teams",
     title: "Sales Teams",
-    copy: "Turn conversations into captured contacts and measurable opportunities."
+    copy: "Turn conversations into captured contacts and measurable follow-up."
   },
   {
     href: "/dealerships",
     title: "Automotive Dealerships",
-    copy: "Keep buyers connected to the right salesperson, inventory, and follow-up process."
+    copy: "Help every salesperson share a polished profile and capture more buyer interest."
   },
   {
     href: "/real-estate-agents",
     title: "Real Estate",
-    copy: "Strengthen relationships with buyers, sellers, open house visitors, and referral partners."
+    copy: "Make it easier for prospects, buyers, sellers, and referral partners to remember and contact you."
   },
   {
     href: "/insurance-agents",
     title: "Insurance",
-    copy: "Simplify referrals, quote requests, reviews, and ongoing client relationships."
+    copy: "Capture policy shoppers, referral partners, and renewal opportunities from everyday conversations."
   },
   {
     title: "Recruiting & Staffing",
-    copy: "Capture candidate information and keep hiring conversations moving."
+    copy: "Give candidates and employers a faster way to connect and stay in touch."
   },
   {
     title: "Professional Services",
-    copy: "Help clients, prospects, and referral sources stay connected to your business."
+    copy: "Turn consultations, referrals, and networking conversations into follow-up opportunities."
   }
 ];
 
@@ -45,9 +46,9 @@ const teamCapabilities = [
   "Business branding",
   "Team management",
   "Analytics",
-  "Flexible calls-to-action",
   "CRM-ready workflows",
-  "Instant updates without replacing cards"
+  "Instant profile updates",
+  "Mobile-friendly profiles"
 ];
 
 const resourceLinks = [
