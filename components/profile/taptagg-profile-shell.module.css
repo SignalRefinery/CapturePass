@@ -93,17 +93,17 @@
   --topbar-bg:rgba(255,255,255,.9);
   --brand-copy:#111827;
   --icon-button-bg:
-    linear-gradient(180deg, rgba(255,255,255,.96), rgba(248,250,252,.9)),
-    rgba(255,255,255,.86);
-  --hero-wash:linear-gradient(180deg, rgba(255,255,255,.96), rgba(248,250,252,.94));
-  --grid-line:rgba(15,23,42,.055);
-  --grid-line-2:rgba(15,23,42,.045);
-  --eyebrow-bg:rgba(255,255,255,.62);
-  --chip-bg:rgba(255,255,255,.58);
-  --panel-bg:color-mix(in srgb, var(--profile-glow) 6%, #ffffff);
-  --link-bg:rgba(255,255,255,.82);
-  --link-hover-bg:rgba(255,255,255,.96);
-  --subtle-button-bg:rgba(255,255,255,.8);
+    linear-gradient(180deg, rgba(255,255,255,.98), rgba(246,250,255,.94)),
+    rgba(255,255,255,.9);
+  --hero-wash:linear-gradient(180deg, rgba(249,252,255,.98), rgba(242,247,255,.95));
+  --grid-line:rgba(11,95,255,.055);
+  --grid-line-2:rgba(15,76,129,.04);
+  --eyebrow-bg:rgba(255,255,255,.72);
+  --chip-bg:rgba(11,95,255,.08);
+  --panel-bg:linear-gradient(180deg, rgba(255,255,255,.98), rgba(244,248,255,.96));
+  --link-bg:linear-gradient(180deg, rgba(255,255,255,.98), rgba(244,248,255,.92));
+  --link-hover-bg:linear-gradient(180deg, rgba(237,244,255,.98), rgba(225,236,255,.94));
+  --subtle-button-bg:rgba(255,255,255,.82);
   --profile-background:#ffffff;
   --profile-text:#111827;
   --profile-icon:#0F4C81;
@@ -643,9 +643,9 @@
   padding:18px 18px;
   border-radius:18px;
   background:
-    linear-gradient(135deg, rgba(255,255,255,.08), rgba(255,255,255,.025)),
+    linear-gradient(135deg, rgba(11,95,255,.06), rgba(255,255,255,.03)),
     var(--link-bg);
-  border:1px solid rgba(255,255,255,.09);
+  border:1px solid rgba(11,95,255,.08);
   color:var(--text);
   text-decoration:none;
   transition:transform .15s ease, background .15s ease, border-color .15s ease, box-shadow .15s ease;
@@ -654,8 +654,8 @@
 .linkCard:hover{
   transform:translateY(-1px);
   background:var(--link-hover-bg);
-  border-color:color-mix(in srgb, var(--profile-glow) 30%, transparent);
-  box-shadow:0 0 0 1px color-mix(in srgb, var(--profile-glow) 10%, transparent) inset, 0 14px 28px rgba(0,0,0,.16);
+  border-color:rgba(11,95,255,.2);
+  box-shadow:0 0 0 1px rgba(11,95,255,.08) inset, 0 14px 28px rgba(15,23,42,.08);
 }
 
 .linkTitle{
@@ -678,9 +678,9 @@
   display:grid;
   place-items:center;
   border-radius:999px;
-  color:var(--profile-glow);
-  background:rgba(255,255,255,.024);
-  border:1px solid rgba(255,255,255,.07);
+  color:var(--profile-primary);
+  background:rgba(11,95,255,.08);
+  border:1px solid rgba(11,95,255,.12);
   font-size:17px;
   flex:0 0 auto;
 }
@@ -702,7 +702,7 @@
   padding:14px 16px;
   border-radius:16px;
   background:var(--link-bg);
-  border:1px solid rgba(255,255,255,.06);
+  border:1px solid rgba(11,95,255,.08);
   color:inherit;
   text-decoration:none;
   transition:transform .15s ease, background .15s ease, border-color .15s ease, box-shadow .15s ease;
@@ -711,8 +711,8 @@
 .contactLine:hover{
   transform:translateY(-1px);
   background:var(--link-hover-bg);
-  border-color:color-mix(in srgb, var(--profile-glow) 28%, transparent);
-  box-shadow:0 0 0 1px color-mix(in srgb, var(--profile-glow) 10%, transparent) inset, 0 14px 28px rgba(0,0,0,.16);
+  border-color:rgba(11,95,255,.2);
+  box-shadow:0 0 0 1px rgba(11,95,255,.08) inset, 0 14px 28px rgba(15,23,42,.08);
 }
 
 .linkCard > div,
