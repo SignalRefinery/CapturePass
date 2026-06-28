@@ -34,6 +34,7 @@ type ProfileLike = {
   brand_theme?: string | null;
   role_line?: string | null;
   intro?: string | null;
+  business_tagline?: string | null;
   email?: string | null;
   phone?: string | null;
   website_url?: string | null;
@@ -238,7 +239,7 @@ export function CapturePassProfileShell({
     ? `${activeProfile.role_line} at ${activeProfile.organization_name}`
     : activeProfile.role_line || activeProfile.organization_name || "CapturePass contact card";
   const isBusinessProfile = activeProfile.is_business_profile === true;
-  const useWideLogo = isBusinessProfile || activeProfile.is_business_individual === true;
+  const useWideLogo = !!activeProfile.brand_logo_url || isBusinessProfile || activeProfile.is_business_individual === true;
   const avatarUrl =
     useWideLogo && activeProfile.brand_logo_url
       ? activeProfile.brand_logo_url
@@ -277,7 +278,7 @@ export function CapturePassProfileShell({
       ? themeClassName(resolvedThemeKey, resolvedThemeColors.background)
       : legacyThemeClassName(activeProfile.brand_theme)
   ].filter(Boolean).join(" ");
-  const profileLabel = heroLabel || "Live profile";
+  const profileLabel = activeProfile.business_tagline?.trim() || heroLabel || "Live profile";
   const homeHref = isBusinessProfile ? activeProfile.business_home_url || readableUrl : "/";
   const businessLinks = isBusinessProfile
     ? (activeProfile.business_links || []).filter((item) => item.title && item.url)

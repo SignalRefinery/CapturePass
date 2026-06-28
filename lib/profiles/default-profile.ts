@@ -39,6 +39,7 @@ export function buildDashboardProfile(user: User, existing: ProfileRecord | null
     organization_name: "",
     role_line: "",
     intro: "",
+    business_tagline: "",
     email,
     phone: "",
     text_phone: "",

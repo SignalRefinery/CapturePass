@@ -1,13 +1,10 @@
 import { NextResponse } from "next/server";
 import {
   deleteBusinessAssetUrl,
-  uploadBusinessIndividualLogoAsset
+  uploadProfileLogoAsset
 } from "@/lib/business/assets";
-import { sendBusinessIndividualLogoEmail } from "@/lib/notifications/send-business-individual-logo-email";
-import { getProfilePlan } from "@/lib/plans";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
-import type { ProfileRecord } from "@/lib/types";
 
 type ProfileLogoRecord = {
   id: string;
@@ -21,7 +18,7 @@ type ProfileLogoRecord = {
   is_admin?: boolean | null;
 };
 
-async function getAuthorizedBusinessIndividualProfile() {
+async function getAuthorizedProfileForLogoUpload() {
   const supabase = await createClient();
   const {
     data: { user }
@@ -56,21 +53,11 @@ async function getAuthorizedBusinessIndividualProfile() {
     };
   }
 
-  const plan = getProfilePlan(profile as ProfileRecord);
-  if (plan.key !== "business_individual") {
-    return {
-      error: NextResponse.json(
-        { error: "Logo upload is available for Business Individual profiles." },
-        { status: 403 }
-      )
-    };
-  }
-
   return { admin, profile };
 }
 
 export async function POST(request: Request) {
-  const auth = await getAuthorizedBusinessIndividualProfile();
+  const auth = await getAuthorizedProfileForLogoUpload();
   if ("error" in auth) return auth.error;
 
   const formData = await request.formData();
@@ -84,7 +71,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const brandLogoUrl = await uploadBusinessIndividualLogoAsset({
+    const brandLogoUrl = await uploadProfileLogoAsset({
       file: logoFile,
       oldUrl: auth.profile.brand_logo_url,
       profileId: auth.profile.id
@@ -104,16 +91,6 @@ export async function POST(request: Request) {
       );
     }
 
-    await sendBusinessIndividualLogoEmail({
-      brandLogoUrl: data.brand_logo_url,
-      profileId: auth.profile.id
-    }).catch((emailError) => {
-      console.error("Business Individual business logo email failed after upload", {
-        profileId: auth.profile.id,
-        error: emailError instanceof Error ? emailError.message : "Unknown business logo error"
-      });
-    });
-
     return NextResponse.json({ brand_logo_url: data.brand_logo_url });
   } catch (error) {
     const message = error instanceof Error ? error.message : "logo_upload_failed";
@@ -123,7 +100,7 @@ export async function POST(request: Request) {
 }
 
 export async function DELETE() {
-  const auth = await getAuthorizedBusinessIndividualProfile();
+  const auth = await getAuthorizedProfileForLogoUpload();
   if ("error" in auth) return auth.error;
 
   await deleteBusinessAssetUrl(auth.profile.brand_logo_url);

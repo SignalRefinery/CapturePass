@@ -39,6 +39,7 @@ export type ProfileRecord = {
   organization_name?: string | null;
   role_line: string;
   intro: string;
+  business_tagline?: string | null;
   email: string;
   phone: string;
   text_phone?: string;

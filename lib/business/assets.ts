@@ -16,7 +16,7 @@ type UploadBusinessAssetOptions = {
   organizationId: string;
 };
 
-type UploadBusinessIndividualLogoOptions = {
+type UploadProfileLogoOptions = {
   file: File | null;
   oldUrl?: string | null;
   profileId: string;
@@ -96,11 +96,11 @@ export async function uploadBusinessAsset({
   return data.publicUrl;
 }
 
-export async function uploadBusinessIndividualLogoAsset({
+export async function uploadProfileLogoAsset({
   file,
   oldUrl,
   profileId
-}: UploadBusinessIndividualLogoOptions) {
+}: UploadProfileLogoOptions) {
   if (!file || file.size === 0) return null;
 
   if (file.size > BUSINESS_LOGO_MAX_BYTES) {
@@ -132,3 +132,5 @@ export async function uploadBusinessIndividualLogoAsset({
   const { data } = admin.storage.from(BUSINESS_ASSETS_BUCKET).getPublicUrl(path);
   return data.publicUrl;
 }
+
+export const uploadBusinessIndividualLogoAsset = uploadProfileLogoAsset;

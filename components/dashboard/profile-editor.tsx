@@ -87,6 +87,7 @@ const LINK_FIELD_CONFIG = [
 ];
 
 const MAX_INTRO_TEXTAREA_HEIGHT = 220;
+const MAX_BUSINESS_TAGLINE_LENGTH = 60;
 const LEGACY_INTRO_PROMPT = "Turning complexity into clarity.";
 const INTRO_PLACEHOLDER =
   "Write a short line in your own words: what you do, who you help, or the best next step.";
@@ -265,6 +266,7 @@ export function ProfileEditor({
   const [form, setForm] = useState<ProfileRecord>({
     ...initialProfile,
     intro: cleanIntroValue(initialProfile.intro),
+    business_tagline: initialProfile.business_tagline?.trim() || "",
     consent_public_visibility: initialProfile.consent_public_visibility !== false,
     text_phone: initialProfile.text_phone || "",
     theme_key: coerceThemeForPlan(initialProfile.theme_key, getProfilePlan(initialProfile)),
@@ -294,7 +296,6 @@ export function ProfileEditor({
   const slugCheckRequestRef = useRef(0);
   const profileLogoInputRef = useRef<HTMLInputElement | null>(null);
   const plan = getProfilePlan(form);
-  const canManageBusinessIndividualLogo = plan.key === "business_individual";
   const secondaryActionMode = resolveSecondaryActionMode(form);
   const selectedThemeKey = coerceThemeForPlan(form.theme_key, plan);
   const showCustomThemeColors = selectedThemeKey === CUSTOM_THEME_KEY;
@@ -503,7 +504,7 @@ export function ProfileEditor({
     return savedView;
   }
 
-  async function uploadBusinessIndividualLogo(file: File) {
+  async function uploadProfileLogo(file: File) {
     const logoFormData = new FormData();
     logoFormData.set("logo", file);
 
@@ -523,7 +524,7 @@ export function ProfileEditor({
     return result.brand_logo_url || null;
   }
 
-  async function handleDeleteBusinessIndividualLogo() {
+  async function handleDeleteProfileLogo() {
     if (logoDeleting) return;
 
     setLogoDeleting(true);
@@ -570,16 +571,12 @@ export function ProfileEditor({
     try {
       const logoFile = profileLogoInputRef.current?.files?.[0] || null;
 
-      if (logoFile && !canManageBusinessIndividualLogo) {
-        throw new Error("Logo upload is available for Business Individual profiles.");
-      }
-
       if (logoFile && logoFile.type !== "image/png") {
-        throw new Error("Business Individual logos must be PNG files.");
+        throw new Error("Logos must be PNG files.");
       }
 
       if (logoFile && logoFile.size > BUSINESS_INDIVIDUAL_LOGO_MAX_BYTES) {
-        throw new Error("Business Individual logos must be 5 MB or smaller.");
+        throw new Error("Logos must be 5 MB or smaller.");
       }
 
       if (slugModeration.state === "blocked") {
@@ -620,7 +617,7 @@ export function ProfileEditor({
       let savedProfile = result.data as ProfileRecord | null;
 
       if (logoFile) {
-        const brandLogoUrl = await uploadBusinessIndividualLogo(logoFile);
+        const brandLogoUrl = await uploadProfileLogo(logoFile);
         savedProfile = {
           ...(savedProfile || payload),
           brand_logo_url: brandLogoUrl
@@ -920,46 +917,44 @@ export function ProfileEditor({
             </div>
           </div>
 
-          {canManageBusinessIndividualLogo ? (
-            <div className="card" style={{ marginTop: 18, padding: 18 }}>
-              <div className="dashboard-kicker">Business logo</div>
-              <h3 style={{ margin: "6px 0 8px" }}>Show your brand first.</h3>
-              <p className="editor-copy">
-                Upload a PNG logo to replace the initials/avatar block on your public profile with a wide brand mark.
-              </p>
-              <label className="editor-label" style={{ marginTop: 18 }}>
-                Logo PNG
-                {form.brand_logo_url ? (
-                  <div className="business-logo-preview">
-                    {/* eslint-disable-next-line @next/next/no-img-element -- storage-backed customer logos are remote runtime uploads. */}
-                    <img src={form.brand_logo_url} alt={`${form.organization_name || form.full_name || "Business"} logo`} />
-                    <span className="table-subtext">Current logo</span>
-                  </div>
-                ) : (
-                  <span className="table-subtext">No logo uploaded.</span>
-                )}
-                <input
-                  className="editor-input"
-                  ref={profileLogoInputRef}
-                  type="file"
-                  accept="image/png"
-                  disabled={saving || viewSaving || logoDeleting}
-                />
-                <span className="table-subtext">PNG only. Max 5 MB. Save changes to upload a selected logo.</span>
-              </label>
+          <div className="card" style={{ marginTop: 18, padding: 18 }}>
+            <div className="dashboard-kicker">Brand logo</div>
+            <h3 style={{ margin: "6px 0 8px" }}>Show your brand first.</h3>
+            <p className="editor-copy">
+              Upload a PNG logo to replace the initials/avatar block on your public profile with a wide brand mark.
+            </p>
+            <label className="editor-label" style={{ marginTop: 18 }}>
+              Logo PNG
               {form.brand_logo_url ? (
-                <button
-                  className="button secondary"
-                  type="button"
-                  disabled={saving || viewSaving || logoDeleting}
-                  onClick={handleDeleteBusinessIndividualLogo}
-                  style={{ marginTop: 12 }}
-                >
-                  {logoDeleting ? "Removing..." : "Remove logo"}
-                </button>
-              ) : null}
-            </div>
-          ) : null}
+                <div className="business-logo-preview">
+                  {/* eslint-disable-next-line @next/next/no-img-element -- storage-backed customer logos are remote runtime uploads. */}
+                  <img src={form.brand_logo_url} alt={`${form.organization_name || form.full_name || "Business"} logo`} />
+                  <span className="table-subtext">Current logo</span>
+                </div>
+              ) : (
+                <span className="table-subtext">No logo uploaded.</span>
+              )}
+              <input
+                className="editor-input"
+                ref={profileLogoInputRef}
+                type="file"
+                accept="image/png"
+                disabled={saving || viewSaving || logoDeleting}
+              />
+              <span className="table-subtext">PNG only. Max 5 MB. Save changes to upload a selected logo.</span>
+            </label>
+            {form.brand_logo_url ? (
+              <button
+                className="button secondary"
+                type="button"
+                disabled={saving || viewSaving || logoDeleting}
+                onClick={handleDeleteProfileLogo}
+                style={{ marginTop: 12 }}
+              >
+                {logoDeleting ? "Removing..." : "Remove logo"}
+              </button>
+            ) : null}
+          </div>
 
           <div className="editor-grid" style={{ marginTop: 18 }}>
             <label className="auth-field">
@@ -971,6 +966,19 @@ export function ProfileEditor({
               />
               <small className="auth-message">
                 Included in your contact card when someone adds you to contacts.
+              </small>
+            </label>
+
+            <label className="auth-field">
+              <span>Business tagline</span>
+              <input
+                maxLength={MAX_BUSINESS_TAGLINE_LENGTH}
+                value={form.business_tagline || ""}
+                onChange={(event) => update("business_tagline", event.target.value.slice(0, MAX_BUSINESS_TAGLINE_LENGTH))}
+                placeholder="Turn every handshake into a prospect"
+              />
+              <small className="auth-message">
+                Shown above your name on public profiles. Keep it short and sales-focused, up to {MAX_BUSINESS_TAGLINE_LENGTH} characters.
               </small>
             </label>
 

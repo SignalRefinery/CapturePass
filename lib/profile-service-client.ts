@@ -89,6 +89,7 @@ export async function saveProfileClient(record: ProfileRecord, userId: string) {
     organization_name: record.organization_name || "",
     role_line: record.role_line,
     intro: record.intro,
+    business_tagline: record.business_tagline?.trim() || "",
     email: record.email,
     phone: record.phone,
     text_phone: record.text_phone || "",

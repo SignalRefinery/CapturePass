@@ -62,23 +62,26 @@
 
 .themeExecutiveGold{
   --text:#fffaf0;
-  --muted:#e6dcc4;
-  --muted-2:#cdbd95;
-  --button-start:var(--profile-cta);
-  --button-end:var(--profile-glow);
-  --button-text:#141820;
+  --muted:#dbe7f7;
+  --muted-2:#b9d3f7;
+  --button-start:color-mix(in srgb, var(--profile-cta) 92%, #ffffff 8%);
+  --button-end:color-mix(in srgb, var(--profile-glow) 86%, #ffffff 14%);
+  --button-text:#ffffff;
   --shadow:0 26px 86px rgba(0,0,0,.45);
   --shell-bg:var(--profile-background, #030304);
-  --topbar-bg:rgba(15,18,24,.46);
-  --brand-copy:#fff4d5;
+  --topbar-bg:rgba(7,18,32,.52);
+  --brand-copy:#eef6ff;
   --hero-wash:none;
   --panel-bg:
-    linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.025)),
-    linear-gradient(145deg, rgba(28,36,49,.88), rgba(28,24,14,.9));
-  --link-bg:rgba(255,244,213,.075);
-  --link-hover-bg:rgba(255,244,213,.12);
-  --chip-bg:rgba(255,244,213,.085);
-  --subtle-button-bg:rgba(255,244,213,.055);
+    linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03)),
+    linear-gradient(145deg, rgba(11,27,48,.9), rgba(8,17,35,.94));
+  --link-bg:rgba(125,211,252,.08);
+  --link-hover-bg:rgba(125,211,252,.14);
+  --chip-bg:rgba(125,211,252,.1);
+  --subtle-button-bg:rgba(125,211,252,.06);
+  --profile-secondary:#0F4C81;
+  --profile-glow:#7CC4FF;
+  --profile-accent:#CDEEFF;
 }
 
 .themeCleanLight{
