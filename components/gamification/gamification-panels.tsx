@@ -70,8 +70,31 @@ export function PersonalPerformancePanel({ summary }: { summary: PersonalGamific
     .slice(0, 4);
 
   return (
-    <section className="dashboard-wrap" id="performance">
-      <div className="dashboard-grid">
+    <details className="dashboard-wrap analytics-collapsible" id="performance">
+      <summary className="analytics-collapsible-summary">
+        <div>
+          <div className="dashboard-kicker">Analytics</div>
+          <h2>Performance, score, streak, activity, and badges.</h2>
+          <p className="editor-copy">
+            Click or tap the header to collapse or expand your personal analytics snapshot.
+          </p>
+        </div>
+        <div className="analytics-summary-side">
+          <span className="analytics-summary-meta">
+            <strong>{summary.contactsCapturedThisMonth}</strong>
+            <span>contacts this month</span>
+          </span>
+          <span className="analytics-summary-action" aria-hidden="true">
+            <span className="analytics-summary-action-text analytics-summary-action-text-open">Collapse</span>
+            <span className="analytics-summary-action-text analytics-summary-action-text-closed">Expand</span>
+            <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+              <path d="M5.5 7.5L10 12l4.5-4.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </span>
+        </div>
+      </summary>
+
+      <div className="dashboard-grid analytics-grid">
         <article className="dashboard-card">
           <div className="dashboard-kicker">Performance</div>
           <h2>Contacts captured this month.</h2>
@@ -103,7 +126,7 @@ export function PersonalPerformancePanel({ summary }: { summary: PersonalGamific
         </article>
       </div>
 
-      <div className="dashboard-grid" style={{ marginTop: 24 }}>
+      <div className="dashboard-grid analytics-grid" style={{ marginTop: 24 }}>
         <article className="dashboard-card">
           <div className="dashboard-kicker">Activity</div>
           <h2>Profile signals.</h2>
@@ -144,7 +167,7 @@ export function PersonalPerformancePanel({ summary }: { summary: PersonalGamific
           </div>
         </article>
       </div>
-    </section>
+    </details>
   );
 }
 

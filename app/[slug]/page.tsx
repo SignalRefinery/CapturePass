@@ -9,6 +9,7 @@ import {
 import { buildPublicProfileViews, profileRecordToPublicProfile } from "@/lib/profiles/public-view";
 import { getProfilePlan, profileCanRenderPublicly } from "@/lib/plans";
 import { profileMetadata } from "@/lib/privacy/profile-privacy";
+import { isRealEstateBusiness } from "@/lib/business-types";
 import { isSlugPubliclyAllowed } from "@/lib/slug-moderation";
 import { CapturePassProfileShell } from "@/components/profile/taptagg-profile-shell";
 import type { ProfileRecord } from "@/lib/types";
@@ -125,7 +126,8 @@ export default async function PublicProfilePage({ params, searchParams }: PagePr
   }
 
   const plan = getProfilePlan(profile);
-  const isMultiViewProfile = plan.hasMoreProfileSections && profile.page_mode === "multi";
+  const canUseMultiViewProfile = isRealEstateBusiness(profile.business_type) && plan.hasMoreProfileSections;
+  const isMultiViewProfile = canUseMultiViewProfile && profile.page_mode === "multi";
   const profileViews = isMultiViewProfile && profile.id ? await getProfileViewsForProfileServer(profile.id) : [];
   const defaultProfileView = isMultiViewProfile ? await getDefaultProfileViewServer(profile) : null;
   const { defaultPublicView, orderedPublicViews } = isMultiViewProfile
@@ -157,8 +159,8 @@ export default async function PublicProfilePage({ params, searchParams }: PagePr
       profile={defaultPublicView}
       views={orderedPublicViews}
       navViews={publicNavViews}
-      pageMode={profile.page_mode || "single"}
-      multiViewDisplayMode={profile.multi_view_display_mode || "favorite"}
+      pageMode={isMultiViewProfile ? profile.page_mode || "single" : "single"}
+      multiViewDisplayMode={isMultiViewProfile ? profile.multi_view_display_mode || "favorite" : "favorite"}
       initialView={requestedView}
       heroLabel={defaultPublicView.business_type === "real_estate_brokerage" ? "Live property" : "Live profile"}
       initialAuth={initialAuth}

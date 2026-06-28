@@ -40,41 +40,49 @@ const LINK_FIELD_CONFIG = [
     typeKey: "primary_link_1_type" as const,
     titleKey: "primary_link_1_title" as const,
     urlKey: "primary_link_1_url" as const,
-    titleLabel: "Button label",
+    titleLabel: "Button title",
     typeLabel: "Button type",
-    urlLabel: "Button value",
+    urlLabel: "Button destination",
     titlePlaceholder: "Call",
-    urlPlaceholder: "5551234567"
+    urlPlaceholder: "5551234567",
+    titleHint: "What users see on the button.",
+    urlHint: "Phone number, email, or link target."
   },
   {
     typeKey: "primary_link_2_type" as const,
     titleKey: "primary_link_2_title" as const,
     urlKey: "primary_link_2_url" as const,
-    titleLabel: "Button label",
+    titleLabel: "Button title",
     typeLabel: "Button type",
-    urlLabel: "Button value",
+    urlLabel: "Button destination",
     titlePlaceholder: "Email",
-    urlPlaceholder: "you@example.com"
+    urlPlaceholder: "you@example.com",
+    titleHint: "What users see on the button.",
+    urlHint: "Phone number, email, or link target."
   },
   {
     typeKey: "primary_link_3_type" as const,
     titleKey: "primary_link_3_title" as const,
     urlKey: "primary_link_3_url" as const,
-    titleLabel: "Button label",
+    titleLabel: "Button title",
     typeLabel: "Button type",
-    urlLabel: "Button value",
+    urlLabel: "Button destination",
     titlePlaceholder: "Website",
-    urlPlaceholder: "https://your-link.com"
+    urlPlaceholder: "https://your-link.com",
+    titleHint: "What users see on the button.",
+    urlHint: "Phone number, email, or link target."
   },
   {
     typeKey: "primary_link_4_type" as const,
     titleKey: "primary_link_4_title" as const,
     urlKey: "primary_link_4_url" as const,
-    titleLabel: "Button label",
+    titleLabel: "Button title",
     typeLabel: "Button type",
-    urlLabel: "Button value",
+    urlLabel: "Button destination",
     titlePlaceholder: "Custom link",
-    urlPlaceholder: "https://your-link.com"
+    urlPlaceholder: "https://your-link.com",
+    titleHint: "What users see on the button.",
+    urlHint: "Phone number, email, or link target."
   }
 ];
 
@@ -254,10 +262,6 @@ export function ProfileEditor({
   const resolvedBusinessType =
     businessType && businessType !== "general_business" ? businessType : initialProfile.business_type;
   const isRealEstateBusinessProfile = isRealEstateBusiness(resolvedBusinessType);
-  const profileSectionLabel = isRealEstateBusinessProfile ? "Property" : "View";
-  const profileSectionPlural = isRealEstateBusinessProfile ? "Properties" : "Profile views";
-  const profileSectionLower = isRealEstateBusinessProfile ? "property" : "view";
-  const maxProfileViews = isRealEstateBusinessProfile ? 5 : 3;
   const [form, setForm] = useState<ProfileRecord>({
     ...initialProfile,
     intro: cleanIntroValue(initialProfile.intro),
@@ -380,7 +384,12 @@ export function ProfileEditor({
   const activeView =
     views.find((view) => (view.id || view.view_key) === activeViewKey) || views[0] || null;
   const defaultViewId = form.default_view_id || views[0]?.id || null;
-  const isMultiViewMode = plan.hasMoreProfileSections && (form.page_mode || "single") === "multi";
+  const canUseMultiViewProfile = isRealEstateBusinessProfile && plan.hasMoreProfileSections;
+  const profileSectionLabel = isRealEstateBusinessProfile ? "Property" : "View";
+  const profileSectionPlural = isRealEstateBusinessProfile ? "Properties" : "Profile views";
+  const profileSectionLower = isRealEstateBusinessProfile ? "property" : "view";
+  const maxProfileViews = canUseMultiViewProfile ? 5 : 0;
+  const isMultiViewMode = canUseMultiViewProfile && (form.page_mode || "single") === "multi";
 
   useEffect(() => {
     setSlugTaken(false);
@@ -419,6 +428,8 @@ export function ProfileEditor({
   }
 
   function updateMultiViewDisplayMode(value: ProfileRecord["multi_view_display_mode"]) {
+    if (!canUseMultiViewProfile) return;
+
     setForm((current) => ({
       ...current,
       page_mode: "multi",
@@ -587,8 +598,8 @@ export function ProfileEditor({
         ...form,
         slug: normalizedSlugInput || form.slug,
         organization_name: (form.organization_name || "").trim(),
-        page_mode: plan.hasMoreProfileSections ? form.page_mode || "single" : "single",
-        multi_view_display_mode: form.multi_view_display_mode || "favorite",
+        page_mode: canUseMultiViewProfile ? form.page_mode || "single" : "single",
+        multi_view_display_mode: canUseMultiViewProfile ? form.multi_view_display_mode || "favorite" : "favorite",
         website_url: normalizeUrl(form.website_url || ""),
         profile_badge_1: (form.profile_badge_1 || "").trim(),
         profile_badge_2: (form.profile_badge_2 || "").trim(),
@@ -667,7 +678,7 @@ export function ProfileEditor({
   }
 
   async function handleCreateView() {
-    if (viewSaving || views.length >= maxProfileViews || !plan.hasMoreProfileSections) return;
+    if (viewSaving || views.length >= maxProfileViews || !canUseMultiViewProfile) return;
 
     setViewSaving(true);
     setViewError("");
@@ -950,102 +961,6 @@ export function ProfileEditor({
             </div>
           ) : null}
 
-          <div className="card" style={{ marginTop: 18, padding: 18 }}>
-            <div className="dashboard-kicker">Profile Theme</div>
-            <h3 style={{ margin: "6px 0 8px" }}>Choose a polished look.</h3>
-            <p className="editor-copy">
-              Presets keep your profile sharp without needing to tune colors manually. Your plan controls which
-              themes are available.
-            </p>
-            <div className="theme-choice-list" role="radiogroup" aria-label="Profile theme">
-              {PROFILE_THEME_OPTIONS.map((theme) => {
-                const allowed = themeIsAllowedForPlan(theme.key, plan.key);
-                const colors = theme.key === CUSTOM_THEME_KEY ? customThemeColors : theme.colors;
-
-                return (
-                  <label className={`theme-choice-card${allowed ? "" : " is-disabled"}`} key={theme.key}>
-                    <input
-                      type="radio"
-                      name="theme_key"
-                      value={theme.key}
-                      checked={selectedThemeKey === theme.key}
-                      disabled={!allowed}
-                      onChange={() => update("theme_key", theme.key)}
-                    />
-                    <span>
-                      <strong>{theme.name}</strong>
-                      <small>
-                        {theme.description}
-                        {!allowed ? ` Upgrade to Business Individual or a business plan to unlock.` : ""}
-                      </small>
-                      <span
-                        className="theme-preview-strip"
-                        style={{
-                          "--theme-preview-primary": colors.primary,
-                          "--theme-preview-secondary": colors.secondary,
-                          "--theme-preview-accent": colors.accent,
-                          "--theme-preview-background": colors.background,
-                          "--theme-preview-text": colors.text || "#FFFFFF"
-                        } as React.CSSProperties}
-                        aria-hidden="true"
-                      >
-                        <i />
-                        <i />
-                        <i />
-                        <i />
-                        <i />
-                      </span>
-                    </span>
-                  </label>
-                );
-              })}
-            </div>
-            {showCustomThemeColors ? (
-              <div className="editor-grid theme-custom-grid">
-                <label className="auth-field">
-                  <span>{THEME_COLOR_ROLE_LABELS.primary}</span>
-                  <input
-                    type="color"
-                    value={form.brand_color_primary || designTokens.colors.primary}
-                    onChange={(event) => update("brand_color_primary", event.target.value)}
-                  />
-                </label>
-                <label className="auth-field">
-                  <span>{THEME_COLOR_ROLE_LABELS.secondary}</span>
-                  <input
-                    type="color"
-                    value={form.brand_color_secondary || designTokens.colors.deepBlue}
-                    onChange={(event) => update("brand_color_secondary", event.target.value)}
-                  />
-                </label>
-                <label className="auth-field">
-                  <span>{THEME_COLOR_ROLE_LABELS.accent}</span>
-                  <input
-                    type="color"
-                    value={form.brand_color_accent || designTokens.colors.insightGold}
-                    onChange={(event) => update("brand_color_accent", event.target.value)}
-                  />
-                </label>
-                <label className="auth-field">
-                  <span>{THEME_COLOR_ROLE_LABELS.background}</span>
-                  <input
-                    type="color"
-                    value={form.brand_color_background || customThemeColors.background}
-                    onChange={(event) => update("brand_color_background", event.target.value)}
-                  />
-                </label>
-                <label className="auth-field">
-                  <span>{THEME_COLOR_ROLE_LABELS.text}</span>
-                  <input
-                    type="color"
-                    value={form.brand_color_text || designTokens.colors.white}
-                    onChange={(event) => update("brand_color_text", event.target.value)}
-                  />
-                </label>
-              </div>
-            ) : null}
-          </div>
-
           <div className="editor-grid" style={{ marginTop: 18 }}>
             <label className="auth-field">
               <span>Organization or business name</span>
@@ -1212,6 +1127,7 @@ export function ProfileEditor({
                     placeholder={field.titlePlaceholder}
                     disabled={!plan.hasExpandedLinks && index > 1}
                   />
+                  <small className="auth-message">{field.titleHint}</small>
                 </label>
 
                 <label className="auth-field">
@@ -1259,6 +1175,7 @@ export function ProfileEditor({
                     ]}
                     disabled={!plan.hasExpandedLinks && index > 1}
                   />
+                  <small className="auth-message">{field.urlHint}</small>
                 </label>
               </div>
             ))}
@@ -1267,8 +1184,8 @@ export function ProfileEditor({
             ) : null}
           </div>
 
-          {plan.hasMoreProfileSections ? (
-          <div className="card" style={{ marginTop: 24, padding: 22 }}>
+          {canUseMultiViewProfile ? (
+            <div className="card" style={{ marginTop: 24, padding: 22 }}>
             <div className="dashboard-kicker">{profileSectionPlural}</div>
             <h3 style={{ margin: "6px 0 10px", fontSize: "1.25rem", lineHeight: 1.1 }}>
               {isRealEstateBusinessProfile
@@ -1418,13 +1335,7 @@ export function ProfileEditor({
                 </button>
               </div>
             </div>
-            ) : (
-              <p className="editor-copy" style={{ marginTop: 18 }}>
-                {isRealEstateBusinessProfile
-                  ? "Use your main profile information for now. Choose property collection to manage separate properties."
-                  : "Single mode uses your main profile information. Switch to multi to manage separate views."}
-              </p>
-            )}
+          ) : null}
 
             {isMultiViewMode && activeView ? (
               <div className="card" style={{ marginTop: 20, padding: 18 }}>
@@ -1668,6 +1579,7 @@ export function ProfileEditor({
                           onChange={(event) => updateView(field.titleKey, event.target.value)}
                           placeholder={field.titlePlaceholder}
                         />
+                        <small className="auth-message">{field.titleHint}</small>
                       </label>
 
                       <label className="auth-field">
@@ -1713,6 +1625,7 @@ export function ProfileEditor({
                             )
                           ]}
                         />
+                        <small className="auth-message">{field.urlHint}</small>
                       </label>
                     </div>
                   ))}
@@ -1740,6 +1653,116 @@ export function ProfileEditor({
             ) : null}
           </div>
           ) : null}
+
+          <details className="card collapsible-section theme-section" style={{ marginTop: 18, padding: 18 }}>
+            <summary className="collapsible-summary">
+              <div>
+                <div className="dashboard-kicker">Profile Theme</div>
+                <h3 style={{ margin: "6px 0 8px" }}>Choose a polished look.</h3>
+                <p className="editor-copy">
+                  Presets keep your profile sharp without needing to tune colors manually. Your plan controls which
+                  themes are available.
+                </p>
+              </div>
+              <span className="collapsible-summary-chip" aria-hidden="true">
+                <span className="collapsible-summary-chip-text open">Collapse</span>
+                <span className="collapsible-summary-chip-text closed">Expand</span>
+                <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                  <path d="M5.5 7.5L10 12l4.5-4.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </span>
+            </summary>
+
+            <div className="theme-section-body">
+              <div className="theme-choice-list" role="radiogroup" aria-label="Profile theme">
+                {PROFILE_THEME_OPTIONS.map((theme) => {
+                  const allowed = themeIsAllowedForPlan(theme.key, plan.key);
+                  const colors = theme.key === CUSTOM_THEME_KEY ? customThemeColors : theme.colors;
+
+                  return (
+                    <label className={`theme-choice-card${allowed ? "" : " is-disabled"}`} key={theme.key}>
+                      <input
+                        type="radio"
+                        name="theme_key"
+                        value={theme.key}
+                        checked={selectedThemeKey === theme.key}
+                        disabled={!allowed}
+                        onChange={() => update("theme_key", theme.key)}
+                      />
+                      <span>
+                        <strong>{theme.name}</strong>
+                        <small>
+                          {theme.description}
+                          {!allowed ? ` Upgrade to Business Individual or a business plan to unlock.` : ""}
+                        </small>
+                        <span
+                          className="theme-preview-strip"
+                          style={{
+                            "--theme-preview-primary": colors.primary,
+                            "--theme-preview-secondary": colors.secondary,
+                            "--theme-preview-accent": colors.accent,
+                            "--theme-preview-background": colors.background,
+                            "--theme-preview-text": colors.text || "#FFFFFF"
+                          } as React.CSSProperties}
+                          aria-hidden="true"
+                        >
+                          <i />
+                          <i />
+                          <i />
+                          <i />
+                          <i />
+                        </span>
+                      </span>
+                    </label>
+                  );
+                })}
+              </div>
+              {showCustomThemeColors ? (
+                <div className="editor-grid theme-custom-grid">
+                  <label className="auth-field">
+                    <span>{THEME_COLOR_ROLE_LABELS.primary}</span>
+                    <input
+                      type="color"
+                      value={form.brand_color_primary || designTokens.colors.primary}
+                      onChange={(event) => update("brand_color_primary", event.target.value)}
+                    />
+                  </label>
+                  <label className="auth-field">
+                    <span>{THEME_COLOR_ROLE_LABELS.secondary}</span>
+                    <input
+                      type="color"
+                      value={form.brand_color_secondary || designTokens.colors.deepBlue}
+                      onChange={(event) => update("brand_color_secondary", event.target.value)}
+                    />
+                  </label>
+                  <label className="auth-field">
+                    <span>{THEME_COLOR_ROLE_LABELS.accent}</span>
+                    <input
+                      type="color"
+                      value={form.brand_color_accent || designTokens.colors.insightGold}
+                      onChange={(event) => update("brand_color_accent", event.target.value)}
+                    />
+                  </label>
+                  <label className="auth-field">
+                    <span>{THEME_COLOR_ROLE_LABELS.background}</span>
+                    <input
+                      type="color"
+                      value={form.brand_color_background || customThemeColors.background}
+                      onChange={(event) => update("brand_color_background", event.target.value)}
+                    />
+                  </label>
+                  <label className="auth-field">
+                    <span>{THEME_COLOR_ROLE_LABELS.text}</span>
+                    <input
+                      type="color"
+                      value={form.brand_color_text || designTokens.colors.white}
+                      onChange={(event) => update("brand_color_text", event.target.value)}
+                    />
+                  </label>
+                </div>
+              ) : null}
+            </div>
+          </details>
 
           <div className="card" style={{ marginTop: 24, padding: 22 }}>
             <div className="dashboard-kicker">Account flags</div>

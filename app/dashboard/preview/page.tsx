@@ -7,6 +7,7 @@ import {
   getProfileViewsForProfileServer
 } from "@/lib/profile-service-server";
 import { buildPublicProfileViews, profileRecordToPublicProfile } from "@/lib/profiles/public-view";
+import { isRealEstateBusiness } from "@/lib/business-types";
 import { createClient } from "@/lib/supabase/server";
 import { applyFounderAccess, getProfilePlan } from "@/lib/plans";
 import type { ProfileRecord } from "@/lib/types";
@@ -31,7 +32,8 @@ export default async function DashboardPreviewPage() {
   }
 
   const plan = getProfilePlan(profile);
-  const isMultiViewProfile = plan.hasMoreProfileSections && profile.page_mode === "multi";
+  const canUseMultiViewProfile = isRealEstateBusiness(profile.business_type) && plan.hasMoreProfileSections;
+  const isMultiViewProfile = canUseMultiViewProfile && profile.page_mode === "multi";
   const profileViews = isMultiViewProfile && profile.id ? await getProfileViewsForProfileServer(profile.id) : [];
   const defaultProfileView = isMultiViewProfile ? await getDefaultProfileViewServer(profile) : null;
   const { defaultPublicView, orderedPublicViews } = isMultiViewProfile
