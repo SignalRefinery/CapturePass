@@ -15,7 +15,7 @@ import {
   inferProfileButtonType,
   normalizeProfileButtonType
 } from "@/lib/profile-buttons";
-import { CUSTOM_THEME_KEY, PROFILE_THEME_OPTIONS, THEME_COLOR_ROLE_LABELS, coerceThemeForPlan, resolveThemeColors, themeIsAllowedForPlan } from "@/lib/themes";
+import { CUSTOM_THEME_KEY, PROFILE_THEME_OPTIONS, THEME_COLOR_ROLE_LABELS, coerceThemeForPlan, isHexColor, resolveThemeColors, themeIsAllowedForPlan } from "@/lib/themes";
 import { resolveSecondaryActionMode } from "@/lib/profiles/secondary-action";
 import { designTokens } from "@/lib/design-tokens";
 import {
@@ -92,6 +92,13 @@ const LEGACY_INTRO_PROMPT = "Turning complexity into clarity.";
 const INTRO_PLACEHOLDER =
   "Write a short line in your own words: what you do, who you help, or the best next step.";
 const BUSINESS_INDIVIDUAL_LOGO_MAX_BYTES = 5 * 1024 * 1024;
+const DEFAULT_CUSTOM_PROFILE_THEME = {
+  primary: designTokens.colors.primary,
+  secondary: designTokens.colors.deepBlue,
+  accent: designTokens.colors.insightGold,
+  background: designTokens.colors.background,
+  text: designTokens.colors.charcoal
+};
 
 function UpgradeNotice({ children }: { children: React.ReactNode }) {
   return <small className="auth-message">{children}</small>;
@@ -307,6 +314,42 @@ export function ProfileEditor({
     customBackground: form.brand_color_background,
     customText: form.brand_color_text
   });
+
+  useEffect(() => {
+    if (selectedThemeKey !== CUSTOM_THEME_KEY) return;
+
+    setForm((current) => {
+      const next = { ...current };
+      let changed = false;
+
+      if (!isHexColor(next.brand_color_primary)) {
+        next.brand_color_primary = DEFAULT_CUSTOM_PROFILE_THEME.primary;
+        changed = true;
+      }
+
+      if (!isHexColor(next.brand_color_secondary)) {
+        next.brand_color_secondary = DEFAULT_CUSTOM_PROFILE_THEME.secondary;
+        changed = true;
+      }
+
+      if (!isHexColor(next.brand_color_accent)) {
+        next.brand_color_accent = DEFAULT_CUSTOM_PROFILE_THEME.accent;
+        changed = true;
+      }
+
+      if (!isHexColor(next.brand_color_background)) {
+        next.brand_color_background = DEFAULT_CUSTOM_PROFILE_THEME.background;
+        changed = true;
+      }
+
+      if (!isHexColor(next.brand_color_text)) {
+        next.brand_color_text = DEFAULT_CUSTOM_PROFILE_THEME.text;
+        changed = true;
+      }
+
+      return changed ? next : current;
+    });
+  }, [selectedThemeKey]);
 
   const slugModeration = useMemo(() => classifySlug(slugInput || ""), [slugInput]);
   const activeSlugModeration = useMemo(() => classifySlug(form.slug || ""), [form.slug]);
