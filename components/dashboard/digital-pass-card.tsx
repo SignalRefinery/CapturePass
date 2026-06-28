@@ -53,10 +53,6 @@ export function DigitalPassCard({
     <section className="pass-wrap">
       <div className="pass-card">
         <div className="pass-kicker">Digital pass</div>
-        <div className="pass-status-row">
-          <span className="pass-status-pill">Public access</span>
-          <span className="pass-status-note">No sign-in required</span>
-        </div>
         {views.length > 1 ? (
           <div className="pass-selected-view">
             <span>Profile</span>
@@ -65,7 +61,7 @@ export function DigitalPassCard({
         ) : null}
 
         <p className="pass-support-line">
-          Scan the code, copy the link, or open the profile on another device.
+          Scan the code or copy the link to open the profile on another device.
         </p>
 
         <div className="pass-qr-frame">
