@@ -122,11 +122,16 @@ export async function updateSession(request: NextRequest) {
     const plan = request.nextUrl.searchParams.get("plan");
     const promoCode = request.nextUrl.searchParams.get("promo_code");
     const businessType = request.nextUrl.searchParams.get("business_type");
-    const fallbackNext = checkoutContinuationPath({
-      businessType,
-      plan,
-      promoCode
-    });
+    const billing = request.nextUrl.searchParams.get("billing");
+    const hasCheckoutContext = !!plan || !!promoCode || !!businessType || !!billing;
+    const fallbackNext = hasCheckoutContext
+      ? checkoutContinuationPath({
+          billing,
+          businessType,
+          plan,
+          promoCode
+        })
+      : "/dashboard";
     const nextPath = safeInternalRedirect(request.nextUrl.searchParams.get("next"), fallbackNext);
 
     // Auth pages may carry a checkout continuation. Only internal app paths

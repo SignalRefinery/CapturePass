@@ -1,6 +1,28 @@
 import { JsonLd } from "@/components/seo/json-ld";
 import { HomepagePage } from "@/components/marketing/homepage-page";
 import { buildOrganizationJsonLd, buildPageMetadata } from "@/lib/seo";
+import { createClient } from "@/lib/supabase/server";
+
+async function getInitialAuth() {
+  const supabase = await createClient();
+  const {
+    data: { user }
+  } = await supabase.auth.getUser();
+
+  if (!user) return null;
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("full_name, slug")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  return {
+    email: user.email || null,
+    fullName: profile?.full_name || null,
+    slug: profile?.slug || null
+  };
+}
 
 export const metadata = buildPageMetadata({
   description:
@@ -58,13 +80,16 @@ const resourceLinks = [
   { href: "/contact-capture-nfc-cards", label: "NFC Business Cards" }
 ];
 
-export default function HomePage() {
+export default async function HomePage() {
+  const initialAuth = await getInitialAuth();
+
   return (
     <>
       <JsonLd data={buildOrganizationJsonLd()} />
       <HomepagePage
         businessCards={businessCards}
         footerLeft="Turn Every Handshake Into a Prospect."
+        initialAuth={initialAuth}
         resourceLinks={resourceLinks}
         teamCapabilities={teamCapabilities}
       />

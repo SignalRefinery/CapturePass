@@ -78,6 +78,10 @@ export function UserMenu({
           </button>
         </form>
       </div>
+
+      <Link href="/dashboard" className="button primary user-dashboard-cta">
+        Go to your dashboard
+      </Link>
     </div>
   );
 }

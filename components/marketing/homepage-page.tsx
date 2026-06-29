@@ -9,15 +9,22 @@ type HomepagePageProps = {
     title: string;
   }>;
   footerLeft: string;
+  initialAuth?: {
+    email?: string | null;
+    fullName?: string | null;
+    slug?: string | null;
+    isAdmin?: boolean | null;
+  } | null;
   resourceLinks: Array<{ href: string; label: string }>;
   teamCapabilities: string[];
 };
 
-export function HomepagePage({ businessCards, footerLeft, resourceLinks, teamCapabilities }: HomepagePageProps) {
+export function HomepagePage({ businessCards, footerLeft, initialAuth, resourceLinks, teamCapabilities }: HomepagePageProps) {
   return (
     <Shell
       footerLeft={footerLeft}
       footerRight="CapturePass"
+      initialAuth={initialAuth}
       pageVariant="light"
       navLinks={[
         { href: "/how-it-works", label: "How it works" },
