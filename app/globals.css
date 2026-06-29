@@ -270,14 +270,43 @@ textarea{font:inherit}
   display:grid;
   grid-template-columns:repeat(3, minmax(0, 1fr));
   gap:18px;
+  counter-reset:home-step;
 }
 .page-light .home-step-card{
+  position:relative;
+  overflow:hidden;
   display:grid;
   align-content:start;
   gap:10px;
   min-height:100%;
-  padding:0 4px 0 18px;
-  border-left:1px solid rgba(var(--brand-primary-rgb),.14);
+  padding:26px 22px 22px;
+  border:1px solid rgba(var(--brand-primary-rgb),.12);
+  border-radius:24px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.92), rgba(244,247,255,.84));
+  box-shadow:0 16px 42px rgba(15,23,42,.06);
+}
+.page-light .home-step-card::before,
+.page-light .home-usecase-card::before,
+.page-light .home-benefit-card::before,
+.page-light .home-feature-card::before{
+  content:"";
+  position:absolute;
+  inset:0 0 auto;
+  height:4px;
+  background:linear-gradient(90deg, rgba(var(--brand-primary-rgb),.96), rgba(var(--brand-secondary-rgb),.42));
+}
+.page-light .home-step-card::after{
+  counter-increment:home-step;
+  content:"0" counter(home-step);
+  position:absolute;
+  top:16px;
+  right:18px;
+  font-family:var(--font-heading);
+  font-size:clamp(34px, 4vw, 56px);
+  line-height:1;
+  letter-spacing:-.08em;
+  color:rgba(var(--brand-primary-rgb),.11);
 }
 .page-light .home-step-eyebrow,
 .page-light .home-usecase-label{
@@ -323,12 +352,19 @@ textarea{font:inherit}
   align-items:start;
 }
 .page-light .home-feature-card{
+  position:relative;
+  overflow:hidden;
   display:grid;
   align-content:start;
   gap:16px;
   min-height:100%;
-  padding:24px 0 24px 24px;
-  border-left:1px solid rgba(var(--brand-primary-rgb),.14);
+  padding:28px 24px 24px;
+  border:1px solid rgba(var(--brand-primary-rgb),.12);
+  border-radius:28px;
+  background:
+    radial-gradient(circle at 16% 12%, rgba(var(--brand-primary-rgb),.08), transparent 34%),
+    linear-gradient(180deg, rgba(255,255,255,.96), rgba(244,247,255,.86));
+  box-shadow:0 18px 46px rgba(15,23,42,.06);
 }
 .page-light .home-feature-links,
 .page-light .home-resource-links,
@@ -343,12 +379,18 @@ textarea{font:inherit}
   gap:18px;
 }
 .page-light .home-usecase-card{
+  position:relative;
+  overflow:hidden;
   display:grid;
   gap:12px;
   justify-items:start;
   min-height:100%;
-  padding:20px;
-  border-top:1px solid rgba(15,23,42,.08);
+  padding:22px 20px 20px;
+  border:1px solid rgba(var(--brand-primary-rgb),.12);
+  border-radius:24px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.92), rgba(245,248,255,.9));
+  box-shadow:0 14px 34px rgba(15,23,42,.05);
 }
 .page-light .home-usecase-card:hover{
   transform:translateY(-1px);
@@ -371,11 +413,17 @@ textarea{font:inherit}
   gap:18px;
 }
 .page-light .home-benefit-card{
+  position:relative;
+  overflow:hidden;
   display:grid;
   gap:12px;
   min-height:100%;
-  padding:20px;
-  border-top:1px solid rgba(15,23,42,.08);
+  padding:22px 20px 20px;
+  border:1px solid rgba(var(--brand-primary-rgb),.12);
+  border-radius:24px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.92), rgba(246,248,255,.88));
+  box-shadow:0 14px 34px rgba(15,23,42,.05);
 }
 .page-light .home-benefit-card p{
   max-width:none;
@@ -2879,11 +2927,17 @@ textarea{font:inherit}
 .business-feature-grid{grid-template-columns:repeat(4, minmax(0, 1fr))}
 .business-list-item,
 .business-feature{
+  position:relative;
+  overflow:hidden;
   min-height:74px;
   display:flex;
   align-items:center;
   padding:16px;
-  border-radius:8px;
+  border-radius:16px;
+  border:1px solid rgba(var(--brand-primary-rgb),.12);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.92), rgba(245,248,255,.88));
+  box-shadow:0 10px 26px rgba(15,23,42,.04);
   color:var(--text);
   font-weight:700;
   line-height:1.35;
@@ -2893,10 +2947,39 @@ textarea{font:inherit}
   gap:8px;
   margin-bottom:22px;
 }
-.business-process-grid{grid-template-columns:repeat(3, minmax(0, 1fr))}
+.business-process-grid{
+  grid-template-columns:repeat(3, minmax(0, 1fr));
+  counter-reset:business-step;
+}
 .business-process-step{
+  position:relative;
+  overflow:hidden;
   padding:22px;
-  border-radius:8px;
+  border-radius:18px;
+  border:1px solid rgba(var(--brand-primary-rgb),.14);
+  background:
+    radial-gradient(circle at 18% 8%, rgba(var(--brand-primary-rgb),.1), transparent 34%),
+    linear-gradient(180deg, rgba(255,255,255,.95), rgba(245,248,255,.88));
+  box-shadow:0 14px 38px rgba(15,23,42,.05);
+  counter-increment:business-step;
+}
+.business-process-step::before{
+  content:"";
+  position:absolute;
+  inset:0 0 auto;
+  height:4px;
+  background:linear-gradient(90deg, rgba(var(--brand-primary-rgb),.96), rgba(var(--brand-secondary-rgb),.42));
+}
+.business-process-step::after{
+  content:"0" counter(business-step);
+  position:absolute;
+  top:16px;
+  right:18px;
+  font-family:var(--font-heading);
+  font-size:clamp(32px, 4vw, 54px);
+  line-height:1;
+  letter-spacing:-.08em;
+  color:rgba(var(--brand-primary-rgb),.11);
 }
 .business-process-step span{
   color:var(--brand-deep);
@@ -2953,6 +3036,8 @@ textarea{font:inherit}
   gap:12px;
 }
 .business-proof-point{
+  position:relative;
+  overflow:hidden;
   display:grid;
   gap:18px;
   align-content:start;
@@ -2961,30 +3046,15 @@ textarea{font:inherit}
   border-radius:18px;
   border:1px solid rgba(255,255,255,.12);
   background:
-    linear-gradient(180deg, rgba(255,255,255,.075), rgba(255,255,255,.025)),
+    linear-gradient(180deg, rgba(255,255,255,.085), rgba(255,255,255,.03)),
     rgba(0,0,0,.24);
 }
-.business-proof-point-top{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
-}
-.business-proof-point-top span{
-  color:var(--muted);
-  font-size:12px;
-  font-weight:800;
-  letter-spacing:.11em;
-  text-transform:uppercase;
-}
-.business-proof-point-top p,
-.business-proof-shift small{
-  margin:0;
-  color:var(--muted);
-  font-size:12px;
-  font-weight:800;
-  letter-spacing:.11em;
-  text-transform:uppercase;
+.business-proof-point::before{
+  content:"";
+  position:absolute;
+  inset:0 0 auto;
+  height:4px;
+  background:linear-gradient(90deg, rgba(var(--brand-primary-rgb),.96), rgba(var(--brand-secondary-rgb),.28));
 }
 .business-proof-shift{
   display:grid;

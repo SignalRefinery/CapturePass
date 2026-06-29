@@ -35,16 +35,19 @@ const platformFeatures = [
 
 const rolloutSteps = [
   {
+    tagline: "Keep cards reusable",
+    title: "Protect Against Turnover",
+    copy: "Reassign cards and profiles without reprinting materials."
+  },
+  {
+    tagline: "Keep customers connected",
     title: "Keep Customers Connected",
     copy: "Customers save the right employee instantly."
   },
   {
+    tagline: "Keep follow-up moving",
     title: "Capture More Opportunities",
     copy: "Turn conversations into contacts and follow-up opportunities."
-  },
-  {
-    title: "Protect Against Turnover",
-    copy: "Reassign cards and profiles without reprinting materials."
   }
 ];
 
@@ -321,6 +324,7 @@ export default async function BusinessPage({
         <div className="business-process-grid">
           {rolloutSteps.map((step) => (
             <article className="business-process-step" key={step.title}>
+              <span>{step.tagline}</span>
               <h3>{step.title}</h3>
               <p>{step.copy}</p>
             </article>
