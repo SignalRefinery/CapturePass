@@ -368,7 +368,10 @@ export function CapturePassProfileShell({
                   href={initialAuth ? "/dashboard" : "/signup"}
                   onClick={() => setMobileOpen(false)}
                 >
-                  {initialAuth ? "Go to your dashboard" : "Want to upgrade how you connect?"}
+                  <span>{initialAuth ? "Open dashboard" : "Want to upgrade how you connect?"}</span>
+                  <span aria-hidden="true" className={styles.profileUpgradeArrow}>
+                    →
+                  </span>
                 </Link>
               ) : null}
             </div>
