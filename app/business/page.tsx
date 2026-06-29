@@ -171,10 +171,6 @@ export default async function BusinessPage({
 
       <section className="business-hero">
         <div className="business-hero-content">
-          <div className="kicker">
-            <span className="mini-star">✦</span>
-            <span>For Sales Teams</span>
-          </div>
           <h1>CapturePass for sales teams that meet customers face-to-face.</h1>
           <p className="business-hero-tagline">Turn every customer interaction into a saved contact.</p>
           <p>
@@ -199,19 +195,15 @@ export default async function BusinessPage({
       <section className="business-band">
         <div className="business-metrics" aria-label="Business capabilities">
           <div>
-            <span>Stay Connected</span>
             <strong>Customers save the right employee instantly</strong>
           </div>
           <div>
-            <span>Capture Leads</span>
             <strong>Collect contact information in seconds</strong>
           </div>
           <div>
-            <span>Keep Ownership</span>
             <strong>Cards survive employee turnover</strong>
           </div>
           <div>
-            <span>Work With Existing Systems</span>
             <strong>No CRM replacement required</strong>
           </div>
         </div>
@@ -219,7 +211,6 @@ export default async function BusinessPage({
 
       <section className="business-section business-two-column" id="team-use-cases">
         <div>
-          <div className="dashboard-kicker">Built for teams</div>
           <h2>Not another CRM. The contact capture layer before the CRM.</h2>
           <p>Most businesses already have a CRM. The problem happens before the CRM.</p>
           <p>Customers forget business cards. Salespeople lose contact information. Conversations never become follow-up opportunities.</p>
@@ -237,7 +228,6 @@ export default async function BusinessPage({
 
       <section className="business-section">
         <div className="business-section-heading">
-          <div className="dashboard-kicker">What can be included</div>
           <h2>Built for the moments that create revenue.</h2>
         </div>
 
@@ -252,7 +242,6 @@ export default async function BusinessPage({
 
       <section className="business-section">
         <div className="card tagg-card" style={{ padding: 28 }}>
-          <div className="dashboard-kicker">Industry pages</div>
           <h2
             style={{
               margin: "8px 0 12px",
@@ -291,7 +280,6 @@ export default async function BusinessPage({
 
       <section className="business-section">
         <div className="card tagg-card" style={{ padding: 28 }}>
-          <div className="dashboard-kicker">Resources</div>
           <h2
             style={{
               margin: "8px 0 12px",
@@ -327,14 +315,12 @@ export default async function BusinessPage({
 
       <section className="business-section business-process">
         <div className="business-section-heading">
-          <div className="dashboard-kicker">Why teams choose CapturePass</div>
           <h2>Built around the moments your team cannot afford to lose.</h2>
         </div>
 
         <div className="business-process-grid">
-          {rolloutSteps.map((step, index) => (
+          {rolloutSteps.map((step) => (
             <article className="business-process-step" key={step.title}>
-              <span>{String(index + 1).padStart(2, "0")}</span>
               <h3>{step.title}</h3>
               <p>{step.copy}</p>
             </article>
@@ -345,7 +331,6 @@ export default async function BusinessPage({
       <section className="business-section business-proof">
         <div className="business-proof-panel" aria-label="Business proof points">
           <div className="business-proof-intro">
-            <div className="dashboard-kicker">What changes</div>
             <h3>From missed follow-up to owned relationships.</h3>
             <p>
             CapturePass closes the gap between a good face-to-face conversation and an actual saved contact your team can act on.
@@ -353,14 +338,9 @@ export default async function BusinessPage({
           </div>
 
           <div className="business-proof-grid">
-            {proofPoints.map((point, index) => (
+            {proofPoints.map((point) => (
               <article className="business-proof-point" key={point.label}>
-                <div className="business-proof-point-top">
-                  <span>{String(index + 1).padStart(2, "0")}</span>
-                  <p>{point.label}</p>
-                </div>
                 <div className="business-proof-shift">
-                  <small>{point.before}</small>
                   <strong>{point.value}</strong>
                 </div>
                 <p>{point.copy}</p>
@@ -369,7 +349,6 @@ export default async function BusinessPage({
           </div>
         </div>
         <div className="business-proof-copy">
-          <div className="dashboard-kicker">Business ready</div>
           <h2>Your customers remember the conversation. Make sure they remember who to call.</h2>
           <p>
             CapturePass combines physical NFC cards, QR sharing, and digital profiles so customers can save the right salesperson, agent, or team member instantly. When employees leave, cards and profiles can be reassigned without replacing printed materials, which protects relationship ownership and team accountability.
@@ -385,7 +364,6 @@ export default async function BusinessPage({
 
       <section className="business-section">
         <div className="business-section-heading">
-          <div className="dashboard-kicker">Built for your industry</div>
           <h2>Different businesses. Same problem.</h2>
           <p>People still lose business cards, forget contact information, and struggle to reconnect after a conversation. CapturePass helps solve that problem across industries by making contact capture the first step.</p>
         </div>
@@ -429,7 +407,6 @@ export default async function BusinessPage({
 
       <section className="business-section business-request" id="business-request">
         <div className="business-section-heading">
-          <div className="dashboard-kicker">Request a demo</div>
           <h2>Let&apos;s talk about your sales process.</h2>
           <p>
             Whether you have three employees or hundreds, we&apos;ll help design a CapturePass rollout that fits your team, customer journey, and follow-up process.
