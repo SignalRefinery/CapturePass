@@ -53,26 +53,26 @@ const rolloutSteps = [
 
 const proofPoints = [
   {
-    label: "Customer saves contact",
-    before: "Paper card gets lost",
+    tagline: "Customers save the right employee instantly",
+    title: "Customer saves contact",
     value: "One tap",
     copy: "Customers save the right employee before they leave the lot, open house, counter, or appointment."
   },
   {
-    label: "Lead captured",
-    before: "Conversation disappears",
+    tagline: "Turn conversations into records",
+    title: "Lead captured",
     value: "Follow-up ready",
     copy: "Your team can turn real-world conversations into contact records and next-step opportunities."
   },
   {
-    label: "Card reassigned",
-    before: "Employee turnover wastes cards",
+    tagline: "Keep cards reusable",
+    title: "Card reassigned",
     value: "No reprint",
     copy: "Reusable cards and profiles can move with your team instead of forcing new print runs."
   },
   {
-    label: "Relationship protected",
-    before: "Contacts leave with people",
+    tagline: "Keep relationships with the business",
+    title: "Relationship protected",
     value: "Team owned",
     copy: "Customer relationships stay connected to your business, not just someone's pocket."
   }
@@ -343,10 +343,12 @@ export default async function BusinessPage({
 
           <div className="business-proof-grid">
             {proofPoints.map((point) => (
-              <article className="business-proof-point" key={point.label}>
+              <article className="business-proof-point" key={point.title}>
+                <span>{point.tagline}</span>
                 <div className="business-proof-shift">
                   <strong>{point.value}</strong>
                 </div>
+                <h4>{point.title}</h4>
                 <p>{point.copy}</p>
               </article>
             ))}
