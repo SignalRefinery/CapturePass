@@ -36,8 +36,8 @@ const platformFeatures = [
 const rolloutSteps = [
   {
     tagline: "Keep cards reusable",
-    title: "Protect Against Turnover",
-    copy: "Reassign cards and profiles without reprinting materials."
+    title: "Cards and client contacts survive employee turnover",
+    copy: "Reassign cards, profiles, and client contacts without reprinting materials."
   },
   {
     tagline: "Keep customers connected",
