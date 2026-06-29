@@ -304,45 +304,28 @@
 .profileUpgradeCta{
   display:flex;
   align-items:center;
-  justify-content:space-between;
-  gap:14px;
-  min-height:42px;
-  padding:12px 14px;
+  justify-content:center;
+  min-height:48px;
+  padding:14px 16px;
   margin-top:6px;
-  border-radius:14px;
-  border:1px solid color-mix(in srgb, var(--profile-cta) 22%, rgba(15,23,42,.08));
-  color:#0f4c81;
-  background:
-    linear-gradient(180deg, rgba(244,250,255,.98), rgba(226,239,255,.94)),
-    rgba(255,255,255,.92);
+  border-radius:16px;
+  border:1px solid transparent;
+  color:#ffffff;
+  background:linear-gradient(180deg, var(--profile-cta), var(--profile-glow));
   box-shadow:
-    0 10px 26px rgba(15,76,129,.08),
-    inset 0 1px 0 rgba(255,255,255,.72);
-  font-size:14px;
-  font-weight:700;
-  text-align:left;
+    0 10px 28px color-mix(in srgb, var(--profile-cta) 18%, transparent),
+    inset 0 1px 0 rgba(255,255,255,.35);
+  font-size:15px;
+  font-weight:600;
+  text-align:center;
   transition:transform .12s ease, box-shadow .12s ease, filter .12s ease;
 }
 .profileUpgradeCta:hover{
   transform:translateY(-1px);
   box-shadow:
-    0 12px 30px rgba(15,76,129,.12),
-    inset 0 1px 0 rgba(255,255,255,.78);
-  filter:brightness(1.01);
-}
-
-.profileUpgradeArrow{
-  flex:0 0 auto;
-  width:28px;
-  height:28px;
-  display:grid;
-  place-items:center;
-  border-radius:999px;
-  color:#ffffff;
-  background:linear-gradient(180deg, var(--profile-cta), var(--profile-glow));
-  box-shadow:0 8px 18px color-mix(in srgb, var(--profile-cta) 24%, transparent);
-  font-size:16px;
-  line-height:1;
+    0 12px 30px color-mix(in srgb, var(--profile-cta) 22%, transparent),
+    inset 0 1px 0 rgba(255,255,255,.35);
+  filter:brightness(1.02);
 }
 
 .kicker{

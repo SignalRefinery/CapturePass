@@ -44,11 +44,11 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
   capturepass_brand: {
     key: "capturepass_brand",
     name: "CapturePass Brand",
-    description: "The core CapturePass blue, gold, and charcoal palette for personal profiles.",
+    description: "The core CapturePass blue and charcoal palette for personal profiles.",
     colors: {
       primary: designTokens.colors.primary,
       secondary: designTokens.colors.deepBlue,
-      accent: designTokens.colors.insightGold,
+      accent: designTokens.colors.primary,
       text: designTokens.colors.charcoal,
       background: designTokens.colors.background
     },
@@ -204,7 +204,7 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
     colors: {
       primary: designTokens.colors.primary,
       secondary: designTokens.colors.deepBlue,
-      accent: designTokens.colors.insightGold,
+      accent: designTokens.colors.primary,
       background: designTokens.colors.background,
       text: designTokens.colors.charcoal
     },
