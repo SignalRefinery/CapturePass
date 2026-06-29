@@ -1118,16 +1118,15 @@ returns boolean
 language sql
 stable
 as $$
-  select case coalesce(theme_key, 'taptagg_brand')
-    when 'taptagg_brand' then true
-    when 'executive_navy' then true
-    when 'modern_slate' then plan_key in ('core', 'tagg_plus', 'creator', 'business')
-    when 'clean_horizon' then plan_key in ('core', 'tagg_plus', 'creator', 'business')
-    when 'executive_gold' then plan_key in ('tagg_plus', 'creator', 'business')
-    when 'sage_professional' then plan_key in ('tagg_plus', 'creator', 'business')
-    when 'custom' then plan_key in ('creator', 'business', 'business_individual')
-    else false
-  end
+  select coalesce(theme_key, 'taptagg_brand') in (
+    'taptagg_brand',
+    'executive_navy',
+    'modern_slate',
+    'executive_gold',
+    'clean_horizon',
+    'sage_professional',
+    'custom'
+  )
 $$;
 
 create or replace function public.enforce_profile_theme_entitlement()
