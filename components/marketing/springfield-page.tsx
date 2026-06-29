@@ -17,10 +17,6 @@ export function SpringfieldPage({ navLinks, page }: SpringfieldPageProps) {
   return (
     <Shell footerLeft="Springfield, Illinois" footerRight="CapturePass" navLinks={navLinks}>
       <section className="simple-hero" style={{ paddingBottom: 36 }}>
-        <div className="kicker">
-          <span className="mini-star">✦</span>
-          <span>Springfield, Illinois</span>
-        </div>
         <h1 style={heading}>{page.title}</h1>
         <p style={intro}>{page.description}</p>
         <p style={body}>{page.intro}</p>
@@ -41,7 +37,6 @@ export function SpringfieldPage({ navLinks, page }: SpringfieldPageProps) {
         </div>
 
         <section className="card tagg-card tagg-card-feature" style={relatedPanel}>
-          <div className="dashboard-kicker">Related pages</div>
           <div style={relatedLinks}>
             {page.relatedLinks.map((link) => (
               <Link key={link.href} className="button secondary" href={link.href}>
@@ -119,4 +114,3 @@ const relatedLinks = {
   flexWrap: "wrap" as const,
   gap: 12
 };
-

@@ -21,7 +21,6 @@ type IndustryLandingPageProps = {
 
 export function IndustryLandingPage({
   actionLinks,
-  audienceLabel,
   benefits,
   footerLeft,
   footerRight = "CapturePass",
@@ -36,10 +35,6 @@ export function IndustryLandingPage({
   return (
     <Shell footerLeft={footerLeft} footerRight={footerRight} navLinks={navLinks}>
       <section className="simple-hero" style={{ paddingBottom: 36 }}>
-        <div className="kicker">
-          <span className="mini-star">✦</span>
-          <span>{audienceLabel}</span>
-        </div>
         <h1 style={heroHeading}>{headline}</h1>
         <p style={heroCopy}>{subheadline}</p>
         <p style={heroBody}>{intro}</p>
@@ -67,12 +62,10 @@ export function IndustryLandingPage({
         </div>
 
         <section className="card tagg-card tagg-card-feature" style={proofPanel}>
-          <div className="dashboard-kicker">Why this page exists</div>
           <h2 style={sectionHeading}>Built for the exact search intent behind this page.</h2>
           <div style={proofGrid}>
             {proofPoints.map((point) => (
               <div key={point.label} style={proofItem}>
-                <div style={proofLabel}>{point.label}</div>
                 <div style={proofCopy}>{point.copy}</div>
               </div>
             ))}
@@ -95,7 +88,6 @@ export function IndustryLandingPage({
         ) : null}
 
         <section className="card tagg-card" style={relatedPanel}>
-          <div className="dashboard-kicker">Related pages</div>
           <h2 style={sectionHeading}>Keep exploring the CapturePass funnel.</h2>
           <div style={relatedLinksWrap}>
             {relatedLinks.map((link) => (
@@ -201,15 +193,6 @@ const proofItem = {
   borderRadius: 18,
   border: "1px solid rgba(var(--brand-deep-rgb),.22)",
   background: "rgba(255,255,255,.022)"
-};
-
-const proofLabel = {
-  marginBottom: 8,
-  color: "var(--brand-gold)",
-  fontSize: 13,
-  fontWeight: 800,
-  letterSpacing: "0.08em",
-  textTransform: "uppercase" as const
 };
 
 const proofCopy = {

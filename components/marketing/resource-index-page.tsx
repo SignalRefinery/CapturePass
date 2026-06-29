@@ -31,10 +31,6 @@ export function ResourceIndexPage({ categories, featuredArticles, localLinks }: 
       ]}
     >
       <section className="simple-hero" style={{ paddingBottom: 36 }}>
-        <div className="kicker">
-          <span className="mini-star">✦</span>
-          <span>Resource Center</span>
-        </div>
         <h1 style={heading}>CapturePass resources for smarter sharing and better follow-up.</h1>
         <p style={intro}>
           Learn how contact capture, NFC cards, and digital business cards work across industries, then connect
@@ -56,7 +52,6 @@ export function ResourceIndexPage({ categories, featuredArticles, localLinks }: 
         </div>
 
         <section className="card tagg-card tagg-card-feature" style={featurePanel}>
-          <div className="dashboard-kicker">Featured guides</div>
           <div style={articleGrid}>
             {featuredArticles.map((article) => (
               <article key={article.href} style={articleCard}>
@@ -72,7 +67,6 @@ export function ResourceIndexPage({ categories, featuredArticles, localLinks }: 
 
         {localLinks?.length ? (
           <section className="card tagg-card" style={featurePanel}>
-            <div className="dashboard-kicker">Springfield, Illinois</div>
             <h2 style={cardHeading}>Local SEO pages for Springfield searchers.</h2>
             <div style={linkWrap}>
               {localLinks.map((link) => (

@@ -22,10 +22,6 @@ export default function HowItWorksPage() {
       ]}
     >
       <section className="simple-hero">
-        <div className="kicker">
-          <span className="mini-star">✦</span>
-          <span>How it works</span>
-        </div>
         <h1>Turn Every Handshake Into a Prospect.</h1>
         <p>
           Set up your links once. Share them anywhere with a tap or scan. No app,
@@ -69,7 +65,6 @@ export default function HowItWorksPage() {
 
       <section className="section-wrap" style={{ paddingTop: 0 }}>
         <div className="card" style={{ padding: 28 }}>
-          <div className="dashboard-kicker">Next steps</div>
           <h2
             style={{
               margin: "8px 0 12px",

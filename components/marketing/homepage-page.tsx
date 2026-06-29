@@ -74,10 +74,6 @@ export function HomepagePage({ businessCards, footerLeft, initialAuth, resourceL
 
       <section className="section-wrap home-section">
         <div className="home-section-head">
-          <div className="kicker">
-            <span className="mini-star">✦</span>
-            <span>Relationship-first selling</span>
-          </div>
           <h2>Every sale starts with a conversation.</h2>
           <p>
             Whether you are networking, meeting clients, attending events, or closing deals, CapturePass makes every
@@ -88,26 +84,19 @@ export function HomepagePage({ businessCards, footerLeft, initialAuth, resourceL
 
       <section className="section-wrap home-section">
         <div className="home-section-head">
-          <div className="kicker">
-            <span className="mini-star">✦</span>
-            <span>How CapturePass works</span>
-          </div>
           <h2>Three simple steps from first handshake to saved contact.</h2>
         </div>
 
         <div className="home-step-grid">
           <article className="home-step-card">
-            <div className="home-step-eyebrow">Step 1</div>
             <h3>Share your profile</h3>
             <p>Tap or scan to instantly share your professional profile.</p>
           </article>
           <article className="home-step-card">
-            <div className="home-step-eyebrow">Step 2</div>
             <h3>Capture their contact</h3>
             <p>Collect contact information from interested prospects while the conversation is still fresh.</p>
           </article>
           <article className="home-step-card">
-            <div className="home-step-eyebrow">Step 3</div>
             <h3>Follow up with confidence</h3>
             <p>See who engaged and continue the conversation while you are still top of mind.</p>
           </article>
@@ -116,7 +105,6 @@ export function HomepagePage({ businessCards, footerLeft, initialAuth, resourceL
 
       <section className="section-wrap home-section home-usecase-layout">
         <article className="home-feature-card">
-          <div className="dashboard-kicker">Built for professionals who grow through relationships</div>
           <h2>Built for professionals who grow their business through relationships.</h2>
           <p>CapturePass helps every introduction lead to a clearer next step.</p>
           <div className="home-feature-links">
@@ -183,7 +171,6 @@ export function HomepagePage({ businessCards, footerLeft, initialAuth, resourceL
 
       <section className="section-wrap home-section home-teams">
         <div className="home-teams-copy">
-          <div className="dashboard-kicker">Built for teams</div>
           <h2>Why teams choose CapturePass.</h2>
           <p>
             CapturePass gives each team a consistent brand presence while keeping relationships, lead history, and
@@ -216,7 +203,6 @@ export function HomepagePage({ businessCards, footerLeft, initialAuth, resourceL
 
       <section className="section-wrap home-section home-resources">
         <div className="home-resource-copy">
-          <div className="dashboard-kicker">Resources</div>
           <h2>Learn how contact capture works.</h2>
           <p>Guides, comparisons, and resources to help businesses modernize networking, follow-up, and lead capture.</p>
         </div>

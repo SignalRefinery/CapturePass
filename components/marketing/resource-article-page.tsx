@@ -17,10 +17,6 @@ export function ResourceArticlePage({ article, navLinks }: ResourceArticlePagePr
   return (
     <Shell footerLeft="Resources" footerRight="CapturePass" navLinks={navLinks}>
       <section className="simple-hero" style={{ paddingBottom: 36 }}>
-        <div className="kicker">
-          <span className="mini-star">✦</span>
-          <span>Resource</span>
-        </div>
         <h1 style={heading}>{article.title}</h1>
         <p style={intro}>{article.excerpt}</p>
         <p style={body}>{article.intro}</p>
@@ -41,7 +37,6 @@ export function ResourceArticlePage({ article, navLinks }: ResourceArticlePagePr
         </div>
 
         <section className="card tagg-card tagg-card-feature" style={ctaPanel}>
-          <div className="dashboard-kicker">Try CapturePass</div>
           <h2 style={ctaHeading}>Use these ideas in your own workflow.</h2>
           <div style={ctaLinks}>
             <Link className="button primary" href="/business">
@@ -54,7 +49,6 @@ export function ResourceArticlePage({ article, navLinks }: ResourceArticlePagePr
         </section>
 
         <section className="card tagg-card" style={relatedPanel}>
-          <div className="dashboard-kicker">Related pages</div>
           <div style={relatedLinks}>
             {article.relatedLinks.map((link) => (
               <Link key={link.href} className="button secondary" href={link.href}>
