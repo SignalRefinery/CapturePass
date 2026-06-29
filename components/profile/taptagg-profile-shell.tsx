@@ -272,6 +272,11 @@ export function CapturePassProfileShell({
     "--profile-text-rgb": hexToRgbString(resolvedThemeColors.text || null),
     ...(resolvedThemeColors.text ? { "--profile-text": resolvedThemeColors.text } : {})
   } as CSSProperties;
+  const avatarStyle = {
+    "--profile-avatar-bg": avatarIsLogo
+      ? "var(--profile-background, #ffffff)"
+      : "var(--profile-icon, var(--profile-secondary))"
+  } as CSSProperties;
   const pageClassName = [
     styles.page,
     resolvedThemeKey
@@ -376,6 +381,7 @@ export function CapturePassProfileShell({
               <div
                 className={`${styles.profileAvatar}${avatarIsLogo ? ` ${styles.profileAvatarLogo}` : ""}`}
                 aria-hidden="true"
+                style={avatarStyle}
               >
                 {avatarUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element

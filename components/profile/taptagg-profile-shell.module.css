@@ -222,8 +222,8 @@
   place-items:center;
   border-radius:7px;
   color:#ffffff;
-  background:var(--profile-icon, var(--profile-secondary));
-  border:1px solid color-mix(in srgb, var(--profile-icon, var(--profile-secondary)) 34%, transparent);
+  background:var(--profile-avatar-bg, var(--profile-icon, var(--profile-secondary)));
+  border:1px solid color-mix(in srgb, var(--profile-avatar-bg, var(--profile-icon, var(--profile-secondary))) 34%, transparent);
   font-size:13px;
   box-shadow:0 10px 24px color-mix(in srgb, var(--profile-glow) 20%, transparent);
 }
@@ -402,7 +402,7 @@
   place-items:center;
   border-radius:22px;
   color:#ffffff;
-  background:var(--profile-icon, var(--profile-secondary));
+  background:var(--profile-avatar-bg, var(--profile-icon, var(--profile-secondary)));
   border:1px solid rgba(255,255,255,.22);
   box-shadow:
     0 0 0 10px color-mix(in srgb, var(--profile-glow) 5%, transparent),
