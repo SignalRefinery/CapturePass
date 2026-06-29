@@ -201,15 +201,9 @@
   white-space:nowrap;
 }
 
-.brandLabel{
-  font-size:14px;
-  letter-spacing:-.015em;
-  text-transform:none;
-}
-
-.brandLogoMark{
+.brandLogoLockup{
   display:block;
-  height:22px;
+  height:30px;
   width:auto;
   user-select:none;
   -webkit-user-drag:none;

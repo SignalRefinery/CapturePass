@@ -309,8 +309,7 @@ export function CapturePassProfileShell({
       <div className={`${styles.shell} ${mobileOpen ? styles.shellMenuOpen : ""}`}>
         <header className={styles.topbar}>
           <Link className={styles.brand} href="/">
-            <CapturePassBrandArt className={styles.brandLogoMark} variant="logoMark" />
-            <span className={styles.brandLabel}>CapturePass</span>
+            <CapturePassBrandArt className={styles.brandLogoLockup} variant="logoLockup" />
           </Link>
 
           <nav className={styles.nav}>
