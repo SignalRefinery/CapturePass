@@ -2,7 +2,7 @@ import { designTokens } from "@/lib/design-tokens";
 import type { PlanKey, PlanFeatures } from "@/lib/plans";
 
 export type ThemeKey =
-  | "taptagg_brand"
+  | "capturepass_brand"
   | "tt_classic"
   | "executive_navy"
   | "modern_slate"
@@ -37,12 +37,12 @@ export type ThemeDefinition = {
   colors: ThemeColors;
 };
 
-export const DEFAULT_THEME_KEY: ThemeKey = "taptagg_brand";
+export const DEFAULT_THEME_KEY: ThemeKey = "capturepass_brand";
 export const CUSTOM_THEME_KEY: ThemeKey = "custom";
 
 export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
-  taptagg_brand: {
-    key: "taptagg_brand",
+  capturepass_brand: {
+    key: "capturepass_brand",
     name: "CapturePass Brand",
     description: "The core CapturePass blue, gold, and charcoal palette for personal profiles.",
     colors: {
@@ -212,7 +212,7 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
 };
 
 const CANONICAL_THEME_KEYS: ThemeKey[] = [
-  "taptagg_brand",
+  "capturepass_brand",
   "tt_classic",
   "executive_navy",
   "modern_slate",
@@ -228,7 +228,7 @@ const CANONICAL_THEME_KEYS: ThemeKey[] = [
 
 // Stored rows may still reference older theme keys. Keep aliases isolated here
 // so current UI labels can move forward without breaking existing profiles.
-const THEME_ALIASES: Partial<Record<ThemeKey, ThemeKey>> = {
+const THEME_ALIASES: Record<string, ThemeKey> = {
   arctic_white: "clean_horizon",
   emerald_executive: "sage_professional"
 };
@@ -247,12 +247,20 @@ export const THEME_COLOR_ROLE_LABELS = {
 } as const;
 
 export function normalizeThemeKey(value?: string | null): ThemeKey {
-  if (!value || !(value in THEME_PRESETS)) {
+  if (!value) {
     return DEFAULT_THEME_KEY;
   }
 
-  const themeKey = value as ThemeKey;
-  return THEME_ALIASES[themeKey] || themeKey;
+  const aliased = THEME_ALIASES[value];
+  if (aliased) {
+    return aliased;
+  }
+
+  if (value in THEME_PRESETS) {
+    return value as ThemeKey;
+  }
+
+  return DEFAULT_THEME_KEY;
 }
 
 export function themeIsAllowedForPlan(themeKey: ThemeKey, _plan: PlanKey) {
@@ -273,7 +281,7 @@ export function coerceThemeForPlan(themeKey: string | null | undefined, _plan: P
 }
 
 const LIGHT_THEME_KEYS = new Set<ThemeKey>([
-  "taptagg_brand",
+  "capturepass_brand",
   "clean_horizon",
   "arctic_white",
   "ivory_executive",

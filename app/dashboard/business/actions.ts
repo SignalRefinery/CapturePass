@@ -171,7 +171,7 @@ export async function createOrganization(formData: FormData) {
     .insert({
       name,
       slug,
-      theme_key: "taptagg_brand",
+      theme_key: "capturepass_brand",
       business_type: "general_business",
       owner_user_id: user.id,
       managed_service_enabled: businessPlan.managed,

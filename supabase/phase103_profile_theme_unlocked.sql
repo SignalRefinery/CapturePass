@@ -8,8 +8,8 @@ returns boolean
 language sql
 stable
 as $$
-  select coalesce(theme_key, 'taptagg_brand') in (
-    'taptagg_brand',
+  select coalesce(theme_key, 'capturepass_brand') in (
+    'capturepass_brand',
     'executive_navy',
     'modern_slate',
     'executive_gold',

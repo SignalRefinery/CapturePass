@@ -25,7 +25,7 @@ create table if not exists public.profiles (
   website_url text not null default '',
   show_text boolean default true,
   secondary_action_mode text,
-  theme_key text not null default 'taptagg_brand',
+  theme_key text not null default 'capturepass_brand',
   brand_color_primary text,
   brand_color_secondary text,
   brand_color_accent text,
@@ -102,7 +102,7 @@ create table if not exists public.profiles (
     )
   ),
   constraint profiles_slug_status_check check (slug_status in ('approved', 'pending_review', 'rejected')),
-  constraint profiles_theme_key_check check (theme_key in ('taptagg_brand', 'executive_navy', 'modern_slate', 'executive_gold', 'clean_horizon', 'sage_professional', 'custom'))
+  constraint profiles_theme_key_check check (theme_key in ('capturepass_brand', 'executive_navy', 'modern_slate', 'executive_gold', 'clean_horizon', 'sage_professional', 'custom'))
 );
 
 create unique index if not exists profiles_user_id_idx on public.profiles (user_id);
@@ -247,7 +247,7 @@ create table if not exists public.organizations (
     and (included_card_count is null or included_card_count >= 0)
     and (card_allotment_total is null or card_allotment_total >= 0)
   ),
-  constraint organizations_theme_key_check check (theme_key in ('taptagg_brand', 'executive_navy', 'modern_slate', 'executive_gold', 'clean_horizon', 'sage_professional', 'custom')),
+  constraint organizations_theme_key_check check (theme_key in ('capturepass_brand', 'executive_navy', 'modern_slate', 'executive_gold', 'clean_horizon', 'sage_professional', 'custom')),
   constraint organizations_brand_theme_check check (brand_theme in ('deep_brand', 'clean_light', 'full_color', 'custom'))
 );
 
@@ -1112,8 +1112,8 @@ returns boolean
 language sql
 stable
 as $$
-  select coalesce(theme_key, 'taptagg_brand') in (
-    'taptagg_brand',
+  select coalesce(theme_key, 'capturepass_brand') in (
+    'capturepass_brand',
     'executive_navy',
     'modern_slate',
     'executive_gold',
@@ -1132,7 +1132,7 @@ as $$
 declare
   resolved_plan text;
 begin
-  new.theme_key := coalesce(nullif(new.theme_key, ''), 'taptagg_brand');
+  new.theme_key := coalesce(nullif(new.theme_key, ''), 'capturepass_brand');
   resolved_plan := public.profile_theme_plan_key(
     new.stripe_plan_key,
     new.is_active,

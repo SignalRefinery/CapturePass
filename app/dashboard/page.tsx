@@ -328,7 +328,7 @@ export default async function DashboardPage({
           website_url: "",
           show_text: true,
           secondary_action_mode: "text",
-          theme_key: "taptagg_brand",
+          theme_key: "capturepass_brand",
           profile_badge_1: "",
           profile_badge_2: "",
           profile_badge_3: "",

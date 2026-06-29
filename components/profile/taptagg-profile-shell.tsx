@@ -153,7 +153,7 @@ function initialsForName(name?: string | null) {
 function themeClassName(theme?: string | null, background?: string | null) {
   const themeKey = normalizeThemeKey(theme);
 
-  if (themeKey === "taptagg_brand") {
+  if (themeKey === "capturepass_brand") {
     return styles.themeCleanLight;
   }
 
@@ -247,7 +247,7 @@ export function CapturePassProfileShell({
   const avatarIsLogo = !!activeProfile.brand_logo_url && avatarUrl === activeProfile.brand_logo_url;
   const resolvedThemeKey =
     activeProfile.theme_key && !isBusinessProfile && normalizeThemeKey(activeProfile.theme_key) === "executive_navy"
-      ? "taptagg_brand"
+      ? "capturepass_brand"
       : activeProfile.theme_key || (activeProfile.brand_theme === "custom" ? "custom" : null);
   const resolvedThemeColors = resolveThemeColors({
     themeKey: resolvedThemeKey,

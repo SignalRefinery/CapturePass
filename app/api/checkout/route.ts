@@ -243,7 +243,7 @@ async function getOrCreateCheckoutOrganization({
       name: businessName,
       slug,
       owner_user_id: userId,
-      theme_key: "taptagg_brand"
+      theme_key: "capturepass_brand"
     })
     .select("id, name, slug, stripe_customer_id, stripe_subscription_id")
     .single();
