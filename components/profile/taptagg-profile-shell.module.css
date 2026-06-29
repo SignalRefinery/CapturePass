@@ -396,8 +396,8 @@
 .profileIdentity{
   display:grid;
   justify-items:center;
-  gap:12px;
-  margin-bottom:18px;
+  gap:8px;
+  margin-bottom:14px;
 }
 
 .profileAvatar{
@@ -424,6 +424,11 @@
   max-width:75%;
   padding:clamp(18px, 4vw, 34px);
   border-radius:30px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.99), rgba(248,251,255,.96)),
+    var(--profile-background, #ffffff);
+  border:none;
+  box-shadow:none;
 }
 
 .profileAvatar img{
@@ -450,24 +455,23 @@
 
 .profileEyebrow{
   display:inline-flex;
-  min-height:30px;
   align-items:center;
   justify-content:center;
-  padding:7px 12px;
-  border-radius:999px;
-  border:1px solid rgba(255,255,255,.075);
-  background:var(--eyebrow-bg);
-  color:var(--muted);
+  padding:0;
+  border-radius:0;
+  border:none;
+  background:transparent;
+  color:var(--muted-2);
   font-size:11px;
-  font-weight:700;
-  letter-spacing:.16em;
+  font-weight:600;
+  letter-spacing:.18em;
   text-transform:uppercase;
 }
 
 .profileName{
   position:relative;
   max-width:900px;
-  margin:0 auto 14px;
+  margin:0 auto 10px;
   font-family:"Inter Tight", "Inter", Arial, sans-serif;
   font-size:92px;
   font-weight:700;
@@ -1161,6 +1165,7 @@
     max-width:75%;
     padding:18px;
     border-radius:24px;
+    box-shadow:none;
   }
   .profileAvatar span{
     font-size:21px;
