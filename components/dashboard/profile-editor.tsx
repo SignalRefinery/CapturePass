@@ -15,7 +15,7 @@ import {
   inferProfileButtonType,
   normalizeProfileButtonType
 } from "@/lib/profile-buttons";
-import { CUSTOM_THEME_KEY, PROFILE_THEME_OPTIONS, THEME_COLOR_ROLE_LABELS, coerceThemeForPlan, isHexColor, resolveThemeColors, themeIsAllowedForPlan } from "@/lib/themes";
+import { CUSTOM_THEME_KEY, PROFILE_THEME_OPTIONS, THEME_COLOR_ROLE_LABELS, coerceThemeForPlan, isHexColor, resolveThemeColors } from "@/lib/themes";
 import { resolveSecondaryActionMode } from "@/lib/profiles/secondary-action";
 import { designTokens } from "@/lib/design-tokens";
 import {
@@ -1711,8 +1711,7 @@ export function ProfileEditor({
                 <div className="dashboard-kicker">Profile Theme</div>
                 <h3 style={{ margin: "6px 0 8px" }}>Choose a polished look.</h3>
                 <p className="editor-copy">
-                  Presets keep your profile sharp without needing to tune colors manually. Your plan controls which
-                  themes are available.
+                  Presets keep your profile sharp without needing to tune colors manually.
                 </p>
               </div>
               <span className="collapsible-summary-chip" aria-hidden="true">
@@ -1727,24 +1726,21 @@ export function ProfileEditor({
             <div className="theme-section-body">
               <div className="theme-choice-list" role="radiogroup" aria-label="Profile theme">
                 {PROFILE_THEME_OPTIONS.map((theme) => {
-                  const allowed = themeIsAllowedForPlan(theme.key, plan.key);
                   const colors = theme.key === CUSTOM_THEME_KEY ? customThemeColors : theme.colors;
 
                   return (
-                    <label className={`theme-choice-card${allowed ? "" : " is-disabled"}`} key={theme.key}>
+                    <label className="theme-choice-card" key={theme.key}>
                       <input
                         type="radio"
                         name="theme_key"
                         value={theme.key}
                         checked={selectedThemeKey === theme.key}
-                        disabled={!allowed}
                         onChange={() => update("theme_key", theme.key)}
                       />
                       <span>
                         <strong>{theme.name}</strong>
                         <small>
                           {theme.description}
-                          {!allowed ? ` Upgrade to Business Individual or a business plan to unlock.` : ""}
                         </small>
                         <span
                           className="theme-preview-strip"

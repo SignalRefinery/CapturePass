@@ -35,7 +35,6 @@ export type ThemeDefinition = {
   name: string;
   description: string;
   colors: ThemeColors;
-  allowedPlans: PlanKey[];
 };
 
 export const DEFAULT_THEME_KEY: ThemeKey = "taptagg_brand";
@@ -53,7 +52,6 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
       text: designTokens.colors.charcoal,
       background: designTokens.colors.background
     },
-    allowedPlans: ["free", "core", "tagg_plus", "creator", "business_individual"]
   },
   tt_classic: {
     key: "tt_classic",
@@ -66,7 +64,6 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
       text: "#FFFFFF",
       background: "#030304"
     },
-    allowedPlans: ["free", "core", "tagg_plus", "creator", "business_individual"]
   },
   executive_navy: {
     key: "executive_navy",
@@ -79,7 +76,6 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
       text: "#F8FAFC",
       background: "#0B1220"
     },
-    allowedPlans: ["free", "core", "tagg_plus", "creator", "business_individual"]
   },
   modern_slate: {
     key: "modern_slate",
@@ -92,7 +88,6 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
       text: "#F8FAFC",
       background: "#111827"
     },
-    allowedPlans: ["core", "tagg_plus", "creator", "business_individual"]
   },
   executive_gold: {
     key: "executive_gold",
@@ -105,7 +100,6 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
       text: "#FFF8E7",
       background: "#111827"
     },
-    allowedPlans: ["tagg_plus", "creator", "business_individual"]
   },
   clean_horizon: {
     key: "clean_horizon",
@@ -118,7 +112,6 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
       text: "#111827",
       background: "#F8FBFF"
     },
-    allowedPlans: ["core", "tagg_plus", "creator", "business_individual"]
   },
   sage_professional: {
     key: "sage_professional",
@@ -131,7 +124,6 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
       text: "#F8FAF7",
       background: "#08261B"
     },
-    allowedPlans: ["tagg_plus", "creator", "business_individual"]
   },
   arctic_white: {
     key: "arctic_white",
@@ -144,7 +136,6 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
       text: "#111827",
       background: "#FFFFFF"
     },
-    allowedPlans: ["core", "tagg_plus", "creator", "business_individual"]
   },
   ivory_executive: {
     key: "ivory_executive",
@@ -157,7 +148,6 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
       text: "#2C241D",
       background: "#FFFDF9"
     },
-    allowedPlans: ["tagg_plus", "creator", "business_individual"]
   },
   coastal_blue: {
     key: "coastal_blue",
@@ -170,7 +160,6 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
       text: "#0F172A",
       background: "#F8FBFF"
     },
-    allowedPlans: ["core", "tagg_plus", "creator", "business_individual"]
   },
   emerald_executive: {
     key: "emerald_executive",
@@ -183,7 +172,6 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
       text: "#1F2937",
       background: "#F7FFFB"
     },
-    allowedPlans: ["tagg_plus", "creator", "business_individual"]
   },
   sandstone: {
     key: "sandstone",
@@ -196,7 +184,6 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
       text: "#3A312A",
       background: "#FDFBF8"
     },
-    allowedPlans: ["tagg_plus", "creator", "business_individual"]
   },
   modern_rose: {
     key: "modern_rose",
@@ -209,7 +196,6 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
       text: "#1F2937",
       background: "#FFFDFD"
     },
-    allowedPlans: ["tagg_plus", "creator", "business_individual"]
   },
   custom: {
     key: "custom",
@@ -222,7 +208,6 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
       background: designTokens.colors.background,
       text: designTokens.colors.charcoal
     },
-    allowedPlans: ["creator", "business_individual"]
   }
 };
 
@@ -270,27 +255,21 @@ export function normalizeThemeKey(value?: string | null): ThemeKey {
   return THEME_ALIASES[themeKey] || themeKey;
 }
 
-export function themeIsAllowedForPlan(themeKey: ThemeKey, plan: PlanKey) {
-  if (themeKey === DEFAULT_THEME_KEY) {
-    return true;
-  }
-
-  return THEME_PRESETS[themeKey].allowedPlans.includes(plan);
+export function themeIsAllowedForPlan(themeKey: ThemeKey, _plan: PlanKey) {
+  return true;
 }
 
-export function allowedThemesForPlan(plan: PlanFeatures | PlanKey) {
-  const key = typeof plan === "string" ? plan : plan.key;
-  return THEME_OPTIONS.filter((theme) => themeIsAllowedForPlan(theme.key, key));
+export function allowedThemesForPlan(_plan: PlanFeatures | PlanKey) {
+  return THEME_OPTIONS;
 }
 
-export function coerceThemeForPlan(themeKey: string | null | undefined, plan: PlanFeatures | PlanKey) {
+export function coerceThemeForPlan(themeKey: string | null | undefined, _plan: PlanFeatures | PlanKey) {
   const normalized = normalizeThemeKey(themeKey);
-  const key = typeof plan === "string" ? plan : plan.key;
   if (normalized === "executive_navy") {
     return DEFAULT_THEME_KEY;
   }
 
-  return themeIsAllowedForPlan(normalized, key) ? normalized : DEFAULT_THEME_KEY;
+  return normalized;
 }
 
 const LIGHT_THEME_KEYS = new Set<ThemeKey>([
