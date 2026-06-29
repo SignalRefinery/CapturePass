@@ -36,8 +36,8 @@ const platformFeatures = [
 const rolloutSteps = [
   {
     tagline: "Keep cards reusable",
-    title: "Cards and client contacts survive employee turnover",
-    copy: "Reassign cards, profiles, and client contacts without reprinting materials."
+    title: "Protect Against Turnover",
+    copy: "Reassign cards and profiles without reprinting materials."
   },
   {
     tagline: "Keep customers connected",
@@ -195,22 +195,30 @@ export default async function BusinessPage({
         </div>
       </section>
 
-      <section className="business-band">
-        <div className="business-metrics" aria-label="Business capabilities">
-          <div>
-            <strong>Customers save the right employee instantly</strong>
-          </div>
-          <div>
-            <strong>Collect contact information in seconds</strong>
-          </div>
-          <div>
-            <strong>Cards survive employee turnover</strong>
-          </div>
-          <div>
-            <strong>No CRM replacement required</strong>
-          </div>
+    <section className="business-band">
+      <div className="business-metrics" aria-label="Business capabilities">
+        <div>
+          <span>Keep customers connected</span>
+          <h3>Customers save the right employee instantly</h3>
+          <p>Customers save the right employee before they leave the lot, open house, counter, or appointment.</p>
         </div>
-      </section>
+        <div>
+          <span>Capture contact information</span>
+          <h3>Collect contact information in seconds</h3>
+          <p>Capture interest while the conversation is still fresh.</p>
+        </div>
+        <div>
+          <span>Keep cards reusable</span>
+          <h3>Cards and client contacts survive employee turnover</h3>
+          <p>Reassign cards and profiles without reprinting materials.</p>
+        </div>
+        <div>
+          <span>Keep systems in place</span>
+          <h3>No CRM replacement required</h3>
+          <p>Keep your existing systems and workflows in place.</p>
+        </div>
+      </div>
+    </section>
 
       <section className="business-section business-two-column" id="team-use-cases">
         <div>
