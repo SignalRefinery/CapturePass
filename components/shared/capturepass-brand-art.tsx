@@ -49,7 +49,7 @@ export function CapturePassBrandArt({
     <span
       style={{
         display: "inline-block",
-        width: "100%",
+        width: `${size.maxWidth}px`,
         maxWidth: `${size.maxWidth}px`,
         aspectRatio,
         position: "relative",
