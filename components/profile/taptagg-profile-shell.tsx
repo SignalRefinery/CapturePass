@@ -114,6 +114,33 @@ function contactHref(profile: ProfileLike) {
   return `/api/vcard/${profile.slug}`;
 }
 
+function contactDownloadFilename(profile: ProfileLike) {
+  const base = (profile.full_name || profile.organization_name || profile.slug || "capturepass-contact")
+    .toLowerCase()
+    .replace(/[^a-z0-9-]+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+
+  return `${base || "capturepass-contact"}.vcf`;
+}
+
+async function downloadVcardFromUrl(url: string, filename: string) {
+  const response = await fetch(url, { credentials: "same-origin" });
+  if (!response.ok) {
+    throw new Error(`Failed to download vCard: ${response.status}`);
+  }
+
+  const blob = await response.blob();
+  const objectUrl = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = objectUrl;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(objectUrl);
+}
+
 function publicShareUrl(profile: ProfileLike) {
   if (profile.public_url) {
     return profile.public_url;
@@ -218,6 +245,8 @@ export function CapturePassProfileShell({
   const pills = getPills(activeProfile);
   const showEmail = activeProfile.show_email !== false;
   const showPhone = activeProfile.show_phone !== false;
+  const contactUrl = contactHref(activeProfile);
+  const contactFilename = contactDownloadFilename(activeProfile);
   const secondaryActionMode = resolveSecondaryActionMode(activeProfile);
   const textPhone = activeProfile.text_phone || activeProfile.phone || "";
   const secondaryAction =
@@ -411,8 +440,18 @@ export function CapturePassProfileShell({
               {contactHref(activeProfile) !== "#" && (showEmail || showPhone) ? (
                 <a
                   className={`${styles.button} ${styles.profilePrimaryButton}`}
-                  href={contactHref(activeProfile)}
-                  onClick={() => trackProfileAction(analyticsTarget, { title: "Add to Contacts", href: contactHref(activeProfile) })}
+                  href={contactUrl}
+                  download={contactFilename}
+                  onClick={async (event) => {
+                    event.preventDefault();
+                    trackProfileAction(analyticsTarget, { title: "Add to Contacts", href: contactUrl });
+
+                    try {
+                      await downloadVcardFromUrl(contactUrl, contactFilename);
+                    } catch {
+                      window.location.href = contactUrl;
+                    }
+                  }}
                 >
                   Add to Contacts
                 </a>

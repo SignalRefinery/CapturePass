@@ -117,7 +117,7 @@ function downloadVcard(contact: ContactSubmissionRecord) {
   downloadBlob(
     contactToVcard(contact),
     `${safeFilename(contact.name)}.vcf`,
-    "text/x-vcard;charset=utf-8"
+    "text/vcard;charset=utf-8"
   );
 }
 
@@ -126,7 +126,7 @@ function downloadVcards(rows: ContactSubmissionRecord[]) {
   downloadBlob(
     vcards,
     `capturepass-contacts-${new Date().toISOString().slice(0, 10)}.vcf`,
-    "text/x-vcard;charset=utf-8"
+    "text/vcard;charset=utf-8"
   );
 }
 

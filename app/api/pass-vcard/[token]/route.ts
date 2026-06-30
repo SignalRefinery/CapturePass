@@ -155,7 +155,7 @@ export async function GET(request: Request, context: RouteContext) {
     status: 200,
     headers: {
       ...PROFILE_CACHE_HEADERS,
-      "Content-Type": "text/x-vcard; charset=utf-8",
+      "Content-Type": "text/vcard; charset=utf-8",
       "Content-Disposition": `attachment; filename="${filename}"; filename*=UTF-8''${encodeURIComponent(filename)}`,
       "X-Content-Type-Options": "nosniff"
     }

@@ -133,7 +133,7 @@ export async function GET(request: Request, context: RouteContext) {
       ...PROFILE_CACHE_HEADERS,
       // Many mobile browsers and desktop clients rely on these exact headers
       // to treat the response as a contact card instead of a plain text file.
-      "Content-Type": "text/x-vcard; charset=utf-8",
+      "Content-Type": "text/vcard; charset=utf-8",
       "Content-Disposition": `attachment; filename="${filename}"; filename*=UTF-8''${encodeURIComponent(filename)}`,
       "X-Content-Type-Options": "nosniff"
     }
