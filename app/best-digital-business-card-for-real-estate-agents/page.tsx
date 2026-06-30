@@ -9,9 +9,9 @@ const canonicalUrl = "https://capturepass.com/best-digital-business-card-for-rea
 
 export const metadata: Metadata = buildPageMetadata({
   description:
-    "See why real estate agents use CapturePass to capture leads, strengthen referrals, improve open house follow-up, and stay connected with buyers, sellers, and local partners.",
+    "See why real estate agents use CapturePass to capture leads, strengthen referrals, improve open house follow-up, and stay connected with buyers, sellers, and local partners using NFC business cards and mobile QR codes.",
   path: "/best-digital-business-card-for-real-estate-agents",
-  title: "Best Digital Business Card For Real Estate Agents | CapturePass"
+  title: "Best Contact Capture Platform For Real Estate Agents | CapturePass"
 });
 
 const openGraph = metadata.openGraph;
@@ -84,7 +84,7 @@ const needRows = [
 ] as const;
 
 const openHouseCopy = [
-  "Open houses are one of the clearest use cases for digital business cards and contact capture.",
+  "Open houses are one of the clearest use cases for contact capture and mobile QR codes.",
   "Visitors walk through.",
   "Some are serious buyers.",
   "Some are neighbors.",
@@ -111,7 +111,7 @@ const referralCopy = [
 ];
 
 const captureCopy = [
-  "Most digital business card platforms focus on helping agents share their information.",
+  "Most contact-sharing platforms focus on helping agents share their information.",
   "That is useful.",
   "But sharing information is only half the equation.",
   "Capturing information creates opportunity.",
@@ -136,7 +136,7 @@ const brokerageCopy = [
   "Long-term growth",
   "A brokerage does not just need agents to look professional.",
   "It needs systems that help agents create and retain opportunities.",
-  "That is why many brokerages look beyond simple digital profiles and evaluate tools that support contact capture, team visibility, and relationship retention."
+  "That is why many brokerages look beyond simple contact-sharing tools and evaluate tools that support contact capture, team visibility, and relationship retention."
 ];
 
 const chooseCopy = [
@@ -148,20 +148,20 @@ const chooseCopy = [
   "Supporting referrals.",
   "Improving follow-up.",
   "Helping conversations become clients.",
-  "That is why CapturePass is more than a digital business card.",
+  "That is why CapturePass is more than a contact-sharing tool.",
   "It is a relationship-building tool for real estate professionals."
 ];
 
 const faqItems = [
   {
-    question: "Are digital business cards useful for real estate agents?",
+    question: "Are contact capture platforms useful for real estate agents?",
     answer:
       "Yes. They make it easier for agents to share contact information, capture leads, support open house follow-up, and stay connected with buyers, sellers, and referral partners."
   },
   {
-    question: "Can digital business cards help with open houses?",
+    question: "Can contact capture platforms help with open houses?",
     answer:
-      "Yes. Digital business cards can make it easier to share information and collect visitor contact details during open houses."
+      "Yes. Contact capture platforms can make it easier to share information and collect visitor contact details during open houses."
   },
   {
     question: "Does CapturePass support contact capture?",
@@ -187,12 +187,12 @@ const productSchema = {
   "@type": "Product",
   name: "CapturePass",
   description:
-    "CapturePass is a digital business card, contact capture, and relationship-building platform for real estate professionals.",
+    "CapturePass is a contact capture and relationship-building platform for real estate professionals.",
   brand: {
     "@type": "Brand",
     name: "CapturePass"
   },
-  category: "Digital business card, contact capture, and relationship-building platform",
+  category: "Contact capture and relationship-building platform",
   url: canonicalUrl
 };
 
@@ -233,7 +233,7 @@ export default function BestDigitalBusinessCardForRealEstateAgentsPage() {
       <JsonLd data={faqSchema} />
 
       <section className="simple-hero" style={heroStyle}>
-        <h1 style={heroHeading}>The Best Digital Business Card For Real Estate Agents</h1>
+        <h1 style={heroHeading}>The Best Contact Capture Platform For Real Estate Agents</h1>
         <h2 style={heroSubheading}>Because Real Estate Is A Relationship Business</h2>
         <div style={heroCopyWrap}>{renderParagraphs(heroCopy)}</div>
         <div style={heroActions}>

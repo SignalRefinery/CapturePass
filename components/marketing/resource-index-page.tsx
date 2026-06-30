@@ -33,7 +33,7 @@ export function ResourceIndexPage({ categories, featuredArticles, localLinks }: 
       <section className="simple-hero" style={{ paddingBottom: 36 }}>
         <h1 style={heading}>CapturePass resources for smarter sharing and better follow-up.</h1>
         <p style={intro}>
-          Learn how contact capture, NFC cards, and digital business cards work across industries, then connect
+          Learn how contact capture, NFC business cards and mobile QR codes work across industries, then connect
           those ideas back to the right CapturePass product page.
         </p>
       </section>

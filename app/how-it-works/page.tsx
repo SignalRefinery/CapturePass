@@ -24,7 +24,7 @@ export default function HowItWorksPage() {
       <section className="simple-hero">
         <h1>Turn Every Handshake Into a Prospect.</h1>
         <p>
-          Set up your links once. Share them anywhere with a tap or scan. No app,
+          Set up your links once. Share them anywhere with NFC business cards and mobile QR codes. No app,
           no searching, and no awkward spelling out handles.
         </p>
       </section>
@@ -45,8 +45,8 @@ export default function HowItWorksPage() {
           <div>
             <h2>Use your card as the trigger</h2>
             <p>
-              Your CapturePass card points people to your contact capture page instantly. Update your profile
-              anytime without changing the card.
+              Your CapturePass card or mobile QR code points people to your contact capture page instantly.
+              Update your profile anytime without changing the card or QR code.
             </p>
           </div>
         </div>
@@ -91,7 +91,7 @@ export default function HowItWorksPage() {
               Dealerships
             </Link>
             <Link className="button secondary" href="/contact-capture-nfc-cards">
-              Contact Capture NFC Cards
+              Contact Capture
             </Link>
             <Link className="button secondary" href="/resources">
               Resources

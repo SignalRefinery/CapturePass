@@ -7,7 +7,7 @@ import { buildFaqJsonLd, buildPageMetadata, buildSoftwareApplicationJsonLd } fro
 
 export const metadata = buildPageMetadata({
   description:
-    "CapturePass helps professionals and teams turn introductions into saved contacts with premium Contact Capture NFC Cards.",
+    "CapturePass helps professionals and teams turn introductions into saved contacts with NFC business cards and mobile QR codes.",
   path: "/contact-capture-nfc-cards",
   title: "Contact Capture NFC Cards | CapturePass"
 });
@@ -16,7 +16,7 @@ const faqItems = [
   {
     question: "What is a Contact Capture NFC Card?",
     answer:
-      "A Contact Capture NFC Card is a physical card that lets someone instantly open your digital profile and save your contact information with a tap."
+      "A Contact Capture NFC Card is a physical card that lets someone instantly open your CapturePass page and save your contact information with a tap."
   },
   {
     question: "Does the other person need an app?",
@@ -28,7 +28,7 @@ const faqItems = [
   },
   {
     question: "Does it work on iPhone and Android?",
-    answer: "Yes. Modern iPhones and Android phones support NFC or QR scanning."
+    answer: "Yes. Modern iPhones and Android phones support NFC and mobile QR codes."
   },
   {
     question: "Can businesses manage multiple employees?",
@@ -38,7 +38,7 @@ const faqItems = [
 
 const featureCards = [
   {
-    copy: "Share with a tap.",
+    copy: "Share with a tap or scan.",
     icon: "01",
     title: "Instant NFC Sharing"
   },
@@ -179,10 +179,10 @@ export default function ContactCaptureNfcCardsPage() {
                 <span className="mini-star">✦</span>
                 <span>CONTACT CAPTURE NFC CARDS</span>
               </div>
-              <h1 style={heroTitle}>Contact Capture NFC Cards That Turn Every Introduction Into A Lasting Connection.</h1>
+              <h1 style={heroTitle}>Contact Capture NFC Cards And Mobile QR Codes That Turn Every Introduction Into A Lasting Connection.</h1>
               <p style={heroLead}>
                 Paper business cards are easy to hand out. They’re also easy to lose. CapturePass makes it effortless
-                for people to save your information instantly with a simple tap or scan.
+                for people to save your information instantly with a tap or a mobile QR code scan.
               </p>
               <p style={heroLeadSecondary}>No app. No typing. No wondering if they’ll remember you tomorrow.</p>
               <div style={heroButtons}>
@@ -210,10 +210,10 @@ export default function ContactCaptureNfcCardsPage() {
               contacts.
             </p>
             <p>
-              Most never do. Paper cards get misplaced. QR codes require someone to pull out their camera. Typing
-              names, phone numbers, and email addresses creates friction. CapturePass removes every unnecessary step.
+              Most never do. Paper cards get misplaced. Mobile QR codes remove friction. Typing names, phone numbers,
+              and email addresses creates friction. CapturePass removes every unnecessary step.
             </p>
-            <p>One tap opens your profile. One tap saves your information. That’s it.</p>
+            <p>One tap or scan opens your profile. One tap or scan saves your information. That’s it.</p>
           </article>
 
           <div className="home-usecase-grid">
@@ -282,7 +282,7 @@ export default function ContactCaptureNfcCardsPage() {
             <article className="home-step-card">
               <div className="home-step-eyebrow">Step One</div>
               <h3>Tap Your CapturePass Card</h3>
-              <p>Your customer taps your NFC card or scans the QR code.</p>
+              <p>Your customer taps your NFC card or scans the mobile QR code.</p>
             </article>
             <article className="home-step-card">
               <div className="home-step-eyebrow">Step Two</div>

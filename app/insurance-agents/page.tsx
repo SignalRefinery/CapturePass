@@ -42,7 +42,7 @@ export default function InsuranceAgentsPage() {
       <IndustryLandingPage
         actionLinks={[
           { href: "/business/pricing", label: "View Business Pricing", primary: true },
-          { href: "/contact-capture-nfc-cards", label: "Contact Capture NFC Cards" }
+          { href: "/contact-capture-nfc-cards", label: "Contact Capture" }
         ]}
         audienceLabel="Insurance Agents"
         benefits={[
@@ -73,14 +73,14 @@ export default function InsuranceAgentsPage() {
           { href: "/contact-capture-nfc-cards", label: "Contact Capture" }
         ]}
         proofPoints={[
-          { label: "Quote ready", copy: "One tap can send prospects to a quote or appointment page." },
+          { label: "Quote ready", copy: "One tap or scan can send prospects to a quote or appointment page." },
           { label: "Coverage shared", copy: "Share service, claims, and review links without confusion." },
           { label: "Relationships kept", copy: "Your name stays attached to the client after the first conversation." }
         ]}
         relatedLinks={[
           { href: "/business", label: "Business" },
           { href: "/business/pricing", label: "Business Pricing" },
-          { href: "/contact-capture-nfc-cards", label: "Contact Capture NFC Cards" },
+          { href: "/contact-capture-nfc-cards", label: "Contact Capture" },
           { href: "/business/pricing", label: "Business Pricing" },
           { href: "/resources/digital-business-cards-for-insurance-agents", label: "Insurance Guide" },
           { href: "/springfield-il-contact-capture", label: "Springfield Contact Capture" }
@@ -96,7 +96,7 @@ export default function InsuranceAgentsPage() {
           {
             heading: "Community events and local visibility",
             paragraphs: [
-              "Community sponsorships, chamber events, and neighborhood outreach all benefit from a quick tap that keeps the follow-up path clear.",
+              "Community sponsorships, chamber events, and neighborhood outreach all benefit from a quick tap or scan that keeps the follow-up path clear.",
               "That is especially true when the conversation starts in person and the next step happens later."
             ]
           },

@@ -42,7 +42,7 @@ export default function DealershipsPage() {
       <IndustryLandingPage
         actionLinks={[
           { href: "/business/pricing", label: "View Business Pricing", primary: true },
-          { href: "/contact-capture-nfc-cards", label: "Contact Capture NFC Cards" }
+          { href: "/contact-capture-nfc-cards", label: "Contact Capture" }
         ]}
         audienceLabel="Dealerships"
         benefits={[
@@ -73,14 +73,14 @@ export default function DealershipsPage() {
           { href: "/contact-capture-nfc-cards", label: "Contact Capture" }
         ]}
         proofPoints={[
-          { label: "Inventory shared", copy: "One tap can route shoppers to inventory, specials, and trade-in tools." },
+          { label: "Inventory shared", copy: "One tap or scan can route shoppers to inventory, specials, and trade-in tools." },
           { label: "Lead captured", copy: "Turn the lot conversation into an owned contact and next-step follow-up." },
           { label: "Card reused", copy: "Update reps or locations without reprinting the whole stack." }
         ]}
         relatedLinks={[
           { href: "/business", label: "Business" },
           { href: "/business/pricing", label: "Business Pricing" },
-          { href: "/contact-capture-nfc-cards", label: "Contact Capture NFC Cards" },
+          { href: "/contact-capture-nfc-cards", label: "Contact Capture" },
           { href: "/business/pricing", label: "Business Pricing" },
           { href: "/resources/nfc-business-cards-for-car-dealerships", label: "Dealership Guide" },
           { href: "/springfield-il-nfc-business-cards", label: "Springfield NFC Cards" }

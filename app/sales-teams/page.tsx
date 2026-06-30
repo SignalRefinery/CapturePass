@@ -42,7 +42,7 @@ export default function SalesTeamsPage() {
       <IndustryLandingPage
         actionLinks={[
           { href: "/business/pricing", label: "View Business Pricing", primary: true },
-          { href: "/contact-capture-nfc-cards", label: "Contact Capture NFC Cards" }
+          { href: "/contact-capture-nfc-cards", label: "Contact Capture" }
         ]}
         audienceLabel="Sales Teams"
         benefits={[
@@ -73,14 +73,14 @@ export default function SalesTeamsPage() {
           { href: "/contact-capture-nfc-cards", label: "Contact Capture" }
         ]}
         proofPoints={[
-          { label: "Meeting captured", copy: "One tap saves a contact while the conversation is still fresh." },
+          { label: "Meeting captured", copy: "One tap or scan saves a contact while the conversation is still fresh." },
           { label: "Brand kept", copy: "Every rep can stay on-brand with the same system and template." },
           { label: "Follow-up ready", copy: "Send people directly to the next step without rebuilding the relationship flow." }
         ]}
         relatedLinks={[
           { href: "/business", label: "Business" },
           { href: "/business/pricing", label: "Business Pricing" },
-          { href: "/contact-capture-nfc-cards", label: "Contact Capture NFC Cards" },
+          { href: "/contact-capture-nfc-cards", label: "Contact Capture" },
           { href: "/business/pricing", label: "Business Pricing" },
           { href: "/resources/digital-business-cards-for-sales-teams", label: "Sales Guide" },
           { href: "/springfield-il-sales-team-business-cards", label: "Springfield Sales Cards" }

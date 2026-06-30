@@ -4,7 +4,7 @@ import { buildPageMetadata } from "@/lib/seo";
 
 export const metadata = buildPageMetadata({
   description:
-    "Partner with CapturePass to introduce NFC cards, QR profiles, and contact capture to creators, shops, teams, salespeople, and builders.",
+    "Partner with CapturePass to introduce NFC business cards and mobile QR codes, and contact capture to creators, shops, teams, salespeople, and builders.",
   path: "/partners",
   title: "Partners"
 });
@@ -37,7 +37,7 @@ export default function PartnersPage() {
         <div className="steps">
           <div className="step"><div className="num">01</div><div><h2>Share CapturePass</h2><p>Introduce CapturePass to people who should be easier to find, follow, book, buy from, or contact.</p></div></div>
           <div className="step"><div className="num">02</div><div><h2>Use your referral code</h2><p>Approved partners get a code so referrals can be tracked cleanly.</p></div></div>
-          <div className="step"><div className="num">03</div><div><h2>Help people capture contacts instantly</h2><p>Send creators and businesses a tool they can use immediately in real life.</p></div></div>
+          <div className="step"><div className="num">03</div><div><h2>Help people capture contacts instantly</h2><p>Send creators and businesses a tool they can use immediately in real life with NFC business cards and mobile QR codes.</p></div></div>
         </div>
       </section>
 
@@ -61,7 +61,7 @@ export default function PartnersPage() {
           </h2>
           <p className="editor-copy" style={{ maxWidth: 720, margin: "0 auto 22px" }}>
             Tell us who you work with, who you can reach, and how CapturePass fits
-            the way they share.
+            the way they share with NFC business cards and mobile QR codes.
           </p>
           <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 12 }}>
             <Link className="button primary" href="/partner-request">
@@ -71,7 +71,7 @@ export default function PartnersPage() {
               Business
             </Link>
             <Link className="button secondary" href="/contact-capture-nfc-cards">
-              Contact Capture NFC Cards
+              Contact Capture
             </Link>
             <Link className="button secondary" href="/resources">
               Resources

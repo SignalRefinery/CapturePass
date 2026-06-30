@@ -73,7 +73,7 @@ export default async function SignupPage({
         <h1>Start your CapturePass.</h1>
         <p>
           Make one fast page for your links, socials, bookings, music, business,
-          and contact info. Share it with a tap.
+          and contact info. Share it with NFC business cards and mobile QR codes.
         </p>
       </section>
 

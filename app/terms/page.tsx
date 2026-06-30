@@ -15,12 +15,12 @@ export default function TermsPage() {
             <section>
               <h2>1. Scope</h2>
               <p>
-                CapturePass is a one-tap sharing service that helps people share profiles,
-                links, socials, content, bookings, business information, and contact details.
+                CapturePass is a sharing service that helps people share profiles,
+                links, socials, content, bookings, business information, and contact details with NFC business cards and mobile QR codes.
               </p>
               <p>
                 These Terms of Service govern account creation, purchases, profile sharing,
-                card use, QR use, and all other use of CapturePass.
+                card use, mobile QR use, and all other use of CapturePass.
               </p>
             </section>
 
@@ -57,7 +57,7 @@ export default function TermsPage() {
               <p>
                 CapturePass profiles and linked destinations are meant to be shared. If you publish a
                 readable profile, the information on that profile may be visible to anyone who opens
-                the link, taps a card, or scans a QR code.
+                the link, taps a card, or scans a mobile QR code.
               </p>
               <p>
                 You are solely responsible for the information you choose to make available.

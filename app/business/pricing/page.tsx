@@ -106,11 +106,10 @@ export default function BusinessPricingPage() {
           tools your business needs to follow up faster.
         </p>
         <p style={{ ...heroCopy, marginTop: 14, fontSize: "clamp(15px, 1.6vw, 17px)", color: "var(--brand-primary)" }}>
-          CapturePass is the contact capture and relationship platform. NFC business cards are the tool. The value comes from
-          consistent employee branding, lead ownership, analytics, and CRM integration.
+          CapturePass is a contact capture and relationship platform. Whether customers tap an NFC business card or scan a mobile QR code, every interaction becomes an opportunity to capture a contact and strengthen your relationships. The value comes from consistent branding, lead ownership, analytics, and CRM integration.
         </p>
         <p style={{ ...heroCopy, marginTop: 14, fontSize: "clamp(15px, 1.6vw, 17px)", color: "var(--brand-primary)" }}>
-          Works alongside your existing CRM. No replacement required.
+          Works alongside your existing CRM. No replacement required, whether your team shares a card or a mobile QR code.
         </p>
         <p style={planClarification}>
           All business plans include the same platform capabilities. Choose the seat count and location support that fits your organization.
@@ -132,7 +131,7 @@ export default function BusinessPricingPage() {
             </div>
 
             <p style={businessIntro}>
-              CapturePass helps teams capture contact information, follow up faster, and protect valuable relationships when employees join, leave, or change roles.
+              CapturePass helps teams capture contact information, follow up faster, and protect valuable relationships when employees join, leave, or change roles, whether customers tap a card or scan a mobile QR code.
             </p>
           </div>
 
@@ -193,7 +192,7 @@ export default function BusinessPricingPage() {
           </h2>
           <p style={{ margin: 0, color: "#5f6674", fontSize: 16, lineHeight: 1.62, fontWeight: 500 }}>
             Visit the industry pages for dealerships, real estate agents, insurance agents, sales teams,
-            and contact capture workflows built for business teams.
+            and contact capture workflows built for business teams using cards and mobile QR codes.
           </p>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginTop: 18 }}>
             <Link className="button secondary" href="/dealerships">
@@ -229,7 +228,7 @@ export default function BusinessPricingPage() {
             Explore the playbook behind contact capture rollout.
           </h2>
           <p style={{ margin: 0, color: "#5f6674", fontSize: 16, lineHeight: 1.62, fontWeight: 500 }}>
-            CapturePass resources explain contact capture, team branding, CRM workflows, and industry-specific use cases.
+            CapturePass resources explain contact capture, team branding, CRM workflows, and industry-specific use cases for teams using cards and mobile QR codes.
           </p>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginTop: 18 }}>
             <Link className="button secondary" href="/resources">

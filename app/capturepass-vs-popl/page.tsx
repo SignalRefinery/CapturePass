@@ -10,13 +10,13 @@ export const metadata = buildPageMetadata({
   description:
     "Compare CapturePass vs Popl for sales teams, dealerships, insurance agencies, real estate brokerages, and growing businesses. Learn the differences in lead capture, team management, analytics, and relationship retention.",
   path: "/capturepass-vs-popl",
-  title: "CapturePass vs Popl | Which Digital Business Card Platform Is Better For Sales Teams?"
+  title: "CapturePass vs Popl | Which Contact Capture Platform Is Better For Sales Teams?"
 });
 
 const comparisonRows = [
-  { capability: "NFC Cards", taptagg: "Yes", popl: "Yes" },
-  { capability: "QR Code Sharing", taptagg: "Yes", popl: "Yes" },
-  { capability: "Digital Profiles", taptagg: "Yes", popl: "Yes" },
+  { capability: "NFC Business Cards", taptagg: "Yes", popl: "Yes" },
+  { capability: "Mobile QR Codes", taptagg: "Yes", popl: "Yes" },
+  { capability: "Contact Profiles", taptagg: "Yes", popl: "Yes" },
   { capability: "Contact Capture", taptagg: "Yes", popl: "Yes" },
   { capability: "Team Management", taptagg: "Yes", popl: "Yes" },
   { capability: "Analytics", taptagg: "Yes", popl: "Yes" },
@@ -75,12 +75,12 @@ const productSchema = {
   "@type": "Product",
   name: "CapturePass",
   description:
-    "CapturePass is a digital business card and lead capture platform for sales teams, dealerships, insurance agencies, real estate brokerages, and growing businesses.",
+    "CapturePass is a contact capture and relationship platform for sales teams, dealerships, insurance agencies, real estate brokerages, and growing businesses.",
   brand: {
     "@type": "Brand",
     name: "CapturePass"
   },
-  category: "Digital business card and lead capture platform",
+  category: "Contact capture and relationship platform",
   url: canonicalUrl
 };
 
@@ -127,12 +127,12 @@ export default function CapturePassVsPoplPage() {
             fontWeight: 800
           }}
         >
-          Which Digital Business Card Platform Is Better For Sales Teams?
+          Which Contact Capture Platform Is Better For Sales Teams?
         </h2>
 
         <div style={heroCopyWrap}>
           <p style={heroCopy}>
-            Popl is one of the most recognized names in digital business cards and event lead capture.
+            Popl is one of the most recognized names in contact capture and event lead generation.
             It&apos;s a powerful platform used by organizations around the world to collect contacts at conferences,
             trade shows, and networking events.
           </p>
@@ -149,12 +149,12 @@ export default function CapturePassVsPoplPage() {
 
           <p style={heroCopy}>The real question is:</p>
 
-          <p style={heroCopy}>What happens after the tap?</p>
+          <p style={heroCopy}>What happens after the tap or scan?</p>
 
           <p style={heroCopy}>CapturePass was built around that question.</p>
 
           <p style={heroCopy}>
-            Instead of focusing solely on digital business card sharing, CapturePass helps organizations capture opportunities,
+            Instead of focusing solely on card sharing, CapturePass helps organizations capture opportunities,
             retain customer relationships, measure engagement, and maintain visibility across their sales team.
           </p>
 
@@ -177,10 +177,10 @@ export default function CapturePassVsPoplPage() {
         <section className="card tagg-card" style={panelStyle}>
           <div className="dashboard-kicker">Quick Comparison</div>
           <p style={sectionIntro}>
-            Both CapturePass and Popl provide many of the core capabilities businesses expect from a modern digital business card platform.
+            Both CapturePass and Popl provide many of the core capabilities businesses expect from a modern contact capture platform.
           </p>
           <p style={sectionIntro}>
-            If all you need is a digital business card, either platform may meet your needs.
+            If all you need is a simple contact-sharing page, either platform may meet your needs.
           </p>
           <p style={sectionIntro}>
             The differences become clearer when you look at who the platform was designed to serve and what business outcomes it is trying to help organizations achieve.
@@ -235,7 +235,7 @@ export default function CapturePassVsPoplPage() {
           </div>
 
           <p style={sectionIntro}>
-            For many organizations, Popl is one of the first names that comes to mind when evaluating digital business card software.
+            For many organizations, Popl is one of the first names that comes to mind when evaluating contact capture software.
           </p>
 
           <p style={sectionIntro}>That recognition is well deserved.</p>
@@ -247,7 +247,7 @@ export default function CapturePassVsPoplPage() {
           <h3 style={subsectionHeading}>Built Around Relationships, Not Just Contact Exchange</h3>
 
           <p style={sectionIntro}>
-            Most digital business card platforms focus on one moment:
+            Most contact capture platforms focus on one moment:
           </p>
 
           <p style={sectionIntro}>The moment two people exchange information.</p>
@@ -277,7 +277,7 @@ export default function CapturePassVsPoplPage() {
           </div>
 
           <p style={sectionIntro}>
-            The goal isn&apos;t simply to hand someone a digital business card.
+            The goal isn&apos;t simply to hand someone a contact page.
           </p>
 
           <p style={sectionIntro}>
@@ -351,7 +351,7 @@ export default function CapturePassVsPoplPage() {
 
           <p style={sectionIntro}>This is where the conversation becomes different.</p>
 
-          <p style={sectionIntro}>Most digital business card companies talk about networking.</p>
+          <p style={sectionIntro}>Most contact capture companies talk about networking.</p>
 
           <p style={sectionIntro}>Dealerships don&apos;t have a networking problem.</p>
 
@@ -372,7 +372,7 @@ export default function CapturePassVsPoplPage() {
           <p style={sectionIntro}>What happens to future service referrals?</p>
 
           <p style={sectionIntro}>
-            These questions matter far more than whether someone can share a digital profile.
+            These questions matter far more than whether someone can share a contact page.
           </p>
 
           <h3 style={subsectionHeading}>Lead Ownership</h3>
@@ -406,7 +406,7 @@ export default function CapturePassVsPoplPage() {
           </p>
 
           <p style={sectionIntro}>
-            These are business challenges that rarely appear on digital business card comparison pages.
+            These are business challenges that rarely appear on contact capture comparison pages.
           </p>
 
           <p style={sectionIntro}>
@@ -450,7 +450,7 @@ export default function CapturePassVsPoplPage() {
         <section className="card tagg-card tagg-card-feature" style={finalCtaPanel}>
           <h2 style={finalHeading}>Ready To Turn Every Handshake Into A Prospect?</h2>
 
-          <p style={finalCopy}>Digital business cards are easy.</p>
+          <p style={finalCopy}>Sharing information is easy.</p>
 
           <p style={finalCopy}>
             Building systems that help your organization capture opportunities and maintain customer relationships is harder.

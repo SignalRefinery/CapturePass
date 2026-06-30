@@ -16,7 +16,7 @@ export default function PrivacyPage() {
               <h2>1. Scope</h2>
               <p>
                 CapturePass is designed to help you share your profile, links, socials, content,
-                booking pages, business information, and contact details with a tap or scan.
+                booking pages, business information, and contact details with NFC business cards and mobile QR codes.
               </p>
               <p>
                 This Privacy Policy explains what information we collect, how it is used, and how
@@ -55,10 +55,10 @@ export default function PrivacyPage() {
               <p>
                 CapturePass profiles and linked destinations are meant to be shared. If you publish a
                 readable profile, information on that profile may be visible to anyone who opens
-                the link, taps a card, or scans a QR code.
+                the link, taps a card, or scans a mobile QR code.
               </p>
               <p>
-                CapturePass may also issue anonymized URLs for cards, QR codes, and direct sharing.
+                CapturePass may also issue anonymized URLs for cards, mobile QR codes, and direct sharing.
                 You are responsible for the information you choose to make available through your profile.
               </p>
             </section>

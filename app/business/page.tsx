@@ -6,7 +6,7 @@ import { buildPageMetadata, buildSoftwareApplicationJsonLd, SITE_DESCRIPTION } f
 
 export const metadata = buildPageMetadata({
   description:
-    "CapturePass for sales teams, dealerships, real estate teams, insurance agents, and field sales organizations that need contact capture and lead ownership.",
+    "CapturePass for sales teams, dealerships, real estate teams, insurance agents, and field sales organizations that need contact capture and lead ownership through NFC business cards and mobile QR codes.",
   path: "/business",
   title: "Business"
 });
@@ -55,7 +55,7 @@ const proofPoints = [
   {
     tagline: "Customers save the right employee instantly",
     title: "Customer saves contact",
-    value: "One tap",
+    value: "One tap or scan",
     copy: "Customers save the right employee before they leave the lot, open house, counter, or appointment."
   },
   {
@@ -178,8 +178,8 @@ export default async function BusinessPage({
           <p className="business-hero-tagline">Turn every customer interaction into a saved contact.</p>
           <p>
             CapturePass helps teams capture contacts, share information instantly, and keep relationship ownership
-            connected to the business. Give every employee a branded profile, CRM-ready follow-up, and reusable cards
-            that turn face-to-face conversations into trackable opportunities.
+            connected to the business. Give every employee a branded profile, CRM-ready follow-up, and reusable
+            NFC business cards and mobile QR codes that turn face-to-face conversations into trackable opportunities.
           </p>
           <div className="business-hero-actions">
             <Link className="button primary" href="/business/pricing">
@@ -225,7 +225,7 @@ export default async function BusinessPage({
           <h2>Not another CRM. The contact capture layer before the CRM.</h2>
           <p>Most businesses already have a CRM. The problem happens before the CRM.</p>
           <p>Customers forget business cards. Salespeople lose contact information. Conversations never become follow-up opportunities.</p>
-          <p>CapturePass helps your team capture contact information, share the right next step, and keep customers connected after they walk away.</p>
+          <p>CapturePass helps your team capture contact information, share the right next step, and keep customers connected after they walk away, whether they tap a card or scan a mobile QR code.</p>
         </div>
 
         <div className="business-list-grid">
@@ -267,7 +267,7 @@ export default async function BusinessPage({
           </h2>
           <p style={{ margin: 0, color: "#b6bcc8", fontSize: 16, lineHeight: 1.62, fontWeight: 500 }}>
             Explore tailored pages for dealerships, real estate agents, insurance agents, sales teams,
-            and NFC contact capture cards.
+            and NFC business cards and mobile QR codes.
           </p>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginTop: 18 }}>
             <Link className="button secondary" href="/dealerships">
@@ -283,7 +283,7 @@ export default async function BusinessPage({
               Sales Teams
             </Link>
             <Link className="button secondary" href="/contact-capture-nfc-cards">
-              Contact Capture NFC Cards
+              Contact Capture
             </Link>
           </div>
         </div>
@@ -304,7 +304,7 @@ export default async function BusinessPage({
             Read the CapturePass playbook.
           </h2>
           <p style={{ margin: 0, color: "#b6bcc8", fontSize: 16, lineHeight: 1.62, fontWeight: 500 }}>
-            Explore guides on NFC business cards, contact capture, and industry-specific workflows for teams
+            Explore guides on NFC business cards and mobile QR codes, contact capture, and industry-specific workflows for teams
             that want stronger follow-up.
           </p>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginTop: 18 }}>
@@ -365,7 +365,7 @@ export default async function BusinessPage({
         <div className="business-proof-copy">
           <h2>Your customers remember the conversation. Make sure they remember who to call.</h2>
           <p>
-            CapturePass combines physical NFC cards, QR sharing, and digital profiles so customers can save the right salesperson, agent, or team member instantly. When employees leave, cards and profiles can be reassigned without replacing printed materials, which protects relationship ownership and team accountability.
+            CapturePass combines NFC business cards and mobile QR codes so customers can save the right salesperson, agent, or team member instantly. When employees leave, cards and profiles can be reassigned without replacing printed materials, which protects relationship ownership and team accountability.
           </p>
           <div className="business-proof-checks" aria-label="Business-ready outcomes">
             <span>Contact saved</span>
@@ -403,7 +403,7 @@ export default async function BusinessPage({
         <details className="business-industry-item">
           <summary>Home Services</summary>
           <p>Technicians and estimators meet customers in person. Customers often need service later. Reviews and referrals are critical.</p>
-          <p><strong>CapturePass keeps your team one tap away.</strong></p>
+          <p><strong>CapturePass keeps your team one interaction away.</strong></p>
         </details>
 
         <details className="business-industry-item">

@@ -75,7 +75,7 @@ export default async function LoginPage({
         <h1>Log in to manage your CapturePass.</h1>
         <p>
           Update your links, socials, contact actions, and everything people see when
-          they tap.
+          they tap a card or scan a mobile QR code.
         </p>
       </section>
 

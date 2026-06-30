@@ -115,7 +115,7 @@ export function BusinessPricingPlans({ tiers }: { tiers: BusinessPricingTier[] }
             </div>
 
             <div style={businessTierDetails}>
-              <div>{tier.cards} NFC cards included at setup</div>
+              <div>{tier.cards} NFC cards and mobile QR access included at setup</div>
               <div style={rooftopSupport}>{rooftopDescriptions[tier.tier]}</div>
               <div style={setupFeeWrap}>
                 <span>${tier.setupFee} setup</span>

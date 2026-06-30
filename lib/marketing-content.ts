@@ -31,25 +31,25 @@ export type SpringfieldPage = {
 
 export const RESOURCE_CATEGORIES = [
   {
-    description: "Lead capture, inventory sharing, and showroom follow-up guidance for dealership teams.",
+    description: "Lead capture, inventory sharing, and showroom follow-up guidance for dealership teams using NFC business cards and mobile QR codes.",
     href: "/resources/category/dealerships",
     key: "dealerships",
     label: "Dealerships"
   },
   {
-    description: "Referral networking, relationship building, and follow-up workflows for insurance professionals.",
+    description: "Referral networking, relationship building, and follow-up workflows for insurance professionals using NFC business cards and mobile QR codes.",
     href: "/resources/category/insurance",
     key: "insurance",
     label: "Insurance"
   },
   {
-    description: "Open houses, vendor networks, and agent-specific contact capture strategies.",
+    description: "Open houses, vendor networks, and agent-specific contact capture strategies using NFC business cards and mobile QR codes.",
     href: "/resources/category/real-estate",
     key: "real-estate",
     label: "Real Estate"
   },
   {
-    description: "Team accountability, lead ownership, and turnover protection for sales organizations.",
+    description: "Team accountability, lead ownership, and turnover protection for sales organizations using NFC business cards and mobile QR codes.",
     href: "/resources/category/sales",
     key: "sales",
     label: "Sales"
@@ -59,11 +59,11 @@ export const RESOURCE_CATEGORIES = [
 export const RESOURCE_ARTICLES: ResourceArticle[] = [
   {
     category: "sales",
-    description: "A practical guide to how NFC business cards work, what happens on tap, and where they fit in a modern CapturePass workflow.",
-    excerpt: "Learn how NFC cards connect the physical handoff to a digital profile, a saved contact, and the next step in your funnel.",
+    description: "A practical guide to how NFC business cards and mobile QR codes work, what happens on tap or scan, and where they fit in a modern CapturePass workflow.",
+    excerpt: "Learn how NFC cards and mobile QR codes connect the physical handoff to a contact capture flow, a saved contact, and the next step in your funnel.",
     href: "/resources/how-nfc-business-cards-work",
     intro:
-      "NFC business cards are useful because they move someone from a quick in-person exchange into a digital page where they can save your contact, open your links, and continue the conversation without friction.",
+      "NFC business cards and mobile QR codes are useful because they move someone from a quick in-person exchange into a CapturePass page where they can save your contact, open your links, and continue the conversation without friction.",
     title: "How NFC Business Cards Work",
     relatedLinks: [
       { href: "/business/pricing", label: "Business Pricing" },
@@ -75,7 +75,7 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
         heading: "What NFC actually does",
         paragraphs: [
           "Near-field communication lets a phone open a link when it is brought close to a card. The card itself is simple; the value comes from the page it opens.",
-          "With CapturePass, that page can be a profile, contact capture flow, booking link, or industry-specific destination."
+          "With CapturePass, that page can be a contact capture flow, booking link, or industry-specific destination."
         ]
       },
       {
@@ -99,7 +99,7 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
     excerpt: "See why digital capture creates a cleaner follow-up workflow than a traditional business card exchange.",
     href: "/resources/contact-capture-vs-traditional-business-cards",
     intro:
-      "Traditional business cards are easy to hand out, but they are also easy to forget, lose, or toss after an event. Contact capture gives the handoff a second step that keeps the relationship alive.",
+      "Traditional business cards are easy to hand out, but they are also easy to forget, lose, or toss after an event. Contact capture gives the handoff a second step that keeps the relationship alive whether the person taps an NFC business card or scans a mobile QR code.",
     title: "Contact Capture vs Traditional Business Cards",
     relatedLinks: [
       { href: "/contact-capture-nfc-cards", label: "Contact Capture NFC Cards" },
@@ -124,18 +124,18 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
       {
         heading: "How CapturePass helps",
         paragraphs: [
-          "CapturePass combines a shareable profile, NFC or QR trigger, and a contact-oriented follow-up path so teams can keep the relationship moving."
+          "CapturePass combines a contact-oriented follow-up path with NFC business cards and mobile QR codes so teams can keep the relationship moving."
         ]
       }
     ]
   },
   {
     category: "sales",
-    description: "How sales teams can use digital business cards to keep lead ownership clear and contact sharing consistent.",
+    description: "How sales teams can use NFC business cards and mobile QR codes to keep lead ownership clear and contact sharing consistent.",
     excerpt: "A playbook for keeping every rep on-brand while protecting leads from being lost after the first meeting.",
     href: "/resources/digital-business-cards-for-sales-teams",
     intro:
-      "Sales teams need a tool that works in the room, at the conference, and in the follow-up sequence. Digital business cards can do that when they are tied to the right process.",
+      "Sales teams need a tool that works in the room, at the conference, and in the follow-up sequence. NFC business cards and mobile QR codes can do that when they are tied to the right process.",
     title: "Digital Business Cards for Sales Teams",
     relatedLinks: [
       { href: "/sales-teams", label: "Sales Teams" },
@@ -146,7 +146,7 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
       {
         heading: "Team accountability",
         paragraphs: [
-          "A good digital card system should let managers see which reps are using the tool and which conversations are turning into contacts.",
+          "A good contact capture system should let managers see which reps are using the tool and which conversations are turning into contacts.",
           "That creates a cleaner handoff between outreach, meetings, and CRM updates."
         ]
       },
@@ -159,7 +159,7 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
       {
         heading: "Turnover protection",
         paragraphs: [
-          "If someone changes roles or leaves, the same card can often be repurposed. That keeps the investment alive and reduces reprint waste."
+          "If someone changes roles or leaves, the same card or mobile QR code can often be repurposed. That keeps the investment alive and reduces reprint waste."
         ]
       }
     ]
@@ -201,11 +201,11 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
   },
   {
     category: "dealerships",
-    description: "How NFC business cards help dealerships capture leads, reduce follow-up loss, and support multi-location teams.",
+    description: "How NFC business cards and mobile QR codes help dealerships capture leads, reduce follow-up loss, and support multi-location teams.",
     excerpt: "A dealership-specific guide to test drives, CRM handoff, and showroom-to-follow-up workflows.",
     href: "/resources/nfc-business-cards-for-car-dealerships",
     intro:
-      "Dealership teams lose deals when the test drive ends, the salesperson changes desks, or the customer leaves with too many cards and too little context. NFC business cards help keep the relationship attached to the right rep.",
+      "Dealership teams lose deals when the test drive ends, the salesperson changes desks, or the customer leaves with too many cards and too little context. NFC business cards and mobile QR codes help keep the relationship attached to the right rep.",
     title: "NFC Business Cards for Car Dealerships",
     relatedLinks: [
       { href: "/dealerships", label: "Dealerships" },
@@ -230,18 +230,18 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
       {
         heading: "Multi-location support",
         paragraphs: [
-          "For dealer groups, reusable digital profiles help maintain continuity across rooftops and staff changes without reprinting every time someone moves."
+          "For dealer groups, reusable contact pages help maintain continuity across rooftops and staff changes without reprinting every time someone moves."
         ]
       }
     ]
   },
   {
     category: "insurance",
-    description: "How digital business cards help insurance agents build referral networks and keep long-term relationships active.",
+    description: "How NFC business cards and mobile QR codes help insurance agents build referral networks and keep long-term relationships active.",
     excerpt: "A useful insurance workflow guide focused on networking, events, and follow-up.",
     href: "/resources/digital-business-cards-for-insurance-agents",
     intro:
-      "Insurance relationships often start at an event or a referral and continue for years. A digital business card helps keep that relationship easy to reopen when someone needs help again.",
+      "Insurance relationships often start at an event or a referral and continue for years. NFC business cards and mobile QR codes help keep that relationship easy to reopen when someone needs help again.",
     title: "Digital Business Cards for Insurance Agents",
     relatedLinks: [
       { href: "/insurance-agents", label: "Insurance Agents" },
@@ -252,7 +252,7 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
       {
         heading: "Referral networking",
         paragraphs: [
-          "Insurance professionals rely on trusted referrals, community presence, and repeated exposure. A digital card makes it easier to stay in the referral path without asking someone to remember a paper card."
+          "Insurance professionals rely on trusted referrals, community presence, and repeated exposure. A contact capture page makes it easier to stay in the referral path without asking someone to remember a paper card."
         ]
       },
       {
@@ -264,18 +264,18 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
       {
         heading: "Long-term follow-up",
         paragraphs: [
-          "Coverage conversations are often revisited months later. A digital page keeps the agent easy to find when the time is right."
+          "Coverage conversations are often revisited months later. A contact page keeps the agent easy to find when the time is right."
         ]
       }
     ]
   },
   {
     category: "real-estate",
-    description: "Why NFC business cards are useful for realtors, open houses, vendor networks, and property-specific workflows.",
+    description: "Why NFC business cards and mobile QR codes are useful for realtors, open houses, vendor networks, and property-specific workflows.",
     excerpt: "An agent-focused guide to using CapturePass for property sharing and relationship building.",
     href: "/resources/nfc-business-cards-for-realtors",
     intro:
-      "Real estate deals move through open houses, vendor referrals, mortgage conversations, and property-specific follow-up. NFC business cards make those handoffs easier to manage.",
+      "Real estate deals move through open houses, vendor referrals, mortgage conversations, and property-specific follow-up. NFC business cards and mobile QR codes make those handoffs easier to manage.",
     title: "NFC Business Cards for Realtors",
     relatedLinks: [
       { href: "/real-estate-agents", label: "Real Estate Agents" },
@@ -293,13 +293,13 @@ export const RESOURCE_ARTICLES: ResourceArticle[] = [
       {
         heading: "Vendor and referral networks",
         paragraphs: [
-          "Agents work through lenders, inspectors, contractors, and other referral partners. A digital card helps keep those relationships organized and easy to revisit."
+          "Agents work through lenders, inspectors, contractors, and other referral partners. A contact capture page helps keep those relationships organized and easy to revisit."
         ]
       },
       {
         heading: "Property-specific use cases",
         paragraphs: [
-          "The same profile can support a specific listing, a community landing page, or a broader agent brand depending on the opportunity."
+          "The same contact page can support a specific listing, a community landing page, or a broader agent brand depending on the opportunity."
         ]
       }
     ]
@@ -310,10 +310,10 @@ export const SPRINGFIELD_PAGES: Record<string, SpringfieldPage> = {
   "springfield-il-nfc-business-cards": {
     title: "Springfield NFC Business Cards",
     description:
-      "CapturePass NFC business cards for Springfield, Illinois teams that want better contact capture, follow-up, and branded sharing.",
+      "CapturePass NFC business cards and mobile QR codes for Springfield, Illinois teams that want better contact capture, follow-up, and branded sharing.",
     href: "/springfield-il-nfc-business-cards",
     intro:
-      "If you are looking for NFC business cards in Springfield, Illinois, CapturePass helps you move from a quick in-person exchange to a branded page that supports contact capture, lead routing, and follow-up.",
+      "If you are looking for NFC business cards or mobile QR codes in Springfield, Illinois, CapturePass helps you move from a quick in-person exchange to a branded page that supports contact capture, lead routing, and follow-up.",
     relatedLinks: [
       { href: "/dealerships", label: "Dealerships" },
       { href: "/business", label: "Business" },
@@ -324,7 +324,7 @@ export const SPRINGFIELD_PAGES: Record<string, SpringfieldPage> = {
       {
         heading: "Why Springfield teams use NFC cards",
         paragraphs: [
-          "Springfield businesses often depend on in-person relationships, local referrals, and fast follow-up. NFC cards help the handoff feel modern while keeping the process simple.",
+          "Springfield businesses often depend on in-person relationships, local referrals, and fast follow-up. NFC business cards and mobile QR codes help the handoff feel modern while keeping the process simple.",
           "They are especially useful when a rep needs to share their contact information, a booking link, or a business page without asking someone to type a long URL."
         ]
       },
@@ -345,10 +345,10 @@ export const SPRINGFIELD_PAGES: Record<string, SpringfieldPage> = {
   "springfield-il-digital-business-cards": {
     title: "Springfield Digital Business Cards",
     description:
-      "Digital business cards for Springfield, Illinois professionals who want stronger sharing, better links, and easier contact capture.",
+      "NFC business cards and mobile QR codes for Springfield, Illinois professionals who want stronger sharing, better links, and easier contact capture.",
     href: "/springfield-il-digital-business-cards",
     intro:
-      "Digital business cards work well in Springfield because they can be shared in person, by text, or after a meeting, while still keeping the same branded profile in front of the recipient.",
+      "NFC business cards and mobile QR codes work well in Springfield because they can be shared in person, by text, or after a meeting, while still keeping the same branded page in front of the recipient.",
     relatedLinks: [
       { href: "/business/pricing", label: "Business Pricing" },
       { href: "/business-individual", label: "Business Individual" },
@@ -358,13 +358,13 @@ export const SPRINGFIELD_PAGES: Record<string, SpringfieldPage> = {
       {
         heading: "Helpful for local networking",
         paragraphs: [
-          "Springfield networking events, chamber meetups, and referral conversations all benefit from a profile that is easy to save and revisit."
+          "Springfield networking events, chamber meetups, and referral conversations all benefit from a page that is easy to save and revisit."
         ]
       },
       {
         heading: "Better than a static card",
         paragraphs: [
-          "Unlike a paper card, a digital card can be updated without reprinting, which makes it easier to keep links current and accurate."
+          "Unlike a paper card, a branded page can be updated without reprinting, which makes it easier to keep links current and accurate."
         ]
       },
       {
@@ -411,10 +411,10 @@ export const SPRINGFIELD_PAGES: Record<string, SpringfieldPage> = {
   "springfield-il-sales-team-business-cards": {
     title: "Springfield Sales Team Business Cards",
     description:
-      "Springfield sales team business cards from CapturePass for reps who need lead ownership, contact capture, and better follow-up.",
+      "Springfield sales team business cards from CapturePass for reps who need lead ownership, contact capture, and better follow-up with NFC business cards and mobile QR codes.",
     href: "/springfield-il-sales-team-business-cards",
     intro:
-      "Sales teams in Springfield need cards that help reps stay on-brand while keeping the relationship attached to the person who made it. CapturePass supports that flow without adding friction.",
+      "Sales teams in Springfield need cards and mobile QR codes that help reps stay on-brand while keeping the relationship attached to the person who made it. CapturePass supports that flow without adding friction.",
     relatedLinks: [
       { href: "/sales-teams", label: "Sales Teams" },
       { href: "/business/pricing", label: "Business Pricing" },
@@ -430,7 +430,7 @@ export const SPRINGFIELD_PAGES: Record<string, SpringfieldPage> = {
       {
         heading: "Protecting the relationship",
         paragraphs: [
-          "If a salesperson changes roles or leaves, the card should not turn into dead inventory. Reusable digital profiles help keep the investment useful."
+          "If a salesperson changes roles or leaves, the card should not turn into dead inventory. Reusable contact pages help keep the investment useful."
         ]
       },
       {

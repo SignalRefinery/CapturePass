@@ -9,9 +9,9 @@ const canonicalUrl = "https://capturepass.com/best-nfc-business-card-for-car-dea
 
 export const metadata: Metadata = buildPageMetadata({
   description:
-    "See why CapturePass is the best NFC business card platform for car dealerships, automotive sales teams, independent dealers, and multi-rooftop dealer groups.",
+    "See why CapturePass is the best contact capture platform for car dealerships, automotive sales teams, independent dealers, and multi-rooftop dealer groups using NFC business cards and mobile QR codes.",
   path: "/best-nfc-business-card-for-car-dealerships",
-  title: "Best NFC Business Card For Car Dealerships | Lead Capture Cards | CapturePass"
+  title: "Best Contact Capture Platform For Car Dealerships | CapturePass"
 });
 
 const openGraph = metadata.openGraph;
@@ -21,17 +21,17 @@ const faqItems = [
   {
     question: "Do NFC business cards work on iPhone?",
     answer:
-      "Yes. Modern iPhones can read NFC cards without needing a separate app. Customers can also use a QR code if they prefer scanning instead of tapping."
+      "Yes. Modern iPhones can read NFC cards without needing a separate app. Customers can also use a mobile QR code if they prefer scanning instead of tapping."
   },
   {
     question: "Do NFC business cards work on Android?",
     answer:
-      "Yes. Most modern Android phones support NFC. CapturePass cards can also include QR codes for customers who prefer scanning."
+      "Yes. Most modern Android phones support NFC. CapturePass cards can also include mobile QR codes for customers who prefer scanning."
   },
   {
     question: "Are NFC business cards useful for car dealerships?",
     answer:
-      "Yes. NFC business cards can help dealership employees share contact information quickly, capture prospect information, and create a more professional follow-up experience."
+      "Yes. NFC business cards and mobile QR codes can help dealership employees share contact information quickly, capture prospect information, and create a more professional follow-up experience."
   },
   {
     question: "Can dealership managers track usage?",
@@ -150,7 +150,7 @@ const heroParagraphs = [
   "It cannot help a sales manager understand which employees are creating opportunities.",
   "It cannot protect the dealership when a salesperson leaves.",
   "CapturePass was built for dealerships that want more from every handshake, every lot conversation, every test drive, every service interaction, and every referral opportunity.",
-  "If your dealership wants NFC business cards that do more than look modern, CapturePass was designed for that."
+  "If your dealership wants NFC business cards and mobile QR codes that do more than look modern, CapturePass was designed for that."
 ];
 
 export default function BestNfcBusinessCardForCarDealershipsPage() {
@@ -171,7 +171,7 @@ export default function BestNfcBusinessCardForCarDealershipsPage() {
       <JsonLd data={faqSchema} />
 
       <section className="simple-hero" style={heroStyle}>
-        <h1 style={heroHeading}>The Best NFC Business Card For Car Dealerships</h1>
+        <h1 style={heroHeading}>The Best Contact Capture Platform For Car Dealerships</h1>
         <h2 style={heroSubheading}>Built For Automotive Sales Teams That Need More Than A Digital Profile</h2>
         <div style={heroCopyWrap}>{renderParagraphs(heroParagraphs)}</div>
         <div style={heroActions}>
@@ -236,7 +236,7 @@ export default function BestNfcBusinessCardForCarDealershipsPage() {
               "What happens if that salesperson leaves?"
             ])}
           </div>
-          <p style={bodyCopyStyle}>That is where NFC business cards become more than a novelty.</p>
+          <p style={bodyCopyStyle}>That is where NFC business cards and mobile QR codes become more than a novelty.</p>
           <p style={bodyCopyStyle}>They become part of the dealership{"'"}s sales process.</p>
         </section>
 
@@ -276,7 +276,7 @@ export default function BestNfcBusinessCardForCarDealershipsPage() {
             "A small team may handle sales, financing conversations, service coordination, follow-up, and customer relationships all at once.",
             "That makes every conversation valuable.",
             "CapturePass helps independent dealers create a more professional experience without adding complicated software.",
-            "Salespeople can tap or scan to share their profile.",
+            "Salespeople can tap a card or scan a mobile QR code to share their profile.",
             "Customers can save contact information quickly.",
             "Prospects can share their own information back.",
             "The dealership can maintain visibility into activity.",
@@ -322,7 +322,7 @@ export default function BestNfcBusinessCardForCarDealershipsPage() {
             ])}
           </div>
           {renderParagraphs([
-            "NFC cards are only the starting point.",
+            "NFC business cards are only the starting point.",
             "For dealer groups, the real value comes from management, visibility, and repeatable process."
           ])}
         </section>
@@ -347,7 +347,7 @@ export default function BestNfcBusinessCardForCarDealershipsPage() {
         <section className="card tagg-card" style={sectionCard}>
           <h2 style={sectionHeading}>Contact Capture Matters More Than Contact Sharing</h2>
           {renderParagraphs([
-            "Most digital business card platforms focus on sharing the employee's information.",
+            "Most contact-sharing platforms focus on sharing the employee's information.",
             "That is useful.",
             "But for dealerships, the bigger opportunity is capturing the customer's information.",
             "If a salesperson taps a card and the customer saves the contact, that is good.",
@@ -399,7 +399,7 @@ export default function BestNfcBusinessCardForCarDealershipsPage() {
               "Turn more face-to-face conversations into measurable opportunities"
             ])}
           </div>
-          <p style={bodyCopyStyle}>That is why CapturePass is more than an NFC business card.</p>
+          <p style={bodyCopyStyle}>That is why CapturePass is more than a contact-sharing tool.</p>
           <p style={bodyCopyStyle}>
             It is a lead capture and relationship retention tool for automotive sales teams.
           </p>
@@ -410,7 +410,7 @@ export default function BestNfcBusinessCardForCarDealershipsPage() {
           {renderParagraphs([
             "Not every dealership needs the same thing.",
             "If your dealership only wants the cheapest possible NFC card, CapturePass may not be the best fit.",
-            "If your dealership only wants a simple digital profile with no contact capture, no team visibility, and no management layer, there are basic NFC card options that may be enough.",
+            "If your dealership only wants a simple contact page with no contact capture, no team visibility, and no management layer, there are basic NFC card options that may be enough.",
             "But if your dealership wants a platform built around sales activity, lead capture, team visibility, and relationship retention, CapturePass is worth a serious look."
           ])}
         </section>

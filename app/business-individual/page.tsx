@@ -7,7 +7,7 @@ import { buildFaqJsonLd, buildPageMetadata, buildProductJsonLd } from "@/lib/seo
 
 export const metadata = buildPageMetadata({
   description:
-    "Business Individual for solo professionals who need contact capture, branded NFC cards, QR sharing, analytics, and CRM-ready exports.",
+    "Business Individual for solo professionals who need contact capture, branded NFC cards and mobile QR codes, analytics, and CRM-ready exports.",
   path: "/business-individual",
   title: "Business Individual"
 });
@@ -145,7 +145,7 @@ export default async function BusinessIndividualPage({
           Capture contacts, track engagement, and stay connected with prospects, clients, and referral partners - without needing a full team account.
         </p>
         <p style={{ ...heroCopy, marginTop: 10, fontSize: "clamp(15px, 1.6vw, 17px)", color: "var(--brand-gold)" }}>
-          Digital business cards are included, but the main value is contact capture, CRM-ready exports, and owned relationships.
+          NFC business cards and mobile QR codes are included, but the main value is contact capture, CRM-ready exports, and owned relationships.
         </p>
         <div style={launchCallout}>
           <span>Limited Launch Offer</span>
@@ -240,7 +240,7 @@ export default async function BusinessIndividualPage({
               <h2 style={sideHeading}>See the broader CapturePass funnel.</h2>
               <p style={sideCopy}>
                 Compare pricing, explore business plans, and visit the industry landing pages for dealerships,
-                real estate agents, insurance agents, sales teams, and NFC contact capture cards.
+                real estate agents, insurance agents, sales teams, and NFC business cards and mobile QR codes.
               </p>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
                 <Link className="button secondary" href="/business/pricing" style={{ width: "fit-content" }}>

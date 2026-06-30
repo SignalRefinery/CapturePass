@@ -42,7 +42,7 @@ export default function RealEstateAgentsPage() {
       <IndustryLandingPage
         actionLinks={[
           { href: "/business/pricing", label: "View Business Pricing", primary: true },
-          { href: "/contact-capture-nfc-cards", label: "Contact Capture NFC Cards" }
+          { href: "/contact-capture-nfc-cards", label: "Contact Capture" }
         ]}
         audienceLabel="Real Estate Agents"
         benefits={[
@@ -73,14 +73,14 @@ export default function RealEstateAgentsPage() {
           { href: "/contact-capture-nfc-cards", label: "Contact Capture" }
         ]}
         proofPoints={[
-          { label: "Listing shared", copy: "One tap can send buyers straight to your active listings." },
+          { label: "Listing shared", copy: "One tap or scan can send buyers straight to your active listings." },
           { label: "Lead saved", copy: "Visitors can save your info and submit contact details in seconds." },
           { label: "Open house ready", copy: "Use the same profile for signs, cards, and follow-up." }
         ]}
         relatedLinks={[
           { href: "/business", label: "Business" },
           { href: "/business/pricing", label: "Business Pricing" },
-          { href: "/contact-capture-nfc-cards", label: "Contact Capture NFC Cards" },
+          { href: "/contact-capture-nfc-cards", label: "Contact Capture" },
           { href: "/business/pricing", label: "Business Pricing" },
           { href: "/resources/nfc-business-cards-for-realtors", label: "Real Estate Guide" },
           { href: "/springfield-il-digital-business-cards", label: "Springfield Digital Cards" }
@@ -103,7 +103,7 @@ export default function RealEstateAgentsPage() {
           {
             heading: "Mortgage partner relationships",
             paragraphs: [
-              "Mortgage conversations often happen alongside the home search itself, so a shared digital profile helps the handoff feel natural and fast.",
+              "Mortgage conversations often happen alongside the home search itself, so a shared contact page helps the handoff feel natural and fast.",
               "The same page can point to lender partners, pre-qualification steps, or property search links."
             ]
           },

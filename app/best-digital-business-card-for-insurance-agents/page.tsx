@@ -9,9 +9,9 @@ const canonicalUrl = "https://capturepass.com/best-digital-business-card-for-ins
 
 export const metadata: Metadata = buildPageMetadata({
   description:
-    "See why insurance agents use CapturePass to capture leads, strengthen referral relationships, improve follow-up, and maintain long-term client connections.",
+    "See why insurance agents use CapturePass to capture leads, strengthen referral relationships, improve follow-up, and maintain long-term client connections with NFC business cards and mobile QR codes.",
   path: "/best-digital-business-card-for-insurance-agents",
-  title: "Best Digital Business Card For Insurance Agents | CapturePass"
+  title: "Best Contact Capture Platform For Insurance Agents | CapturePass"
 });
 
 const openGraph = metadata.openGraph;
@@ -75,7 +75,7 @@ const referralCopy = [
 ];
 
 const captureCopy = [
-  "Most digital business card platforms focus on helping agents share information.",
+  "Most contact-sharing platforms focus on helping agents share information.",
   "That is useful.",
   "But sharing information is only half the equation.",
   "Capturing information creates opportunity.",
@@ -96,7 +96,7 @@ const agencyCopy = [
   "Relationship retention",
   "Long-term growth",
   "They need tools that can support multiple producers while maintaining a professional customer experience.",
-  "That is why many agencies look beyond simple digital business cards and evaluate broader relationship-building tools."
+  "That is why many agencies look beyond simple contact-sharing tools and evaluate broader relationship-building tools."
 ];
 
 const chooseCopy = [
@@ -108,18 +108,18 @@ const chooseCopy = [
   "Supporting referrals.",
   "Creating opportunities for follow-up.",
   "Helping conversations become clients.",
-  "That is why CapturePass is more than a digital business card.",
+  "That is why CapturePass is more than a contact-sharing tool.",
   "It is a relationship-building tool."
 ];
 
 const faqItems = [
   {
-    question: "Are digital business cards useful for insurance agents?",
+    question: "Are contact capture platforms useful for insurance agents?",
     answer:
       "Yes. They make it easier to share information, maintain professional branding, and support networking and referral activities."
   },
   {
-    question: "Can digital business cards help insurance agents generate referrals?",
+    question: "Can contact capture platforms help insurance agents generate referrals?",
     answer:
       "They can make referral exchanges easier and help agents maintain connections with referral partners."
   },
@@ -147,12 +147,12 @@ const productSchema = {
   "@type": "Product",
   name: "CapturePass",
   description:
-    "CapturePass is a digital business card, contact capture, and relationship-building platform for insurance agents.",
+    "CapturePass is a contact capture and relationship-building platform for insurance agents.",
   brand: {
     "@type": "Brand",
     name: "CapturePass"
   },
-  category: "Digital business card, contact capture, and relationship-building platform",
+  category: "Contact capture and relationship-building platform",
   url: canonicalUrl
 };
 
@@ -192,7 +192,7 @@ export default function BestDigitalBusinessCardForInsuranceAgentsPage() {
       <JsonLd data={faqSchema} />
 
       <section className="simple-hero" style={heroStyle}>
-        <h1 style={heroHeading}>The Best Digital Business Card For Insurance Agents</h1>
+        <h1 style={heroHeading}>The Best Contact Capture Platform For Insurance Agents</h1>
         <h2 style={heroSubheading}>Because Insurance Is Built On Relationships</h2>
         <div style={heroCopyWrap}>{renderParagraphs(heroCopy)}</div>
         <div style={heroActions}>

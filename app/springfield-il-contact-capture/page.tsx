@@ -26,7 +26,7 @@ export default function SpringfieldContactCapturePage() {
         navLinks={[
           { href: "/", label: "Home" },
           { href: "/resources", label: "Resources" },
-          { href: "/contact-capture-nfc-cards", label: "Contact Capture NFC Cards" },
+          { href: "/contact-capture-nfc-cards", label: "Contact Capture" },
           { href: "/business/pricing", label: "Business Pricing" }
         ]}
         page={page}

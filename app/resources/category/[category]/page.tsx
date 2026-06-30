@@ -90,7 +90,7 @@ export default async function ResourceCategoryPage({
               Business Pricing
             </Link>
             <Link className="button secondary" href="/contact-capture-nfc-cards">
-              Contact Capture NFC Cards
+              Contact Capture
             </Link>
           </div>
         </section>

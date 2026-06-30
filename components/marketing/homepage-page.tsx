@@ -43,7 +43,7 @@ export function HomepagePage({ businessCards, footerLeft, initialAuth, resourceL
           Turn Every Handshake Into a <span className="home-accent">Prospect</span>.
         </h1>
         <p className="home-hero-copy">
-          Every introduction is a sales opportunity. CapturePass helps you share your contact information instantly,
+          Every introduction is a sales opportunity. CapturePass helps you share contact information instantly,
           capture new leads, and see who is engaging so more conversations become customers.
         </p>
         <p className="home-hero-copy home-hero-copy-secondary">
@@ -90,7 +90,7 @@ export function HomepagePage({ businessCards, footerLeft, initialAuth, resourceL
         <div className="home-step-grid">
           <article className="home-step-card">
             <h3>Share your profile</h3>
-            <p>Tap or scan to instantly share your professional profile.</p>
+            <p>Use NFC business cards and mobile QR codes to instantly share your professional profile.</p>
           </article>
           <article className="home-step-card">
             <h3>Capture their contact</h3>
@@ -106,13 +106,13 @@ export function HomepagePage({ businessCards, footerLeft, initialAuth, resourceL
       <section className="section-wrap home-section home-usecase-layout">
         <article className="home-feature-card">
           <h2>Built for professionals who grow their business through relationships.</h2>
-          <p>CapturePass helps every introduction lead to a clearer next step.</p>
+          <p>CapturePass helps every introduction lead to a clearer next step, whether people tap a card or scan a mobile QR code.</p>
           <div className="home-feature-links">
             <Link className="button secondary" href="/business">
               Explore business profiles
             </Link>
             <Link className="button secondary" href="/contact-capture-nfc-cards">
-              View NFC cards
+              View NFC cards and mobile QR codes
             </Link>
           </div>
         </article>

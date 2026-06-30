@@ -9,16 +9,16 @@ const canonicalUrl = "https://capturepass.com/best-digital-business-card-for-sal
 
 export const metadata: Metadata = buildPageMetadata({
   description:
-    "See why sales teams choose CapturePass to capture leads, improve follow-up, increase accountability, and turn more conversations into opportunities.",
+    "See why sales teams choose CapturePass to capture leads, improve follow-up, increase accountability, and turn more conversations into opportunities with NFC business cards and mobile QR codes.",
   path: "/best-digital-business-card-for-sales-teams",
-  title: "Best Digital Business Card For Sales Teams | CapturePass"
+  title: "Best Contact Capture Platform For Sales Teams | CapturePass"
 });
 
 const openGraph = metadata.openGraph;
 const twitter = metadata.twitter;
 
 const heroCopy = [
-  "Most digital business card platforms focus on one thing:",
+  "Most contact-sharing platforms focus on one thing:",
   "Sharing information.",
   "That matters.",
   "But sales teams are not measured on how many contacts they share.",
@@ -28,7 +28,7 @@ const heroCopy = [
   "Relationships maintained.",
   "Revenue closed.",
   "That changes the conversation.",
-  "The best digital business card for a sales team is not the one with the prettiest profile.",
+  "The best contact capture platform for a sales team is not the one with the prettiest profile.",
   "It is the one that helps create more business.",
   "That is the philosophy behind CapturePass."
 ];
@@ -89,7 +89,7 @@ const costOfLostContactsCopy = [
 ];
 
 const captureCopy = [
-  "Most digital business card providers focus on helping employees share their information.",
+  "Most contact-sharing providers focus on helping employees share their information.",
   "That is useful.",
   "But for sales teams, capturing information is often more valuable than sharing it.",
   "If a prospect receives your information, that is good.",
@@ -125,7 +125,7 @@ const turnoverCopy = [
   "The question is not whether it happens.",
   "The question is whether the organization is prepared when it does.",
   "Paper business cards offer no continuity.",
-  "Many digital business card platforms focus primarily on the individual.",
+  "Many contact-sharing tools focus primarily on the individual.",
   "Sales organizations often need something broader.",
   "They need visibility.",
   "Consistency.",
@@ -167,31 +167,31 @@ const chooseCapturePassCopy = [
   "Improve visibility",
   "Reduce relationship loss from turnover",
   "Create more measurable sales activity",
-  "That is why many organizations view CapturePass as more than a digital business card.",
+  "That is why many organizations view CapturePass as more than a contact-sharing tool.",
   "It becomes part of the sales process itself."
 ];
 
 const fitCopy = [
   "Not every team needs the same solution.",
-  "If your goal is simply to replace paper cards with a digital profile, there are many options available.",
+  "If your goal is simply to replace paper cards with a branded contact capture page, there are many options available.",
   "If your organization wants a platform built around lead capture, accountability, follow-up, visibility, and relationship retention, CapturePass deserves serious consideration.",
-  "The best digital business card is the one that helps your team create more business.",
+  "The best contact capture platform is the one that helps your team create more business.",
   "That is exactly what CapturePass was built to do."
 ];
 
 const faqItems = [
   {
-    question: "What is the best digital business card for sales teams?",
+    question: "What is the best contact capture platform for sales teams?",
     answer:
       "The best platform depends on your goals. Sales organizations often benefit from solutions that combine contact sharing, lead capture, analytics, team visibility, and administrative controls."
   },
   {
-    question: "Why do sales teams use digital business cards?",
+    question: "Why do sales teams use contact capture platforms?",
     answer:
-      "Digital business cards make it easier to share information, capture contacts, maintain brand consistency, and support follow-up activities."
+      "Contact capture platforms make it easier to share information, capture contacts, maintain brand consistency, and support follow-up activities."
   },
   {
-    question: "Can digital business cards help sales teams generate more leads?",
+    question: "Can contact capture platforms help sales teams generate more leads?",
     answer:
       "They can help create more opportunities by making contact sharing and contact capture easier during in-person interactions."
   },
@@ -229,12 +229,12 @@ const productSchema = {
   "@type": "Product",
   name: "CapturePass",
   description:
-    "CapturePass is a digital business card, lead capture, and sales enablement platform for sales teams.",
+    "CapturePass is a contact capture and sales enablement platform for sales teams.",
   brand: {
     "@type": "Brand",
     name: "CapturePass"
   },
-  category: "Digital business card, lead capture, and sales enablement platform",
+  category: "Contact capture and sales enablement platform",
   url: canonicalUrl
 };
 
@@ -276,7 +276,7 @@ export default function BestDigitalBusinessCardForSalesTeamsPage() {
       <JsonLd data={faqSchema} />
 
       <section className="simple-hero" style={heroStyle}>
-        <h1 style={heroHeading}>The Best Digital Business Card For Sales Teams</h1>
+        <h1 style={heroHeading}>The Best Contact Capture Platform For Sales Teams</h1>
         <h2 style={heroSubheading}>Because Sales Teams Need More Than Contact Sharing</h2>
         <div style={heroCopyWrap}>{renderParagraphs(heroCopy)}</div>
         <div style={heroActions}>
@@ -319,7 +319,7 @@ export default function BestDigitalBusinessCardForSalesTeamsPage() {
               </table>
             </div>
           </div>
-          <p style={bodyCopyStyle}>A digital business card should support the sales process.</p>
+          <p style={bodyCopyStyle}>A contact capture platform should support the sales process.</p>
           <p style={bodyCopyStyle}>Not just replace paper.</p>
         </section>
 
@@ -392,7 +392,7 @@ export default function BestDigitalBusinessCardForSalesTeamsPage() {
             "Your team is already meeting people.",
             "The question is whether those conversations become opportunities.",
             "CapturePass helps organizations capture more contacts, improve follow-up, create accountability, and maintain stronger customer relationships.",
-            "If your sales team is ready for more than a digital business card, request a demo today."
+            "If your sales team is ready for more than contact sharing alone, request a demo today."
           ])}
           <div style={heroActions}>
             <Link className="button primary" href="/contact">

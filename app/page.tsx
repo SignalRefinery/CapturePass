@@ -77,7 +77,7 @@ const resourceLinks = [
   { href: "/resources", label: "Resource Center" },
   { href: "/resources/category/sales", label: "Sales Resources" },
   { href: "/resources/category/dealerships", label: "Dealership Resources" },
-  { href: "/contact-capture-nfc-cards", label: "NFC Business Cards" }
+  { href: "/contact-capture-nfc-cards", label: "Contact Capture" }
 ];
 
 export default async function HomePage() {
