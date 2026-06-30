@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type CSSProperties } from "react";
 import Link from "next/link";
 
 type BillingInterval = "monthly" | "annual";
@@ -47,6 +47,14 @@ const sharedPlanFeatures = [
   "Team analytics dashboard",
   "CRM-ready lead delivery"
 ];
+
+const checkoutButtonStyle = {
+  width: "100%",
+  justifyContent: "center",
+  minHeight: 48,
+  borderRadius: 14,
+  fontWeight: 950
+};
 
 export function BusinessPricingPlans({ tiers }: { tiers: BusinessPricingTier[] }) {
   const [billingInterval, setBillingInterval] = useState<BillingInterval>("monthly");
@@ -125,12 +133,14 @@ export function BusinessPricingPlans({ tiers }: { tiers: BusinessPricingTier[] }
                 billingInterval={billingInterval}
                 buttonClassName="button primary"
                 promoCode={promoCode}
+                buttonStyle={checkoutButtonStyle}
               />
               <PlanChoice
                 option={tier.managed}
                 billingInterval={billingInterval}
                 buttonClassName="button secondary"
                 promoCode={promoCode}
+                buttonStyle={checkoutButtonStyle}
               />
             </div>
           </article>
@@ -152,12 +162,14 @@ function PlanChoice({
   billingInterval,
   buttonClassName,
   option,
-  promoCode
+  promoCode,
+  buttonStyle
 }: {
   billingInterval: BillingInterval;
   buttonClassName: string;
   option: PlanOption;
   promoCode: string;
+  buttonStyle: CSSProperties;
 }) {
   const isAnnual = billingInterval === "annual";
   const price = isAnnual ? `$${option.annualPrice.toLocaleString()}/yr` : `$${option.monthlyPrice}/mo`;
@@ -175,7 +187,7 @@ function PlanChoice({
         <span>{option.label}</span>
         {isAnnual ? <em>Save 10%</em> : null}
       </div>
-      <Link className={buttonClassName} href={href}>
+      <Link className={buttonClassName} href={href} style={buttonStyle}>
         {option.label === "Self-Managed" ? "Start Self-Managed" : "Start Managed"}
       </Link>
     </div>
@@ -281,17 +293,19 @@ const businessTierGrid = {
   gridColumn: "1 / -1",
   display: "grid",
   gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 280px), 1fr))",
-  gap: 16
+  gap: 22,
+  paddingTop: 10
 };
 
 const businessTierCard = {
   display: "grid",
   gap: 18,
   padding: 22,
-  borderRadius: 22,
-  border: "1px solid rgba(var(--brand-deep-rgb),.28)",
-  background:
-    "linear-gradient(180deg, rgba(255,255,255,.052), rgba(255,255,255,.018)), rgba(8,8,10,.72)"
+  borderRadius: 24,
+  border: "1px solid rgba(37,99,235,.14)",
+  boxShadow: "0 24px 70px rgba(15,23,42,.09)",
+  background: "linear-gradient(180deg, #ffffff 0%, #f8fbff 100%)",
+  color: "#0f172a"
 };
 
 const quoteLabel = {
@@ -304,7 +318,8 @@ const quoteLabel = {
 
 const quotePrice = {
   fontFamily: "var(--font-heading)",
-  fontSize: "clamp(28px, 4vw, 38px)",
+  color: "#2563eb",
+  fontSize: "clamp(30px, 4vw, 44px)",
   lineHeight: 1,
   letterSpacing: "-0.035em",
   fontWeight: 800
@@ -402,8 +417,8 @@ const businessPlanOption = {
   gap: 10,
   padding: 14,
   borderRadius: 16,
-  border: "1px solid rgba(255,255,255,.1)",
-  background: "rgba(255,255,255,.026)"
+  border: "1px solid rgba(37,99,235,.12)",
+  background: "#ffffff"
 };
 
 const planPriceBlock = {
