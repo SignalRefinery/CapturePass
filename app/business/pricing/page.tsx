@@ -91,6 +91,7 @@ export default function BusinessPricingPage() {
     <Shell
       footerLeft="Business Pricing"
       footerRight="CapturePass"
+      pageVariant="light"
       navLinks={[
         { href: "/", label: "Home" },
         { href: "/business", label: "Business" },
@@ -197,7 +198,7 @@ export default function BusinessPricingPage() {
           >
             Match your team to the right landing page.
           </h2>
-          <p style={{ margin: 0, color: "#b6bcc8", fontSize: 16, lineHeight: 1.62, fontWeight: 500 }}>
+          <p style={{ margin: 0, color: "#5f6674", fontSize: 16, lineHeight: 1.62, fontWeight: 500 }}>
             Visit the industry pages for dealerships, real estate agents, insurance agents, sales teams,
             and contact capture NFC cards.
           </p>
@@ -234,7 +235,7 @@ export default function BusinessPricingPage() {
           >
             Explore the playbook behind the rollout.
           </h2>
-          <p style={{ margin: 0, color: "#b6bcc8", fontSize: 16, lineHeight: 1.62, fontWeight: 500 }}>
+          <p style={{ margin: 0, color: "#5f6674", fontSize: 16, lineHeight: 1.62, fontWeight: 500 }}>
             CapturePass resources explain the workflows behind contact capture, NFC business cards, and industry-specific use cases.
           </p>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginTop: 18 }}>
@@ -270,7 +271,7 @@ const heroHeading = {
 const heroCopy = {
   maxWidth: 780,
   margin: "0 auto",
-  color: "#b6bcc8",
+  color: "#5f6674",
   fontSize: "clamp(18px, 2vw, 21px)",
   lineHeight: 1.6,
   fontWeight: 500
@@ -281,9 +282,9 @@ const planClarification = {
   margin: "22px auto 0",
   padding: "16px 18px",
   borderRadius: 18,
-  border: "1px solid rgba(var(--brand-deep-rgb),.3)",
-  background: "rgba(var(--brand-primary-rgb),.1)",
-  color: "#ffffff",
+  border: "1px solid rgba(var(--brand-primary-rgb),.16)",
+  background: "linear-gradient(180deg, rgba(255,255,255,.96), rgba(238,242,247,.92))",
+  color: "#0f172a",
   fontSize: "clamp(16px, 1.8vw, 19px)",
   lineHeight: 1.5,
   fontWeight: 800
@@ -296,15 +297,15 @@ const launchPromotion = {
   gap: 8,
   padding: "18px 20px",
   borderRadius: 22,
-  border: "1px solid rgba(34,197,94,.32)",
+  border: "1px solid rgba(var(--brand-success-rgb),.22)",
   background:
-    "radial-gradient(320px 140px at 18% 0%, rgba(34,197,94,.18), transparent 72%), linear-gradient(135deg, rgba(34,197,94,.12), rgba(var(--brand-primary-rgb),.1))",
-  color: "#ffffff",
-  boxShadow: "0 22px 54px rgba(0,0,0,.28)"
+    "radial-gradient(320px 140px at 18% 0%, rgba(var(--brand-success-rgb),.12), transparent 72%), linear-gradient(135deg, rgba(var(--brand-primary-rgb),.08), rgba(255,255,255,.96))",
+  color: "#0f172a",
+  boxShadow: "0 20px 48px rgba(15,23,42,.08)"
 };
 
 const launchPromotionLabel = {
-  color: "#86efac",
+  color: "var(--brand-success)",
   fontSize: 13,
   fontWeight: 950,
   letterSpacing: "0.08em",
@@ -313,20 +314,20 @@ const launchPromotionLabel = {
 
 const launchPromotionBody = {
   margin: 0,
-  color: "#f8fafc",
+  color: "#0f172a",
   fontSize: "clamp(17px, 2vw, 22px)",
   lineHeight: 1.35,
   fontWeight: 850
 };
 
 const launchPromotionSavings = {
-  color: "#dcfce7",
+  color: "var(--brand-primary)",
   fontSize: "clamp(16px, 1.8vw, 19px)",
   lineHeight: 1.35
 };
 
 const launchPromotionNote = {
-  color: "#b6bcc8",
+  color: "#6b7280",
   fontSize: 13,
   fontWeight: 700
 };
@@ -337,12 +338,14 @@ const businessPanel = {
   gap: 24,
   padding: "clamp(24px, 5vw, 36px)",
   background:
-    "radial-gradient(520px 240px at 18% 0%, rgba(var(--brand-primary-rgb),.18), transparent 62%), radial-gradient(420px 220px at 92% 12%, rgba(var(--brand-deep-rgb),.13), transparent 62%), linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.014)), linear-gradient(180deg, rgba(8,8,10,.96), rgba(4,4,6,.98))"
+    "radial-gradient(520px 240px at 18% 0%, rgba(var(--brand-primary-rgb),.12), transparent 62%), radial-gradient(420px 220px at 92% 12%, rgba(var(--brand-deep-rgb),.08), transparent 62%), linear-gradient(180deg, rgba(255,255,255,.98), rgba(248,251,255,.92))",
+  border: "1px solid rgba(15,23,42,.08)",
+  boxShadow: "0 18px 48px rgba(15,23,42,.08)"
 };
 
 const businessIntro = {
   margin: 0,
-  color: "#e5e7eb",
+  color: "#5f6674",
   fontSize: 16,
   lineHeight: 1.65,
   fontWeight: 600
@@ -359,12 +362,13 @@ const businessQuoteCard = {
   alignContent: "start",
   padding: 22,
   borderRadius: 20,
-  border: "1px solid rgba(var(--brand-deep-rgb),.28)",
-  background: "rgba(var(--brand-primary-rgb),.08)"
+  border: "1px solid rgba(var(--brand-primary-rgb),.12)",
+  background: "linear-gradient(180deg, #ffffff 0%, #f8fbff 100%)",
+  boxShadow: "0 12px 28px rgba(15,23,42,.05)"
 };
 
 const quoteLabel = {
-  color: "var(--brand-gold)",
+  color: "var(--brand-primary)",
   fontSize: 13,
   fontWeight: 800,
   letterSpacing: "0.08em",
@@ -373,7 +377,8 @@ const quoteLabel = {
 
 const quotePrice = {
   fontFamily: "var(--font-heading)",
-  fontSize: "clamp(28px, 4vw, 38px)",
+  color: "#2563eb",
+  fontSize: "clamp(30px, 4vw, 44px)",
   lineHeight: 1,
   letterSpacing: "-0.035em",
   fontWeight: 800
@@ -381,7 +386,7 @@ const quotePrice = {
 
 const quoteCopy = {
   margin: 0,
-  color: "#b6bcc8",
+  color: "#5f6674",
   fontSize: 14,
   lineHeight: 1.55
 };
@@ -392,9 +397,9 @@ const outcomeSection = {
   gap: 18,
   padding: 22,
   borderRadius: 24,
-  border: "1px solid rgba(var(--brand-deep-rgb),.28)",
-  background:
-    "linear-gradient(180deg, rgba(255,255,255,.052), rgba(255,255,255,.018)), rgba(8,8,10,.72)"
+  border: "1px solid rgba(var(--brand-primary-rgb),.12)",
+  background: "linear-gradient(180deg, rgba(255,255,255,.98), rgba(248,251,255,.92))",
+  boxShadow: "0 14px 34px rgba(15,23,42,.06)"
 };
 
 const outcomeHeader = {
@@ -425,13 +430,13 @@ const outcomeCard = {
   minHeight: 150,
   padding: 18,
   borderRadius: 18,
-  border: "1px solid rgba(255,255,255,.1)",
-  background: "rgba(255,255,255,.026)"
+  border: "1px solid rgba(37,99,235,.12)",
+  background: "#ffffff"
 };
 
 const outcomeTitle = {
   margin: 0,
-  color: "#fff",
+  color: "#0f172a",
   fontSize: 18,
   lineHeight: 1.15,
   fontWeight: 900
@@ -439,7 +444,7 @@ const outcomeTitle = {
 
 const outcomeCopy = {
   margin: 0,
-  color: "#b6bcc8",
+  color: "#5f6674",
   fontSize: 14,
   lineHeight: 1.55,
   fontWeight: 600
@@ -458,9 +463,9 @@ const businessFeature = {
   alignItems: "center",
   padding: "11px 13px",
   borderRadius: 14,
-  border: "1px solid rgba(255,255,255,.1)",
-  background: "rgba(255,255,255,.026)",
-  color: "#e5e7eb",
+  border: "1px solid rgba(37,99,235,.12)",
+  background: "#ffffff",
+  color: "#0f172a",
   fontSize: 14,
   fontWeight: 600
 };

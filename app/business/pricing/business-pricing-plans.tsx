@@ -203,7 +203,7 @@ const billingToggleWrap = {
 };
 
 const billingToggleLabel = {
-  color: "var(--brand-gold)",
+  color: "var(--brand-primary)",
   fontSize: 13,
   fontWeight: 900,
   letterSpacing: "0.08em",
@@ -217,9 +217,9 @@ const billingToggle = {
   gap: 8,
   padding: 7,
   borderRadius: 999,
-  border: "1px solid rgba(var(--brand-deep-rgb),.32)",
-  background: "rgba(8,8,10,.72)",
-  boxShadow: "0 18px 46px rgba(0,0,0,.28)"
+  border: "1px solid rgba(37,99,235,.16)",
+  background: "rgba(255,255,255,.96)",
+  boxShadow: "0 16px 36px rgba(15,23,42,.08)"
 };
 
 const billingToggleButton = {
@@ -228,7 +228,7 @@ const billingToggleButton = {
   borderRadius: 999,
   padding: "11px 16px",
   background: "transparent",
-  color: "#b6bcc8",
+  color: "#5f6674",
   cursor: "pointer",
   font: "inherit",
   fontSize: 14,
@@ -242,7 +242,7 @@ const billingToggleButtonActive = {
 };
 
 const billingSaveNote = {
-  color: "var(--brand-gold)",
+  color: "var(--brand-primary)",
   fontSize: 13,
   fontWeight: 800
 };
@@ -262,7 +262,7 @@ const promoLabel = {
 };
 
 const promoLabelText = {
-  color: "var(--brand-gold)",
+  color: "var(--brand-primary)",
   fontSize: 13,
   fontWeight: 900,
   letterSpacing: "0.08em",
@@ -273,9 +273,9 @@ const promoLabelText = {
 const promoInput = {
   width: "100%",
   borderRadius: 14,
-  border: "1px solid rgba(var(--brand-deep-rgb),.28)",
-  background: "rgba(8,8,10,.72)",
-  color: "#fff",
+  border: "1px solid rgba(37,99,235,.16)",
+  background: "#ffffff",
+  color: "#0f172a",
   padding: "12px 14px",
   font: "inherit",
   fontSize: 15,
@@ -283,7 +283,7 @@ const promoInput = {
 };
 
 const promoHint = {
-  color: "#b6bcc8",
+  color: "#6b7280",
   fontSize: 13,
   fontWeight: 600,
   textAlign: "center" as const
@@ -309,7 +309,7 @@ const businessTierCard = {
 };
 
 const quoteLabel = {
-  color: "var(--brand-gold)",
+  color: "var(--brand-primary)",
   fontSize: 13,
   fontWeight: 800,
   letterSpacing: "0.08em",
@@ -327,7 +327,7 @@ const quotePrice = {
 
 const businessTierDescription = {
   margin: "12px 0 0",
-  color: "#b6bcc8",
+  color: "#5f6674",
   fontSize: 14,
   lineHeight: 1.55,
   fontWeight: 650
@@ -336,7 +336,7 @@ const businessTierDescription = {
 const businessTierDetails = {
   display: "grid",
   gap: 8,
-  color: "#e5e7eb",
+  color: "#0f172a",
   fontSize: 14,
   lineHeight: 1.45,
   fontWeight: 700
@@ -345,9 +345,9 @@ const businessTierDetails = {
 const rooftopSupport = {
   padding: "11px 13px",
   borderRadius: 15,
-  border: "1px solid rgba(var(--brand-deep-rgb),.3)",
-  background: "rgba(var(--brand-primary-rgb),.1)",
-  color: "#f5f3ff",
+  border: "1px solid rgba(var(--brand-primary-rgb),.14)",
+  background: "rgba(var(--brand-primary-rgb),.08)",
+  color: "#0f172a",
   fontSize: 14,
   fontWeight: 900
 };
@@ -357,14 +357,14 @@ const setupFeeWrap = {
   gap: 5,
   padding: "12px 13px",
   borderRadius: 16,
-  border: "1px solid rgba(34,197,94,.28)",
+  border: "1px solid rgba(var(--brand-success-rgb),.22)",
   background:
-    "linear-gradient(135deg, rgba(34,197,94,.14), rgba(var(--brand-primary-rgb),.08))",
-  color: "#dcfce7"
+    "linear-gradient(135deg, rgba(var(--brand-success-rgb),.1), rgba(var(--brand-primary-rgb),.06))",
+  color: "#0f172a"
 };
 
 const setupFeeWaivedText = {
-  color: "#86efac",
+  color: "var(--brand-success)",
   fontSize: 14,
   fontWeight: 950,
   letterSpacing: "0.04em",
@@ -382,14 +382,14 @@ const rooftopAddOnCard = {
   gap: 8,
   padding: 20,
   borderRadius: 20,
-  border: "1px solid rgba(var(--brand-deep-rgb),.28)",
+  border: "1px solid rgba(37,99,235,.12)",
   background:
-    "linear-gradient(135deg, rgba(var(--brand-primary-rgb),.12), rgba(34,197,94,.08)), rgba(8,8,10,.72)"
+    "linear-gradient(135deg, rgba(var(--brand-primary-rgb),.08), rgba(var(--brand-success-rgb),.06)), #ffffff"
 };
 
 const addOnHeading = {
   margin: 0,
-  color: "var(--brand-gold)",
+  color: "var(--brand-primary)",
   fontSize: "clamp(24px, 3vw, 34px)",
   lineHeight: 1,
   fontWeight: 950,
@@ -398,7 +398,7 @@ const addOnHeading = {
 
 const addOnCopy = {
   margin: 0,
-  color: "#ffffff",
+  color: "#0f172a",
   fontSize: "clamp(17px, 2vw, 22px)",
   lineHeight: 1.35,
   fontWeight: 900
@@ -406,7 +406,7 @@ const addOnCopy = {
 
 const addOnSupport = {
   margin: 0,
-  color: "#b6bcc8",
+  color: "#6b7280",
   fontSize: 14,
   lineHeight: 1.55,
   fontWeight: 650
