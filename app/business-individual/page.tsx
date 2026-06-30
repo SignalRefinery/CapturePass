@@ -3,6 +3,7 @@ import { BUSINESS_TYPE_LABELS, BUSINESS_TYPES } from "@/lib/business-types";
 import { BUSINESS_INDIVIDUAL_PROMO_CODE } from "@/lib/plans";
 import { JsonLd } from "@/components/seo/json-ld";
 import { Shell } from "@/components/shared/shell";
+import { CapturePassBrandArt } from "@/components/shared/capturepass-brand-art";
 import { buildFaqJsonLd, buildPageMetadata, buildProductJsonLd } from "@/lib/seo";
 
 export const metadata = buildPageMetadata({
@@ -122,6 +123,7 @@ export default async function BusinessIndividualPage({
     <Shell
       footerLeft="Business Individual"
       footerRight="CapturePass"
+      pageVariant="light"
       navLinks={[
         { href: "/", label: "Home" },
         { href: "/business", label: "Business" },
@@ -132,7 +134,10 @@ export default async function BusinessIndividualPage({
       <JsonLd data={productSchema} />
       <JsonLd data={faqSchema} />
 
-      <section className="simple-hero" style={{ paddingBottom: 36 }}>
+      <section className="simple-hero" style={heroSection}>
+        <div style={logoWrap}>
+          <CapturePassBrandArt variant="logoMark" priority />
+        </div>
         <div className="kicker">
           <span className="mini-star">✦</span>
           <span>Limited Launch Offer</span>
@@ -144,7 +149,7 @@ export default async function BusinessIndividualPage({
         <p style={heroCopy}>
           Capture contacts, track engagement, and stay connected with prospects, clients, and referral partners - without needing a full team account.
         </p>
-        <p style={{ ...heroCopy, marginTop: 10, fontSize: "clamp(15px, 1.6vw, 17px)", color: "var(--brand-gold)" }}>
+        <p style={heroHighlight}>
           NFC business cards and mobile QR codes are included, but the main value is contact capture, CRM-ready exports, and owned relationships.
         </p>
         <div style={launchCallout}>
@@ -212,7 +217,7 @@ export default async function BusinessIndividualPage({
           </article>
 
           <aside style={sideStack}>
-            <section className="card tagg-card" style={sideCard}>
+        <section className="card tagg-card" style={sideCard}>
               <div className="dashboard-kicker">Need a team plan?</div>
               <h2 style={sideHeading}>Upgrade when you are ready to manage multiple people.</h2>
               <p style={sideCopy}>
@@ -223,7 +228,7 @@ export default async function BusinessIndividualPage({
               </Link>
             </section>
 
-            <section className="card tagg-card" style={sideCard}>
+        <section className="card tagg-card" style={sideCard}>
               <div className="dashboard-kicker">Additional Cards</div>
               <h2 style={sideHeading}>Additional Cards</h2>
               <p style={sideCopy}>
@@ -235,14 +240,14 @@ export default async function BusinessIndividualPage({
               </Link>
             </section>
 
-            <section className="card tagg-card" style={sideCard}>
+        <section className="card tagg-card" style={sideCard}>
               <div className="dashboard-kicker">More pages</div>
               <h2 style={sideHeading}>See the broader CapturePass funnel.</h2>
               <p style={sideCopy}>
                 Compare pricing, explore business plans, and visit the industry landing pages for dealerships,
                 real estate agents, insurance agents, sales teams, and NFC business cards and mobile QR codes.
               </p>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
                 <Link className="button secondary" href="/business/pricing" style={{ width: "fit-content" }}>
                   Business Pricing
                 </Link>
@@ -282,44 +287,63 @@ export default async function BusinessIndividualPage({
 
 const heroHeading = {
   maxWidth: 980,
-  margin: "28px auto 14px",
+  margin: "24px auto 12px",
   fontFamily: "var(--font-heading)",
-  fontSize: "clamp(58px, 8vw, 108px)",
-  lineHeight: 0.9,
-  letterSpacing: "-0.05em",
+  fontSize: "clamp(52px, 7vw, 92px)",
+  lineHeight: 0.94,
+  letterSpacing: "-0.045em",
   fontWeight: 800
 };
 
 const heroSubheadline = {
-  maxWidth: 820,
+  maxWidth: 900,
   margin: "0 auto",
-  color: "#ffffff",
-  fontSize: "clamp(22px, 2.6vw, 32px)",
-  lineHeight: 1.2,
+  color: "#2563eb",
+  fontSize: "clamp(22px, 2.6vw, 30px)",
+  lineHeight: 1.22,
   fontWeight: 800
 };
 
 const heroCopy = {
-  maxWidth: 780,
-  margin: "18px auto 0",
-  color: "#b6bcc8",
-  fontSize: "clamp(17px, 2vw, 21px)",
+  maxWidth: 860,
+  margin: "14px auto 0",
+  color: "#5f6674",
+  fontSize: "clamp(17px, 2vw, 20px)",
   lineHeight: 1.6,
   fontWeight: 500
+};
+
+const heroHighlight = {
+  maxWidth: 860,
+  margin: "8px auto 0",
+  color: "#0f172a",
+  fontSize: "clamp(15px, 1.6vw, 17px)",
+  lineHeight: 1.6,
+  fontWeight: 700
+};
+
+const heroSection = {
+  paddingBottom: 28
+};
+
+const logoWrap = {
+  width: "100%",
+  maxWidth: 112,
+  margin: "0 auto 12px"
 };
 
 const launchCallout = {
   width: "fit-content",
   maxWidth: "min(100%, 720px)",
-  margin: "26px auto 0",
+  margin: "22px auto 0",
   display: "grid",
   gap: 8,
-  padding: "18px 22px",
+  padding: "16px 20px",
   borderRadius: 24,
-  border: "1px solid rgba(var(--brand-deep-rgb),.34)",
-  background:
-    "radial-gradient(300px 140px at 20% 0%, rgba(var(--brand-primary-rgb),.22), transparent 70%), rgba(var(--brand-primary-rgb),.1)",
-  color: "#ffffff",
+  border: "1px solid rgba(37,99,235,.14)",
+  background: "linear-gradient(180deg, #ffffff 0%, #f8fbff 100%)",
+  boxShadow: "0 16px 42px rgba(15,23,42,.08)",
+  color: "#0f172a",
   textAlign: "center" as const
 };
 
@@ -329,25 +353,28 @@ const checkoutNoticeStyle = {
   margin: "18px auto 0",
   padding: "12px 16px",
   borderRadius: 16,
-  border: "1px solid rgba(251,191,36,.4)",
-  background: "rgba(251,191,36,.1)",
-  color: "#fde68a",
+  border: "1px solid rgba(37,99,235,.16)",
+  background: "rgba(37,99,235,.06)",
+  color: "#1d4ed8",
   fontWeight: 800
 };
 
 const layoutGrid = {
   display: "grid",
   gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 360px), 1fr))",
-  gap: 20,
+  gap: 28,
   alignItems: "start"
 };
 
 const planCard = {
   display: "grid",
-  gap: 22,
-  padding: "clamp(24px, 4vw, 34px)",
-  background:
-    "radial-gradient(520px 240px at 10% 0%, rgba(var(--brand-primary-rgb),.2), transparent 62%), linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.016)), rgba(8,8,10,.94)"
+  gap: 20,
+  padding: "clamp(24px, 4vw, 32px)",
+  border: "1px solid rgba(37,99,235,.14)",
+  borderRadius: 24,
+  background: "linear-gradient(180deg, #ffffff 0%, #f8fbff 100%)",
+  boxShadow: "0 24px 70px rgba(15,23,42,.09)",
+  color: "#0f172a"
 };
 
 const planTopRow = {
@@ -363,8 +390,8 @@ const badge = {
   marginBottom: 14,
   padding: "8px 12px",
   borderRadius: 999,
-  background: "rgba(var(--brand-primary-rgb),.18)",
-  color: "var(--brand-gold)",
+  background: "rgba(37,99,235,.08)",
+  color: "#2563eb",
   fontSize: 12,
   fontWeight: 900,
   letterSpacing: "0.08em",
@@ -384,7 +411,7 @@ const priceBlock = {
   display: "flex",
   alignItems: "baseline",
   gap: 8,
-  color: "#ffffff"
+  color: "#0f172a"
 };
 
 const price = {
@@ -392,18 +419,19 @@ const price = {
   fontSize: "clamp(48px, 6vw, 76px)",
   lineHeight: 0.9,
   letterSpacing: "-0.045em",
-  fontWeight: 800
+  fontWeight: 800,
+  color: "#2563eb"
 };
 
 const cadence = {
-  color: "#b6bcc8",
+  color: "#64748b",
   fontSize: 18,
   fontWeight: 800
 };
 
 const regularPrice = {
   margin: 0,
-  color: "var(--brand-gold)",
+  color: "#1d4ed8",
   fontSize: 15,
   fontWeight: 800
 };
@@ -417,7 +445,7 @@ const checkoutForm = {
 const selectLabel = {
   display: "grid",
   gap: 8,
-  color: "var(--brand-gold)",
+  color: "#0f172a",
   fontSize: 12,
   fontWeight: 900,
   letterSpacing: "0.08em",
@@ -428,9 +456,9 @@ const selectInput = {
   width: "100%",
   minHeight: 50,
   borderRadius: 16,
-  border: "1px solid rgba(var(--brand-deep-rgb),.32)",
-  background: "rgba(255,255,255,.06)",
-  color: "#ffffff",
+  border: "1px solid rgba(37,99,235,.14)",
+  background: "#ffffff",
+  color: "#0f172a",
   padding: "0 14px",
   fontSize: 15,
   fontWeight: 800
@@ -439,15 +467,15 @@ const selectInput = {
 const featureGrid = {
   display: "grid",
   gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 220px), 1fr))",
-  gap: 10
+  gap: 12
 };
 
 const featureItem = {
   padding: "12px 14px",
   borderRadius: 16,
-  border: "1px solid rgba(255,255,255,.08)",
-  background: "rgba(255,255,255,.045)",
-  color: "#e5e7eb",
+  border: "1px solid rgba(37,99,235,.12)",
+  background: "#ffffff",
+  color: "#0f172a",
   fontSize: 14,
   lineHeight: 1.35,
   fontWeight: 750
@@ -455,13 +483,18 @@ const featureItem = {
 
 const sideStack = {
   display: "grid",
-  gap: 20
+  gap: 22
 };
 
 const sideCard = {
   display: "grid",
-  gap: 16,
-  padding: 24
+  gap: 14,
+  padding: 26,
+  border: "1px solid rgba(37,99,235,.12)",
+  borderRadius: 24,
+  background: "linear-gradient(180deg, #ffffff 0%, #f8fbff 100%)",
+  boxShadow: "0 24px 70px rgba(15,23,42,.09)",
+  color: "#0f172a"
 };
 
 const sideHeading = {
@@ -475,7 +508,7 @@ const sideHeading = {
 
 const sideCopy = {
   margin: 0,
-  color: "#b6bcc8",
+  color: "#5f6674",
   fontSize: 15,
   lineHeight: 1.6
 };
@@ -491,7 +524,7 @@ const extraCardPrice = {
 const faqSection = {
   display: "grid",
   gap: 22,
-  marginTop: 32
+  marginTop: 28
 };
 
 const sectionHeading = {
@@ -506,14 +539,18 @@ const sectionHeading = {
 const faqGrid = {
   display: "grid",
   gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 280px), 1fr))",
-  gap: 16
+  gap: 18
 };
 
 const faqCard = {
-  padding: 22,
+  padding: 24,
   display: "grid",
   gap: 10,
-  height: "100%"
+  height: "100%",
+  border: "1px solid rgba(37,99,235,.12)",
+  borderRadius: 24,
+  background: "linear-gradient(180deg, #ffffff 0%, #f8fbff 100%)",
+  boxShadow: "0 24px 70px rgba(15,23,42,.08)"
 };
 
 const faqQuestion = {
@@ -524,7 +561,7 @@ const faqQuestion = {
 
 const faqAnswer = {
   margin: 0,
-  color: "#b6bcc8",
+  color: "#5f6674",
   fontSize: 14,
   lineHeight: 1.55
 };
