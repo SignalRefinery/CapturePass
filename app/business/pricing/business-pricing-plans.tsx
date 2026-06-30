@@ -24,13 +24,13 @@ type BusinessPricingTier = {
 
 const teamSizeDescriptions: Record<string, string> = {
   small_team:
-    "Typically 1–5 employees. Perfect for small businesses, independent dealerships, small brokerages, and growing teams.",
+    "For small businesses and growing teams that want professional contact sharing, lead capture, and company branding without enterprise complexity.",
   starter:
-    "Typically 6–10 employees. Ideal for established businesses that regularly share contact information with customers, prospects, and referral partners.",
+    "For growing sales teams that need branded customer interactions and shared lead management.",
   growth:
-    "Typically 11–25 employees. Built for larger sales teams, multi-location businesses, and organizations that need consistent branding across employees.",
+    "For multi-location businesses that need analytics, reusable employee seats, and CRM workflows.",
   pro:
-    "Typically 26–50 employees. Designed for larger organizations, dealer groups, brokerages, franchises, and enterprise-style deployments."
+    "For dealer groups, franchises, brokerages, and larger organizations that want centralized management."
 };
 
 const rooftopDescriptions: Record<string, string> = {
@@ -41,11 +41,11 @@ const rooftopDescriptions: Record<string, string> = {
 };
 
 const sharedPlanFeatures = [
-  "Shared company branding",
-  "Reassign cards and profiles when employees leave",
-  "Team contact management",
-  "Team analytics dashboard",
-  "CRM-ready lead delivery"
+  "Consistent company branding across every employee profile",
+  "Instantly reassign cards and profiles when employees change roles",
+  "Centralized captured-contact management",
+  "Business analytics dashboard",
+  "CRM-ready contact delivery and exports"
 ];
 
 const checkoutButtonStyle = {
@@ -119,8 +119,9 @@ export function BusinessPricingPlans({ tiers }: { tiers: BusinessPricingTier[] }
               <div style={rooftopSupport}>{rooftopDescriptions[tier.tier]}</div>
               <div style={setupFeeWrap}>
                 <span>${tier.setupFee} setup</span>
-                <strong style={setupFeeWaivedText}>Setup Fee Waived</strong>
-                <em>Save ${tier.setupFee} today</em>
+                <strong style={setupFeeWaivedText}>Launch Special</strong>
+                <em>Setup fees are currently waived.</em>
+                <em>This introductory offer may be modified or discontinued without notice.</em>
               </div>
               {sharedPlanFeatures.map((feature) => (
                 <div key={feature}>{feature}</div>

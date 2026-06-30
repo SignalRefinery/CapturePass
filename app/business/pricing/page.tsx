@@ -7,7 +7,7 @@ import { buildPageMetadata, buildSoftwareApplicationJsonLd, SITE_DESCRIPTION } f
 
 export const metadata = buildPageMetadata({
   description:
-    "Business pricing for CapturePass teams: Small Team, Starter, Growth, and Pro with self-managed and managed options, reusable seats, and launch promotion pricing.",
+    "Business pricing for CapturePass teams: capture contacts, keep employee branding consistent, own leads, reuse seats, and connect CRM-ready workflows across Small Team, Starter, Growth, and Pro plans.",
   path: "/business/pricing",
   title: "Business Pricing"
 });
@@ -20,24 +20,18 @@ const businessTierKeys = [
 ] as const satisfies readonly [BusinessPlanKey, BusinessPlanKey][];
 
 const selfManagedDescription =
-  "Your team manages employee profiles, cards, branding, and updates directly.";
+  "Your team manages employee profiles, lead capture, branding, and updates directly.";
 
 const fullyManagedDescription =
-  "CapturePass helps with setup, onboarding, employee changes, card assignment, seat reassignment, and profile updates.";
+  "We configure your team, assign cards, import employees, and get everything ready before launch.";
 
 const businessFeatures = [
-  "Customer contact capture",
-  "Branded employee profiles",
-  "NFC and QR sharing",
-  "Business contacts dashboard",
-  "Business analytics",
-  "Employee activation and deactivation",
-  "Card and profile reassignment",
-  "CRM-ready lead delivery",
-  "Review, booking, menu, and listing links",
-  "CSV export and lead ownership tools",
   "Reusable employee seats",
-  "Optional managed onboarding and support"
+  "Turn customer conversations into saved contacts",
+  "Export or deliver leads to your CRM",
+  "Understand how your team is engaging customers",
+  "Keep employee branding consistent across locations",
+  "Reassign cards and profiles when staff changes"
 ];
 
 const businessOutcomes = [
@@ -105,27 +99,27 @@ export default function BusinessPricingPage() {
           <span className="mini-star">✦</span>
           <span>Business Pricing</span>
         </div>
-        <h1 style={heroHeading}>Turn every customer interaction into a saved contact.</h1>
+        <h1 style={heroHeading}>Turn Every Handshake Into A Prospect.</h1>
         <p style={heroCopy}>
-          Choose a plan that fits your team and give every employee a branded CapturePass profile,
-          instant contact sharing, lead capture, and reusable NFC/QR tools that keep customers
-          connected after they walk away.
+          Choose the plan that fits your team and give every employee a branded CapturePass profile,
+          instant contact capture, shared lead ownership, reusable employee seats, and the CRM-ready
+          tools your business needs to follow up faster.
         </p>
-        <p style={{ ...heroCopy, marginTop: 14, fontSize: "clamp(15px, 1.6vw, 17px)", color: "var(--brand-gold)" }}>
-          Digital business cards are included. CapturePass is the contact capture platform, and the business value
-          comes from analytics, CRM readiness, and relationship ownership.
+        <p style={{ ...heroCopy, marginTop: 14, fontSize: "clamp(15px, 1.6vw, 17px)", color: "var(--brand-primary)" }}>
+          CapturePass is the contact capture and relationship platform. NFC business cards are the tool. The value comes from
+          consistent employee branding, lead ownership, analytics, and CRM integration.
         </p>
-        <p style={{ ...heroCopy, marginTop: 14, fontSize: "clamp(15px, 1.6vw, 17px)", color: "var(--brand-gold)" }}>
+        <p style={{ ...heroCopy, marginTop: 14, fontSize: "clamp(15px, 1.6vw, 17px)", color: "var(--brand-primary)" }}>
           Works alongside your existing CRM. No replacement required.
         </p>
         <p style={planClarification}>
-          All business plans include the same platform features. Choose the seat count and location support that fits your organization.
+          All business plans include the same platform capabilities. Choose the seat count and location support that fits your organization.
         </p>
         <div style={launchPromotion}>
-          <div style={launchPromotionLabel}>Limited-Time Launch Promotion</div>
-          <p style={launchPromotionBody}>All business plan setup fees are waived through July 31, 2026.</p>
-          <strong style={launchPromotionSavings}>Save up to $499 when you start before the launch promotion ends.</strong>
-          <span style={launchPromotionNote}>Setup fees waived through July 31, 2026.</span>
+          <div style={launchPromotionLabel}>Launch Special</div>
+          <p style={launchPromotionBody}>Setup fees are currently waived.</p>
+          <strong style={launchPromotionSavings}>This introductory offer may be modified or discontinued without notice.</strong>
+          <span style={launchPromotionNote}>This introductory offer may be modified or discontinued without notice.</span>
         </div>
       </section>
 
@@ -138,8 +132,7 @@ export default function BusinessPricingPage() {
             </div>
 
             <p style={businessIntro}>
-              CapturePass helps teams capture contact information, stay connected with customers,
-              and protect valuable relationships when employees join, leave, or change roles.
+              CapturePass helps teams capture contact information, follow up faster, and protect valuable relationships when employees join, leave, or change roles.
             </p>
           </div>
 
@@ -160,7 +153,7 @@ export default function BusinessPricingPage() {
                 <span className="mini-star">✦</span>
                 <span>Why teams choose CapturePass</span>
               </div>
-              <h2 style={outcomeHeading}>Built around the moments your team cannot afford to lose.</h2>
+              <h2 style={outcomeHeading}>Built around the moments that turn conversations into follow-up.</h2>
             </div>
 
             <div style={outcomeGrid}>
@@ -196,11 +189,11 @@ export default function BusinessPricingPage() {
               fontWeight: 800
             }}
           >
-            Match your team to the right landing page.
+            Match your team to the right sales workflow.
           </h2>
           <p style={{ margin: 0, color: "#5f6674", fontSize: 16, lineHeight: 1.62, fontWeight: 500 }}>
             Visit the industry pages for dealerships, real estate agents, insurance agents, sales teams,
-            and contact capture NFC cards.
+            and contact capture workflows built for business teams.
           </p>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginTop: 18 }}>
             <Link className="button secondary" href="/dealerships">
@@ -233,10 +226,10 @@ export default function BusinessPricingPage() {
               fontWeight: 800
             }}
           >
-            Explore the playbook behind the rollout.
+            Explore the playbook behind contact capture rollout.
           </h2>
           <p style={{ margin: 0, color: "#5f6674", fontSize: 16, lineHeight: 1.62, fontWeight: 500 }}>
-            CapturePass resources explain the workflows behind contact capture, NFC business cards, and industry-specific use cases.
+            CapturePass resources explain contact capture, team branding, CRM workflows, and industry-specific use cases.
           </p>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginTop: 18 }}>
             <Link className="button secondary" href="/resources">
