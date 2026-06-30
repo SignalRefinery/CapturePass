@@ -71,8 +71,7 @@ const faqItems = [
   },
   {
     title: "Is the $99 price permanent?",
-    body:
-      "No. $99/year is a limited launch offer available through July 31, 2026. The regular price is $199/year after the launch period."
+    body: "No. This is a limited launch offer. The regular price is $199/year."
   }
 ];
 
@@ -153,10 +152,9 @@ export default async function BusinessIndividualPage({
           NFC business cards and mobile QR codes are included, but the main value is contact capture, CRM-ready exports, and owned relationships.
         </p>
         <div style={launchCallout}>
-          <span>Limited Launch Offer</span>
-          <strong>$99/year through July 31, 2026</strong>
-          <small>Regularly $199/year after July 31, 2026</small>
-          <small>Available by direct link during the launch period.</small>
+          <span>Launch Special</span>
+          <strong>Setup fees are currently waived.</strong>
+          <small>This introductory offer may be modified or discontinued without notice.</small>
         </div>
         {checkoutNotice ? <div style={checkoutNoticeStyle}>{checkoutNotice}</div> : null}
       </section>
