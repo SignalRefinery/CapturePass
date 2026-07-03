@@ -309,6 +309,7 @@ export function AuthForm({ mode, nextPath, plan, businessType, initialPromoCode 
                 autoComplete="given-name"
                 value={firstName}
                 onChange={(event) => setFirstName(event.target.value)}
+                placeholder="First name"
                 required
               />
             </label>
@@ -320,6 +321,7 @@ export function AuthForm({ mode, nextPath, plan, businessType, initialPromoCode 
                 autoComplete="family-name"
                 value={lastName}
                 onChange={(event) => setLastName(event.target.value)}
+                placeholder="Last name"
                 required
               />
             </label>
@@ -401,6 +403,7 @@ export function AuthForm({ mode, nextPath, plan, businessType, initialPromoCode 
           autoComplete="email"
           value={email}
           onChange={(event) => setEmail(event.target.value)}
+          placeholder="you@company.com"
           required
         />
       </label>
@@ -413,6 +416,7 @@ export function AuthForm({ mode, nextPath, plan, businessType, initialPromoCode 
             autoComplete={mode === "login" ? "current-password" : "new-password"}
             value={password}
             onChange={(event) => setPassword(event.target.value)}
+            placeholder={mode === "login" ? "Your password" : "Create a password"}
             required
           />
           <button
@@ -436,6 +440,7 @@ export function AuthForm({ mode, nextPath, plan, businessType, initialPromoCode 
               autoComplete="new-password"
               value={confirmPassword}
               onChange={(event) => setConfirmPassword(event.target.value)}
+              placeholder="Confirm your password"
               required
             />
             <button
