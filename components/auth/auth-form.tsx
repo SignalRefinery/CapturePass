@@ -18,6 +18,8 @@ type AuthFormProps = {
   initialPromoCode?: string | null;
 };
 
+type SignupAccountType = "individual" | "organization";
+
 type SlugAvailabilityResponse = {
   available?: boolean;
   normalizedSlug?: string;
@@ -37,6 +39,7 @@ export function AuthForm({ mode, nextPath, plan, businessType, initialPromoCode 
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const [signupAccountType, setSignupAccountType] = useState<SignupAccountType | "">("");
   const [organizationName, setOrganizationName] = useState("");
   const [roleLine, setRoleLine] = useState("");
   const [voicePhone, setVoicePhone] = useState("");
@@ -85,12 +88,15 @@ export function AuthForm({ mode, nextPath, plan, businessType, initialPromoCode 
       const trimmedVoicePhone = voicePhone.trim();
       const trimmedTextPhone = textPhone.trim();
       const normalizedSelectedBusinessType = normalizeBusinessType(selectedBusinessType);
+      const normalizedSignupAccountType = signupAccountType || "";
       const fullName = `${trimmedFirst} ${trimmedLast}`.trim();
       const suggestedSlug =
         slugify(fullName) || slugify(email.split("@")[0] || "");
       const normalizedPromoCode = promoCode.trim().toUpperCase();
       const isFounderSignup = normalizedPromoCode === "FOUNDERS";
       const isBusinessIndividualSignup = isBusinessIndividualPromoCode(normalizedPromoCode);
+      const signupLandingPath =
+        normalizedSignupAccountType === "organization" ? "/business" : "/business-individual";
       const effectivePlan = isFounderSignup
         ? null
         : isBusinessIndividualSignup
@@ -102,7 +108,9 @@ export function AuthForm({ mode, nextPath, plan, businessType, initialPromoCode 
             plan: effectivePlan,
             promoCode: normalizedPromoCode || null
           })
-        : redirectTo;
+        : plan
+          ? redirectTo
+          : signupLandingPath;
 
       if (!trimmedVoicePhone) {
         setError("Voice phone number is required.");
@@ -118,6 +126,12 @@ export function AuthForm({ mode, nextPath, plan, businessType, initialPromoCode 
 
       if (!normalizedSelectedBusinessType) {
         setError("Business type is required.");
+        setLoading(false);
+        return;
+      }
+
+      if (!normalizedSignupAccountType) {
+        setError("Choose Individual or Multi Seat Organization to continue.");
         setLoading(false);
         return;
       }
@@ -162,6 +176,7 @@ export function AuthForm({ mode, nextPath, plan, businessType, initialPromoCode 
             referral_code_used: referral.trim() || null,
             promo_code: normalizedPromoCode || null,
             selected_business_type: normalizedSelectedBusinessType,
+            selected_account_type: normalizedSignupAccountType,
             selected_plan: isFounderSignup ? null : effectivePlan,
             checkout_next_path: isFounderSignup ? null : callbackNextPath
           }
@@ -249,6 +264,45 @@ export function AuthForm({ mode, nextPath, plan, businessType, initialPromoCode 
     <form className="auth-form" onSubmit={handleSubmit}>
       {mode === "signup" ? (
         <>
+          <fieldset className="auth-field auth-choice-group" style={{ marginBottom: 4, border: 0, padding: 0 }}>
+            <span>Account type</span>
+            <div className="auth-choice-grid">
+              <label
+                className={`card subtle auth-choice-card${signupAccountType === "individual" ? " is-selected" : ""}`}
+              >
+                <span className="auth-choice-title">
+                  <input
+                    type="radio"
+                    name="signup-account-type"
+                    value="individual"
+                    checked={signupAccountType === "individual"}
+                    onChange={() => setSignupAccountType("individual")}
+                    required
+                  />
+                  Individual
+                </span>
+                <small className="auth-choice-copy">Routes confirmation to Business Individual.</small>
+              </label>
+
+              <label
+                className={`card subtle auth-choice-card${signupAccountType === "organization" ? " is-selected" : ""}`}
+              >
+                <span className="auth-choice-title">
+                  <input
+                    type="radio"
+                    name="signup-account-type"
+                    value="organization"
+                    checked={signupAccountType === "organization"}
+                    onChange={() => setSignupAccountType("organization")}
+                    required
+                  />
+                  Multi Seat Organization
+                </span>
+                <small className="auth-choice-copy">Routes confirmation to the Business page.</small>
+              </label>
+            </div>
+          </fieldset>
+
           <div className="editor-grid">
             <label className="auth-field">
               <span>First name</span>
@@ -274,13 +328,14 @@ export function AuthForm({ mode, nextPath, plan, businessType, initialPromoCode 
           </div>
 
           <label className="auth-field">
-            <span>Organization (optional)</span>
+            <span>{signupAccountType === "organization" ? "Organization" : "Organization (optional)"}</span>
             <input
               type="text"
               autoComplete="organization"
               value={organizationName}
               onChange={(event) => setOrganizationName(event.target.value)}
               placeholder="Company or organization name"
+              required={signupAccountType === "organization"}
             />
           </label>
 
