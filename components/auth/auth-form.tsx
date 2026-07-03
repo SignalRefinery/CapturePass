@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { checkoutContinuationPath } from "@/lib/auth/checkout-continuation";
@@ -20,6 +20,8 @@ type AuthFormProps = {
 
 type SignupAccountType = "individual" | "organization";
 
+const SIGNUP_ACCOUNT_TYPE_STORAGE_KEY = "capturepass_signup_account_type";
+
 type SlugAvailabilityResponse = {
   available?: boolean;
   normalizedSlug?: string;
@@ -31,6 +33,7 @@ export function AuthForm({ mode, nextPath, plan, businessType, initialPromoCode 
   const router = useRouter();
   const supabase = useMemo(() => createClient(), []);
   const redirectTo = safeInternalRedirect(nextPath);
+  const [loginRedirectTo, setLoginRedirectTo] = useState(redirectTo);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -56,6 +59,26 @@ export function AuthForm({ mode, nextPath, plan, businessType, initialPromoCode 
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
 
+  useEffect(() => {
+    if (mode !== "login") return;
+
+    try {
+      const storedAccountType = window.localStorage.getItem(SIGNUP_ACCOUNT_TYPE_STORAGE_KEY);
+      if (storedAccountType === "individual") {
+        setLoginRedirectTo("/business-individual");
+        return;
+      }
+      if (storedAccountType === "organization") {
+        setLoginRedirectTo("/business");
+        return;
+      }
+    } catch {
+      // Ignore storage access issues and keep the server-provided redirect.
+    }
+
+    setLoginRedirectTo(redirectTo);
+  }, [mode, redirectTo]);
+
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setLoading(true);
@@ -76,7 +99,7 @@ export function AuthForm({ mode, nextPath, plan, businessType, initialPromoCode 
           return;
         }
 
-        router.push(redirectTo);
+        router.push(loginRedirectTo);
         router.refresh();
         return;
       }
@@ -276,7 +299,14 @@ export function AuthForm({ mode, nextPath, plan, businessType, initialPromoCode 
                     name="signup-account-type"
                     value="individual"
                     checked={signupAccountType === "individual"}
-                    onChange={() => setSignupAccountType("individual")}
+                    onChange={() => {
+                      setSignupAccountType("individual");
+                      try {
+                        window.localStorage.setItem(SIGNUP_ACCOUNT_TYPE_STORAGE_KEY, "individual");
+                      } catch {
+                        // Ignore storage access issues.
+                      }
+                    }}
                     required
                   />
                   Individual
@@ -292,7 +322,14 @@ export function AuthForm({ mode, nextPath, plan, businessType, initialPromoCode 
                     name="signup-account-type"
                     value="organization"
                     checked={signupAccountType === "organization"}
-                    onChange={() => setSignupAccountType("organization")}
+                    onChange={() => {
+                      setSignupAccountType("organization");
+                      try {
+                        window.localStorage.setItem(SIGNUP_ACCOUNT_TYPE_STORAGE_KEY, "organization");
+                      } catch {
+                        // Ignore storage access issues.
+                      }
+                    }}
                     required
                   />
                   Multi Seat Organization
