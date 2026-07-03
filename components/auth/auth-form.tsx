@@ -281,7 +281,6 @@ export function AuthForm({ mode, nextPath, plan, businessType, initialPromoCode 
                   />
                   Individual
                 </span>
-                <small className="auth-choice-copy">Routes confirmation to Business Individual.</small>
               </label>
 
               <label
@@ -298,7 +297,6 @@ export function AuthForm({ mode, nextPath, plan, businessType, initialPromoCode 
                   />
                   Multi Seat Organization
                 </span>
-                <small className="auth-choice-copy">Routes confirmation to the Business page.</small>
               </label>
             </div>
           </fieldset>
