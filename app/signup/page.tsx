@@ -1,8 +1,6 @@
 import Link from "next/link";
 import { Shell } from "@/components/shared/shell";
 import { AuthForm } from "@/components/auth/auth-form";
-import { checkoutContinuationPath } from "@/lib/auth/checkout-continuation";
-import { safeInternalRedirect } from "@/lib/auth/redirect";
 import { createClient } from "@/lib/supabase/server";
 
 async function getInitialAuth() {
@@ -41,18 +39,6 @@ export default async function SignupPage({
   const plan = params?.plan || null;
   const businessType = params?.business_type || null;
   const promoCode = params?.promo_code || null;
-  const fallbackNextPath = checkoutContinuationPath({
-    businessType,
-    plan,
-    promoCode
-  });
-  const nextPath = safeInternalRedirect(params?.next, fallbackNextPath);
-  const loginHref = new URLSearchParams();
-
-  if (plan) loginHref.set("plan", plan);
-  if (promoCode) loginHref.set("promo_code", promoCode);
-  if (businessType) loginHref.set("business_type", businessType);
-  if (nextPath !== "/dashboard") loginHref.set("next", nextPath);
 
   return (
     <Shell
@@ -81,7 +67,7 @@ export default async function SignupPage({
         <div className="auth-card">
           <AuthForm
             mode="signup"
-            nextPath={nextPath}
+            nextPath={params?.next || null}
             plan={plan}
             businessType={businessType}
             initialPromoCode={promoCode}
@@ -96,7 +82,7 @@ export default async function SignupPage({
           </div>
 
           <p className="auth-switch">
-            Already have an account? <Link href={`/login${loginHref.size ? `?${loginHref}` : ""}`}>Log in</Link>
+            Already have an account? <Link href="/login">Log in</Link>
           </p>
         </div>
       </section>
