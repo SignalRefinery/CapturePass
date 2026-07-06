@@ -166,9 +166,9 @@ export function UserManagementTable({ rows }: { rows: Row[] }) {
         throw new Error(payload?.error || "Resend request failed.");
       }
 
-      setStatusMessage("Token/QR email resent.");
+      setStatusMessage("Registration email resent.");
     } catch (error) {
-      alert(error instanceof Error ? error.message : "Could not resend Token/QR email.");
+      alert(error instanceof Error ? error.message : "Could not resend registration email.");
     } finally {
       setWorkingId(null);
     }
@@ -446,7 +446,7 @@ export function UserManagementTable({ rows }: { rows: Row[] }) {
                           opacity: workingId === r.user_id ? 0.55 : 1,
                         }}
                       >
-                        {workingId === r.user_id ? "Sending…" : "Resend Token/QR"}
+                        {workingId === r.user_id ? "Sending…" : "Resend Signup Email"}
                       </button>
                     </div>
                   </td>

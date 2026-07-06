@@ -38,11 +38,13 @@ function formatShippingAddress(shipping: RegistrationShippingAddress) {
 export async function sendRegistrationEmail({
   userId,
   source,
-  shipping
+  shipping,
+  force = false
 }: {
   userId: string;
   source?: string | null;
   shipping?: RegistrationShippingAddress;
+  force?: boolean;
 }) {
   const admin = createAdminClient();
   const { data: profile, error } = await admin
@@ -53,7 +55,7 @@ export async function sendRegistrationEmail({
     .or(`user_id.eq.${userId},id.eq.${userId}`)
     .maybeSingle();
 
-  if (error || !profile || profile.registration_notification_sent_at) {
+  if (error || !profile || (!force && profile.registration_notification_sent_at)) {
     return;
   }
 

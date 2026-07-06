@@ -296,15 +296,16 @@ export default async function AdminUserPage({ params, searchParams }: PageProps)
   const { userId } = await params;
   await requireAdmin();
   const supabase = await createClient();
+  const admin = createAdminClient();
   const query = searchParams ? await searchParams : {};
 
   const initialAuth = await getInitialAuth();
   const myProfileHref = initialAuth?.slug ? `/${initialAuth.slug}` : null;
 
-  const { data: profile } = await supabase
+  const { data: profile } = await admin
     .from("profiles")
     .select("*")
-    .eq("user_id", userId)
+    .or(`user_id.eq.${userId},id.eq.${userId}`)
     .maybeSingle();
 
   if (!profile) {

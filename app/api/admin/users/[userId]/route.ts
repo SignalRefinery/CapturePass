@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { classifySlug } from "@/lib/slug-moderation";
 import { buildQuickChartQrUrl } from "@/lib/notifications/qr";
+import { sendRegistrationEmail } from "@/lib/notifications/send-registration-email";
 import { sendSlugApprovedEmail } from "@/lib/notifications/send-slug-approved-email";
 import { normalizeIndividualPlanKey } from "@/lib/plans";
 import { requireCapturePassAdmin } from "@/lib/auth/admin";
@@ -360,16 +361,20 @@ export async function POST(
   }
 
   try {
-    await sendSlugApprovedEmail(profile);
+    await sendRegistrationEmail({
+      userId,
+      source: "admin_resend",
+      force: true
+    });
   } catch (emailError) {
-    console.error("Admin token/QR resend notification failed", {
+    console.error("Admin registration resend notification failed", {
       route: "/api/admin/users/[userId]",
       adminUserId: adminUser.id,
       targetUserId: userId,
       error: emailError instanceof Error ? emailError.message : "Unknown email error"
     });
     return NextResponse.json(
-      { error: "Unable to resend the Token/QR email. Please try again." },
+      { error: "Unable to resend the registration email. Please try again." },
       { status: 400 }
     );
   }
@@ -377,7 +382,7 @@ export async function POST(
   await writeAdminAuditLog({
     adminEmail: adminUser.email || "unknown-admin",
     targetUserId: userId,
-    action: "token_qr_email_resent",
+    action: "registration_email_resent",
     details: {
       profile_email: profile.email || null,
       profile_name: profile.full_name || null,
@@ -385,7 +390,7 @@ export async function POST(
     }
   });
 
-  return NextResponse.json({ ok: true, message: "Token/QR email resent." });
+  return NextResponse.json({ ok: true, message: "Registration email resent." });
 }
 
 export async function DELETE(
