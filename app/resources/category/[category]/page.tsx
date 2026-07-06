@@ -112,7 +112,7 @@ const heading = {
 const intro = {
   maxWidth: 820,
   margin: "0 auto",
-  color: "#b6bcc8",
+  color: "#5f6674",
   fontSize: "clamp(18px, 2vw, 21px)",
   lineHeight: 1.62,
   fontWeight: 500
@@ -139,7 +139,7 @@ const cardHeading = {
 
 const cardCopy = {
   margin: 0,
-  color: "#b6bcc8",
+  color: "#5f6674",
   fontSize: 16,
   lineHeight: 1.6,
   fontWeight: 500

@@ -95,7 +95,7 @@ const heading = {
 const intro = {
   maxWidth: 780,
   margin: "0 auto",
-  color: "#b6bcc8",
+  color: "#5f6674",
   fontSize: "clamp(18px, 2vw, 21px)",
   lineHeight: 1.62,
   fontWeight: 500
@@ -122,7 +122,7 @@ const cardHeading = {
 
 const cardCopy = {
   margin: 0,
-  color: "#b6bcc8",
+  color: "#5f6674",
   fontSize: 16,
   lineHeight: 1.6,
   fontWeight: 500
@@ -144,8 +144,8 @@ const articleCard = {
   gap: 14,
   padding: 22,
   borderRadius: 18,
-  border: "1px solid rgba(255,255,255,.1)",
-  background: "rgba(255,255,255,.025)"
+  border: "1px solid rgba(15,23,42,.08)",
+  background: "linear-gradient(180deg, rgba(255,255,255,.98), rgba(246,249,253,.95))"
 };
 
 const articleHeading = {
@@ -159,7 +159,7 @@ const articleHeading = {
 
 const articleCopy = {
   margin: 0,
-  color: "#b6bcc8",
+  color: "#5f6674",
   fontSize: 15,
   lineHeight: 1.6,
   fontWeight: 500

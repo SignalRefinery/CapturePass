@@ -75,7 +75,7 @@ const heading = {
 const intro = {
   maxWidth: 760,
   margin: "0 auto",
-  color: "#b6bcc8",
+  color: "#5f6674",
   fontSize: "clamp(18px, 2vw, 21px)",
   lineHeight: 1.62,
   fontWeight: 500
@@ -84,7 +84,7 @@ const intro = {
 const body = {
   maxWidth: 780,
   margin: "18px auto 0",
-  color: "#e5e7eb",
+  color: "#334155",
   fontSize: 16,
   lineHeight: 1.64,
   fontWeight: 500
@@ -110,7 +110,7 @@ const sectionHeading = {
 
 const paragraphStyle = {
   margin: "0 0 12px",
-  color: "#b6bcc8",
+  color: "#5f6674",
   fontSize: 16,
   lineHeight: 1.65,
   fontWeight: 500
