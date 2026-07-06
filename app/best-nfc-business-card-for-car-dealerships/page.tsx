@@ -521,29 +521,29 @@ const faqGrid = {
 
 const bodyCopyStyle = {
   margin: 0,
-  color: "#b6bcc8",
+  color: "#5f6674",
   fontSize: 16,
   lineHeight: 1.62,
   fontWeight: 500
 } satisfies CSSProperties;
 
 const faqItemStyle = {
-  border: "1px solid rgba(255, 255, 255, 0.1)",
+  border: "1px solid rgba(15,23,42,.08)",
   borderRadius: 20,
-  background: "rgba(10, 13, 20, 0.72)",
+  background: "linear-gradient(180deg, rgba(255,255,255,.98), rgba(246,249,253,.95))",
   padding: "18px 20px"
 } satisfies CSSProperties;
 
 const faqSummaryStyle = {
   cursor: "pointer",
   fontWeight: 700,
-  color: "#f3f5f7",
+  color: "#0f172a",
   listStyle: "none"
 } satisfies CSSProperties;
 
 const faqAnswerStyle = {
   margin: "12px 0 0",
-  color: "#b6bcc8",
+  color: "#5f6674",
   fontSize: 16,
   lineHeight: 1.62,
   fontWeight: 500

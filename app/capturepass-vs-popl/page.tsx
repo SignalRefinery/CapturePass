@@ -485,7 +485,7 @@ const heroCopyWrap = {
 
 const heroCopy = {
   margin: 0,
-  color: "#b6bcc8",
+  color: "#5f6674",
   fontSize: "clamp(18px, 2vw, 21px)",
   lineHeight: 1.62,
   fontWeight: 500
@@ -505,7 +505,7 @@ const panelStyle = {
 
 const sectionIntro = {
   margin: "0 0 14px",
-  color: "#b6bcc8",
+  color: "#5f6674",
   fontSize: 16,
   lineHeight: 1.68,
   fontWeight: 500
@@ -563,7 +563,7 @@ const faqQuestion = {
 
 const faqAnswer = {
   margin: 0,
-  color: "#b6bcc8",
+  color: "#5f6674",
   fontSize: 15,
   lineHeight: 1.68,
   fontWeight: 500
@@ -587,7 +587,7 @@ const finalHeading = {
 const finalCopy = {
   margin: "0 auto 14px",
   maxWidth: 760,
-  color: "#b6bcc8",
+  color: "#5f6674",
   fontSize: "clamp(16px, 1.8vw, 18px)",
   lineHeight: 1.66,
   fontWeight: 500
