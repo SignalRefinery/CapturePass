@@ -34,11 +34,15 @@ import { getBusinessTypeForUser } from "@/lib/business/organization-access";
 const PENDING_CHECKOUT_COOKIE = "taptagg_pending_checkout";
 
 function passHrefFor(profile: ProfileRecord) {
-  if (!profile.private_token) {
-    return "/dashboard/pass";
+  if (profile.private_token) {
+    return `/pass/${profile.private_token}`;
   }
 
-  return `/pass/${profile.private_token}`;
+  if (profile.slug) {
+    return `/${profile.slug}`;
+  }
+
+  return "/dashboard";
 }
 
 function getStringId(value: string | { id?: string } | null | undefined) {

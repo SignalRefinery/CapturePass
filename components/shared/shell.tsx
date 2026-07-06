@@ -70,7 +70,6 @@ export function Shell({
       { href: "/dashboard#performance", label: "Performance" },
       { href: "/dashboard/contacts", label: "Contacts" },
       { href: "/dashboard/analytics", label: "Analytics" },
-      { href: "/dashboard/pass", label: "Digital pass" },
     ];
 
     if (profileHref) {
