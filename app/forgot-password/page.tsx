@@ -4,6 +4,7 @@
 
 import Link from "next/link";
 import { FormEvent, useState } from "react";
+import { Shell } from "@/components/shared/shell";
 import { createClient } from "@/lib/supabase/client";
 
 function getRedirectUrl() {
@@ -39,42 +40,44 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <main className="auth-wrap">
-      <section className="auth-card">
-        <div className="kicker" style={{ marginBottom: 12 }}>
-          <span className="mini-star">✦</span>
-          <span>Password reset</span>
-        </div>
+    <Shell footerLeft="Password reset" footerRight="CapturePass">
+      <section className="auth-wrap">
+        <section className="auth-card">
+          <div className="kicker" style={{ marginBottom: 12 }}>
+            <span className="mini-star">✦</span>
+            <span>Password reset</span>
+          </div>
 
-        <h1 style={{ marginTop: 0 }}>Reset your password.</h1>
-        <p className="editor-copy">
-          Enter the email connected to your CapturePass account. We will send a secure link to set a new password.
-        </p>
+          <h1 style={{ marginTop: 0 }}>Reset your password.</h1>
+          <p className="editor-copy">
+            Enter the email connected to your CapturePass account. We will send a secure link to set a new password.
+          </p>
 
-        <form className="auth-form" onSubmit={handleSubmit} style={{ marginTop: 22 }}>
-          <label className="auth-field">
-            <span>Email</span>
-            <input
-              type="email"
-              autoComplete="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              required
-            />
-          </label>
+          <form className="auth-form" onSubmit={handleSubmit} style={{ marginTop: 22 }}>
+            <label className="auth-field">
+              <span>Email</span>
+              <input
+                type="email"
+                autoComplete="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                required
+              />
+            </label>
 
-          {error ? <p className="auth-error">{error}</p> : null}
-          {message ? <p className="auth-message">{message}</p> : null}
+            {error ? <p className="auth-error">{error}</p> : null}
+            {message ? <p className="auth-message">{message}</p> : null}
 
-          <button className="button primary" type="submit" disabled={loading}>
-            {loading ? "Sending..." : "Send reset link"}
-          </button>
-        </form>
+            <button className="button primary" type="submit" disabled={loading}>
+              {loading ? "Sending..." : "Send reset link"}
+            </button>
+          </form>
 
-        <p className="auth-switch">
-          Remembered your password? <Link href="/login">Log in</Link>
-        </p>
+          <p className="auth-switch">
+            Remembered your password? <Link href="/login">Log in</Link>
+          </p>
+        </section>
       </section>
-    </main>
+    </Shell>
   );
 }

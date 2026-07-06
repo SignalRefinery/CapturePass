@@ -5,14 +5,17 @@
 import Link from "next/link";
 import { FormEvent, Suspense, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { Shell } from "@/components/shared/shell";
 import { safeInternalRedirect } from "@/lib/auth/redirect";
 import { createClient } from "@/lib/supabase/client";
 
 export default function UpdatePasswordPage() {
   return (
-    <Suspense fallback={<main className="auth-wrap"><section className="auth-card">Loading...</section></main>}>
-      <UpdatePasswordForm />
-    </Suspense>
+    <Shell footerLeft="Password reset" footerRight="CapturePass">
+      <Suspense fallback={<section className="auth-wrap"><section className="auth-card">Loading...</section></section>}>
+        <UpdatePasswordForm />
+      </Suspense>
+    </Shell>
   );
 }
 
@@ -117,7 +120,7 @@ function UpdatePasswordForm() {
   }
 
   return (
-    <main className="auth-wrap">
+    <section className="auth-wrap">
       <section className="auth-card">
         <div className="kicker" style={{ marginBottom: 12 }}>
           <span className="mini-star">✦</span>
@@ -164,6 +167,6 @@ function UpdatePasswordForm() {
           Back to <Link href={nextPath}>login</Link>
         </p>
       </section>
-    </main>
+    </section>
   );
 }
