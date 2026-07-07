@@ -34,6 +34,14 @@ type BusinessTeamSectionProps = {
   showLocationControls?: boolean;
 };
 
+function memberActionId(memberId: string, action: string) {
+  return `business-member-${memberId}-${action}`;
+}
+
+function tokenActionId(tokenId: string, action: string) {
+  return `business-token-${tokenId}-${action}`;
+}
+
 export function BusinessTeamSection({
   organization,
   members,
@@ -150,7 +158,12 @@ export function BusinessTeamSection({
                                         Download headshot
                                       </a>
                                     ) : null}
-                                    <form action={updateEmployeeHeadshot} className="table-actions" encType="multipart/form-data">
+                                    <form
+                                      action={updateEmployeeHeadshot}
+                                      className="table-actions"
+                                      encType="multipart/form-data"
+                                      id={memberActionId(member.id, "headshot")}
+                                    >
                                       <input type="hidden" name="organization_id" value={organization.id} />
                                       <input type="hidden" name="member_id" value={member.id} />
                                     <input
@@ -163,25 +176,20 @@ export function BusinessTeamSection({
                                     <span className="table-subtext">
                                       JPG, PNG, or WebP. Max {Math.round(BUSINESS_HEADSHOT_MAX_BYTES / 1024 / 1024)} MB.
                                     </span>
-                                    <button className="button secondary" type="submit">
-                                      {member.headshot_url ? "Change headshot" : "Upload headshot"}
-                                    </button>
                                   </form>
                                   {member.headshot_url ? (
-                                    <form action={deleteEmployeeHeadshot}>
+                                    <form action={deleteEmployeeHeadshot} id={memberActionId(member.id, "delete-headshot")}>
                                       <input type="hidden" name="organization_id" value={organization.id} />
                                       <input type="hidden" name="member_id" value={member.id} />
-                                      <ConfirmSubmitButton
-                                        className="button secondary"
-                                        confirmMessage={`Delete ${member.name}'s headshot?`}
-                                      >
-                                        Delete headshot
-                                      </ConfirmSubmitButton>
                                     </form>
                                   ) : null}
 
                                   <div className="dashboard-kicker">Profile details</div>
-                                  <form action={updateEmployeeProfile} className="table-actions">
+                                  <form
+                                    action={updateEmployeeProfile}
+                                    className="table-actions"
+                                    id={memberActionId(member.id, "profile")}
+                                  >
                                     <input type="hidden" name="organization_id" value={organization.id} />
                                     <input type="hidden" name="member_id" value={member.id} />
                                     <input
@@ -208,7 +216,6 @@ export function BusinessTeamSection({
                                       placeholder="name@example.com"
                                       autoComplete="email"
                                     />
-                                    <button className="button secondary" type="submit">Save profile</button>
                                   </form>
                                   <p className="table-subtext">
                                     Updates the public business profile. If the email changes, CapturePass also updates login access and sends a fresh setup invite.
@@ -217,7 +224,11 @@ export function BusinessTeamSection({
                                   {showLocationControls ? (
                                     <>
                                       <div className="dashboard-kicker">Location</div>
-                                      <form action={updateEmployeeLocation} className="table-actions">
+                                      <form
+                                        action={updateEmployeeLocation}
+                                        className="table-actions"
+                                        id={memberActionId(member.id, "location")}
+                                      >
                                         <input type="hidden" name="organization_id" value={organization.id} />
                                         <input type="hidden" name="member_id" value={member.id} />
                                         <select
@@ -233,9 +244,6 @@ export function BusinessTeamSection({
                                             </option>
                                           ))}
                                         </select>
-                                        <button className="button secondary" type="submit">
-                                          Save location
-                                        </button>
                                       </form>
                                       <p className="table-subtext">
                                         Assign the employee to a location so future location-level reporting can filter cleanly.
@@ -251,18 +259,21 @@ export function BusinessTeamSection({
                                       </Link>
                                       {assignedProfileUrl ? <CopyLinkButton value={assignedProfileUrl} /> : null}
                                       {member.email && member.status === "active" && assignedToken.status === "active" ? (
-                                        <form action={sendBusinessDigitalPass}>
+                                        <form action={sendBusinessDigitalPass} id={memberActionId(member.id, "send-pass")}>
                                           <input type="hidden" name="organization_id" value={organization.id} />
                                           <input type="hidden" name="member_id" value={member.id} />
                                           <input type="hidden" name="token_id" value={assignedToken.id} />
-                                          <button className="button secondary" type="submit">Send digital pass</button>
                                         </form>
                                       ) : (
                                         <button className="button secondary" type="button" disabled aria-disabled="true">
                                           Send digital pass
                                         </button>
                                       )}
-                                      <form action={updateTokenAssignment} className="table-actions">
+                                      <form
+                                        action={updateTokenAssignment}
+                                        className="table-actions"
+                                        id={memberActionId(member.id, "assignment")}
+                                      >
                                         <input type="hidden" name="organization_id" value={organization.id} />
                                         <input type="hidden" name="token_id" value={assignedToken.id} />
                                         <select
@@ -278,35 +289,30 @@ export function BusinessTeamSection({
                                             </option>
                                           ))}
                                         </select>
-                                        <button className="button secondary" type="submit">Save assignment</button>
                                       </form>
-                                      <form action={deactivateToken}>
+                                      <form action={deactivateToken} id={memberActionId(member.id, "unassign")}>
                                         <input type="hidden" name="organization_id" value={organization.id} />
                                         <input type="hidden" name="token_id" value={assignedToken.id} />
                                         <input type="hidden" name="status" value="unassigned" />
-                                        <button className="button secondary" type="submit">Unassign token</button>
                                       </form>
                                       {assignedToken.status === "inactive" ? (
-                                        <form action={deactivateToken}>
+                                        <form action={deactivateToken} id={memberActionId(member.id, "reactivate")}>
                                           <input type="hidden" name="organization_id" value={organization.id} />
                                           <input type="hidden" name="token_id" value={assignedToken.id} />
                                           <input type="hidden" name="assigned_member_id" value={member.id} />
                                           <input type="hidden" name="status" value="active" />
-                                          <button className="button secondary" type="submit">Reactivate token</button>
                                         </form>
                                       ) : (
-                                        <form action={deactivateToken}>
+                                        <form action={deactivateToken} id={memberActionId(member.id, "deactivate")}>
                                           <input type="hidden" name="organization_id" value={organization.id} />
                                           <input type="hidden" name="token_id" value={assignedToken.id} />
-                                          <button className="button secondary" type="submit">Deactivate token</button>
                                         </form>
                                       )}
                                     </>
                                   ) : member.status === "active" ? (
-                                    <form action={issueToken} className="table-actions">
+                                    <form action={issueToken} className="table-actions" id={memberActionId(member.id, "issue-token")}>
                                       <input type="hidden" name="organization_id" value={organization.id} />
                                       <input type="hidden" name="assigned_member_id" value={member.id} />
-                                      <button className="button secondary" type="submit">Issue token</button>
                                     </form>
                                   ) : (
                                     <span className="editor-copy">Activate employee to issue a token.</span>
@@ -316,7 +322,11 @@ export function BusinessTeamSection({
                                   {normalizeBusinessRole(member.role) === "super_admin" ? (
                                     <p className="table-subtext">Owner role is locked.</p>
                                   ) : (
-                                    <form action={updateEmployeeRole} className="table-actions">
+                                    <form
+                                      action={updateEmployeeRole}
+                                      className="table-actions"
+                                      id={memberActionId(member.id, "role")}
+                                    >
                                       <input type="hidden" name="organization_id" value={organization.id} />
                                       <input type="hidden" name="member_id" value={member.id} />
                                       <select
@@ -330,48 +340,127 @@ export function BusinessTeamSection({
                                         <option value="business_admin">Business admin</option>
                                         <option value="super_admin">Super admin</option>
                                       </select>
-                                      <button className="button secondary" type="submit">Save role</button>
                                     </form>
                                   )}
                                   {member.status === "active" && member.email ? (
-                                    <form action={sendBusinessLoginInvite}>
+                                    <form action={sendBusinessLoginInvite} id={memberActionId(member.id, "invite")}>
                                       <input type="hidden" name="organization_id" value={organization.id} />
                                       <input type="hidden" name="member_id" value={member.id} />
-                                      <button className="button secondary" type="submit">Send invite</button>
                                     </form>
                                   ) : null}
 
                                   <div className="dashboard-kicker">Danger zone</div>
                                   {member.status === "active" ? (
-                                    <form action={updateEmployeeStatus}>
+                                    <form action={updateEmployeeStatus} id={memberActionId(member.id, "archive")}>
                                       <input type="hidden" name="organization_id" value={organization.id} />
                                       <input type="hidden" name="member_id" value={member.id} />
                                       <input type="hidden" name="status" value="inactive" />
-                                      <ConfirmSubmitButton
-                                        className="button secondary"
-                                        confirmMessage={`Archive ${member.name}? Their assigned token will be deactivated.`}
-                                      >
-                                        Archive
-                                      </ConfirmSubmitButton>
                                     </form>
                                   ) : (
-                                    <form action={updateEmployeeStatus}>
+                                    <form action={updateEmployeeStatus} id={memberActionId(member.id, "restore")}>
                                       <input type="hidden" name="organization_id" value={organization.id} />
                                       <input type="hidden" name="member_id" value={member.id} />
                                       <input type="hidden" name="status" value="active" />
-                                      <button className="button secondary" type="submit">Restore</button>
                                     </form>
                                   )}
-                                  <form action={deleteEmployee}>
+                                  <form action={deleteEmployee} id={memberActionId(member.id, "delete")}>
                                     <input type="hidden" name="organization_id" value={organization.id} />
                                     <input type="hidden" name="member_id" value={member.id} />
-                                    <ConfirmSubmitButton
-                                      className="button secondary"
-                                      confirmMessage={`Permanently delete ${member.name}? This will unassign their token and remove them from the business table.`}
-                                    >
-                                      Delete
-                                    </ConfirmSubmitButton>
                                   </form>
+
+                                  <div className="employee-action-bar">
+                                    <div className="employee-action-bar-group">
+                                      <button className="button secondary" type="submit" form={memberActionId(member.id, "headshot")}>
+                                        {member.headshot_url ? "Change headshot" : "Upload headshot"}
+                                      </button>
+                                      {member.headshot_url ? (
+                                        <ConfirmSubmitButton
+                                          className="button secondary"
+                                          confirmMessage={`Delete ${member.name}'s headshot?`}
+                                          form={memberActionId(member.id, "delete-headshot")}
+                                        >
+                                          Delete headshot
+                                        </ConfirmSubmitButton>
+                                      ) : null}
+                                      <button className="button secondary" type="submit" form={memberActionId(member.id, "profile")}>
+                                        Save profile
+                                      </button>
+                                      {showLocationControls ? (
+                                        <button className="button secondary" type="submit" form={memberActionId(member.id, "location")}>
+                                          Save location
+                                        </button>
+                                      ) : null}
+                                    </div>
+
+                                    <div className="employee-action-bar-group">
+                                      {assignedToken ? (
+                                        <>
+                                          {member.email && member.status === "active" && assignedToken.status === "active" ? (
+                                            <button
+                                              className="button secondary"
+                                              type="submit"
+                                              form={memberActionId(member.id, "send-pass")}
+                                            >
+                                              Send digital pass
+                                            </button>
+                                          ) : (
+                                            <button className="button secondary" type="button" disabled aria-disabled="true">
+                                              Send digital pass
+                                            </button>
+                                          )}
+                                          <button className="button secondary" type="submit" form={memberActionId(member.id, "assignment")}>
+                                            Save assignment
+                                          </button>
+                                          <button className="button secondary" type="submit" form={memberActionId(member.id, "unassign")}>
+                                            Unassign token
+                                          </button>
+                                          {assignedToken.status === "inactive" ? (
+                                            <button className="button secondary" type="submit" form={memberActionId(member.id, "reactivate")}>
+                                              Reactivate token
+                                            </button>
+                                          ) : (
+                                            <button className="button secondary" type="submit" form={memberActionId(member.id, "deactivate")}>
+                                              Deactivate token
+                                            </button>
+                                          )}
+                                        </>
+                                      ) : member.status === "active" ? (
+                                        <button className="button secondary" type="submit" form={memberActionId(member.id, "issue-token")}>
+                                          Issue token
+                                        </button>
+                                      ) : null}
+                                      {normalizeBusinessRole(member.role) !== "super_admin" ? (
+                                        <button className="button secondary" type="submit" form={memberActionId(member.id, "role")}>
+                                          Save role
+                                        </button>
+                                      ) : null}
+                                      {member.status === "active" && member.email ? (
+                                        <button className="button secondary" type="submit" form={memberActionId(member.id, "invite")}>
+                                          Send invite
+                                        </button>
+                                      ) : null}
+                                      {member.status === "active" ? (
+                                        <ConfirmSubmitButton
+                                          className="button secondary"
+                                          confirmMessage={`Archive ${member.name}? Their assigned token will be deactivated.`}
+                                          form={memberActionId(member.id, "archive")}
+                                        >
+                                          Archive
+                                        </ConfirmSubmitButton>
+                                      ) : (
+                                        <button className="button secondary" type="submit" form={memberActionId(member.id, "restore")}>
+                                          Restore
+                                        </button>
+                                      )}
+                                      <ConfirmSubmitButton
+                                        className="button secondary"
+                                        confirmMessage={`Permanently delete ${member.name}? This will unassign their token and remove them from the business table.`}
+                                        form={memberActionId(member.id, "delete")}
+                                      >
+                                        Delete
+                                      </ConfirmSubmitButton>
+                                    </div>
+                                  </div>
                                 </div>
                               </details>
                             </>
@@ -402,7 +491,11 @@ export function BusinessTeamSection({
                       <td>
                         <div className="table-actions">
                           <CopyLinkButton value={url} />
-                          <form action={updateTokenAssignment} className="table-actions">
+                          <form
+                            action={updateTokenAssignment}
+                            className="table-actions"
+                            id={tokenActionId(token.id, "assignment")}
+                          >
                             <input type="hidden" name="organization_id" value={organization.id} />
                             <input type="hidden" name="token_id" value={token.id} />
                             <select
@@ -418,15 +511,23 @@ export function BusinessTeamSection({
                                 </option>
                               ))}
                             </select>
-                            <button className="button secondary" type="submit">Save</button>
                           </form>
-                          {token.status !== "inactive" ? (
-                            <form action={deactivateToken}>
-                              <input type="hidden" name="organization_id" value={organization.id} />
-                              <input type="hidden" name="token_id" value={token.id} />
-                              <button className="button secondary" type="submit">Deactivate token</button>
-                            </form>
-                          ) : null}
+                          <div className="employee-action-bar">
+                            <button className="button secondary" type="submit" form={tokenActionId(token.id, "assignment")}>
+                              Save assignment
+                            </button>
+                            {token.status !== "inactive" ? (
+                              <form action={deactivateToken} id={tokenActionId(token.id, "deactivate")}>
+                                <input type="hidden" name="organization_id" value={organization.id} />
+                                <input type="hidden" name="token_id" value={token.id} />
+                              </form>
+                            ) : null}
+                            {token.status !== "inactive" ? (
+                              <button className="button secondary" type="submit" form={tokenActionId(token.id, "deactivate")}>
+                                Deactivate token
+                              </button>
+                            ) : null}
+                          </div>
                         </div>
                       </td>
                     </tr>
