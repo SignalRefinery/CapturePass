@@ -211,37 +211,32 @@ export default async function PublicProfilePage({ params, searchParams }: PagePr
     : null;
   const basePublicView = profileRecordToPublicProfile(profile);
   const publicViews = profileViews.map((view) => profileViewToPublicProfile(profile, view));
-  const { defaultPublicView, orderedPublicViews } = isMultiViewProfile
-    ? isDemoRealEstateProfile
-      ? {
-          defaultPublicView: basePublicView,
-          orderedPublicViews: [basePublicView, ...publicViews]
-        }
-      : buildPublicProfileViews(profile, profileViews, defaultProfileView)
+  const { defaultPublicView: configuredDefaultPublicView, orderedPublicViews } = isMultiViewProfile
+    ? buildPublicProfileViews(profile, profileViews, defaultProfileView)
     : {
         defaultPublicView: basePublicView,
         orderedPublicViews: [basePublicView]
       };
-  const publicNavViews = orderedPublicViews.filter((view) => view.show_in_public_nav !== false);
+  const defaultPublicView = isDemoRealEstateProfile ? basePublicView : configuredDefaultPublicView;
+  const displayPublicViews = isDemoRealEstateProfile
+    ? [basePublicView, ...publicViews.filter((view) => view.view_id !== basePublicView.view_id)]
+    : orderedPublicViews;
+  const publicNavViews = displayPublicViews.filter((view) => view.show_in_public_nav !== false);
   const selectedPublicView =
     isMultiViewProfile && requestedView
-      ? orderedPublicViews.find((view) => view.view_id === requestedView || view.view_key === requestedView) ||
+      ? displayPublicViews.find((view) => view.view_id === requestedView || view.view_key === requestedView) ||
         defaultPublicView
       : defaultPublicView;
 
   return (
-      <CapturePassProfileShell
+    <CapturePassProfileShell
       profile={selectedPublicView}
-      views={orderedPublicViews}
+      views={displayPublicViews}
       navViews={publicNavViews}
       pageMode={isMultiViewProfile ? profile.page_mode || "single" : "single"}
       multiViewDisplayMode={isMultiViewProfile ? profile.multi_view_display_mode || "favorite" : "favorite"}
       initialView={requestedView}
-      heroLabel={
-        isMultiViewProfile && selectedPublicView.view_id
-          ? "Live property"
-          : "Live profile"
-      }
+      heroLabel={isMultiViewProfile && selectedPublicView.view_id ? "Live property" : "Live profile"}
       initialAuth={null}
     />
   );

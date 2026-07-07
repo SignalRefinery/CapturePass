@@ -60,7 +60,6 @@
         "profile_badge_3": "Listing strategy",
         "page_mode": "multi",
         "multi_view_display_mode": "landing",
-        "default_view_key": "featured-listing",
         "primary_links": [
           {
             "title": "Home Search",
@@ -91,8 +90,8 @@
           "sort_order": 0,
           "full_name": "Elena Brooks",
           "organization_name": "Northline Realty Group",
-          "role_line": "1842 Linden Grove Drive, Springfield, IL",
-          "intro": "Updated kitchen, finished basement, fenced yard, and easy access to parks and daily errands.",
+          "role_line": "Springfield, IL",
+          "intro": "1842 Linden Grove Drive in Springfield, IL with an updated kitchen, finished basement, fenced yard, and easy access to parks and daily errands.",
           "email": "elena.brooks@northlinerealtygroup.com",
           "phone": "(555) 420-8800",
           "text_phone": "(555) 420-8801",
@@ -130,8 +129,8 @@
           "sort_order": 1,
           "full_name": "Elena Brooks",
           "organization_name": "Northline Realty Group",
-          "role_line": "722 Westridge Court, Chatham, IL",
-          "intro": "Sunday 1-3 PM. Bright main level, easy parking, and a layout that works well for entertaining.",
+          "role_line": "Chatham, IL",
+          "intro": "722 Westridge Court in Chatham, IL is open Sunday 1-3 PM with bright main-level spaces, easy parking, and a layout that works well for entertaining.",
           "email": "elena.brooks@northlinerealtygroup.com",
           "phone": "(555) 420-8800",
           "text_phone": "(555) 420-8801",
@@ -147,11 +146,6 @@
               "type": "website"
             },
             {
-              "title": "Save This Home",
-              "url": "https://northlinerealtygroup.com/open-house/save/722-westridge-court",
-              "type": "website"
-            },
-            {
               "title": "Schedule Private Showing",
               "url": "https://northlinerealtygroup.com/listings/722-westridge-court/showing",
               "type": "booking"
@@ -160,6 +154,11 @@
               "title": "Contact REALTOR®",
               "url": "elena.brooks@northlinerealtygroup.com",
               "type": "email"
+            },
+            {
+              "title": "Get Directions",
+              "url": "722 Westridge Court, Chatham, IL",
+              "type": "directions"
             }
           ]
         },
@@ -169,8 +168,8 @@
           "sort_order": 2,
           "full_name": "Elena Brooks",
           "organization_name": "Northline Realty Group",
-          "role_line": "309 Maple Hollow Lane, Rochester, IL",
-          "intro": "Early access opportunity with professional photos coming soon and room to move quickly before it hits the broader market.",
+          "role_line": "Rochester, IL",
+          "intro": "309 Maple Hollow Lane in Rochester, IL is an early-access opportunity with professional photos coming soon and room to move quickly before it hits the broader market.",
           "email": "elena.brooks@northlinerealtygroup.com",
           "phone": "(555) 420-8800",
           "text_phone": "(555) 420-8801",

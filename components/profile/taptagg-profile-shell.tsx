@@ -267,9 +267,12 @@ export function CapturePassProfileShell({
     hideEmail: !!activeProfile.email
   });
   const displayName = activeProfile.full_name || "CapturePass";
-  const descriptor = activeProfile.role_line && activeProfile.organization_name
-    ? `${activeProfile.role_line} at ${activeProfile.organization_name}`
-    : activeProfile.role_line || activeProfile.organization_name || "CapturePass contact card";
+  const descriptor =
+    activeProfile.view_id && (activeProfile.role_line || activeProfile.organization_name)
+      ? activeProfile.role_line || activeProfile.organization_name || "CapturePass contact card"
+      : activeProfile.role_line && activeProfile.organization_name
+        ? `${activeProfile.role_line} at ${activeProfile.organization_name}`
+        : activeProfile.role_line || activeProfile.organization_name || "CapturePass contact card";
   const isBusinessProfile = activeProfile.is_business_profile === true;
   const useWideLogo = !!activeProfile.brand_logo_url || isBusinessProfile || activeProfile.is_business_individual === true;
   const avatarUrl =
