@@ -33,6 +33,10 @@ function adminBasicsFormId(field: string) {
   return `admin-profile-basic-${field}`;
 }
 
+function adminCtaFormId(field: string) {
+  return `admin-profile-cta-${field}`;
+}
+
 type PageProps = {
   params: Promise<{ userId: string }>;
   searchParams?: Promise<{ saved?: string; error?: string }>;
@@ -629,7 +633,12 @@ export default async function AdminUserPage({ params, searchParams }: PageProps)
                 </button>
               </div>
 
-              <form action={updateUserAction} className="card" style={{ padding: 14, marginTop: 12 }}>
+              <form
+                action={updateUserAction}
+                className="card"
+                id={adminBasicsFormId("intro")}
+                style={{ padding: 14, marginTop: 12 }}
+              >
                 <input type="hidden" name="userId" value={profile.user_id} />
                 <input type="hidden" name="field" value="intro" />
                 <label className="label" htmlFor="profile-intro">
@@ -643,9 +652,6 @@ export default async function AdminUserPage({ params, searchParams }: PageProps)
                   placeholder="A short introduction for the profile."
                   style={{ width: "100%", padding: 10, margin: "8px 0" }}
                 />
-                <button className="button primary" type="submit">
-                  Save intro
-                </button>
               </form>
 
               <div className="card" style={{ padding: 14, marginTop: 12 }}>
@@ -699,9 +705,10 @@ export default async function AdminUserPage({ params, searchParams }: PageProps)
                   <form
                     key={field}
                     action={updateUserAction}
+                    id={adminCtaFormId(field)}
                     style={{
                       display: "grid",
-                      gridTemplateColumns: "minmax(180px, 1.2fr) minmax(180px, 0.9fr) minmax(220px, 1.3fr) auto",
+                      gridTemplateColumns: "minmax(180px, 1.2fr) minmax(180px, 0.9fr) minmax(220px, 1.3fr)",
                       gap: 10,
                       alignItems: "end",
                       marginTop: 10
@@ -778,12 +785,52 @@ export default async function AdminUserPage({ params, searchParams }: PageProps)
                         style={{ width: "100%", padding: 10, marginTop: 8 }}
                       />
                     </div>
-                    <button className="button secondary" type="submit">
-                      Save
-                    </button>
                   </form>
                   );
                 })}
+              </div>
+
+              <div className="admin-docked-actions" aria-label="Profile actions">
+                <button className="button primary" type="submit" form={adminBasicsFormId("full_name")}>
+                  Save name
+                </button>
+                <button className="button primary" type="submit" form={adminBasicsFormId("email")}>
+                  Save email
+                </button>
+                <button className="button primary" type="submit" form={adminBasicsFormId("slug")}>
+                  Save slug
+                </button>
+                <button className="button primary" type="submit" form={adminBasicsFormId("organization_name")}>
+                  Save organization
+                </button>
+                <button className="button primary" type="submit" form={adminBasicsFormId("role_line")}>
+                  Save role line
+                </button>
+                <button className="button primary" type="submit" form={adminBasicsFormId("website_url")}>
+                  Save website
+                </button>
+                <button className="button primary" type="submit" form={adminBasicsFormId("phone")}>
+                  Save phone
+                </button>
+                <button className="button primary" type="submit" form={adminBasicsFormId("text_phone")}>
+                  Save text phone
+                </button>
+                <button className="button primary" type="submit" form={adminBasicsFormId("promo_code_used")}>
+                  Save promo
+                </button>
+                <button className="button primary" type="submit" form={adminBasicsFormId("intro")}>
+                  Save intro
+                </button>
+                {[
+                  "primary_link_1",
+                  "primary_link_2",
+                  "primary_link_3",
+                  "primary_link_4"
+                ].map((field, index) => (
+                  <button key={field} className="button secondary" type="submit" form={adminCtaFormId(field)}>
+                    Save button {index + 1}
+                  </button>
+                ))}
               </div>
             </div>
           </div>
