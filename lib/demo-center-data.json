@@ -102,6 +102,7 @@
         "profile_badge_3": "Listing strategy",
         "page_mode": "multi",
         "multi_view_display_mode": "landing",
+        "default_view_key": "featured-listing",
         "primary_links": [
           {
             "title": "Home Search",
