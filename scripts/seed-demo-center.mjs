@@ -254,6 +254,24 @@ async function upsertDemoViews(admin, demo, profileId) {
   return defaultViewId;
 }
 
+async function clearDemoViews(admin, profileId) {
+  const { data: existingViews, error: listError } = await admin
+    .from("profile_views")
+    .select("id")
+    .eq("profile_id", profileId);
+
+  if (listError) {
+    throw new Error(listError.message);
+  }
+
+  for (const view of existingViews || []) {
+    const { error } = await admin.from("profile_views").delete().eq("id", view.id);
+    if (error) {
+      throw new Error(error.message);
+    }
+  }
+}
+
 async function seedDemoCenter() {
   requireSeedSafety();
   const admin = createAdmin();
@@ -280,6 +298,8 @@ async function seedDemoCenter() {
           throw new Error(error.message);
         }
       }
+    } else {
+      await clearDemoViews(admin, profileId);
     }
 
     console.log(`Seeded ${demo.slug}`);

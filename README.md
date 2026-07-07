@@ -197,6 +197,11 @@ For production, require the extra confirmation flag:
 CAPTUREPASS_SEED_DEMOS=true CAPTUREPASS_SEED_TARGET=production CAPTUREPASS_ALLOW_PRODUCTION_DEMO_SEED=true npm run seed:demos
 ```
 
+Real-estate demo routes are now split:
+
+- `/demo-real-estate` shows the standard REALTOR® profile.
+- `/demo-real-estate-multiview` shows the optional property-switching demo.
+
 ---
 
 Supabase Setup

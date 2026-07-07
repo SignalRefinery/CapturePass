@@ -116,7 +116,6 @@ export default async function PublicProfilePage({ params, searchParams }: PagePr
   const plan = getProfilePlan(profile);
   const canUseMultiViewProfile = isRealEstateBusiness(profile.business_type) && plan.hasMoreProfileSections;
   const isMultiViewProfile = canUseMultiViewProfile && profile.page_mode === "multi";
-  const isDemoRealEstateProfile = normalizedSlug === "demo-real-estate";
   const profileViews = isMultiViewProfile && profile.id
     ? (await admin
         .from("profile_views")
@@ -203,35 +202,31 @@ export default async function PublicProfilePage({ params, searchParams }: PagePr
               created_at,
               updated_at
             `
-          )
-          .eq("id", profile.default_view_id)
-          .eq("profile_id", profile.id)
-          .maybeSingle()
+        )
+        .eq("id", profile.default_view_id)
+        .eq("profile_id", profile.id)
+        .maybeSingle()
       ).data || null
     : null;
   const basePublicView = profileRecordToPublicProfile(profile);
   const publicViews = profileViews.map((view) => profileViewToPublicProfile(profile, view));
-  const { defaultPublicView: configuredDefaultPublicView, orderedPublicViews } = isMultiViewProfile
+  const { defaultPublicView, orderedPublicViews } = isMultiViewProfile
     ? buildPublicProfileViews(profile, profileViews, defaultProfileView)
     : {
         defaultPublicView: basePublicView,
         orderedPublicViews: [basePublicView]
       };
-  const defaultPublicView = isDemoRealEstateProfile ? basePublicView : configuredDefaultPublicView;
-  const displayPublicViews = isDemoRealEstateProfile
-    ? [basePublicView, ...publicViews.filter((view) => view.view_id !== basePublicView.view_id)]
-    : orderedPublicViews;
-  const publicNavViews = displayPublicViews.filter((view) => view.show_in_public_nav !== false);
+  const publicNavViews = orderedPublicViews.filter((view) => view.show_in_public_nav !== false);
   const selectedPublicView =
     isMultiViewProfile && requestedView
-      ? displayPublicViews.find((view) => view.view_id === requestedView || view.view_key === requestedView) ||
+      ? orderedPublicViews.find((view) => view.view_id === requestedView || view.view_key === requestedView) ||
         defaultPublicView
       : defaultPublicView;
 
   return (
     <CapturePassProfileShell
       profile={selectedPublicView}
-      views={displayPublicViews}
+      views={orderedPublicViews}
       navViews={publicNavViews}
       pageMode={isMultiViewProfile ? profile.page_mode || "single" : "single"}
       multiViewDisplayMode={isMultiViewProfile ? profile.multi_view_display_mode || "favorite" : "favorite"}
