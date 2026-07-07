@@ -1,7 +1,11 @@
 import { notFound, redirect } from "next/navigation";
 import { unstable_noStore as noStore } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { buildPublicProfileViews, profileRecordToPublicProfile } from "@/lib/profiles/public-view";
+import {
+  buildPublicProfileViews,
+  profileRecordToPublicProfile,
+  profileViewToPublicProfile
+} from "@/lib/profiles/public-view";
 import { getProfilePlan } from "@/lib/plans";
 import { profileMetadata } from "@/lib/privacy/profile-privacy";
 import { isRealEstateBusiness } from "@/lib/business-types";
@@ -112,6 +116,7 @@ export default async function PublicProfilePage({ params, searchParams }: PagePr
   const plan = getProfilePlan(profile);
   const canUseMultiViewProfile = isRealEstateBusiness(profile.business_type) && plan.hasMoreProfileSections;
   const isMultiViewProfile = canUseMultiViewProfile && profile.page_mode === "multi";
+  const isDemoRealEstateProfile = normalizedSlug === "demo-real-estate";
   const profileViews = isMultiViewProfile && profile.id
     ? (await admin
         .from("profile_views")
@@ -204,11 +209,18 @@ export default async function PublicProfilePage({ params, searchParams }: PagePr
           .maybeSingle()
       ).data || null
     : null;
+  const basePublicView = profileRecordToPublicProfile(profile);
+  const publicViews = profileViews.map((view) => profileViewToPublicProfile(profile, view));
   const { defaultPublicView, orderedPublicViews } = isMultiViewProfile
-    ? buildPublicProfileViews(profile, profileViews, defaultProfileView)
+    ? isDemoRealEstateProfile
+      ? {
+          defaultPublicView: basePublicView,
+          orderedPublicViews: [basePublicView, ...publicViews]
+        }
+      : buildPublicProfileViews(profile, profileViews, defaultProfileView)
     : {
-        defaultPublicView: profileRecordToPublicProfile(profile),
-        orderedPublicViews: [profileRecordToPublicProfile(profile)]
+        defaultPublicView: basePublicView,
+        orderedPublicViews: [basePublicView]
       };
   const publicNavViews = orderedPublicViews.filter((view) => view.show_in_public_nav !== false);
   const selectedPublicView =
