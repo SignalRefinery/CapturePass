@@ -32,6 +32,16 @@ export const BUSINESS_TYPE_DESCRIPTIONS: Record<BusinessType, string> = {
   general_business: "Any business that does not need a vertical-specific setup yet."
 };
 
+export const BUSINESS_TYPE_SECTION_DIVIDER_LABELS: Record<BusinessType, string> = {
+  automotive_dealership: "Shopping Tools",
+  real_estate_brokerage: "Listings & Resources",
+  insurance_agency: "Insurance Services",
+  mortgage_lender: "Mortgage Tools",
+  staffing_recruiting: "Jobs & Hiring",
+  financial_advisor: "Planning Resources",
+  general_business: "Quick Actions"
+};
+
 export function normalizeBusinessType(value?: string | null): BusinessType {
   switch (value) {
     case "automotive_dealership":
@@ -49,6 +59,10 @@ export function normalizeBusinessType(value?: string | null): BusinessType {
 
 export function getBusinessTypeLabel(value?: string | null) {
   return BUSINESS_TYPE_LABELS[normalizeBusinessType(value)];
+}
+
+export function getBusinessTypeSectionDividerLabel(value?: string | null) {
+  return BUSINESS_TYPE_SECTION_DIVIDER_LABELS[normalizeBusinessType(value)];
 }
 
 export function isAutomotiveBusiness(value?: string | null) {

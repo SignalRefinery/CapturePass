@@ -612,26 +612,33 @@
   line-height:1.72;
 }
 
-.heroSignalRow{
+.sectionDivider{
   position:relative;
   display:flex;
-  justify-content:center;
-  gap:8px;
-  flex-wrap:wrap;
-  margin-top:22px;
+  align-items:center;
+  gap:14px;
+  width:min(760px, 100%);
+  margin:32px auto 18px;
 }
 
-.heroSignalRow span{
-  display:inline-flex;
-  align-items:center;
-  min-height:34px;
-  padding:8px 12px;
-  border-radius:999px;
-  border:1px solid rgba(255,255,255,.075);
-  background:var(--chip-bg);
-  color:var(--muted);
+.sectionDividerLine{
+  flex:1;
+  height:1px;
+  background:linear-gradient(90deg, transparent, rgba(111,143,183,.28), transparent);
+}
+
+.sectionDividerTitle{
+  margin:0;
+  color:rgba(145,168,198,.96);
   font-size:12px;
-  font-weight:600;
+  font-weight:700;
+  letter-spacing:.24em;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+
+.sectionDividerTitle::selection{
+  background:transparent;
 }
 
 .profileGrid{
@@ -1210,6 +1217,14 @@
     padding-left:10px;
     padding-right:10px;
   }
+  .sectionDivider{
+    gap:10px;
+    margin:26px auto 14px;
+  }
+  .sectionDividerTitle{
+    font-size:11px;
+    letter-spacing:.18em;
+  }
   .signupCta{
     display:grid;
     gap:18px;
@@ -1236,5 +1251,11 @@
 
   .profileQuickActionPlaceholder{
     display:none;
+  }
+  .sectionDivider{
+    gap:8px;
+  }
+  .sectionDividerTitle{
+    letter-spacing:.14em;
   }
 }

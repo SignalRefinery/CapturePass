@@ -5,7 +5,9 @@ import type { CSSProperties } from "react";
 import { useState } from "react";
 import { ProfileAnalyticsTracker, trackProfileAction } from "@/components/analytics/profile-analytics-tracker";
 import { CapturePassBrandArt } from "@/components/shared/capturepass-brand-art";
+import { SectionDivider } from "@/components/profile/section-divider";
 import { getReadableProfileUrl } from "@/lib/urls/profile-url";
+import { getBusinessTypeSectionDividerLabel } from "@/lib/business-types";
 import { CUSTOM_THEME_KEY, normalizeThemeKey, resolveThemeColors, themeUsesLightShell } from "@/lib/themes";
 import { ContactShareModal } from "@/components/profile/contact-share-modal";
 import { ReportIssueForm } from "@/components/profile/report-issue-form";
@@ -259,7 +261,6 @@ export function CapturePassProfileShell({
       ? { label: "Email", href: `mailto:${activeProfile.email}`, title: "Email" }
       : null
   ] as const;
-  const visibleQuickActions = quickActions.filter((action): action is NonNullable<(typeof quickActions)[number]> => !!action);
   const intro =
     activeProfile.intro ||
     "A cleaner way to connect, save contact details, and move the right information forward without clutter.";
@@ -328,6 +329,7 @@ export function CapturePassProfileShell({
     multiViewDisplayMode === "landing"
       ? "Choose a property or return to the main profile."
       : "Choose a featured property or return to the main profile.";
+  const sectionDividerTitle = getBusinessTypeSectionDividerLabel(activeProfile.business_type);
   const contactShareTarget = {
     profileId: activeProfile.contact_share_profile_id || activeProfile.id || null,
     slug: activeProfile.slug || null,
@@ -560,15 +562,12 @@ export function CapturePassProfileShell({
               </section>
             ) : null}
 
-            <div className={styles.heroSignalRow} aria-label="Profile features">
-              <span>Contact card</span>
-              <span>Direct links</span>
-              <span>
-                {visibleQuickActions.length
-                  ? `${visibleQuickActions.map((action) => action.label).join(" / ")} ready`
-                  : "QR ready"}
-              </span>
-            </div>
+            <SectionDivider
+              className={styles.sectionDivider}
+              lineClassName={styles.sectionDividerLine}
+              titleClassName={styles.sectionDividerTitle}
+              title={sectionDividerTitle}
+            />
           </div>
         </section>
 
