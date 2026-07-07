@@ -7,7 +7,6 @@ import { ProfileAnalyticsTracker, trackProfileAction } from "@/components/analyt
 import { CapturePassBrandArt } from "@/components/shared/capturepass-brand-art";
 import { getReadableProfileUrl } from "@/lib/urls/profile-url";
 import { CUSTOM_THEME_KEY, normalizeThemeKey, resolveThemeColors, themeUsesLightShell } from "@/lib/themes";
-import { resolveSecondaryActionMode } from "@/lib/profiles/secondary-action";
 import { ContactShareModal } from "@/components/profile/contact-share-modal";
 import { ReportIssueForm } from "@/components/profile/report-issue-form";
 import { buildProfileButtons, getProfileButtonAnalyticsContext } from "@/lib/profile-buttons";
@@ -245,23 +244,27 @@ export function CapturePassProfileShell({
   const pills = getPills(activeProfile);
   const showEmail = activeProfile.show_email !== false;
   const showPhone = activeProfile.show_phone !== false;
+  const showText = activeProfile.show_text !== false;
   const contactUrl = contactHref(activeProfile);
   const contactFilename = contactDownloadFilename(activeProfile);
-  const secondaryActionMode = resolveSecondaryActionMode(activeProfile);
   const textPhone = activeProfile.text_phone || activeProfile.phone || "";
-  const secondaryAction =
-    secondaryActionMode === "call" && activeProfile.phone
-      ? { label: "Call", href: callHref(activeProfile.phone) }
-      : secondaryActionMode === "text" && textPhone
-        ? { label: "Text", href: textHref(textPhone) }
-        : secondaryActionMode === "email" && showEmail && activeProfile.email
-          ? { label: "Email", href: `mailto:${activeProfile.email}` }
-          : null;
+  const quickActions = [
+    showPhone && activeProfile.phone
+      ? { label: "Call", href: callHref(activeProfile.phone), title: "Call" }
+      : null,
+    showText && textPhone
+      ? { label: "Text", href: textHref(textPhone), title: "Text" }
+      : null,
+    showEmail && activeProfile.email
+      ? { label: "Email", href: `mailto:${activeProfile.email}`, title: "Email" }
+      : null
+  ] as const;
+  const visibleQuickActions = quickActions.filter((action): action is NonNullable<(typeof quickActions)[number]> => !!action);
   const intro =
     activeProfile.intro ||
     "A cleaner way to connect, save contact details, and move the right information forward without clutter.";
   const links = buildProfileButtons(activeProfile, {
-    hideEmail: secondaryAction?.label === "Email"
+    hideEmail: !!activeProfile.email
   });
   const displayName = activeProfile.full_name || "CapturePass";
   const descriptor = activeProfile.role_line && activeProfile.organization_name
@@ -439,7 +442,7 @@ export function CapturePassProfileShell({
             <div className={`${styles.ctaRow} ${styles.profileActions}`}>
               {contactHref(activeProfile) !== "#" && (showEmail || showPhone) ? (
                 <a
-                  className={`${styles.button} ${styles.profilePrimaryButton}`}
+                  className={`${styles.button} ${styles.profilePrimaryButton} ${styles.profileStackButton}`}
                   href={contactUrl}
                   download={contactFilename}
                   onClick={async (event) => {
@@ -457,18 +460,40 @@ export function CapturePassProfileShell({
                 </a>
               ) : null}
 
-              {secondaryAction ? (
-                <a
-                  className={`${styles.button} ${styles.profileSubtleButton}`}
-                  href={secondaryAction.href}
-                  onClick={() => trackProfileAction(analyticsTarget, { title: secondaryAction.label, href: secondaryAction.href })}
-                >
-                  {secondaryAction.label}
-                </a>
-              ) : null}
+              <div className={styles.profileQuickActions} aria-label="Quick contact actions">
+                {quickActions.map((action, index) =>
+                  action ? (
+                    <a
+                      key={action.label}
+                      className={`${styles.button} ${styles.profileSubtleButton} ${styles.profileStackButton} ${styles.profileQuickActionButton}`}
+                      href={action.href}
+                      onClick={() =>
+                        trackProfileAction(analyticsTarget, {
+                          title: action.label,
+                          href: action.href
+                        })
+                      }
+                    >
+                      {action.label}
+                    </a>
+                  ) : (
+                    <span
+                      key={`quick-action-${index}`}
+                      className={`${styles.button} ${styles.profileSubtleButton} ${styles.profileStackButton} ${styles.profileQuickActionButton} ${styles.profileQuickActionPlaceholder}`}
+                      aria-hidden="true"
+                    >
+                      {["Call", "Text", "Email"][index]}
+                    </span>
+                  )
+                )}
+              </div>
 
               {contactShareTarget.profileId || contactShareTarget.slug ? (
-                <ContactShareModal target={contactShareTarget} modalStyle={brandStyle} />
+                <ContactShareModal
+                  target={contactShareTarget}
+                  modalStyle={brandStyle}
+                  buttonClassName={styles.profileStackButton}
+                />
               ) : null}
             </div>
 
@@ -477,7 +502,11 @@ export function CapturePassProfileShell({
             <div className={styles.heroSignalRow} aria-label="Profile features">
               <span>Contact card</span>
               <span>Direct links</span>
-              <span>{secondaryAction ? `${secondaryAction.label} ready` : showPhone ? "Contact ready" : "QR ready"}</span>
+              <span>
+                {visibleQuickActions.length
+                  ? `${visibleQuickActions.map((action) => action.label).join(" / ")} ready`
+                  : "QR ready"}
+              </span>
             </div>
           </div>
         </section>

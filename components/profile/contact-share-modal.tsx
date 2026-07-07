@@ -15,6 +15,7 @@ type ContactShareTarget = {
 type ContactShareModalProps = {
   target: ContactShareTarget;
   modalStyle?: CSSProperties;
+  buttonClassName?: string;
 };
 
 type Status = "idle" | "submitting" | "success" | "error";
@@ -30,7 +31,7 @@ const FOCUSABLE_SELECTOR = [
   "[tabindex]:not([tabindex='-1'])"
 ].join(",");
 
-export function ContactShareModal({ target, modalStyle }: ContactShareModalProps) {
+export function ContactShareModal({ target, modalStyle, buttonClassName }: ContactShareModalProps) {
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [closing, setClosing] = useState(false);
@@ -202,7 +203,7 @@ export function ContactShareModal({ target, modalStyle }: ContactShareModalProps
     <>
       <button
         ref={triggerRef}
-        className={`${styles.button} ${styles.profileSubtleButton}`}
+        className={`${styles.button} ${styles.profileSubtleButton}${buttonClassName ? ` ${buttonClassName}` : ""}`}
         type="button"
         onClick={openModal}
       >

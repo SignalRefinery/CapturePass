@@ -545,6 +545,10 @@
   filter:brightness(1.02);
 }
 
+.button:active{
+  transform:translateY(0) scale(.99);
+}
+
 .profilePrimaryButton{
   color:#ffffff;
   background:linear-gradient(180deg, #58b9ff 0%, #2f8dff 100%);
@@ -566,7 +570,38 @@
   border-color:rgba(47,141,255,.42);
 }
 
-.profileActions{margin-top:26px}
+.profileActions{
+  margin-top:26px;
+  width:min(760px, 100%);
+  margin-left:auto;
+  margin-right:auto;
+  display:grid;
+  gap:12px;
+  justify-items:stretch;
+}
+
+.profileStackButton{
+  width:100%;
+  min-width:0;
+}
+
+.profileQuickActions{
+  display:grid;
+  grid-template-columns:repeat(3, minmax(0, 1fr));
+  gap:10px;
+}
+
+.profileQuickActionButton{
+  min-width:0;
+  width:100%;
+  padding-left:12px;
+  padding-right:12px;
+}
+
+.profileQuickActionPlaceholder{
+  visibility:hidden;
+  pointer-events:none;
+}
 
 .profileIntro{
   position:relative;
@@ -1168,6 +1203,13 @@
   .profileIntro{
     font-size:16px;
   }
+  .profileQuickActions{
+    gap:8px;
+  }
+  .profileQuickActionButton{
+    padding-left:10px;
+    padding-right:10px;
+  }
   .signupCta{
     display:grid;
     gap:18px;
@@ -1184,5 +1226,15 @@
   }
   .contactModalPanel h2{
     font-size:34px;
+  }
+}
+
+@media (max-width: 340px){
+  .profileQuickActions{
+    grid-template-columns:1fr;
+  }
+
+  .profileQuickActionPlaceholder{
+    display:none;
   }
 }
