@@ -874,7 +874,7 @@ export function ProfileEditor({
   }
 
   return (
-    <section className="dashboard-wrap">
+    <section className="dashboard-wrap profile-editor-shell">
       <div className="card" style={{ padding: 26 }}>
         <div className="dashboard-kicker">Profile</div>
         <h2
@@ -900,15 +900,7 @@ export function ProfileEditor({
           <strong>{plan.isActivated ? (plan.key === "business_individual" ? "Business Individual" : "Business plan") : "Reserved profile"}</strong>
         </p>
 
-        <form className="editor-form" onSubmit={handleSave} style={{ marginTop: 24 }}>
-          <div className="editor-actions" style={{ marginBottom: 22 }}>
-            <button className="button primary" type="submit" disabled={saving || viewSaving}>
-              {saving || viewSaving ? "Saving..." : "Save changes"}
-            </button>
-            <a className="button secondary" href="/dashboard/preview" target="_blank" rel="noreferrer">
-              Preview profile
-            </a>
-          </div>
+        <form id="profile-editor-form" className="editor-form" onSubmit={handleSave} style={{ marginTop: 24 }}>
 
           <div className="editor-grid">
             <label className="auth-field">
@@ -1880,33 +1872,40 @@ export function ProfileEditor({
           {error ? <p className="auth-error" style={{ marginTop: 18 }}>{error}</p> : null}
           {message ? <p className="auth-message" style={{ marginTop: 18 }}>{message}</p> : null}
 
-          <div className="editor-actions" style={{ marginTop: 24 }}>
-            <button className="button primary" type="submit" disabled={saving || viewSaving}>
-              {saving || viewSaving ? "Saving..." : "Save changes"}
-            </button>
-
-            <button
-              className="button secondary"
-              type="button"
-              onClick={copyPublicProfileUrl}
-              disabled={!safeReadableUrl}
-            >
-              Copy public profile link
-            </button>
-
-            {safeReadableUrl ? (
-              <a className="button secondary" href={safeReadableUrl} target="_blank" rel="noreferrer">
-                Open public profile
-              </a>
-            ) : null}
-
-            {safeCardUrl ? (
-              <button className="button secondary" type="button" onClick={copyCardUrl}>
-                Copy card URL
-              </button>
-            ) : null}
-          </div>
         </form>
+      </div>
+
+      <div className="editor-sticky-actions" aria-label="Profile actions">
+        <div className="editor-sticky-actions-inner">
+          <button className="button primary" type="submit" form="profile-editor-form" disabled={saving || viewSaving}>
+            {saving || viewSaving ? "Saving..." : "Save changes"}
+          </button>
+
+          {safeReadableUrl ? (
+            <a className="button secondary" href={safeReadableUrl} target="_blank" rel="noreferrer">
+              Open public profile
+            </a>
+          ) : (
+            <button className="button secondary" type="button" disabled aria-disabled="true">
+              Open public profile
+            </button>
+          )}
+
+          <button
+            className="button secondary"
+            type="button"
+            onClick={copyPublicProfileUrl}
+            disabled={!safeReadableUrl}
+          >
+            Copy public profile link
+          </button>
+
+          {safeCardUrl ? (
+            <button className="button secondary" type="button" onClick={copyCardUrl}>
+              Copy card URL
+            </button>
+          ) : null}
+        </div>
       </div>
     </section>
   );

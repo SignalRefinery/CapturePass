@@ -2102,6 +2102,29 @@ textarea{font:inherit}
   gap:18px;
   text-align:left;
 }
+.profile-editor-shell{
+  padding-bottom:120px;
+}
+.editor-sticky-actions{
+  position:fixed;
+  left:0;
+  right:0;
+  bottom:0;
+  z-index:40;
+  padding:16px 20px calc(16px + env(safe-area-inset-bottom));
+  background:linear-gradient(180deg, rgba(7,10,18,0), rgba(7,10,18,.88) 24%, rgba(7,10,18,.96));
+  backdrop-filter:blur(16px);
+  border-top:1px solid rgba(255,255,255,.08);
+}
+.editor-sticky-actions-inner{
+  width:min(1120px, calc(100% - 40px));
+  margin:0 auto;
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:10px;
+  flex-wrap:wrap;
+}
 .editor-label{
   display:grid;
   gap:8px;
@@ -2288,6 +2311,21 @@ textarea{font:inherit}
 }
 
 @media (max-width: 720px){
+  .profile-editor-shell{
+    padding-bottom:164px;
+  }
+  .editor-sticky-actions{
+    padding-left:12px;
+    padding-right:12px;
+  }
+  .editor-sticky-actions-inner{
+    width:100%;
+    justify-content:stretch;
+  }
+  .editor-sticky-actions-inner .button{
+    width:100%;
+    min-width:0;
+  }
   .editor-actions{
     gap:10px;
   }

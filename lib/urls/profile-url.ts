@@ -18,7 +18,7 @@ export function getIssuedProfileUrl(profile: ProfileUrlLike) {
     return `${appUrl}/${profile.slug || ""}`;
   }
 
-  return `${appUrl}/u/${profile.private_token}`;
+  return `${appUrl}/pass/${profile.private_token}`;
 }
 
 export function getBusinessMemberProfileUrl(organizationSlug?: string | null, memberName?: string | null) {

@@ -1,16 +1,10 @@
-import { createClient } from "@/lib/supabase/server";
 import { notFound, redirect } from "next/navigation";
 import { unstable_noStore as noStore } from "next/cache";
-import {
-  getDefaultProfileViewServer,
-  getProfileBySlugServer,
-  getProfileViewsForProfileServer
-} from "@/lib/profile-service-server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { buildPublicProfileViews, profileRecordToPublicProfile } from "@/lib/profiles/public-view";
-import { getProfilePlan, profileCanRenderPublicly } from "@/lib/plans";
+import { getProfilePlan } from "@/lib/plans";
 import { profileMetadata } from "@/lib/privacy/profile-privacy";
 import { isRealEstateBusiness } from "@/lib/business-types";
-import { isSlugPubliclyAllowed } from "@/lib/slug-moderation";
 import { CapturePassProfileShell } from "@/components/profile/taptagg-profile-shell";
 import type { ProfileRecord } from "@/lib/types";
 import { resolvePublicBusinessProfile } from "@/lib/business/public-profile-route";
@@ -23,9 +17,14 @@ type PageProps = {
 export async function generateMetadata({ params }: PageProps) {
   const { slug } = await params;
   const normalizedSlug = slug.toLowerCase();
-  const profile = (await getProfileBySlugServer(normalizedSlug)) as ProfileRecord | null;
+  const admin = createAdminClient();
+  const { data: profile } = await admin
+    .from("profiles")
+    .select("*")
+    .eq("slug", normalizedSlug)
+    .maybeSingle<ProfileRecord>();
 
-  if (profile && profileCanRenderPublicly(profile) && isSlugPubliclyAllowed(profile.slug, profile.slug_status)) {
+  if (profile) {
     return buildPublicProfileMetadata({
       description:
         profile.intro ||
@@ -76,7 +75,12 @@ export default async function PublicProfilePage({ params, searchParams }: PagePr
   const { slug } = await params;
   const normalizedSlug = slug.toLowerCase();
   const requestedView = (await searchParams)?.view || null;
-  const profile = (await getProfileBySlugServer(normalizedSlug)) as ProfileRecord | null;
+  const admin = createAdminClient();
+  const { data: profile } = await admin
+    .from("profiles")
+    .select("*")
+    .eq("slug", normalizedSlug)
+    .maybeSingle<ProfileRecord>();
 
   if (!profile) {
     const businessResolution = await resolvePublicBusinessProfile({ businessSlug: normalizedSlug });
@@ -87,22 +91,6 @@ export default async function PublicProfilePage({ params, searchParams }: PagePr
 
     if (businessResolution.kind === "render") {
       const { profile: businessProfile } = businessResolution;
-      const supabase = await createClient();
-
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      const initialAuth = user
-        ? {
-            email: user.email,
-            fullName:
-              user.user_metadata?.full_name ||
-              `${user.user_metadata?.first_name || ""} ${user.user_metadata?.last_name || ""}`.trim(),
-            slug: null,
-          }
-        : null;
-
       return (
         <CapturePassProfileShell
           profile={businessProfile}
@@ -111,25 +99,111 @@ export default async function PublicProfilePage({ params, searchParams }: PagePr
           pageMode="single"
           multiViewDisplayMode="favorite"
           heroLabel="Business profile"
-          initialAuth={initialAuth}
+          initialAuth={null}
         />
       );
     }
   }
 
-  if (
-    !profile ||
-    !profileCanRenderPublicly(profile) ||
-    !isSlugPubliclyAllowed(profile.slug, profile.slug_status)
-  ) {
+  if (!profile) {
     notFound();
   }
 
   const plan = getProfilePlan(profile);
   const canUseMultiViewProfile = isRealEstateBusiness(profile.business_type) && plan.hasMoreProfileSections;
   const isMultiViewProfile = canUseMultiViewProfile && profile.page_mode === "multi";
-  const profileViews = isMultiViewProfile && profile.id ? await getProfileViewsForProfileServer(profile.id) : [];
-  const defaultProfileView = isMultiViewProfile ? await getDefaultProfileViewServer(profile) : null;
+  const profileViews = isMultiViewProfile && profile.id
+    ? (await admin
+        .from("profile_views")
+        .select(
+          `
+            id,
+            profile_id,
+            name,
+            view_key,
+            sort_order,
+            full_name,
+            organization_name,
+            role_line,
+            intro,
+            email,
+            phone,
+            text_phone,
+            website_url,
+            profile_badge_1,
+            profile_badge_2,
+            profile_badge_3,
+            show_email,
+            show_phone,
+            show_text,
+            show_in_public_nav,
+            primary_link_1_title,
+            primary_link_1_url,
+            primary_link_1_type,
+            primary_link_2_title,
+            primary_link_2_url,
+            primary_link_2_type,
+            primary_link_3_title,
+            primary_link_3_url,
+            primary_link_3_type,
+            primary_link_4_title,
+            primary_link_4_url,
+            primary_link_4_type,
+            created_at,
+            updated_at
+          `
+        )
+        .eq("profile_id", profile.id)
+        .order("sort_order", { ascending: true }))
+        .data || []
+    : [];
+  const defaultProfileView = isMultiViewProfile && profile.id && profile.default_view_id
+    ? (
+        await admin
+          .from("profile_views")
+          .select(
+            `
+              id,
+              profile_id,
+              name,
+              view_key,
+              sort_order,
+              full_name,
+              organization_name,
+              role_line,
+              intro,
+              email,
+              phone,
+              text_phone,
+              website_url,
+              profile_badge_1,
+              profile_badge_2,
+              profile_badge_3,
+              show_email,
+              show_phone,
+              show_text,
+              show_in_public_nav,
+              primary_link_1_title,
+              primary_link_1_url,
+              primary_link_1_type,
+              primary_link_2_title,
+              primary_link_2_url,
+              primary_link_2_type,
+              primary_link_3_title,
+              primary_link_3_url,
+              primary_link_3_type,
+              primary_link_4_title,
+              primary_link_4_url,
+              primary_link_4_type,
+              created_at,
+              updated_at
+            `
+          )
+          .eq("id", profile.default_view_id)
+          .eq("profile_id", profile.id)
+          .maybeSingle()
+      ).data || null
+    : null;
   const { defaultPublicView, orderedPublicViews } = isMultiViewProfile
     ? buildPublicProfileViews(profile, profileViews, defaultProfileView)
     : {
@@ -137,22 +211,6 @@ export default async function PublicProfilePage({ params, searchParams }: PagePr
         orderedPublicViews: [profileRecordToPublicProfile(profile)]
       };
   const publicNavViews = orderedPublicViews.filter((view) => view.show_in_public_nav !== false);
-
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  const initialAuth = user
-    ? {
-        email: user.email,
-        fullName:
-          user.user_metadata?.full_name ||
-          `${user.user_metadata?.first_name || ""} ${user.user_metadata?.last_name || ""}`.trim(),
-        slug: null,
-      }
-    : null;
 
   return (
       <CapturePassProfileShell
@@ -163,7 +221,7 @@ export default async function PublicProfilePage({ params, searchParams }: PagePr
       multiViewDisplayMode={isMultiViewProfile ? profile.multi_view_display_mode || "favorite" : "favorite"}
       initialView={requestedView}
       heroLabel={defaultPublicView.business_type === "real_estate_brokerage" ? "Live property" : "Live profile"}
-      initialAuth={initialAuth}
+      initialAuth={null}
     />
   );
 }

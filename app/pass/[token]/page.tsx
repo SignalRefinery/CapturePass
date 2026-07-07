@@ -2,9 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { unstable_noStore as noStore } from "next/cache";
 import { DigitalPassCard } from "@/components/dashboard/digital-pass-card";
 import { profileMetadata } from "@/lib/privacy/profile-privacy";
-import { getProfileByTokenServer } from "@/lib/profile-service-server";
-import { isSlugPubliclyAllowed } from "@/lib/slug-moderation";
-import { profileCanRenderPublicly } from "@/lib/plans";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { getPreferredProfileShareUrl } from "@/lib/urls/profile-url";
 import type { ProfileRecord } from "@/lib/types";
 
@@ -26,13 +24,14 @@ export default async function PublicDigitalPassPage({ params, searchParams }: Pa
     redirect(`/pass/${token}`);
   }
 
-  const profile = (await getProfileByTokenServer(token)) as ProfileRecord | null;
+  const admin = createAdminClient();
+  const { data: profile } = await admin
+    .from("profiles")
+    .select("id, slug, private_token, full_name, role_line, organization_name")
+    .eq("private_token", token)
+    .maybeSingle();
 
-  if (
-    !profile ||
-    !profileCanRenderPublicly(profile) ||
-    !isSlugPubliclyAllowed(profile.slug, profile.slug_status)
-  ) {
+  if (!profile || !profile.private_token) {
     notFound();
   }
   const passViews = [
