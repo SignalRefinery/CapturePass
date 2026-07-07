@@ -29,14 +29,6 @@ function passwordSetupUrl(nextPath: string) {
   return url.toString();
 }
 
-function adminBasicsFormId(field: string) {
-  return `admin-profile-basic-${field}`;
-}
-
-function adminCtaFormId(field: string) {
-  return `admin-profile-cta-${field}`;
-}
-
 type PageProps = {
   params: Promise<{ userId: string }>;
   searchParams?: Promise<{ saved?: string; error?: string }>;
@@ -75,6 +67,136 @@ async function updateUserAction(formData: FormData) {
   const updates: Record<string, unknown> = {};
 
   switch (field) {
+    case "profile_editor": {
+      const { data: currentProfile, error: currentProfileError } = await admin
+        .from("profiles")
+        .select(
+          "full_name, email, slug, organization_name, role_line, website_url, phone, text_phone, promo_code_used, intro, primary_link_1_title, primary_link_1_url, primary_link_1_type, primary_link_2_title, primary_link_2_url, primary_link_2_type, primary_link_3_title, primary_link_3_url, primary_link_3_type, primary_link_4_title, primary_link_4_url, primary_link_4_type"
+        )
+        .eq("user_id", userId)
+        .maybeSingle();
+
+      if (currentProfileError || !currentProfile) {
+        throw new Error("Unable to load the current profile.");
+      }
+
+      const currentFullName = currentProfile.full_name || "";
+      const nextFullName = String(formData.get("full_name") || "").trim();
+      if (nextFullName !== currentFullName) {
+        updates.full_name = nextFullName || null;
+      }
+
+      const currentEmail = currentProfile.email || "";
+      const nextEmail = String(formData.get("email") || "").trim().toLowerCase();
+      if (nextEmail !== currentEmail) {
+        if (nextEmail) {
+          const { error: authError } = await admin.auth.admin.updateUserById(userId, {
+            email: nextEmail,
+            email_confirm: true
+          });
+
+          if (authError) {
+            throw new Error(authError.message);
+          }
+
+          const { error: resetError } = await admin.auth.resetPasswordForEmail(nextEmail, {
+            redirectTo: passwordSetupUrl(`/admin/account/${userId}`)
+          });
+
+          if (resetError) {
+            throw new Error(resetError.message);
+          }
+
+          updates.email = nextEmail;
+        } else {
+          updates.email = null;
+        }
+      }
+
+      const currentSlug = currentProfile.slug || "";
+      const nextSlugInput = String(formData.get("slug") || "");
+      const nextSlug = nextSlugInput.trim();
+      if (nextSlug !== currentSlug) {
+        const moderation = classifySlug(nextSlug);
+
+        if (moderation.state === "blocked") {
+          throw new Error(moderation.reason || "That slug is blocked.");
+        }
+
+        if (moderation.state === "review") {
+          throw new Error(
+            moderation.reason ||
+              "That slug requires the slug review workflow before it can become public."
+          );
+        }
+
+        const normalizedSlug = moderation.normalized;
+
+        // Direct admin detail edits may only publish allowed slugs. Restricted
+        // slugs must go through the moderation queue or explicit override route.
+        updates.slug = normalizedSlug;
+        updates.slug_requested = null;
+        updates.slug_status = "approved";
+        updates.slug_review_reason = null;
+      }
+
+      const textFields = [
+        "organization_name",
+        "role_line",
+        "website_url",
+        "phone",
+        "text_phone",
+        "intro"
+      ] as const;
+
+      for (const key of textFields) {
+        const nextValue = String(formData.get(key) || "").trim();
+        const currentValue = (currentProfile[key] || "") as string;
+
+        if (nextValue !== currentValue) {
+          if (key === "website_url") {
+            updates.website_url = normalizeUrl(nextValue || "") || null;
+          } else {
+            updates[key] = nextValue || null;
+          }
+        }
+      }
+
+      const currentPromo = currentProfile.promo_code_used || "";
+      const nextPromo = String(formData.get("promo_code_used") || "").trim().toUpperCase();
+      if (nextPromo !== currentPromo) {
+        updates.promo_code_used = nextPromo || null;
+
+        if (nextPromo === "FOUNDERS") {
+          updates.is_active = true;
+          updates.lifetime_free = true;
+          updates.billing_exempt = true;
+          updates.stripe_plan_key = "creator";
+        }
+      }
+
+      for (const index of [1, 2, 3, 4] as const) {
+        const titleKey = `primary_link_${index}_title` as const;
+        const urlKey = `primary_link_${index}_url` as const;
+        const typeKey = `primary_link_${index}_type` as const;
+        const buttonType = normalizeProfileButtonType(String(formData.get(typeKey) || ""));
+        const buttonTitle = String(formData.get(titleKey) || "");
+        const buttonValue = String(formData.get(urlKey) || "");
+        const nextTitle = normalizeProfileButtonLabel(buttonTitle, buttonType);
+        const nextUrl = normalizeProfileButtonHref(buttonType, buttonValue);
+        const currentTitle = (currentProfile[titleKey] || "") as string;
+        const currentUrl = (currentProfile[urlKey] || "") as string;
+        const currentType = normalizeProfileButtonType(String(currentProfile[typeKey] || ""));
+
+        if (nextTitle !== currentTitle || nextUrl !== currentUrl || buttonType !== currentType) {
+          updates[titleKey] = nextTitle;
+          updates[typeKey] = buttonType;
+          updates[urlKey] = nextUrl;
+        }
+      }
+
+      break;
+    }
     case "full_name":
       updates.full_name = value.trim() || null;
       break;
@@ -248,6 +370,12 @@ async function updateUserAction(formData: FormData) {
       return;
   }
 
+  if (field === "profile_editor" && Object.keys(updates).length === 0) {
+    revalidatePath("/admin");
+    revalidatePath(`/admin/account/${userId}`);
+    return;
+  }
+
   if (field === "slug" && updates.slug) {
     const { data: existingSlug } = await admin
       .from("profiles")
@@ -395,445 +523,310 @@ export default async function AdminUserPage({ params, searchParams }: PageProps)
                 </div>
               </div>
             </div>
-            <div
-              style={{
-                borderTop: "1px solid rgba(255,255,255,0.1)",
-                marginTop: 18,
-                paddingTop: 18,
-              }}
-            >
-              <h3 className="section-title" style={{ fontSize: 18 }}>
-                Edit profile basics
-              </h3>
+            <form action={updateUserAction} className="admin-profile-editor-form">
+              <input type="hidden" name="userId" value={profile.user_id} />
+              <input type="hidden" name="field" value="profile_editor" />
 
               <div
                 style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-                  gap: 12,
+                  borderTop: "1px solid rgba(255,255,255,0.1)",
+                  marginTop: 18,
+                  paddingTop: 18,
                 }}
               >
-                <form
-                  action={updateUserAction}
-                  className="card"
-                  id={adminBasicsFormId("full_name")}
-                  style={{ padding: 14 }}
+                <h3 className="section-title" style={{ fontSize: 18 }}>
+                  Edit profile basics
+                </h3>
+
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+                    gap: 12,
+                  }}
                 >
-                  <input type="hidden" name="userId" value={profile.user_id} />
-                  <input type="hidden" name="field" value="full_name" />
-                  <label className="label" htmlFor="full-name">
-                    Full name
-                  </label>
-                  <input
-                    id="full-name"
-                    name="value"
-                    defaultValue={profile.full_name || ""}
-                    placeholder="Full name"
-                    style={{ width: "100%", padding: 10, margin: "8px 0" }}
-                  />
-                </form>
-
-                <form
-                  action={updateUserAction}
-                  className="card"
-                  id={adminBasicsFormId("email")}
-                  style={{ padding: 14 }}
-                >
-                  <input type="hidden" name="userId" value={profile.user_id} />
-                  <input type="hidden" name="field" value="email" />
-                  <label className="label" htmlFor="profile-email">
-                    Email
-                  </label>
-                  <input
-                    id="profile-email"
-                    name="value"
-                    defaultValue={profile.email || ""}
-                    placeholder="name@example.com"
-                    style={{ width: "100%", padding: 10, margin: "8px 0" }}
-                  />
-                </form>
-
-                <form
-                  action={updateUserAction}
-                  className="card"
-                  id={adminBasicsFormId("slug")}
-                  style={{ padding: 14 }}
-                >
-                  <input type="hidden" name="userId" value={profile.user_id} />
-                  <input type="hidden" name="field" value="slug" />
-                  <label className="label" htmlFor="profile-slug">
-                    Profile slug
-                  </label>
-                  <input
-                    id="profile-slug"
-                    name="value"
-                    defaultValue={profile.slug || ""}
-                    placeholder="profile-slug"
-                    style={{ width: "100%", padding: 10, margin: "8px 0" }}
-                  />
-                </form>
-              </div>
-
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-                  gap: 12,
-                  marginTop: 12,
-                }}
-              >
-                <form
-                  action={updateUserAction}
-                  className="card"
-                  id={adminBasicsFormId("organization_name")}
-                  style={{ padding: 14 }}
-                >
-                  <input type="hidden" name="userId" value={profile.user_id} />
-                  <input type="hidden" name="field" value="organization_name" />
-                  <label className="label" htmlFor="profile-organization-name">
-                    Organization
-                  </label>
-                  <input
-                    id="profile-organization-name"
-                    name="value"
-                    defaultValue={profile.organization_name || ""}
-                    placeholder="Organization or business name"
-                    style={{ width: "100%", padding: 10, margin: "8px 0" }}
-                  />
-                </form>
-
-                <form
-                  action={updateUserAction}
-                  className="card"
-                  id={adminBasicsFormId("role_line")}
-                  style={{ padding: 14 }}
-                >
-                  <input type="hidden" name="userId" value={profile.user_id} />
-                  <input type="hidden" name="field" value="role_line" />
-                  <label className="label" htmlFor="profile-role-line">
-                    Role line
-                  </label>
-                  <input
-                    id="profile-role-line"
-                    name="value"
-                    defaultValue={profile.role_line || ""}
-                    placeholder="Advisor, Stylist, Founder"
-                    style={{ width: "100%", padding: 10, margin: "8px 0" }}
-                  />
-                </form>
-
-                <form
-                  action={updateUserAction}
-                  className="card"
-                  id={adminBasicsFormId("website_url")}
-                  style={{ padding: 14 }}
-                >
-                  <input type="hidden" name="userId" value={profile.user_id} />
-                  <input type="hidden" name="field" value="website_url" />
-                  <label className="label" htmlFor="profile-website-url">
-                    Website URL
-                  </label>
-                  <input
-                    id="profile-website-url"
-                    name="value"
-                    defaultValue={profile.website_url || ""}
-                    placeholder="https://example.com"
-                    style={{ width: "100%", padding: 10, margin: "8px 0" }}
-                  />
-                </form>
-
-                <form
-                  action={updateUserAction}
-                  className="card"
-                  id={adminBasicsFormId("phone")}
-                  style={{ padding: 14 }}
-                >
-                  <input type="hidden" name="userId" value={profile.user_id} />
-                  <input type="hidden" name="field" value="phone" />
-                  <label className="label" htmlFor="profile-phone">
-                    Phone
-                  </label>
-                  <input
-                    id="profile-phone"
-                    name="value"
-                    defaultValue={profile.phone || ""}
-                    placeholder="5551234567"
-                    style={{ width: "100%", padding: 10, margin: "8px 0" }}
-                  />
-                </form>
-
-                <form
-                  action={updateUserAction}
-                  className="card"
-                  id={adminBasicsFormId("text_phone")}
-                  style={{ padding: 14 }}
-                >
-                  <input type="hidden" name="userId" value={profile.user_id} />
-                  <input type="hidden" name="field" value="text_phone" />
-                  <label className="label" htmlFor="profile-text-phone">
-                    Text phone
-                  </label>
-                  <input
-                    id="profile-text-phone"
-                    name="value"
-                    defaultValue={profile.text_phone || ""}
-                    placeholder="5551234567"
-                    style={{ width: "100%", padding: 10, margin: "8px 0" }}
-                  />
-                </form>
-
-                <form
-                  action={updateUserAction}
-                  className="card"
-                  id={adminBasicsFormId("promo_code_used")}
-                  style={{ padding: 14 }}
-                >
-                  <input type="hidden" name="userId" value={profile.user_id} />
-                  <input type="hidden" name="field" value="promo_code_used" />
-                  <label className="label" htmlFor="profile-promo-code">
-                    Promo code
-                  </label>
-                  <input
-                    id="profile-promo-code"
-                    name="value"
-                    defaultValue={profile.promo_code_used || ""}
-                    placeholder="Optional: Enter promo code if you have one"
-                    style={{ width: "100%", padding: 10, margin: "8px 0" }}
-                  />
-                </form>
-              </div>
-
-              <div className="admin-docked-actions" aria-label="Profile basics actions">
-                <button className="button primary" type="submit" form={adminBasicsFormId("full_name")}>
-                  Save name
-                </button>
-                <button className="button primary" type="submit" form={adminBasicsFormId("email")}>
-                  Save email
-                </button>
-                <button className="button primary" type="submit" form={adminBasicsFormId("slug")}>
-                  Save slug
-                </button>
-                <button className="button primary" type="submit" form={adminBasicsFormId("organization_name")}>
-                  Save organization
-                </button>
-                <button className="button primary" type="submit" form={adminBasicsFormId("role_line")}>
-                  Save role line
-                </button>
-                <button className="button primary" type="submit" form={adminBasicsFormId("website_url")}>
-                  Save website
-                </button>
-                <button className="button primary" type="submit" form={adminBasicsFormId("phone")}>
-                  Save phone
-                </button>
-                <button className="button primary" type="submit" form={adminBasicsFormId("text_phone")}>
-                  Save text phone
-                </button>
-                <button className="button primary" type="submit" form={adminBasicsFormId("promo_code_used")}>
-                  Save promo
-                </button>
-              </div>
-
-              <form
-                action={updateUserAction}
-                className="card"
-                id={adminBasicsFormId("intro")}
-                style={{ padding: 14, marginTop: 12 }}
-              >
-                <input type="hidden" name="userId" value={profile.user_id} />
-                <input type="hidden" name="field" value="intro" />
-                <label className="label" htmlFor="profile-intro">
-                  Intro
-                </label>
-                <textarea
-                  id="profile-intro"
-                  name="value"
-                  defaultValue={profile.intro || ""}
-                  rows={4}
-                  placeholder="A short introduction for the profile."
-                  style={{ width: "100%", padding: 10, margin: "8px 0" }}
-                />
-              </form>
-
-              <div className="card" style={{ padding: 14, marginTop: 12 }}>
-                <h4 className="section-title" style={{ fontSize: 16 }}>
-                  CTA buttons
-                </h4>
-
-                {[
-                  {
-                    field: "primary_link_1",
-                    titleKey: "primary_link_1_title",
-                    urlKey: "primary_link_1_url",
-                    typeKey: "primary_link_1_type",
-                    label: "Button 1"
-                  },
-                  {
-                    field: "primary_link_2",
-                    titleKey: "primary_link_2_title",
-                    urlKey: "primary_link_2_url",
-                    typeKey: "primary_link_2_type",
-                    label: "Button 2"
-                  },
-                  {
-                    field: "primary_link_3",
-                    titleKey: "primary_link_3_title",
-                    urlKey: "primary_link_3_url",
-                    typeKey: "primary_link_3_type",
-                    label: "Button 3"
-                  },
-                  {
-                    field: "primary_link_4",
-                    titleKey: "primary_link_4_title",
-                    urlKey: "primary_link_4_url",
-                    typeKey: "primary_link_4_type",
-                    label: "Button 4"
-                  }
-                ].map(({ field, titleKey, urlKey, typeKey, label }) => {
-                  const buttonType = normalizeProfileButtonType(
-                    profile[typeKey] ||
-                      (field === "primary_link_1"
-                        ? profile.primary_link_1_type
-                        : field === "primary_link_2"
-                          ? profile.primary_link_2_type
-                          : field === "primary_link_3"
-                            ? profile.primary_link_3_type
-                            : profile.primary_link_4_type) ||
-                      "website"
-                  );
-
-                  return (
-                  <form
-                    key={field}
-                    action={updateUserAction}
-                    id={adminCtaFormId(field)}
-                    style={{
-                      display: "grid",
-                      gridTemplateColumns: "minmax(180px, 1.2fr) minmax(180px, 0.9fr) minmax(220px, 1.3fr)",
-                      gap: 10,
-                      alignItems: "end",
-                      marginTop: 10
-                    }}
-                  >
-                    <input type="hidden" name="userId" value={profile.user_id} />
-                    <input type="hidden" name="field" value={field} />
-                    <label className="label" htmlFor={`profile-${titleKey}`}>
-                      {label} label
+                  <div className="card" style={{ padding: 14 }}>
+                    <label className="label" htmlFor="full-name">
+                      Full name
                     </label>
                     <input
-                      id={`profile-${titleKey}`}
-                      name="title"
-                      defaultValue={profile[titleKey] || ""}
-                      placeholder="Call, Email, Website"
-                      style={{ width: "100%", padding: 10 }}
+                      id="full-name"
+                      name="full_name"
+                      defaultValue={profile.full_name || ""}
+                      placeholder="Full name"
+                      style={{ width: "100%", padding: 10, margin: "8px 0" }}
                     />
-                    <div>
-                      <label className="label" htmlFor={`profile-${typeKey}`}>
-                        Type
-                      </label>
-                      <select
-                        id={`profile-${typeKey}`}
-                        name="type"
-                        defaultValue={buttonType}
-                        style={{ width: "100%", padding: 10, marginTop: 8 }}
-                      >
-                        {PROFILE_BUTTON_TYPES.map((buttonTypeOption) => (
-                          <option key={buttonTypeOption} value={buttonTypeOption}>
-                            {buttonTypeOption === "website"
-                              ? "Website"
-                              : buttonTypeOption === "email"
-                                ? "Email"
-                                : buttonTypeOption === "phone"
-                                  ? "Phone"
-                                  : buttonTypeOption === "text"
-                                    ? "Text"
-                                    : buttonTypeOption === "booking"
-                                      ? "Booking"
-                                      : buttonTypeOption === "directions"
-                                        ? "Directions"
-                                        : buttonTypeOption === "pdf"
-                                          ? "PDF"
-                                          : buttonTypeOption === "payment"
-                                            ? "Payment"
-                                            : "Custom"}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <div>
-                      <label className="label" htmlFor={`profile-${urlKey}`}>
-                        Value
-                      </label>
-                      <input
-                        id={`profile-${urlKey}`}
-                        name="value"
-                        defaultValue={getProfileButtonEditorValue(buttonType, profile[urlKey] || "")}
-                        placeholder={
-                          buttonType === "phone"
-                            ? "15551234567"
-                            : buttonType === "email"
-                              ? "you@example.com"
-                              : buttonType === "directions"
-                                ? "1600 Amphitheatre Parkway"
-                                : buttonType === "text"
-                                  ? "15551234567"
-                                  : buttonType === "pdf"
-                                    ? "https://example.com/file.pdf"
-                                    : buttonType === "payment"
-                                      ? "https://checkout.example.com"
-                                      : "https://example.com"
-                        }
-                        style={{ width: "100%", padding: 10, marginTop: 8 }}
-                      />
-                    </div>
-                  </form>
-                  );
-                })}
-              </div>
+                  </div>
 
-              <div className="admin-docked-actions" aria-label="Profile actions">
-                <button className="button primary" type="submit" form={adminBasicsFormId("full_name")}>
-                  Save name
-                </button>
-                <button className="button primary" type="submit" form={adminBasicsFormId("email")}>
-                  Save email
-                </button>
-                <button className="button primary" type="submit" form={adminBasicsFormId("slug")}>
-                  Save slug
-                </button>
-                <button className="button primary" type="submit" form={adminBasicsFormId("organization_name")}>
-                  Save organization
-                </button>
-                <button className="button primary" type="submit" form={adminBasicsFormId("role_line")}>
-                  Save role line
-                </button>
-                <button className="button primary" type="submit" form={adminBasicsFormId("website_url")}>
-                  Save website
-                </button>
-                <button className="button primary" type="submit" form={adminBasicsFormId("phone")}>
-                  Save phone
-                </button>
-                <button className="button primary" type="submit" form={adminBasicsFormId("text_phone")}>
-                  Save text phone
-                </button>
-                <button className="button primary" type="submit" form={adminBasicsFormId("promo_code_used")}>
-                  Save promo
-                </button>
-                <button className="button primary" type="submit" form={adminBasicsFormId("intro")}>
-                  Save intro
-                </button>
-                {[
-                  "primary_link_1",
-                  "primary_link_2",
-                  "primary_link_3",
-                  "primary_link_4"
-                ].map((field, index) => (
-                  <button key={field} className="button secondary" type="submit" form={adminCtaFormId(field)}>
-                    Save button {index + 1}
+                  <div className="card" style={{ padding: 14 }}>
+                    <label className="label" htmlFor="profile-email">
+                      Email
+                    </label>
+                    <input
+                      id="profile-email"
+                      name="email"
+                      defaultValue={profile.email || ""}
+                      placeholder="name@example.com"
+                      style={{ width: "100%", padding: 10, margin: "8px 0" }}
+                    />
+                  </div>
+
+                  <div className="card" style={{ padding: 14 }}>
+                    <label className="label" htmlFor="profile-slug">
+                      Profile slug
+                    </label>
+                    <input
+                      id="profile-slug"
+                      name="slug"
+                      defaultValue={profile.slug || ""}
+                      placeholder="profile-slug"
+                      style={{ width: "100%", padding: 10, margin: "8px 0" }}
+                    />
+                  </div>
+                </div>
+
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+                    gap: 12,
+                    marginTop: 12,
+                  }}
+                >
+                  <div className="card" style={{ padding: 14 }}>
+                    <label className="label" htmlFor="profile-organization-name">
+                      Organization
+                    </label>
+                    <input
+                      id="profile-organization-name"
+                      name="organization_name"
+                      defaultValue={profile.organization_name || ""}
+                      placeholder="Organization or business name"
+                      style={{ width: "100%", padding: 10, margin: "8px 0" }}
+                    />
+                  </div>
+
+                  <div className="card" style={{ padding: 14 }}>
+                    <label className="label" htmlFor="profile-role-line">
+                      Role line
+                    </label>
+                    <input
+                      id="profile-role-line"
+                      name="role_line"
+                      defaultValue={profile.role_line || ""}
+                      placeholder="Advisor, Stylist, Founder"
+                      style={{ width: "100%", padding: 10, margin: "8px 0" }}
+                    />
+                  </div>
+
+                  <div className="card" style={{ padding: 14 }}>
+                    <label className="label" htmlFor="profile-website-url">
+                      Website URL
+                    </label>
+                    <input
+                      id="profile-website-url"
+                      name="website_url"
+                      defaultValue={profile.website_url || ""}
+                      placeholder="https://example.com"
+                      style={{ width: "100%", padding: 10, margin: "8px 0" }}
+                    />
+                  </div>
+
+                  <div className="card" style={{ padding: 14 }}>
+                    <label className="label" htmlFor="profile-phone">
+                      Phone
+                    </label>
+                    <input
+                      id="profile-phone"
+                      name="phone"
+                      defaultValue={profile.phone || ""}
+                      placeholder="5551234567"
+                      style={{ width: "100%", padding: 10, margin: "8px 0" }}
+                    />
+                  </div>
+
+                  <div className="card" style={{ padding: 14 }}>
+                    <label className="label" htmlFor="profile-text-phone">
+                      Text phone
+                    </label>
+                    <input
+                      id="profile-text-phone"
+                      name="text_phone"
+                      defaultValue={profile.text_phone || ""}
+                      placeholder="5551234567"
+                      style={{ width: "100%", padding: 10, margin: "8px 0" }}
+                    />
+                  </div>
+
+                  <div className="card" style={{ padding: 14 }}>
+                    <label className="label" htmlFor="profile-promo-code">
+                      Promo code
+                    </label>
+                    <input
+                      id="profile-promo-code"
+                      name="promo_code_used"
+                      defaultValue={profile.promo_code_used || ""}
+                      placeholder="Optional: Enter promo code if you have one"
+                      style={{ width: "100%", padding: 10, margin: "8px 0" }}
+                    />
+                  </div>
+                </div>
+
+                <div className="card" style={{ padding: 14, marginTop: 12 }}>
+                  <label className="label" htmlFor="profile-intro">
+                    Intro
+                  </label>
+                  <textarea
+                    id="profile-intro"
+                    name="intro"
+                    defaultValue={profile.intro || ""}
+                    rows={4}
+                    placeholder="A short introduction for the profile."
+                    style={{ width: "100%", padding: 10, margin: "8px 0" }}
+                  />
+                </div>
+
+                <div className="card" style={{ padding: 14, marginTop: 12 }}>
+                  <h4 className="section-title" style={{ fontSize: 16 }}>
+                    CTA buttons
+                  </h4>
+
+                  {[
+                    {
+                      field: "primary_link_1",
+                      titleKey: "primary_link_1_title",
+                      urlKey: "primary_link_1_url",
+                      typeKey: "primary_link_1_type",
+                      label: "Button 1"
+                    },
+                    {
+                      field: "primary_link_2",
+                      titleKey: "primary_link_2_title",
+                      urlKey: "primary_link_2_url",
+                      typeKey: "primary_link_2_type",
+                      label: "Button 2"
+                    },
+                    {
+                      field: "primary_link_3",
+                      titleKey: "primary_link_3_title",
+                      urlKey: "primary_link_3_url",
+                      typeKey: "primary_link_3_type",
+                      label: "Button 3"
+                    },
+                    {
+                      field: "primary_link_4",
+                      titleKey: "primary_link_4_title",
+                      urlKey: "primary_link_4_url",
+                      typeKey: "primary_link_4_type",
+                      label: "Button 4"
+                    }
+                  ].map(({ field, titleKey, urlKey, typeKey, label }) => {
+                    const buttonType = normalizeProfileButtonType(
+                      profile[typeKey] ||
+                        (field === "primary_link_1"
+                          ? profile.primary_link_1_type
+                          : field === "primary_link_2"
+                            ? profile.primary_link_2_type
+                            : field === "primary_link_3"
+                              ? profile.primary_link_3_type
+                              : profile.primary_link_4_type) ||
+                        "website"
+                    );
+
+                    return (
+                      <div
+                        key={field}
+                        style={{
+                          display: "grid",
+                          gridTemplateColumns: "minmax(180px, 1.2fr) minmax(180px, 0.9fr) minmax(220px, 1.3fr)",
+                          gap: 10,
+                          alignItems: "end",
+                          marginTop: 10
+                        }}
+                      >
+                        <div>
+                          <label className="label" htmlFor={`profile-${titleKey}`}>
+                            {label} label
+                          </label>
+                          <input
+                            id={`profile-${titleKey}`}
+                            name={titleKey}
+                            defaultValue={profile[titleKey] || ""}
+                            placeholder="Call, Email, Website"
+                            style={{ width: "100%", padding: 10, marginTop: 8 }}
+                          />
+                        </div>
+                        <div>
+                          <label className="label" htmlFor={`profile-${typeKey}`}>
+                            Type
+                          </label>
+                          <select
+                            id={`profile-${typeKey}`}
+                            name={typeKey}
+                            defaultValue={buttonType}
+                            style={{ width: "100%", padding: 10, marginTop: 8 }}
+                          >
+                            {PROFILE_BUTTON_TYPES.map((buttonTypeOption) => (
+                              <option key={buttonTypeOption} value={buttonTypeOption}>
+                                {buttonTypeOption === "website"
+                                  ? "Website"
+                                  : buttonTypeOption === "email"
+                                    ? "Email"
+                                    : buttonTypeOption === "phone"
+                                      ? "Phone"
+                                      : buttonTypeOption === "text"
+                                        ? "Text"
+                                        : buttonTypeOption === "booking"
+                                          ? "Booking"
+                                          : buttonTypeOption === "directions"
+                                            ? "Directions"
+                                            : buttonTypeOption === "pdf"
+                                              ? "PDF"
+                                              : buttonTypeOption === "payment"
+                                                ? "Payment"
+                                                : "Custom"}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        <div>
+                          <label className="label" htmlFor={`profile-${urlKey}`}>
+                            Value
+                          </label>
+                          <input
+                            id={`profile-${urlKey}`}
+                            name={urlKey}
+                            defaultValue={getProfileButtonEditorValue(buttonType, profile[urlKey] || "")}
+                            placeholder={
+                              buttonType === "phone"
+                                ? "15551234567"
+                                : buttonType === "email"
+                                  ? "you@example.com"
+                                  : buttonType === "directions"
+                                    ? "1600 Amphitheatre Parkway"
+                                    : buttonType === "text"
+                                      ? "15551234567"
+                                      : buttonType === "pdf"
+                                        ? "https://example.com/file.pdf"
+                                        : buttonType === "payment"
+                                          ? "https://checkout.example.com"
+                                          : "https://example.com"
+                            }
+                            style={{ width: "100%", padding: 10, marginTop: 8 }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <div className="admin-save-footer">
+                  <button className="button primary" type="submit">
+                    Save changes
                   </button>
-                ))}
+                </div>
               </div>
-            </div>
-          </div>
+            </form>
 
           <div className="card" style={{ padding: 20 }}>
             <h2 className="section-title" style={{ fontSize: 22 }}>
@@ -1128,6 +1121,7 @@ export default async function AdminUserPage({ params, searchParams }: PageProps)
               </div>
             </div>
           </div>
+        </div>
         </div>
       </section>
     </Shell>

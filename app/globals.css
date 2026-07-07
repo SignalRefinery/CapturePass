@@ -2056,33 +2056,30 @@ textarea{font:inherit}
   box-shadow:0 18px 50px rgba(0,0,0,.36);
   white-space:normal;
 }
-.admin-account-detail-card{
-  padding-bottom:160px;
+.admin-profile-editor-form{
+  padding-bottom:110px;
 }
-.admin-docked-actions{
-  position:fixed;
-  left:50%;
-  bottom:20px;
-  transform:translateX(-50%);
-  width:min(1400px, calc(100vw - 40px));
-  z-index:60;
+.admin-save-footer{
+  position:sticky;
+  bottom:18px;
+  z-index:35;
   display:flex;
-  flex-wrap:wrap;
-  gap:10px;
   justify-content:flex-end;
   align-items:center;
-  padding:14px;
+  gap:10px;
+  margin-top:22px;
+  padding:14px 16px;
   border:1px solid rgba(var(--brand-primary-rgb),.18);
   border-radius:18px;
   background:
-    linear-gradient(180deg, rgba(12,12,16,.86), rgba(8,9,14,.96));
+    linear-gradient(180deg, rgba(12,12,16,.88), rgba(8,9,14,.98));
   box-shadow:0 20px 48px rgba(0,0,0,.32);
   backdrop-filter:blur(16px);
   box-sizing:border-box;
 }
-.admin-docked-actions .button{
+.admin-save-footer .button{
   min-height:42px;
-  padding:10px 14px;
+  padding:10px 16px;
 }
 .employee-action-bar{
   position:sticky;
@@ -3414,15 +3411,14 @@ textarea{font:inherit}
     width:100%;
     justify-content:space-between;
   }
-  .admin-account-detail-card{
-    padding-bottom:220px;
+  .admin-profile-editor-form{
+    padding-bottom:120px;
   }
-  .admin-docked-actions{
+  .admin-save-footer{
     bottom:12px;
-    width:calc(100vw - 24px);
     justify-content:stretch;
   }
-  .admin-docked-actions .button{
+  .admin-save-footer .button{
     width:100%;
     min-width:0;
   }
