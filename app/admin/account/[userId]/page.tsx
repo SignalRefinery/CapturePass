@@ -29,6 +29,10 @@ function passwordSetupUrl(nextPath: string) {
   return url.toString();
 }
 
+function adminBasicsFormId(field: string) {
+  return `admin-profile-basic-${field}`;
+}
+
 type PageProps = {
   params: Promise<{ userId: string }>;
   searchParams?: Promise<{ saved?: string; error?: string }>;
@@ -319,7 +323,7 @@ export default async function AdminUserPage({ params, searchParams }: PageProps)
         navLinks={[{ href: "/admin", label: "Back to admin" }]}
       >
         <section className="section-wrap">
-          <div className="card" style={{ padding: 20 }}>
+          <div className="card admin-account-detail-card" style={{ padding: 20 }}>
             User not found.
           </div>
         </section>
@@ -408,6 +412,7 @@ export default async function AdminUserPage({ params, searchParams }: PageProps)
                 <form
                   action={updateUserAction}
                   className="card"
+                  id={adminBasicsFormId("full_name")}
                   style={{ padding: 14 }}
                 >
                   <input type="hidden" name="userId" value={profile.user_id} />
@@ -422,14 +427,12 @@ export default async function AdminUserPage({ params, searchParams }: PageProps)
                     placeholder="Full name"
                     style={{ width: "100%", padding: 10, margin: "8px 0" }}
                   />
-                  <button className="button primary" type="submit">
-                    Save name
-                  </button>
                 </form>
 
                 <form
                   action={updateUserAction}
                   className="card"
+                  id={adminBasicsFormId("email")}
                   style={{ padding: 14 }}
                 >
                   <input type="hidden" name="userId" value={profile.user_id} />
@@ -444,14 +447,12 @@ export default async function AdminUserPage({ params, searchParams }: PageProps)
                     placeholder="name@example.com"
                     style={{ width: "100%", padding: 10, margin: "8px 0" }}
                   />
-                  <button className="button primary" type="submit">
-                    Save email
-                  </button>
                 </form>
 
                 <form
                   action={updateUserAction}
                   className="card"
+                  id={adminBasicsFormId("slug")}
                   style={{ padding: 14 }}
                 >
                   <input type="hidden" name="userId" value={profile.user_id} />
@@ -466,9 +467,6 @@ export default async function AdminUserPage({ params, searchParams }: PageProps)
                     placeholder="profile-slug"
                     style={{ width: "100%", padding: 10, margin: "8px 0" }}
                   />
-                  <button className="button primary" type="submit">
-                    Save slug
-                  </button>
                 </form>
               </div>
 
@@ -480,7 +478,12 @@ export default async function AdminUserPage({ params, searchParams }: PageProps)
                   marginTop: 12,
                 }}
               >
-                <form action={updateUserAction} className="card" style={{ padding: 14 }}>
+                <form
+                  action={updateUserAction}
+                  className="card"
+                  id={adminBasicsFormId("organization_name")}
+                  style={{ padding: 14 }}
+                >
                   <input type="hidden" name="userId" value={profile.user_id} />
                   <input type="hidden" name="field" value="organization_name" />
                   <label className="label" htmlFor="profile-organization-name">
@@ -493,12 +496,14 @@ export default async function AdminUserPage({ params, searchParams }: PageProps)
                     placeholder="Organization or business name"
                     style={{ width: "100%", padding: 10, margin: "8px 0" }}
                   />
-                  <button className="button primary" type="submit">
-                    Save organization
-                  </button>
                 </form>
 
-                <form action={updateUserAction} className="card" style={{ padding: 14 }}>
+                <form
+                  action={updateUserAction}
+                  className="card"
+                  id={adminBasicsFormId("role_line")}
+                  style={{ padding: 14 }}
+                >
                   <input type="hidden" name="userId" value={profile.user_id} />
                   <input type="hidden" name="field" value="role_line" />
                   <label className="label" htmlFor="profile-role-line">
@@ -511,12 +516,14 @@ export default async function AdminUserPage({ params, searchParams }: PageProps)
                     placeholder="Advisor, Stylist, Founder"
                     style={{ width: "100%", padding: 10, margin: "8px 0" }}
                   />
-                  <button className="button primary" type="submit">
-                    Save role line
-                  </button>
                 </form>
 
-                <form action={updateUserAction} className="card" style={{ padding: 14 }}>
+                <form
+                  action={updateUserAction}
+                  className="card"
+                  id={adminBasicsFormId("website_url")}
+                  style={{ padding: 14 }}
+                >
                   <input type="hidden" name="userId" value={profile.user_id} />
                   <input type="hidden" name="field" value="website_url" />
                   <label className="label" htmlFor="profile-website-url">
@@ -529,12 +536,14 @@ export default async function AdminUserPage({ params, searchParams }: PageProps)
                     placeholder="https://example.com"
                     style={{ width: "100%", padding: 10, margin: "8px 0" }}
                   />
-                  <button className="button primary" type="submit">
-                    Save website
-                  </button>
                 </form>
 
-                <form action={updateUserAction} className="card" style={{ padding: 14 }}>
+                <form
+                  action={updateUserAction}
+                  className="card"
+                  id={adminBasicsFormId("phone")}
+                  style={{ padding: 14 }}
+                >
                   <input type="hidden" name="userId" value={profile.user_id} />
                   <input type="hidden" name="field" value="phone" />
                   <label className="label" htmlFor="profile-phone">
@@ -547,12 +556,14 @@ export default async function AdminUserPage({ params, searchParams }: PageProps)
                     placeholder="5551234567"
                     style={{ width: "100%", padding: 10, margin: "8px 0" }}
                   />
-                  <button className="button primary" type="submit">
-                    Save phone
-                  </button>
                 </form>
 
-                <form action={updateUserAction} className="card" style={{ padding: 14 }}>
+                <form
+                  action={updateUserAction}
+                  className="card"
+                  id={adminBasicsFormId("text_phone")}
+                  style={{ padding: 14 }}
+                >
                   <input type="hidden" name="userId" value={profile.user_id} />
                   <input type="hidden" name="field" value="text_phone" />
                   <label className="label" htmlFor="profile-text-phone">
@@ -565,12 +576,14 @@ export default async function AdminUserPage({ params, searchParams }: PageProps)
                     placeholder="5551234567"
                     style={{ width: "100%", padding: 10, margin: "8px 0" }}
                   />
-                  <button className="button primary" type="submit">
-                    Save text phone
-                  </button>
                 </form>
 
-                <form action={updateUserAction} className="card" style={{ padding: 14 }}>
+                <form
+                  action={updateUserAction}
+                  className="card"
+                  id={adminBasicsFormId("promo_code_used")}
+                  style={{ padding: 14 }}
+                >
                   <input type="hidden" name="userId" value={profile.user_id} />
                   <input type="hidden" name="field" value="promo_code_used" />
                   <label className="label" htmlFor="profile-promo-code">
@@ -583,10 +596,37 @@ export default async function AdminUserPage({ params, searchParams }: PageProps)
                     placeholder="Optional: Enter promo code if you have one"
                     style={{ width: "100%", padding: 10, margin: "8px 0" }}
                   />
-                  <button className="button primary" type="submit">
-                    Save promo
-                  </button>
                 </form>
+              </div>
+
+              <div className="admin-docked-actions" aria-label="Profile basics actions">
+                <button className="button primary" type="submit" form={adminBasicsFormId("full_name")}>
+                  Save name
+                </button>
+                <button className="button primary" type="submit" form={adminBasicsFormId("email")}>
+                  Save email
+                </button>
+                <button className="button primary" type="submit" form={adminBasicsFormId("slug")}>
+                  Save slug
+                </button>
+                <button className="button primary" type="submit" form={adminBasicsFormId("organization_name")}>
+                  Save organization
+                </button>
+                <button className="button primary" type="submit" form={adminBasicsFormId("role_line")}>
+                  Save role line
+                </button>
+                <button className="button primary" type="submit" form={adminBasicsFormId("website_url")}>
+                  Save website
+                </button>
+                <button className="button primary" type="submit" form={adminBasicsFormId("phone")}>
+                  Save phone
+                </button>
+                <button className="button primary" type="submit" form={adminBasicsFormId("text_phone")}>
+                  Save text phone
+                </button>
+                <button className="button primary" type="submit" form={adminBasicsFormId("promo_code_used")}>
+                  Save promo
+                </button>
               </div>
 
               <form action={updateUserAction} className="card" style={{ padding: 14, marginTop: 12 }}>

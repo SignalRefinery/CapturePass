@@ -2056,6 +2056,31 @@ textarea{font:inherit}
   box-shadow:0 18px 50px rgba(0,0,0,.36);
   white-space:normal;
 }
+.admin-account-detail-card{
+  padding-bottom:160px;
+}
+.admin-docked-actions{
+  position:fixed;
+  left:20px;
+  right:20px;
+  bottom:20px;
+  z-index:60;
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  justify-content:flex-end;
+  padding:14px;
+  border:1px solid rgba(var(--brand-primary-rgb),.18);
+  border-radius:18px;
+  background:
+    linear-gradient(180deg, rgba(12,12,16,.86), rgba(8,9,14,.96));
+  box-shadow:0 20px 48px rgba(0,0,0,.32);
+  backdrop-filter:blur(16px);
+}
+.admin-docked-actions .button{
+  min-height:42px;
+  padding:10px 14px;
+}
 .employee-action-bar{
   position:sticky;
   bottom:12px;
@@ -3385,6 +3410,19 @@ textarea{font:inherit}
   .collapsible-summary-chip{
     width:100%;
     justify-content:space-between;
+  }
+  .admin-account-detail-card{
+    padding-bottom:220px;
+  }
+  .admin-docked-actions{
+    left:12px;
+    right:12px;
+    bottom:12px;
+    justify-content:stretch;
+  }
+  .admin-docked-actions .button{
+    width:100%;
+    min-width:0;
   }
   .business-metrics,
   .business-two-column,
