@@ -211,16 +211,25 @@ export default async function PublicProfilePage({ params, searchParams }: PagePr
         orderedPublicViews: [profileRecordToPublicProfile(profile)]
       };
   const publicNavViews = orderedPublicViews.filter((view) => view.show_in_public_nav !== false);
+  const selectedPublicView =
+    isMultiViewProfile && requestedView
+      ? orderedPublicViews.find((view) => view.view_id === requestedView || view.view_key === requestedView) ||
+        defaultPublicView
+      : defaultPublicView;
 
   return (
       <CapturePassProfileShell
-      profile={defaultPublicView}
+      profile={selectedPublicView}
       views={orderedPublicViews}
       navViews={publicNavViews}
       pageMode={isMultiViewProfile ? profile.page_mode || "single" : "single"}
       multiViewDisplayMode={isMultiViewProfile ? profile.multi_view_display_mode || "favorite" : "favorite"}
       initialView={requestedView}
-      heroLabel={defaultPublicView.business_type === "real_estate_brokerage" ? "Live property" : "Live profile"}
+      heroLabel={
+        isMultiViewProfile && selectedPublicView.view_id
+          ? "Live property"
+          : "Live profile"
+      }
       initialAuth={null}
     />
   );

@@ -10,19 +10,19 @@ const {
 } = require("../../lib/profile-buttons.ts");
 
 test("infers and normalizes core profile button types", () => {
-  assert.equal(inferProfileButtonType("mailto:hello@taptagg.app", "Email me"), "email");
+  assert.equal(inferProfileButtonType("mailto:hello@capturepass.com", "Email me"), "email");
   assert.equal(inferProfileButtonType("5551234567", "Call me"), "phone");
-  assert.equal(inferProfileButtonType("https://calendly.com/taptagg", "Book time"), "booking");
+  assert.equal(inferProfileButtonType("https://calendly.com/capturepass", "Book time"), "booking");
   assert.equal(normalizeProfileButtonHref("phone", "(555) 123-4567"), "tel:15551234567");
-  assert.equal(normalizeProfileButtonHref("email", "hello@taptagg.app"), "mailto:hello@taptagg.app");
+  assert.equal(normalizeProfileButtonHref("email", "hello@capturepass.com"), "mailto:hello@capturepass.com");
 });
 
 test("normalizes profile button fields for storage", () => {
   const normalized = normalizeProfileButtonFieldsForStorage({
     primary_link_1_title: "Email",
-    primary_link_1_url: "mailto:hello@taptagg.app",
+    primary_link_1_url: "mailto:hello@capturepass.com",
     primary_link_2_title: "Book",
-    primary_link_2_url: "calendly.com/taptagg",
+    primary_link_2_url: "calendly.com/capturepass",
     primary_link_3_title: "Call",
     primary_link_3_url: "(555) 123-4567",
     primary_link_4_title: "",
@@ -30,9 +30,9 @@ test("normalizes profile button fields for storage", () => {
   });
 
   assert.equal(normalized.primary_link_1_type, "email");
-  assert.equal(normalized.primary_link_1_url, "mailto:hello@taptagg.app");
+  assert.equal(normalized.primary_link_1_url, "mailto:hello@capturepass.com");
   assert.equal(normalized.primary_link_2_type, "booking");
-  assert.equal(normalized.primary_link_2_url, "https://calendly.com/taptagg");
+  assert.equal(normalized.primary_link_2_url, "https://calendly.com/capturepass");
   assert.equal(normalized.primary_link_3_type, "phone");
   assert.equal(normalized.primary_link_3_url, "tel:15551234567");
 });
@@ -41,10 +41,10 @@ test("buildProfileButtons can hide email buttons from public rendering", () => {
   const buttons = buildProfileButtons(
     {
       primary_link_1_title: "Email",
-      primary_link_1_url: "hello@taptagg.app",
+      primary_link_1_url: "hello@capturepass.com",
       primary_link_1_type: "email",
       primary_link_2_title: "Website",
-      primary_link_2_url: "taptagg.app",
+      primary_link_2_url: "capturepass.com",
       primary_link_2_type: "website"
     },
     { hideEmail: true }
@@ -52,7 +52,7 @@ test("buildProfileButtons can hide email buttons from public rendering", () => {
 
   assert.equal(buttons.length, 1);
   assert.equal(buttons[0].type, "website");
-  assert.equal(buttons[0].href, "https://taptagg.app");
+  assert.equal(buttons[0].href, "https://capturepass.com");
 });
 
 test("buildProfileButtons uses each button value for phone and email destinations", () => {

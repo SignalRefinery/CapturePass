@@ -15,6 +15,7 @@ export default function robots(): MetadataRoute.Robots {
           "/business",
           "/business/pricing",
           "/business-individual",
+          "/demos",
           "/contact",
           "/contact-capture-nfc-cards",
           "/dealerships",

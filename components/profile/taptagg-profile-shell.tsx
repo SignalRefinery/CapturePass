@@ -218,9 +218,9 @@ function legacyThemeClassName(theme?: string | null) {
 export function CapturePassProfileShell({
   profile,
   views: _views = [profile],
-  navViews: _navViews,
-  pageMode: _pageMode = "single",
-  multiViewDisplayMode: _multiViewDisplayMode = "favorite",
+  navViews = [],
+  pageMode = "single",
+  multiViewDisplayMode = "favorite",
   initialView: _initialView = null,
   heroLabel = "Live profile",
   initialAuth = null
@@ -320,6 +320,11 @@ export function CapturePassProfileShell({
   const businessLinks = isBusinessProfile
     ? (activeProfile.business_links || []).filter((item) => item.title && item.url)
     : [];
+  const visibleNavViews = navViews.filter((view) => view.show_in_public_nav !== false);
+  const viewSwitcherCopy =
+    multiViewDisplayMode === "landing"
+      ? "Choose a property or return to the main profile."
+      : "Choose a featured property or return to the main profile.";
   const contactShareTarget = {
     profileId: activeProfile.contact_share_profile_id || activeProfile.id || null,
     slug: activeProfile.slug || null,
@@ -498,6 +503,59 @@ export function CapturePassProfileShell({
             </div>
 
             <p className={styles.profileIntro}>{intro}</p>
+
+            {visibleNavViews.length > 1 ? (
+              <section style={{ display: "grid", gap: 12, marginTop: 8 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "baseline" }}>
+                  <div>
+                    <div className={styles.profileEyebrow}>
+                      {pageMode === "multi" ? "Properties" : "Views"}
+                    </div>
+                    <p style={{ margin: "6px 0 0", color: "var(--profile-text, inherit)", opacity: 0.76 }}>
+                      {viewSwitcherCopy}
+                    </p>
+                  </div>
+                  <span className={styles.metaPill}>{visibleNavViews.length} available</span>
+                </div>
+                <div style={{ display: "grid", gap: 10 }}>
+                  {visibleNavViews.map((view) => {
+                    const isActive = view.view_id === activeProfile.view_id;
+                    const href = view.public_url || publicShareUrl(view);
+                    const title = view.view_name && view.view_name !== "Profile" ? view.view_name : "Main Profile";
+                    const subtitle =
+                      view.view_id === activeProfile.view_id
+                        ? "Currently selected"
+                        : view.role_line || view.organization_name || "";
+
+                    return (
+                      <Link
+                        key={view.view_id || view.view_key || view.slug || title}
+                        className={
+                          isActive
+                            ? `${styles.button} ${styles.profilePrimaryButton} ${styles.profileStackButton}`
+                            : `${styles.button} ${styles.profileSubtleButton} ${styles.profileStackButton}`
+                        }
+                        href={href}
+                        onClick={() =>
+                          trackProfileAction(analyticsTarget, {
+                            title,
+                            href
+                          })
+                        }
+                      >
+                        <span style={{ display: "grid", gap: 2 }}>
+                          <span>{title}</span>
+                          {subtitle ? (
+                            <small style={{ opacity: 0.72, fontSize: 12, fontWeight: 500 }}>{subtitle}</small>
+                          ) : null}
+                        </span>
+                        <span className={styles.arrow}>↗</span>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </section>
+            ) : null}
 
             <div className={styles.heroSignalRow} aria-label="Profile features">
               <span>Contact card</span>

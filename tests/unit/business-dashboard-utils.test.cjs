@@ -31,8 +31,8 @@ test("normalizes location state, token status, and external URLs", () => {
   assert.equal(cleanTokenStatus("active"), "active");
   assert.equal(cleanTokenStatus("unassigned"), "unassigned");
   assert.equal(cleanTokenStatus("weird"), "inactive");
-  assert.equal(cleanUrl("taptagg.app"), "https://taptagg.app");
-  assert.equal(cleanUrl("https://taptagg.app"), "https://taptagg.app");
+  assert.equal(cleanUrl("capturepass.com"), "https://capturepass.com");
+  assert.equal(cleanUrl("https://capturepass.com"), "https://capturepass.com");
 });
 
 test("builds business dashboard URLs from the configured app URL", () => {
@@ -51,5 +51,5 @@ test("builds business dashboard URLs from the configured app URL", () => {
 
 test("platform admin email check delegates to the centralized bootstrap helper", () => {
   assert.equal(isPlatformAdminEmail(" john@handshakeiq.org "), true);
-  assert.equal(isPlatformAdminEmail("admin@taptagg.app"), false);
+  assert.equal(isPlatformAdminEmail("admin@capturepass.com"), false);
 });

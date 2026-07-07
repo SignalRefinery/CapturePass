@@ -5,9 +5,11 @@ import {
   inferProfileButtonType,
   normalizeProfileButtonType
 } from "@/lib/profile-buttons";
+import { getSiteOrigin } from "@/lib/site-url";
 
 export function profileViewToPublicProfile(profile: ProfileRecord, view: ProfileViewRecord) {
   const plan = getProfilePlan(profile);
+  const siteOrigin = getSiteOrigin();
 
   return {
     id: profile.id,
@@ -16,6 +18,8 @@ export function profileViewToPublicProfile(profile: ProfileRecord, view: Profile
     view_id: view.id,
     view_key: view.view_key,
     view_name: view.name,
+    public_url: `${siteOrigin}/${profile.slug || ""}?view=${encodeURIComponent(view.view_key)}`,
+    business_home_url: `${siteOrigin}/${profile.slug || ""}`.replace(/\/$/, ""),
     // Multi-view profiles are intentionally isolated. Blank view fields should
     // stay blank instead of leaking the main profile's contact or link details.
     full_name: view.full_name,
@@ -72,6 +76,7 @@ export function profileViewToPublicProfile(profile: ProfileRecord, view: Profile
 
 export function profileRecordToPublicProfile(profile: ProfileRecord) {
   const plan = getProfilePlan(profile);
+  const siteOrigin = getSiteOrigin();
 
   return {
     id: profile.id,
@@ -80,6 +85,8 @@ export function profileRecordToPublicProfile(profile: ProfileRecord) {
     view_id: null,
     view_key: "profile",
     view_name: "Profile",
+    public_url: `${siteOrigin}/${profile.slug || ""}`,
+    business_home_url: `${siteOrigin}/${profile.slug || ""}`.replace(/\/$/, ""),
     full_name: profile.full_name,
     organization_name: profile.organization_name,
     role_line: profile.role_line,
@@ -137,19 +144,23 @@ export function buildPublicProfileViews(
   profileViews: ProfileViewRecord[],
   defaultProfileView: ProfileViewRecord | null
 ) {
-  const publicViews = profileViews.length
-    ? profileViews.map((view) => profileViewToPublicProfile(profile, view))
-    : [profileRecordToPublicProfile(profile)];
-  const defaultPublicView = defaultProfileView
-    ? profileViewToPublicProfile(profile, defaultProfileView)
-    : publicViews[0];
+  const basePublicView = profileRecordToPublicProfile(profile);
+  const publicViews = profileViews.map((view) => profileViewToPublicProfile(profile, view));
+  const configuredDefaultPublicView =
+    defaultProfileView && publicViews.some((view) => view.view_id === defaultProfileView.id)
+      ? profileViewToPublicProfile(profile, defaultProfileView)
+      : null;
+  const defaultPublicView = configuredDefaultPublicView || basePublicView;
   const orderedPublicViews =
-    defaultPublicView && publicViews.length > 1
-      ? [
+    defaultPublicView.view_id === null
+      ? [basePublicView, ...publicViews]
+      : [
           defaultPublicView,
-          ...publicViews.filter((view) => view.view_id !== defaultPublicView.view_id)
-        ]
-      : publicViews;
+          basePublicView,
+          ...publicViews.filter(
+            (view) => view.view_id !== defaultPublicView.view_id && view.view_id !== basePublicView.view_id
+          )
+        ];
 
   return { defaultPublicView, orderedPublicViews };
 }

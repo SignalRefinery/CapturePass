@@ -177,6 +177,26 @@ App runs at http://localhost:3000
 
 For local development, set `NEXT_PUBLIC_SITE_URL=http://localhost:3000`. Production should use `https://capturepass.com`.
 
+Demo Center Seeding
+
+The demo seed script is intentionally fail-closed. Before running `npm run seed:demos`, set:
+
+- `CAPTUREPASS_SEED_DEMOS=true`
+- `CAPTUREPASS_SEED_TARGET=local` or `staging` or `production`
+- `CAPTUREPASS_ALLOW_PRODUCTION_DEMO_SEED=true` only when `CAPTUREPASS_SEED_TARGET=production`
+
+Example safe local seed command:
+
+```bash
+CAPTUREPASS_SEED_DEMOS=true CAPTUREPASS_SEED_TARGET=local npm run seed:demos
+```
+
+For production, require the extra confirmation flag:
+
+```bash
+CAPTUREPASS_SEED_DEMOS=true CAPTUREPASS_SEED_TARGET=production CAPTUREPASS_ALLOW_PRODUCTION_DEMO_SEED=true npm run seed:demos
+```
+
 ---
 
 Supabase Setup

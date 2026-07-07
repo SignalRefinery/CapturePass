@@ -1,0 +1,413 @@
+{
+  "demos": [
+    {
+      "slug": "demo-auto",
+      "businessType": "automotive_dealership",
+      "summary": "Turn every lot conversation into inventory views, financing starts, trade-in requests, and test drive bookings.",
+      "profile": {
+        "slug": "demo-auto",
+        "full_name": "Marcus Reed",
+        "role_line": "Sales Consultant",
+        "organization_name": "Riverbend Auto Group",
+        "intro": "Helping shoppers compare trims, pricing, trade-ins, and financing without making the process feel slow.",
+        "email": "marcus.reed@riverbendautogroup.com",
+        "phone": "(555) 410-2100",
+        "text_phone": "(555) 410-2101",
+        "website_url": "https://riverbendautogroup.com",
+        "profile_badge_1": "Inventory and financing",
+        "profile_badge_2": "Trade-in guidance",
+        "profile_badge_3": "Test drive scheduling",
+        "primary_links": [
+          {
+            "title": "View Inventory",
+            "url": "https://riverbendautogroup.com/inventory",
+            "type": "website"
+          },
+          {
+            "title": "Get Pre-Approved",
+            "url": "https://riverbendautogroup.com/pre-approval",
+            "type": "booking"
+          },
+          {
+            "title": "Value My Trade",
+            "url": "https://riverbendautogroup.com/trade-in",
+            "type": "website"
+          },
+          {
+            "title": "Schedule Test Drive",
+            "url": "https://riverbendautogroup.com/test-drive",
+            "type": "booking"
+          }
+        ]
+      }
+    },
+    {
+      "slug": "demo-real-estate",
+      "businessType": "real_estate_brokerage",
+      "summary": "One agent profile with property-specific views for listings, open houses, and coming-soon homes.",
+      "profile": {
+        "slug": "demo-real-estate",
+        "full_name": "Elena Brooks",
+        "role_line": "REALTOR / Listing Specialist",
+        "organization_name": "Northline Realty Group",
+        "intro": "Helping buyers and sellers move confidently with clear pricing, local insight, and an easy next step for every conversation.",
+        "email": "elena.brooks@northlinerealtygroup.com",
+        "phone": "(555) 420-8800",
+        "text_phone": "(555) 420-8801",
+        "website_url": "https://northlinerealtygroup.com",
+        "profile_badge_1": "Neighborhood focus",
+        "profile_badge_2": "Buyer + seller guidance",
+        "profile_badge_3": "Listing strategy",
+        "page_mode": "multi",
+        "multi_view_display_mode": "landing",
+        "default_view_key": "featured-listing",
+        "primary_links": [
+          {
+            "title": "Home Search",
+            "url": "https://northlinerealtygroup.com/home-search",
+            "type": "website"
+          },
+          {
+            "title": "Home Valuation",
+            "url": "https://northlinerealtygroup.com/home-valuation",
+            "type": "website"
+          },
+          {
+            "title": "Schedule Consultation",
+            "url": "https://northlinerealtygroup.com/consultation",
+            "type": "booking"
+          },
+          {
+            "title": "My Listings",
+            "url": "https://northlinerealtygroup.com/listings",
+            "type": "website"
+          }
+        ]
+      },
+      "views": [
+        {
+          "view_key": "featured-listing",
+          "name": "Featured Listing",
+          "sort_order": 0,
+          "full_name": "Elena Brooks",
+          "organization_name": "Northline Realty Group",
+          "role_line": "1842 Linden Grove Drive, Springfield, IL",
+          "intro": "Updated kitchen, finished basement, fenced yard, and easy access to parks and daily errands.",
+          "email": "elena.brooks@northlinerealtygroup.com",
+          "phone": "(555) 420-8800",
+          "text_phone": "(555) 420-8801",
+          "website_url": "https://northlinerealtygroup.com/listings/1842-linden-grove-drive",
+          "profile_badge_1": "$389,000",
+          "profile_badge_2": "4 bed / 3 bath",
+          "profile_badge_3": "2,450 sq ft",
+          "show_in_public_nav": true,
+          "primary_links": [
+            {
+              "title": "View Listing",
+              "url": "https://northlinerealtygroup.com/listings/1842-linden-grove-drive",
+              "type": "website"
+            },
+            {
+              "title": "Schedule Showing",
+              "url": "https://northlinerealtygroup.com/listings/1842-linden-grove-drive/showing",
+              "type": "booking"
+            },
+            {
+              "title": "Ask a Question",
+              "url": "elena.brooks@northlinerealtygroup.com",
+              "type": "email"
+            },
+            {
+              "title": "Get Directions",
+              "url": "1842 Linden Grove Drive, Springfield, IL",
+              "type": "directions"
+            }
+          ]
+        },
+        {
+          "view_key": "open-house",
+          "name": "Open House",
+          "sort_order": 1,
+          "full_name": "Elena Brooks",
+          "organization_name": "Northline Realty Group",
+          "role_line": "722 Westridge Court, Chatham, IL",
+          "intro": "Sunday 1-3 PM. Bright main level, easy parking, and a layout that works well for entertaining.",
+          "email": "elena.brooks@northlinerealtygroup.com",
+          "phone": "(555) 420-8800",
+          "text_phone": "(555) 420-8801",
+          "website_url": "https://northlinerealtygroup.com/listings/722-westridge-court",
+          "profile_badge_1": "Open House",
+          "profile_badge_2": "3 bed / 2 bath",
+          "profile_badge_3": "1,980 sq ft",
+          "show_in_public_nav": true,
+          "primary_links": [
+            {
+              "title": "Open House Details",
+              "url": "https://northlinerealtygroup.com/open-house/722-westridge-court",
+              "type": "website"
+            },
+            {
+              "title": "Save This Home",
+              "url": "https://northlinerealtygroup.com/open-house/save/722-westridge-court",
+              "type": "website"
+            },
+            {
+              "title": "Schedule Private Showing",
+              "url": "https://northlinerealtygroup.com/listings/722-westridge-court/showing",
+              "type": "booking"
+            },
+            {
+              "title": "Contact Elena",
+              "url": "elena.brooks@northlinerealtygroup.com",
+              "type": "email"
+            }
+          ]
+        },
+        {
+          "view_key": "coming-soon",
+          "name": "Coming Soon",
+          "sort_order": 2,
+          "full_name": "Elena Brooks",
+          "organization_name": "Northline Realty Group",
+          "role_line": "309 Maple Hollow Lane, Rochester, IL",
+          "intro": "Early access opportunity with professional photos coming soon and room to move quickly before it hits the broader market.",
+          "email": "elena.brooks@northlinerealtygroup.com",
+          "phone": "(555) 420-8800",
+          "text_phone": "(555) 420-8801",
+          "website_url": "https://northlinerealtygroup.com/listings/309-maple-hollow-lane",
+          "profile_badge_1": "Coming Soon",
+          "profile_badge_2": "5 bed / 3 bath",
+          "profile_badge_3": "2,900 sq ft",
+          "show_in_public_nav": true,
+          "primary_links": [
+            {
+              "title": "Request Early Access",
+              "url": "https://northlinerealtygroup.com/coming-soon/309-maple-hollow-lane",
+              "type": "booking"
+            },
+            {
+              "title": "Join Buyer List",
+              "url": "https://northlinerealtygroup.com/coming-soon/buyer-list",
+              "type": "website"
+            },
+            {
+              "title": "Ask About This Home",
+              "url": "elena.brooks@northlinerealtygroup.com",
+              "type": "email"
+            },
+            {
+              "title": "Get Pre-Approved",
+              "url": "https://northlinerealtygroup.com/pre-approved",
+              "type": "website"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "demo-insurance",
+      "businessType": "insurance_agency",
+      "summary": "Route prospects to quotes, reviews, claims help, and coverage options without making them search.",
+      "profile": {
+        "slug": "demo-insurance",
+        "full_name": "Naomi Carter",
+        "role_line": "Licensed Insurance Advisor",
+        "organization_name": "Carter Family Insurance",
+        "intro": "Coverage for auto, home, life, and small business clients, with annual reviews that keep policies aligned with real life.",
+        "email": "naomi.carter@carterfamilyinsurance.com",
+        "phone": "(555) 430-1200",
+        "text_phone": "(555) 430-1201",
+        "website_url": "https://carterfamilyinsurance.com",
+        "profile_badge_1": "Independent agency",
+        "profile_badge_2": "Annual reviews",
+        "profile_badge_3": "Family + business coverage",
+        "primary_links": [
+          {
+            "title": "Request Quote",
+            "url": "https://carterfamilyinsurance.com/quote",
+            "type": "website"
+          },
+          {
+            "title": "Schedule Review",
+            "url": "https://carterfamilyinsurance.com/review",
+            "type": "booking"
+          },
+          {
+            "title": "File a Claim",
+            "url": "https://carterfamilyinsurance.com/claims",
+            "type": "website"
+          },
+          {
+            "title": "Coverage Options",
+            "url": "https://carterfamilyinsurance.com/coverage",
+            "type": "website"
+          }
+        ]
+      }
+    },
+    {
+      "slug": "demo-mortgage",
+      "businessType": "mortgage_lender",
+      "summary": "Guide buyers from conversation to pre-qualification, application, calculators, and consultations.",
+      "profile": {
+        "slug": "demo-mortgage",
+        "full_name": "Daniel Kim",
+        "role_line": "Mortgage Loan Officer",
+        "organization_name": "Prairie Home Lending",
+        "intro": "Clear next steps for first-time buyers and refinances, with pre-qualification and consultation options that keep the process calm and simple.",
+        "email": "daniel.kim@prairiehomelending.com",
+        "phone": "(555) 440-3400",
+        "text_phone": "(555) 440-3401",
+        "website_url": "https://prairiehomelending.com",
+        "profile_badge_1": "Pre-qualification",
+        "profile_badge_2": "Refinancing",
+        "profile_badge_3": "Clear next steps",
+        "primary_links": [
+          {
+            "title": "Apply Now",
+            "url": "https://prairiehomelending.com/apply",
+            "type": "website"
+          },
+          {
+            "title": "Get Pre-Qualified",
+            "url": "https://prairiehomelending.com/pre-qualify",
+            "type": "booking"
+          },
+          {
+            "title": "Mortgage Calculator",
+            "url": "https://prairiehomelending.com/calculator",
+            "type": "website"
+          },
+          {
+            "title": "Schedule Consultation",
+            "url": "https://prairiehomelending.com/consultation",
+            "type": "booking"
+          }
+        ]
+      }
+    },
+    {
+      "slug": "demo-staffing",
+      "businessType": "staffing_recruiting",
+      "summary": "Send job seekers and employers to the right next step from one simple profile.",
+      "profile": {
+        "slug": "demo-staffing",
+        "full_name": "Priya Lawson",
+        "role_line": "Talent Partner",
+        "organization_name": "Summit Staffing Partners",
+        "intro": "A friendly path for candidates and employers alike, with a clear handoff from resume submission to interview scheduling and hiring support.",
+        "email": "priya.lawson@summitstaffingpartners.com",
+        "phone": "(555) 450-5600",
+        "text_phone": "(555) 450-5601",
+        "website_url": "https://summitstaffingpartners.com",
+        "profile_badge_1": "Candidates",
+        "profile_badge_2": "Employers",
+        "profile_badge_3": "Fast response",
+        "primary_links": [
+          {
+            "title": "Submit Resume",
+            "url": "https://summitstaffingpartners.com/submit-resume",
+            "type": "website"
+          },
+          {
+            "title": "Open Positions",
+            "url": "https://summitstaffingpartners.com/jobs",
+            "type": "website"
+          },
+          {
+            "title": "Hire Talent",
+            "url": "https://summitstaffingpartners.com/employers",
+            "type": "website"
+          },
+          {
+            "title": "Schedule Interview",
+            "url": "https://summitstaffingpartners.com/interview",
+            "type": "booking"
+          }
+        ]
+      }
+    },
+    {
+      "slug": "demo-financial",
+      "businessType": "financial_advisor",
+      "summary": "Make consultations, reviews, planning resources, and education easy to find.",
+      "profile": {
+        "slug": "demo-financial",
+        "full_name": "Andrew Miles",
+        "role_line": "Financial Advisor",
+        "organization_name": "Miles Wealth Planning",
+        "intro": "Steady guidance for retirement planning, wealth reviews, long-term goals, and practical education that helps clients make thoughtful decisions.",
+        "email": "andrew.miles@mileswealthplanning.com",
+        "phone": "(555) 460-7100",
+        "text_phone": "(555) 460-7101",
+        "website_url": "https://mileswealthplanning.com",
+        "profile_badge_1": "Retirement planning",
+        "profile_badge_2": "Wealth review",
+        "profile_badge_3": "Education first",
+        "primary_links": [
+          {
+            "title": "Schedule Consultation",
+            "url": "https://mileswealthplanning.com/consultation",
+            "type": "booking"
+          },
+          {
+            "title": "Retirement Planning",
+            "url": "https://mileswealthplanning.com/retirement",
+            "type": "website"
+          },
+          {
+            "title": "Wealth Review",
+            "url": "https://mileswealthplanning.com/review",
+            "type": "website"
+          },
+          {
+            "title": "Resources",
+            "url": "https://mileswealthplanning.com/resources",
+            "type": "website"
+          }
+        ]
+      }
+    },
+    {
+      "slug": "demo-general",
+      "businessType": "general_business",
+      "summary": "A flexible front door for appointments, services, payments, and contact.",
+      "profile": {
+        "slug": "demo-general",
+        "full_name": "Sofia Bennett",
+        "role_line": "Owner / Operator",
+        "organization_name": "Bluebird Studio & Services",
+        "intro": "A polished example of how a general service business can use CapturePass to route people to booking, services, payment, and contact without a vertical-specific workflow.",
+        "email": "sofia.bennett@bluebirdstudioservices.com",
+        "phone": "(555) 470-9800",
+        "text_phone": "(555) 470-9801",
+        "website_url": "https://bluebirdstudioservices.com",
+        "profile_badge_1": "Appointments",
+        "profile_badge_2": "Services",
+        "profile_badge_3": "Payments",
+        "primary_links": [
+          {
+            "title": "Book Appointment",
+            "url": "https://bluebirdstudioservices.com/book",
+            "type": "booking"
+          },
+          {
+            "title": "View Services",
+            "url": "https://bluebirdstudioservices.com/services",
+            "type": "website"
+          },
+          {
+            "title": "Make a Payment",
+            "url": "https://bluebirdstudioservices.com/pay",
+            "type": "payment"
+          },
+          {
+            "title": "Contact Us",
+            "url": "https://bluebirdstudioservices.com/contact",
+            "type": "website"
+          }
+        ]
+      }
+    }
+  ]
+}

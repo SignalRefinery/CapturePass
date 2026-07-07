@@ -11,6 +11,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "",
     "/business",
     "/business-individual",
+    "/demos",
     "/business/pricing",
     "/contact",
     "/contact-capture-nfc-cards",
