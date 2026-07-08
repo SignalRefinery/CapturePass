@@ -158,7 +158,7 @@ async function upsertDemoProfile(admin, demo, userId, existingProfileId = null) 
     is_active: true,
     consent_public_visibility: true,
     slug_status: "approved",
-    theme_key: "capturepass_brand",
+    theme_key: demo.profile.theme_key || "capturepass_brand",
     stripe_plan_key: "creator",
     show_text: true,
     updated_at: now
