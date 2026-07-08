@@ -413,39 +413,40 @@
     {
       "slug": "demo-general",
       "businessType": "general_business",
-      "summary": "A flexible front door for appointments, services, payments, and contact.",
+      "audienceLabel": "Esthetician",
+      "summary": "A polished front door for skincare appointments, service details, booking, and contact.",
       "profile": {
         "slug": "demo-general",
         "full_name": "Sofia Bennett",
-        "role_line": "Owner / Operator",
-        "organization_name": "Bluebird Studio & Services",
-        "intro": "A polished example of how a general service business can use CapturePass to route people to booking, services, payment, and contact without a vertical-specific workflow.",
-        "email": "sofia.bennett@bluebirdstudioservices.com",
+        "role_line": "Licensed Esthetician",
+        "organization_name": "Bluebird Skin Studio",
+        "intro": "A polished example of how an esthetician can use CapturePass to route people to booking, service details, product recommendations, and contact without a heavy booking app.",
+        "email": "sofia.bennett@bluebirdskinstudio.com",
         "phone": "(555) 470-9800",
         "text_phone": "(555) 470-9801",
-        "website_url": "https://bluebirdstudioservices.com",
+        "website_url": "https://bluebirdskinstudio.com",
         "profile_badge_1": "Appointments",
-        "profile_badge_2": "Services",
-        "profile_badge_3": "Payments",
+        "profile_badge_2": "Skincare",
+        "profile_badge_3": "Products",
         "primary_links": [
           {
             "title": "Book Appointment",
-            "url": "https://bluebirdstudioservices.com/book",
+            "url": "https://bluebirdskinstudio.com/book",
             "type": "booking"
           },
           {
             "title": "View Services",
-            "url": "https://bluebirdstudioservices.com/services",
+            "url": "https://bluebirdskinstudio.com/services",
             "type": "website"
           },
           {
-            "title": "Make a Payment",
-            "url": "https://bluebirdstudioservices.com/pay",
-            "type": "payment"
+            "title": "Shop Products",
+            "url": "https://bluebirdskinstudio.com/products",
+            "type": "website"
           },
           {
             "title": "Contact Us",
-            "url": "https://bluebirdstudioservices.com/contact",
+            "url": "https://bluebirdskinstudio.com/contact",
             "type": "website"
           }
         ]

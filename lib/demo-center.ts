@@ -51,6 +51,7 @@ type DemoViewConfig = {
 type DemoDefinition = {
   slug: string;
   businessType: BusinessType;
+  audienceLabel?: string;
   summary: string;
   profile: DemoProfileConfig;
   views?: DemoViewConfig[];
@@ -66,6 +67,7 @@ export type DemoCenterDemo = DemoDefinition & {
   profileUrl: string;
   qrUrl: string;
   viewCount: number;
+  audienceLabelText: string;
 };
 
 export type DemoCenterProfileInsert = {
@@ -151,7 +153,8 @@ export function getDemoCenterDemos(): DemoCenterDemo[] {
     ...demo,
     profileUrl: `${siteOrigin}/${demo.slug}`,
     qrUrl: buildQuickChartQrUrl(`${siteOrigin}/${demo.slug}`) || "",
-    viewCount: demo.views?.length || 0
+    viewCount: demo.views?.length || 0,
+    audienceLabelText: demo.audienceLabel || ""
   }));
 }
 

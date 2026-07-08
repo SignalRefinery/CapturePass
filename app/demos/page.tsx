@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { Shell } from "@/components/shared/shell";
 import { buildPageMetadata } from "@/lib/seo";
-import { BUSINESS_TYPE_LABELS } from "@/lib/business-types";
 import { getDemoCenterDemos } from "@/lib/demo-center";
 
 export const metadata = buildPageMetadata({
@@ -46,7 +45,7 @@ export default function DemoCenterPage() {
               <article className="card tagg-card" key={demo.slug} style={card}>
                 <div style={cardTop}>
                   <div>
-                    <div className="dashboard-kicker">{BUSINESS_TYPE_LABELS[demo.businessType]}</div>
+                    <div className="dashboard-kicker">{demo.audienceLabelText || "General Business"}</div>
                     <h2 style={cardTitle}>{demo.profile.full_name}</h2>
                     <p style={companyLine}>
                       {demo.profile.organization_name}
@@ -82,7 +81,7 @@ export default function DemoCenterPage() {
                     </div>
                     <div style={detailRow}>
                       <span>Audience</span>
-                      <strong>{BUSINESS_TYPE_LABELS[demo.businessType]}</strong>
+                      <strong>{demo.audienceLabelText || "General Business"}</strong>
                     </div>
                     <div style={detailRow}>
                       <span>Profile URL</span>
