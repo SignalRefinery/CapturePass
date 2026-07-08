@@ -23,7 +23,19 @@ export function cleanHexColor(value: FormDataEntryValue | null) {
 
 export function cleanBrandTheme(value: FormDataEntryValue | null) {
   const theme = normalizeThemeKey(String(value || ""));
-  if (theme === "clean_horizon" || theme === "sage_professional") return "clean_light";
+  if (
+    theme === "capturepass_brand" ||
+    theme === "clean_horizon" ||
+    theme === "modern_rose" ||
+    theme === "arctic_white" ||
+    theme === "ivory_executive" ||
+    theme === "coastal_blue" ||
+    theme === "emerald_executive" ||
+    theme === "sandstone" ||
+    theme === "sage_professional"
+  ) {
+    return "clean_light";
+  }
   if (theme === "custom") return "custom";
   return "deep_brand";
 }

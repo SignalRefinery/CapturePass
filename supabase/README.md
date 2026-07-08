@@ -25,6 +25,8 @@ files, run `node scripts/build_capturepass_schema.js`.
 
 Use the individual `phase*.sql` files only when upgrading an existing database that already has the earlier phases applied.
 
+If you accidentally ran `supabase/capturepass_schema.sql` on an existing database, use `supabase/cleanup_existing_project_defaults.sql` to restore the older defaults that the app expects for upgraded projects.
+
 Historical phase files are archived under `supabase/archive/`. Treat that
 folder as the migration history for older databases, not the fresh-project
 entry point.

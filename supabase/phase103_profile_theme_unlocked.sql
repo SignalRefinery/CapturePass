@@ -10,11 +10,18 @@ stable
 as $$
   select coalesce(theme_key, 'capturepass_brand') in (
     'capturepass_brand',
-    'executive_navy',
+    'tt_classic',
     'modern_slate',
     'executive_gold',
     'clean_horizon',
+    'modern_rose',
+    'custom',
+    'executive_navy',
     'sage_professional',
-    'custom'
+    'arctic_white',
+    'ivory_executive',
+    'coastal_blue',
+    'emerald_executive',
+    'sandstone'
   )
 $$;

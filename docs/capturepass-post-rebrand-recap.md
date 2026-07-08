@@ -4,7 +4,7 @@
 
 The 12-phase TapTagg to CapturePass rebrand is complete in the repo. The public product now presents as CapturePass by HandshakeIQ, with centralized brand constants, CapturePass palette tokens, CapturePass metadata, CapturePass assets, updated marketing copy, and CapturePass-friendly indexing rules.
 
-The codebase still contains a number of TapTagg-era internal identifiers, legacy theme keys, and historical docs. Those are mostly compatibility or archival leftovers, not user-facing brand leaks. I also cleaned the few obvious user-facing leftovers that were still shipping in download filenames and dashboard placeholders.
+The codebase still contains a number of TapTagg-era internal identifiers, legacy theme keys, and historical docs. Those are mostly compatibility or archival leftovers, not user-facing brand leaks. The live theme picker now shows the seven CapturePass-era choices, while older theme keys remain only for compatibility with stored rows.
 
 ## Completed Work
 
@@ -42,7 +42,7 @@ The codebase still contains a number of TapTagg-era internal identifiers, legacy
 
 - Replaced the old purple-first identity with the CapturePass blue/gold/charcoal palette.
 - Updated shared theme tokens, global CSS, profile shell styling, and social image routes.
-- Kept the legacy `tt_classic` theme available as a historical theme, with its label and description clarified.
+- Kept legacy theme keys available for historical rows while presenting the seven current CapturePass theme choices in the editor.
 
 ### Assets, Icons, And OG Images
 

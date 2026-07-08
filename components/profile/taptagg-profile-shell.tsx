@@ -201,8 +201,9 @@ function themeClassName(theme?: string | null, background?: string | null) {
 }
 
 function legacyThemeClassName(theme?: string | null) {
-  // Older business pass rows stored brand_theme instead of theme_key. Keep this
-  // isolated fallback so stored passes render without making these public labels.
+  // Legacy business rows may still store brand_theme instead of theme_key.
+  // Keep this isolated fallback so older records render without reintroducing
+  // those compatibility labels into the public theme selector.
   switch (theme) {
     case "deep_brand":
       return styles.themeDeepBrand;

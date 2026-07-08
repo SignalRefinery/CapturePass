@@ -26,7 +26,8 @@ function themeKeyForOrganization(organization: BusinessBrandThemeFieldsProps["or
   }
 
   // Legacy brand_theme values remain for older organization rows. New writes use
-  // theme_key, while this fallback preserves existing business branding.
+  // theme_key, while this fallback preserves existing business branding for
+  // records that predate the 7-theme selector.
   switch (organization.brand_theme) {
     case "custom":
       return CUSTOM_THEME_KEY;

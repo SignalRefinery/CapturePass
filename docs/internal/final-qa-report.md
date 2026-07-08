@@ -2,7 +2,7 @@
 
 ## Summary
 
-CapturePass is now buildable and passes the available automated checks. The brand-facing surfaces reviewed in this phase do not show TapTagg to a new user, and the remaining TapTagg references are internal compatibility names, historical docs, or test fixtures.
+CapturePass is now buildable and passes the available automated checks. The brand-facing surfaces reviewed in this phase do not show TapTagg to a new user, and the remaining TapTagg references are internal compatibility names, historical docs, or test fixtures. The theme system is now documented as seven user-facing CapturePass options, with older keys retained only for compatibility.
 
 ## Checks Passed
 
@@ -35,7 +35,7 @@ Result:
 
 The remaining matches are safe compatibility aliases or historical leftovers:
 
-- `taptagg_brand` theme key and legacy theme identifiers
+- `taptagg_brand` theme key and legacy theme identifiers retained for compatibility
 - `taptagg_pending_checkout` cookie name
 - `TapTaggProfileShell`, `TapTaggAdminUser`, `requireTapTaggAdmin`, and `isTapTaggBootstrapAdminEmail` compatibility aliases
 - `calculateTapTaggScore` and `taptagg_score` gamification internals

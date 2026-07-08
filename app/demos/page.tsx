@@ -87,6 +87,12 @@ export default function DemoCenterPage() {
                       <span>Profile URL</span>
                       <strong>{demo.profileUrl.replace(/^https?:\/\//, "")}</strong>
                     </div>
+                    {demo.digitalPassUrl ? (
+                      <div style={detailRow}>
+                        <span>Digital Pass</span>
+                        <strong>{demo.digitalPassUrl.replace(/^https?:\/\//, "")}</strong>
+                      </div>
+                    ) : null}
                     <Link className="button primary" href={`/${demo.slug}`} style={{ width: "fit-content" }}>
                       Open Demo
                     </Link>

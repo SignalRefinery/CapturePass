@@ -1703,7 +1703,7 @@ export function ProfileEditor({
                 <div className="dashboard-kicker">Profile Theme</div>
                 <h3 style={{ margin: "6px 0 8px" }}>Choose a polished look.</h3>
                 <p className="editor-copy">
-                  Presets keep your profile sharp without needing to tune colors manually.
+                  Choose from the seven CapturePass themes or switch to Custom colors.
                 </p>
               </div>
               <span className="collapsible-summary-chip" aria-hidden="true">

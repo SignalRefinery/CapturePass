@@ -6,6 +6,9 @@
 alter table public.profiles
   alter column theme_key set default 'capturepass_brand';
 
+alter table public.organizations
+  alter column theme_key set default 'capturepass_brand';
+
 alter table public.profiles
   drop constraint if exists profiles_theme_key_check;
 
@@ -19,12 +22,19 @@ stable
 as $$
   select coalesce(theme_key, 'capturepass_brand') in (
     'capturepass_brand',
-    'executive_navy',
+    'tt_classic',
     'modern_slate',
     'executive_gold',
     'clean_horizon',
+    'modern_rose',
+    'custom',
+    'executive_navy',
     'sage_professional',
-    'custom'
+    'arctic_white',
+    'ivory_executive',
+    'coastal_blue',
+    'emerald_executive',
+    'sandstone'
   )
 $$;
 
@@ -68,42 +78,63 @@ update public.profiles
 set theme_key = 'capturepass_brand'
 where theme_key is null
    or theme_key = ''
-   or theme_key = 'taptagg_brand'
-   or theme_key not in (
+  or theme_key = 'taptagg_brand'
+  or theme_key not in (
      'capturepass_brand',
-     'executive_navy',
+     'tt_classic',
      'modern_slate',
      'executive_gold',
      'clean_horizon',
+     'modern_rose',
+     'custom',
+     'executive_navy',
      'sage_professional',
-     'custom'
+     'arctic_white',
+     'ivory_executive',
+     'coastal_blue',
+     'emerald_executive',
+     'sandstone'
    );
 
 update public.organizations
 set theme_key = 'capturepass_brand'
 where theme_key is null
    or theme_key = ''
-   or theme_key = 'taptagg_brand'
-   or theme_key not in (
+  or theme_key = 'taptagg_brand'
+  or theme_key not in (
      'capturepass_brand',
-     'executive_navy',
+     'tt_classic',
      'modern_slate',
      'executive_gold',
      'clean_horizon',
+     'modern_rose',
+     'custom',
+     'executive_navy',
      'sage_professional',
-     'custom'
+     'arctic_white',
+     'ivory_executive',
+     'coastal_blue',
+     'emerald_executive',
+     'sandstone'
    );
 
 alter table public.profiles
   add constraint profiles_theme_key_check check (
     theme_key in (
       'capturepass_brand',
-      'executive_navy',
+      'tt_classic',
       'modern_slate',
       'executive_gold',
       'clean_horizon',
+      'modern_rose',
+      'custom',
+      'executive_navy',
       'sage_professional',
-      'custom'
+      'arctic_white',
+      'ivory_executive',
+      'coastal_blue',
+      'emerald_executive',
+      'sandstone'
     )
   );
 
@@ -111,11 +142,18 @@ alter table public.organizations
   add constraint organizations_theme_key_check check (
     theme_key in (
       'capturepass_brand',
-      'executive_navy',
+      'tt_classic',
       'modern_slate',
       'executive_gold',
       'clean_horizon',
+      'modern_rose',
+      'custom',
+      'executive_navy',
       'sage_professional',
-      'custom'
+      'arctic_white',
+      'ivory_executive',
+      'coastal_blue',
+      'emerald_executive',
+      'sandstone'
     )
   );

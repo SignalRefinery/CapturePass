@@ -12,6 +12,7 @@ type DemoPrimaryLink = {
 
 type DemoProfileConfig = {
   slug: string;
+  private_token?: string;
   full_name: string;
   role_line: string;
   organization_name: string;
@@ -26,6 +27,7 @@ type DemoProfileConfig = {
   page_mode?: "single" | "multi";
   multi_view_display_mode?: "landing" | "favorite";
   default_view_key?: string;
+  theme_key?: "capturepass_brand" | "tt_classic" | "modern_slate" | "executive_gold" | "clean_horizon" | "modern_rose" | "custom";
   primary_links: DemoPrimaryLink[];
 };
 
@@ -65,6 +67,7 @@ const demoCenterConfig = demoCenterData as RawDemoCenterData;
 
 export type DemoCenterDemo = DemoDefinition & {
   profileUrl: string;
+  digitalPassUrl: string;
   qrUrl: string;
   viewCount: number;
   audienceLabelText: string;
@@ -73,6 +76,7 @@ export type DemoCenterDemo = DemoDefinition & {
 export type DemoCenterProfileInsert = {
   slug: string;
   business_type: BusinessType;
+  private_token: string | null;
   full_name: string;
   role_line: string;
   organization_name: string;
@@ -102,7 +106,7 @@ export type DemoCenterProfileInsert = {
   is_active: boolean;
   consent_public_visibility: boolean;
   slug_status: "approved";
-  theme_key: "capturepass_brand";
+  theme_key: "capturepass_brand" | "tt_classic" | "modern_slate" | "executive_gold" | "clean_horizon" | "modern_rose" | "custom";
   stripe_plan_key: "creator";
   show_text: boolean;
   updated_at: string;
@@ -152,6 +156,7 @@ export function getDemoCenterDemos(): DemoCenterDemo[] {
   return demoCenterConfig.demos.map((demo) => ({
     ...demo,
     profileUrl: `${siteOrigin}/${demo.slug}`,
+    digitalPassUrl: demo.profile.private_token ? `${siteOrigin}/pass/${demo.profile.private_token}` : "",
     qrUrl: buildQuickChartQrUrl(`${siteOrigin}/${demo.slug}`) || "",
     viewCount: demo.views?.length || 0,
     audienceLabelText: demo.audienceLabel || ""
@@ -176,6 +181,7 @@ export function buildDemoProfileInsert(demo: DemoDefinition): DemoCenterProfileI
     phone: demo.profile.phone,
     text_phone: demo.profile.text_phone,
     website_url: demo.profile.website_url,
+    private_token: demo.profile.private_token || null,
     profile_badge_1: demo.profile.profile_badge_1 || "",
     profile_badge_2: demo.profile.profile_badge_2 || "",
     profile_badge_3: demo.profile.profile_badge_3 || "",
@@ -197,7 +203,7 @@ export function buildDemoProfileInsert(demo: DemoDefinition): DemoCenterProfileI
     is_active: true,
     consent_public_visibility: true,
     slug_status: "approved",
-    theme_key: "capturepass_brand",
+    theme_key: demo.profile.theme_key || "capturepass_brand",
     stripe_plan_key: "creator",
     show_text: true,
     updated_at: now

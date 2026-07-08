@@ -40,11 +40,13 @@ export type ThemeDefinition = {
 export const DEFAULT_THEME_KEY: ThemeKey = "capturepass_brand";
 export const CUSTOM_THEME_KEY: ThemeKey = "custom";
 
+// The catalog keeps legacy compatibility keys for existing rows, but the
+// selectable UI only uses THEME_OPTIONS below.
 export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
   capturepass_brand: {
     key: "capturepass_brand",
-    name: "CapturePass Brand",
-    description: "The core CapturePass blue and charcoal palette for personal profiles.",
+    name: "CapturePass",
+    description: "Default CapturePass look for most profiles.",
     colors: {
       primary: designTokens.colors.primary,
       secondary: designTokens.colors.deepBlue,
@@ -56,7 +58,7 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
   tt_classic: {
     key: "tt_classic",
     name: "TT Classic",
-    description: "The original purple palette, preserved as a legacy profile theme.",
+    description: "Legacy purple for historical profiles.",
     colors: {
       primary: "#8B5CF6",
       secondary: "#A78BFA",
@@ -67,8 +69,8 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
   },
   executive_navy: {
     key: "executive_navy",
-    name: "Classic Navy",
-    description: "A legacy navy palette kept for existing business branding.",
+    name: "Legacy Navy",
+    description: "Compatibility palette kept for older rows that still reference the previous executive theme.",
     colors: {
       primary: "#1D4ED8",
       secondary: "#0F172A",
@@ -79,8 +81,8 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
   },
   modern_slate: {
     key: "modern_slate",
-    name: "Modern Slate",
-    description: "A crisp slate theme with a bright cyan accent.",
+    name: "Midnight",
+    description: "Sleek dark mode with cool accents.",
     colors: {
       primary: "#06B6D4",
       secondary: "#111827",
@@ -91,8 +93,8 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
   },
   executive_gold: {
     key: "executive_gold",
-    name: "Amber Night",
-    description: "A dark profile palette with warm amber accents.",
+    name: "Executive",
+    description: "Dark, premium, and understated with gold accents.",
     colors: {
       primary: "#D4A017",
       secondary: "#1E293B",
@@ -103,8 +105,8 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
   },
   clean_horizon: {
     key: "clean_horizon",
-    name: "Arctic White",
-    description: "A crisp white profile with clean blue action emphasis.",
+    name: "Light",
+    description: "Bright, airy, and minimal.",
     colors: {
       primary: "#2563EB",
       secondary: "#E2E8F0",
@@ -115,8 +117,8 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
   },
   sage_professional: {
     key: "sage_professional",
-    name: "Sage Studio",
-    description: "A fresh profile palette with confident green accents.",
+    name: "Legacy Sage",
+    description: "Compatibility palette kept for older rows that still reference the previous sage theme.",
     colors: {
       primary: "#059669",
       secondary: "#0F3D2E",
@@ -127,8 +129,8 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
   },
   arctic_white: {
     key: "arctic_white",
-    name: "Arctic White",
-    description: "A crisp white profile with clean blue action emphasis.",
+    name: "Legacy Arctic White",
+    description: "Compatibility palette kept for older rows that still reference the previous light theme.",
     colors: {
       primary: "#2563EB",
       secondary: "#E5E7EB",
@@ -139,8 +141,8 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
   },
   ivory_executive: {
     key: "ivory_executive",
-    name: "Warm Ivory",
-    description: "A warm light profile with understated amber accents.",
+    name: "Legacy Ivory",
+    description: "Compatibility palette kept for older rows that still reference the previous warm ivory theme.",
     colors: {
       primary: "#B45309",
       secondary: "#F7F3ED",
@@ -151,8 +153,8 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
   },
   coastal_blue: {
     key: "coastal_blue",
-    name: "Coastal Blue",
-    description: "A bright approachable profile with polished blue accents.",
+    name: "Legacy Coastal Blue",
+    description: "Compatibility palette kept for older rows that still reference the previous coastal blue theme.",
     colors: {
       primary: "#0284C7",
       secondary: "#EAF4FF",
@@ -163,8 +165,8 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
   },
   emerald_executive: {
     key: "emerald_executive",
-    name: "Emerald Studio",
-    description: "A fresh light profile with confident green accents.",
+    name: "Legacy Emerald",
+    description: "Compatibility palette kept for older rows that still reference the previous emerald theme.",
     colors: {
       primary: "#059669",
       secondary: "#ECFDF5",
@@ -175,8 +177,8 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
   },
   sandstone: {
     key: "sandstone",
-    name: "Sandstone",
-    description: "A warm refined profile for real estate, lending, and boutique brands.",
+    name: "Legacy Sandstone",
+    description: "Compatibility palette kept for older rows that still reference the previous sandstone theme.",
     colors: {
       primary: "#C08457",
       secondary: "#F5F1E8",
@@ -188,19 +190,19 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
   modern_rose: {
     key: "modern_rose",
     name: "Modern Rose",
-    description: "A clean expressive light profile with boutique rose accents.",
+    description: "Soft pink luxury for beauty and boutique brands.",
     colors: {
-      primary: "#E11D48",
-      secondary: "#FFF1F2",
-      accent: "#FB7185",
-      text: "#1F2937",
-      background: "#FFFDFD"
+      primary: "#D96A92",
+      secondary: "#F8E7ED",
+      accent: "#E8B7C8",
+      text: "#4A3740",
+      background: "#FFF9FB"
     },
   },
   custom: {
     key: "custom",
-    name: "Custom Brand Colors",
-    description: "Use your own CTA, icon, glow, background, and text colors.",
+    name: "Custom",
+    description: "Use your own brand colors.",
     colors: {
       primary: designTokens.colors.primary,
       secondary: designTokens.colors.deepBlue,
@@ -214,29 +216,17 @@ export const THEME_PRESETS: Record<ThemeKey, ThemeDefinition> = {
 const CANONICAL_THEME_KEYS: ThemeKey[] = [
   "capturepass_brand",
   "tt_classic",
-  "executive_navy",
   "modern_slate",
   "executive_gold",
   "clean_horizon",
-  "sage_professional",
-  "ivory_executive",
-  "coastal_blue",
-  "sandstone",
   "modern_rose",
   "custom"
 ];
 
-// Stored rows may still reference older theme keys. Keep aliases isolated here
-// so current UI labels can move forward without breaking existing profiles.
-const THEME_ALIASES: Record<string, ThemeKey> = {
-  arctic_white: "clean_horizon",
-  emerald_executive: "sage_professional"
-};
-
 export const THEME_OPTIONS = CANONICAL_THEME_KEYS.map((key) => THEME_PRESETS[key]);
 export const PRESET_THEME_OPTIONS = THEME_OPTIONS.filter((theme) => theme.key !== CUSTOM_THEME_KEY);
 export const BUSINESS_THEME_OPTIONS = THEME_OPTIONS;
-export const PROFILE_THEME_OPTIONS = THEME_OPTIONS.filter((theme) => theme.key !== "executive_navy");
+export const PROFILE_THEME_OPTIONS = THEME_OPTIONS;
 
 export const THEME_COLOR_ROLE_LABELS = {
   primary: "CTA Color",
@@ -249,11 +239,6 @@ export const THEME_COLOR_ROLE_LABELS = {
 export function normalizeThemeKey(value?: string | null): ThemeKey {
   if (!value) {
     return DEFAULT_THEME_KEY;
-  }
-
-  const aliased = THEME_ALIASES[value];
-  if (aliased) {
-    return aliased;
   }
 
   if (value in THEME_PRESETS) {
@@ -274,6 +259,7 @@ export function allowedThemesForPlan(_plan: PlanFeatures | PlanKey) {
 export function coerceThemeForPlan(themeKey: string | null | undefined, _plan: PlanFeatures | PlanKey) {
   const normalized = normalizeThemeKey(themeKey);
   if (normalized === "executive_navy") {
+    // Legacy business rows still resolve this stored key to the default theme.
     return DEFAULT_THEME_KEY;
   }
 

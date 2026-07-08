@@ -1,4 +1,4 @@
--- TapTagg fresh Supabase project bootstrap.
+-- CapturePass fresh Supabase project bootstrap.
 --
 -- Run this once in the Supabase SQL editor for a new project. Existing
 -- phase*.sql files remain available for incremental upgrades of older
@@ -102,7 +102,26 @@ create table if not exists public.profiles (
     )
   ),
   constraint profiles_slug_status_check check (slug_status in ('approved', 'pending_review', 'rejected')),
-  constraint profiles_theme_key_check check (theme_key in ('capturepass_brand', 'executive_navy', 'modern_slate', 'executive_gold', 'clean_horizon', 'sage_professional', 'custom'))
+  -- Canonical user-facing themes are the seven current options; legacy keys stay
+  -- allowed so older rows continue to render safely.
+  constraint profiles_theme_key_check check (
+    theme_key in (
+      'capturepass_brand',
+      'tt_classic',
+      'modern_slate',
+      'executive_gold',
+      'clean_horizon',
+      'modern_rose',
+      'custom',
+      'executive_navy',
+      'sage_professional',
+      'arctic_white',
+      'ivory_executive',
+      'coastal_blue',
+      'emerald_executive',
+      'sandstone'
+    )
+  )
 );
 
 create unique index if not exists profiles_user_id_idx on public.profiles (user_id);
@@ -195,7 +214,7 @@ create table if not exists public.organizations (
   brand_color_accent text,
   brand_color_background text,
   brand_color_text text,
-  theme_key text not null default 'executive_navy',
+  theme_key text not null default 'capturepass_brand',
   brand_theme text not null default 'full_color',
   brand_logo_url text,
   business_link_1_title text,
@@ -247,7 +266,26 @@ create table if not exists public.organizations (
     and (included_card_count is null or included_card_count >= 0)
     and (card_allotment_total is null or card_allotment_total >= 0)
   ),
-  constraint organizations_theme_key_check check (theme_key in ('capturepass_brand', 'executive_navy', 'modern_slate', 'executive_gold', 'clean_horizon', 'sage_professional', 'custom')),
+  -- Canonical user-facing themes are the seven current options; legacy keys stay
+  -- allowed so older rows continue to render safely.
+  constraint organizations_theme_key_check check (
+    theme_key in (
+      'capturepass_brand',
+      'tt_classic',
+      'modern_slate',
+      'executive_gold',
+      'clean_horizon',
+      'modern_rose',
+      'custom',
+      'executive_navy',
+      'sage_professional',
+      'arctic_white',
+      'ivory_executive',
+      'coastal_blue',
+      'emerald_executive',
+      'sandstone'
+    )
+  ),
   constraint organizations_brand_theme_check check (brand_theme in ('deep_brand', 'clean_light', 'full_color', 'custom'))
 );
 
@@ -1114,12 +1152,19 @@ stable
 as $$
   select coalesce(theme_key, 'capturepass_brand') in (
     'capturepass_brand',
-    'executive_navy',
+    'tt_classic',
     'modern_slate',
     'executive_gold',
     'clean_horizon',
+    'modern_rose',
+    'custom',
+    'executive_navy',
     'sage_professional',
-    'custom'
+    'arctic_white',
+    'ivory_executive',
+    'coastal_blue',
+    'emerald_executive',
+    'sandstone'
   )
 $$;
 

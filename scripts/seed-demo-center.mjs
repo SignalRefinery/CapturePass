@@ -128,6 +128,7 @@ async function upsertDemoProfile(admin, demo, userId, existingProfileId = null) 
     user_id: userId,
     business_type: demo.businessType,
     slug: demo.profile.slug,
+    private_token: demo.profile.private_token || null,
     full_name: demo.profile.full_name,
     role_line: demo.profile.role_line,
     organization_name: demo.profile.organization_name,
