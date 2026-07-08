@@ -12,6 +12,7 @@ import { CUSTOM_THEME_KEY, normalizeThemeKey, resolveThemeColors, themeUsesLight
 import { ContactShareModal } from "@/components/profile/contact-share-modal";
 import { ReportIssueForm } from "@/components/profile/report-issue-form";
 import { buildProfileButtons, getProfileButtonAnalyticsContext } from "@/lib/profile-buttons";
+import { resolveProfileVcardUrl } from "@/lib/vcard";
 import styles from "./taptagg-profile-shell.module.css";
 
 type ProfileLike = {
@@ -109,10 +110,7 @@ function textHref(phone?: string | null) {
 }
 
 function contactHref(profile: ProfileLike) {
-  if (profile.vcard_url) return profile.vcard_url;
-  if (!profile.slug) return "#";
-
-  return `/api/vcard/${profile.slug}`;
+  return resolveProfileVcardUrl({ slug: profile.slug, vcard_url: profile.vcard_url }) || "#";
 }
 
 function contactDownloadFilename(profile: ProfileLike) {
@@ -123,23 +121,6 @@ function contactDownloadFilename(profile: ProfileLike) {
     .replace(/^-|-$/g, "");
 
   return `${base || "capturepass-contact"}.vcf`;
-}
-
-async function downloadVcardFromUrl(url: string, filename: string) {
-  const response = await fetch(url, { credentials: "same-origin" });
-  if (!response.ok) {
-    throw new Error(`Failed to download vCard: ${response.status}`);
-  }
-
-  const blob = await response.blob();
-  const objectUrl = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = objectUrl;
-  link.download = filename;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  URL.revokeObjectURL(objectUrl);
 }
 
 function publicShareUrl(profile: ProfileLike) {
@@ -187,6 +168,10 @@ function themeClassName(theme?: string | null, background?: string | null) {
 
   if (themeKey === "sage_professional") {
     return `${styles.themeCleanLight} ${styles.themeSageProfessional}`;
+  }
+
+  if (themeKey === "modern_rose") {
+    return `${styles.themeCleanLight} ${styles.themeModernRose}`;
   }
 
   if (themeKey === "executive_gold") {
@@ -456,15 +441,8 @@ export function CapturePassProfileShell({
                   className={`${styles.button} ${styles.profilePrimaryButton} ${styles.profileStackButton}`}
                   href={contactUrl}
                   download={contactFilename}
-                  onClick={async (event) => {
-                    event.preventDefault();
+                  onClick={() => {
                     trackProfileAction(analyticsTarget, { title: "Add to Contacts", href: contactUrl });
-
-                    try {
-                      await downloadVcardFromUrl(contactUrl, contactFilename);
-                    } catch {
-                      window.location.href = contactUrl;
-                    }
                   }}
                 >
                   Add to Contacts

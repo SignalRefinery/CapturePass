@@ -2,31 +2,15 @@ import { NextResponse } from "next/server";
 import { queueAnalyticsEvent } from "@/lib/analytics/record-event";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { PROFILE_CACHE_HEADERS } from "@/lib/privacy/profile-privacy";
+import {
+  buildVcardFilename,
+  buildVcardResponseHeaders,
+  buildVcardText
+} from "@/lib/vcard";
 
 type RouteContext = {
   params: Promise<{ token: string }>;
 };
-
-function cleanPhone(value?: string | null) {
-  if (!value) return "";
-  return value.replace(/[^0-9+]/g, "");
-}
-
-function escapeVcf(value?: string | null) {
-  return (value || "")
-    .replace(/\n/g, "\\n")
-    .replace(/,/g, "\\,")
-    .replace(/;/g, "\\;");
-}
-
-function safeVcardFilename(name?: string | null) {
-  const safeName = (name || "capturepass-contact")
-    .toLowerCase()
-    .replace(/[^a-z0-9-]/g, "-")
-    .replace(/-+/g, "-")
-    .replace(/^-|-$/g, "");
-  return `${safeName || "capturepass-contact"}.vcf`;
-}
 
 function cleanValue(value?: string | null) {
   const trimmed = (value || "").trim();
@@ -115,21 +99,15 @@ export async function GET(request: Request, context: RouteContext) {
   }
 
   const publicPassUrl = getPassUrl(request, token);
-  const vcard = [
-    "BEGIN:VCARD",
-    "VERSION:3.0",
-    `FN:${escapeVcf(memberName)}`,
-    `N:${escapeVcf(memberName)}`,
-    organization?.name ? `ORG:${escapeVcf(organization.name)}` : "",
-    member.title ? `TITLE:${escapeVcf(member.title)}` : "",
-    member.email ? `EMAIL;TYPE=INTERNET:${escapeVcf(member.email)}` : "",
-    member.phone ? `TEL;TYPE=CELL:${escapeVcf(cleanPhone(member.phone))}` : "",
-    `URL:${escapeVcf(publicPassUrl)}`,
-    "END:VCARD"
-  ]
-    .filter(Boolean)
-    .join("\r\n");
-  const filename = safeVcardFilename(memberName);
+  const vcard = buildVcardText({
+    fullName: memberName,
+    organizationName: organization?.name || "",
+    title: member.title || "",
+    email: member.email || "",
+    phone: member.phone || "",
+    profileUrl: publicPassUrl
+  });
+  const filename = buildVcardFilename(memberName);
 
   queueAnalyticsEvent({
     event_type: "vcard_download",
@@ -155,9 +133,7 @@ export async function GET(request: Request, context: RouteContext) {
     status: 200,
     headers: {
       ...PROFILE_CACHE_HEADERS,
-      "Content-Type": "text/vcard; charset=utf-8",
-      "Content-Disposition": `attachment; filename="${filename}"; filename*=UTF-8''${encodeURIComponent(filename)}`,
-      "X-Content-Type-Options": "nosniff"
+      ...buildVcardResponseHeaders(filename)
     }
   });
 }

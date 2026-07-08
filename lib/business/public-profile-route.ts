@@ -3,6 +3,7 @@ import { getBusinessTypePrimaryLinkDefaults } from "@/lib/business-types";
 import { isCapturePassBootstrapAdminEmail } from "@/lib/auth/admin-shared";
 import { slugify } from "@/lib/utils";
 import { getSiteOrigin } from "@/lib/site-url";
+import { buildPassVcardUrl } from "@/lib/vcard";
 import type { OrganizationMemberRecord, OrganizationRecord, PassTokenRecord, ProfileRecord } from "@/lib/types";
 
 type PublicBusinessProfile = ProfileRecord & {
@@ -134,7 +135,7 @@ function buildBusinessProfile({
   return {
     slug: publicSlug,
     public_url: publicUrl,
-    vcard_url: `/api/pass-vcard/${token.token}`,
+    vcard_url: buildPassVcardUrl(token.token),
     business_home_url: homeUrl,
     is_business_profile: true,
     contact_share_profile_id: member.id,

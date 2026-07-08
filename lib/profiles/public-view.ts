@@ -6,6 +6,7 @@ import {
   normalizeProfileButtonType
 } from "@/lib/profile-buttons";
 import { getSiteOrigin } from "@/lib/site-url";
+import { buildProfileVcardUrl } from "@/lib/vcard";
 
 export function profileViewToPublicProfile(profile: ProfileRecord, view: ProfileViewRecord) {
   const plan = getProfilePlan(profile);
@@ -19,6 +20,7 @@ export function profileViewToPublicProfile(profile: ProfileRecord, view: Profile
     view_key: view.view_key,
     view_name: view.name,
     public_url: `${siteOrigin}/${profile.slug || ""}?view=${encodeURIComponent(view.view_key)}`,
+    vcard_url: buildProfileVcardUrl(profile.slug),
     business_home_url: `${siteOrigin}/${profile.slug || ""}`.replace(/\/$/, ""),
     // Multi-view profiles are intentionally isolated. Blank view fields should
     // stay blank instead of leaking the main profile's contact or link details.
@@ -86,6 +88,7 @@ export function profileRecordToPublicProfile(profile: ProfileRecord) {
     view_key: "profile",
     view_name: "Profile",
     public_url: `${siteOrigin}/${profile.slug || ""}`,
+    vcard_url: buildProfileVcardUrl(profile.slug),
     business_home_url: `${siteOrigin}/${profile.slug || ""}`.replace(/\/$/, ""),
     full_name: profile.full_name,
     organization_name: profile.organization_name,

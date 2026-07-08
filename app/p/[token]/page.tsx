@@ -4,6 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getBusinessTypePrimaryLinkDefaults } from "@/lib/business-types";
 import { isCapturePassBootstrapAdminEmail } from "@/lib/auth/admin";
 import { getSiteOrigin } from "@/lib/site-url";
+import { buildPassVcardUrl } from "@/lib/vcard";
 import { unstable_noStore as noStore } from "next/cache";
 
 export const dynamic = "force-dynamic";
@@ -215,7 +216,7 @@ export default async function PassTokenPage({
   const profile = {
     slug: null,
     public_url: publicUrl,
-    vcard_url: `/api/pass-vcard/${token}`,
+    vcard_url: buildPassVcardUrl(token),
     business_home_url: businessHomeUrl || publicUrl,
     is_business_profile: true,
     contact_share_profile_id: member.id,

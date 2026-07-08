@@ -5,28 +5,16 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { PROFILE_CACHE_HEADERS } from "@/lib/privacy/profile-privacy";
 import { isSlugPubliclyAllowed } from "@/lib/slug-moderation";
 import { profileCanRenderPublicly } from "@/lib/plans";
+import {
+  buildVcardFilename,
+  buildVcardResponseHeaders,
+  buildVcardText
+} from "@/lib/vcard";
 import type { ProfileRecord } from "@/lib/types";
 
 type RouteContext = {
   params: Promise<{ slug: string }>;
 };
-
-function cleanPhone(value?: string | null) {
-  if (!value) return "";
-  return value.replace(/[^0-9+]/g, "");
-}
-
-function escapeVcf(value?: string | null) {
-  return (value || "")
-    .replace(/\n/g, "\\n")
-    .replace(/,/g, "\\,")
-    .replace(/;/g, "\\;");
-}
-
-function safeVcardFilename(slug: string) {
-  const safeSlug = slug.toLowerCase().replace(/[^a-z0-9-]/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "");
-  return `${safeSlug || "capturepass-contact"}.vcf`;
-}
 
 function cleanValue(value?: string | null) {
   const trimmed = (value || "").trim();
@@ -90,26 +78,17 @@ export async function GET(request: Request, context: RouteContext) {
   const authFullName = await getAuthFullName(profile.user_id || null);
   const displayName = authFullName || contact.full_name;
   const publicProfileUrl = getProfileUrl(request, slug);
-  const websiteUrl = contact.website_url || "";
-  const profileUrlLine = websiteUrl === publicProfileUrl ? "" : `URL:${escapeVcf(publicProfileUrl)}`;
-
-  const vcard = [
-    "BEGIN:VCARD",
-    "VERSION:3.0",
-    `FN:${escapeVcf(displayName)}`,
-    `N:${escapeVcf(displayName)}`,
-    contact.organization_name ? `ORG:${escapeVcf(contact.organization_name)}` : "",
-    contact.role_line ? `TITLE:${escapeVcf(contact.role_line)}` : "",
-    contact.show_email && contact.email ? `EMAIL;TYPE=INTERNET:${escapeVcf(contact.email)}` : "",
-    contact.show_phone && contact.phone ? `TEL;TYPE=CELL:${escapeVcf(cleanPhone(contact.phone))}` : "",
-    websiteUrl ? `URL:${escapeVcf(websiteUrl)}` : "",
-    profileUrlLine,
-    contact.intro ? `NOTE:${escapeVcf(contact.intro)}` : "",
-    "END:VCARD"
-  ]
-    .filter(Boolean)
-    .join("\r\n");
-  const filename = safeVcardFilename(slug);
+  const vcard = buildVcardText({
+    fullName: displayName,
+    organizationName: contact.organization_name,
+    title: contact.role_line,
+    email: contact.show_email ? contact.email : null,
+    phone: contact.show_phone ? contact.phone : null,
+    websiteUrl: contact.website_url,
+    profileUrl: publicProfileUrl,
+    note: contact.intro
+  });
+  const filename = buildVcardFilename(slug);
 
   queueAnalyticsEvent({
     event_type: "vcard_download",
@@ -131,11 +110,7 @@ export async function GET(request: Request, context: RouteContext) {
     status: 200,
     headers: {
       ...PROFILE_CACHE_HEADERS,
-      // Many mobile browsers and desktop clients rely on these exact headers
-      // to treat the response as a contact card instead of a plain text file.
-      "Content-Type": "text/vcard; charset=utf-8",
-      "Content-Disposition": `attachment; filename="${filename}"; filename*=UTF-8''${encodeURIComponent(filename)}`,
-      "X-Content-Type-Options": "nosniff"
+      ...buildVcardResponseHeaders(filename)
     }
   });
 }
