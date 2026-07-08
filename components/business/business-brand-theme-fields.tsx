@@ -90,6 +90,18 @@ export function BusinessBrandThemeFields({ organization }: BusinessBrandThemeFie
                   <i />
                   <i />
                 </span>
+                <span
+                  className="theme-preview-actions"
+                  style={{
+                    "--theme-preview-button-primary": colors.primary,
+                    "--theme-preview-button-accent": colors.accent,
+                    "--theme-preview-button-text": colors.text || "#FFFFFF"
+                  } as CSSProperties}
+                  aria-hidden="true"
+                >
+                  <span className="theme-preview-button theme-preview-button-primary">Primary</span>
+                  <span className="theme-preview-button theme-preview-button-secondary">Secondary</span>
+                </span>
               </span>
             </label>
           );

@@ -1,7 +1,9 @@
 import Link from "next/link";
+import type { CSSProperties } from "react";
 import { Shell } from "@/components/shared/shell";
 import { buildPageMetadata } from "@/lib/seo";
 import { getDemoCenterDemos } from "@/lib/demo-center";
+import { resolveThemeColors } from "@/lib/themes";
 
 export const metadata = buildPageMetadata({
   description:
@@ -41,6 +43,20 @@ export default function DemoCenterPage() {
       <section className="section-wrap">
         <div style={grid}>
           {demos.map((demo) => {
+            const themeColors = resolveThemeColors({ themeKey: demo.profile.theme_key });
+            const demoButtonPrimary = {
+              background: `linear-gradient(135deg, ${themeColors.primary}, ${themeColors.accent})`,
+              color: themeColors.text || "#ffffff",
+              borderColor: "transparent",
+              boxShadow: `0 10px 24px color-mix(in srgb, ${themeColors.primary} 24%, transparent)`
+            } satisfies CSSProperties;
+            const demoButtonSecondary = {
+              background: `color-mix(in srgb, ${themeColors.primary} 10%, #ffffff 90%)`,
+              color: themeColors.primary,
+              borderColor: `color-mix(in srgb, ${themeColors.primary} 24%, transparent)`,
+              boxShadow: `0 8px 18px color-mix(in srgb, ${themeColors.primary} 12%, transparent)`
+            } satisfies CSSProperties;
+
             return (
               <article className="card tagg-card" key={demo.slug} style={card}>
                 <div style={cardTop}>
@@ -94,11 +110,11 @@ export default function DemoCenterPage() {
                       </div>
                     ) : null}
                     {demo.digitalPassUrl ? (
-                      <Link className="button secondary" href={demo.digitalPassUrl} style={{ width: "fit-content" }}>
+                      <Link className="button secondary" href={demo.digitalPassUrl} style={{ width: "fit-content", ...demoButtonSecondary }}>
                         Open Digital Pass
                       </Link>
                     ) : null}
-                    <Link className="button primary" href={`/${demo.slug}`} style={{ width: "fit-content" }}>
+                    <Link className="button primary" href={`/${demo.slug}`} style={{ width: "fit-content", ...demoButtonPrimary }}>
                       Open Demo
                     </Link>
                   </div>
