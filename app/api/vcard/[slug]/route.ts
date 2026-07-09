@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import * as vcard from "@/lib/vcard";
 import * as profilePrivacy from "@/lib/privacy/profile-privacy";
+import * as plans from "@/lib/plans";
 
 type RouteContext = {
   params: Promise<{ slug: string }>;
