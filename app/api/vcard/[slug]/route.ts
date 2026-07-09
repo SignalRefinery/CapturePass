@@ -5,6 +5,7 @@ import * as plans from "@/lib/plans";
 import * as slugModeration from "@/lib/slug-moderation";
 import * as supabaseAdmin from "@/lib/supabase/admin";
 import * as profileServiceServer from "@/lib/profile-service-server";
+import * as recordEvent from "@/lib/analytics/record-event";
 
 type RouteContext = {
   params: Promise<{ slug: string }>;
