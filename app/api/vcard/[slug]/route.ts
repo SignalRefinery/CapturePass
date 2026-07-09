@@ -6,6 +6,7 @@ import * as slugModeration from "@/lib/slug-moderation";
 import * as supabaseAdmin from "@/lib/supabase/admin";
 import * as profileServiceServer from "@/lib/profile-service-server";
 import * as recordEvent from "@/lib/analytics/record-event";
+import type * as types from "@/lib/types";
 
 type RouteContext = {
   params: Promise<{ slug: string }>;
