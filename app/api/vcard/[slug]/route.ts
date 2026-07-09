@@ -12,6 +12,10 @@ import {
 } from "@/lib/vcard";
 import type { ProfileRecord } from "@/lib/types";
 
+const VCARD_VERSION_HEADER = {
+  "X-CapturePass-VCard-Version": "50360b3-vcard-hard-fallback"
+} as const;
+
 type RouteContext = {
   params: Promise<{ slug: string }>;
 };
@@ -151,6 +155,7 @@ export async function GET(request: Request, context: RouteContext) {
         status: 200,
         headers: {
           ...PROFILE_CACHE_HEADERS,
+          ...VCARD_VERSION_HEADER,
           ...buildVcardResponseHeaders(buildVcardFilename(slug))
         }
       });
@@ -166,6 +171,7 @@ export async function GET(request: Request, context: RouteContext) {
       status: 200,
       headers: {
         ...PROFILE_CACHE_HEADERS,
+        ...VCARD_VERSION_HEADER,
         ...buildVcardResponseHeaders(buildVcardFilename(slug))
       }
     });
@@ -187,6 +193,7 @@ export async function GET(request: Request, context: RouteContext) {
       status: 200,
       headers: {
         ...PROFILE_CACHE_HEADERS,
+        ...VCARD_VERSION_HEADER,
         ...buildVcardResponseHeaders(buildVcardFilename(slug))
       }
     });
