@@ -4,6 +4,7 @@ import * as profilePrivacy from "@/lib/privacy/profile-privacy";
 import * as plans from "@/lib/plans";
 import * as slugModeration from "@/lib/slug-moderation";
 import * as supabaseAdmin from "@/lib/supabase/admin";
+import * as profileServiceServer from "@/lib/profile-service-server";
 
 type RouteContext = {
   params: Promise<{ slug: string }>;
