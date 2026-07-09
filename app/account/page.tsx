@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AccountLogoSection } from "@/components/account/account-logo-section";
 import { Shell } from "@/components/shared/shell";
 import { createClient } from "@/lib/supabase/server";
 import {
@@ -43,7 +44,7 @@ async function getAccountData() {
   const { data: profile } = await supabase
     .from("profiles")
     .select(
-      "email, full_name, slug, stripe_customer_id, stripe_subscription_id, stripe_plan_key, subscription_status, created_at, lifetime_free, billing_exempt, promo_code_used",
+      "id, email, full_name, slug, brand_logo_url, stripe_customer_id, stripe_subscription_id, stripe_plan_key, subscription_status, created_at, lifetime_free, billing_exempt, promo_code_used",
     )
     .eq("user_id", user.id)
     .maybeSingle();
@@ -62,6 +63,7 @@ async function getAccountData() {
     email,
     fullName,
     slug,
+    brandLogoUrl: profile?.brand_logo_url || null,
     customerId: profile?.stripe_customer_id || null,
     subscriptionId: profile?.stripe_subscription_id || null,
     plan: cleanValue(profile?.stripe_plan_key),
@@ -309,6 +311,10 @@ export default async function AccountPage({
               </div>
             ) : null}
           </div>
+
+          {account ? (
+            <AccountLogoSection brandLogoUrl={account.brandLogoUrl} displayName={account.fullName} />
+          ) : null}
 
           <div className="card" style={{ padding: 26 }}>
             <h2 className="section-title">Security</h2>
