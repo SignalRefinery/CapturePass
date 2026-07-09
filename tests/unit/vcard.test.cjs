@@ -39,7 +39,7 @@ test("vCard helpers use canonical .vcf routes and filenames", () => {
   assert.equal(buildProfileVcardUrl("demo-profile"), "/api/vcard/demo-profile");
   assert.equal(buildPassVcardUrl("token-123"), "/api/pass-vcard/token-123");
   assert.equal(buildVcardFilename("Ada Lovelace"), "ada-lovelace.vcf");
-  assert.equal(buildVcardResponseHeaders("ada-lovelace.vcf")["Content-Type"], "text/vcard; charset=utf-8");
+  assert.equal(buildVcardResponseHeaders("ada-lovelace.vcf")["Content-Type"], "application/octet-stream");
   assert.match(buildVcardResponseHeaders("ada-lovelace.vcf")["Content-Disposition"], /\.vcf/);
 });
 

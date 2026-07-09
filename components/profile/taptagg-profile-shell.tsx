@@ -113,16 +113,6 @@ function contactHref(profile: ProfileLike) {
   return resolveProfileVcardUrl({ slug: profile.slug, vcard_url: profile.vcard_url }) || "#";
 }
 
-function contactDownloadFilename(profile: ProfileLike) {
-  const base = (profile.full_name || profile.organization_name || profile.slug || "capturepass-contact")
-    .toLowerCase()
-    .replace(/[^a-z0-9-]+/g, "-")
-    .replace(/-+/g, "-")
-    .replace(/^-|-$/g, "");
-
-  return `${base || "capturepass-contact"}.vcf`;
-}
-
 function publicShareUrl(profile: ProfileLike) {
   if (profile.public_url) {
     return profile.public_url;
@@ -234,7 +224,6 @@ export function CapturePassProfileShell({
   const showPhone = activeProfile.show_phone !== false;
   const showText = activeProfile.show_text !== false;
   const contactUrl = contactHref(activeProfile);
-  const contactFilename = contactDownloadFilename(activeProfile);
   const textPhone = activeProfile.text_phone || activeProfile.phone || "";
   const quickActions = [
     showPhone && activeProfile.phone
@@ -440,7 +429,6 @@ export function CapturePassProfileShell({
                 <a
                   className={`${styles.button} ${styles.profilePrimaryButton} ${styles.profileStackButton}`}
                   href={contactUrl}
-                  download={contactFilename}
                   onClick={() => {
                     trackProfileAction(analyticsTarget, { title: "Add to Contacts", href: contactUrl });
                   }}
