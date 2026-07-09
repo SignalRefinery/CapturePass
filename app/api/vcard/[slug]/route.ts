@@ -24,22 +24,26 @@ function cleanValue(value?: string | null) {
 async function getAuthFullName(userId?: string | null) {
   if (!userId) return null;
 
-  const admin = createAdminClient();
-  const { data, error } = await admin.auth.admin.getUserById(userId);
+  try {
+    const admin = createAdminClient();
+    const { data, error } = await admin.auth.admin.getUserById(userId);
 
-  if (error || !data?.user) {
+    if (error || !data?.user) {
+      return null;
+    }
+
+    const meta = data.user.user_metadata || {};
+    return (
+      cleanValue(typeof meta.full_name === "string" ? meta.full_name : null) ||
+      cleanValue(
+        `${typeof meta.first_name === "string" ? meta.first_name : ""} ${
+          typeof meta.last_name === "string" ? meta.last_name : ""
+        }`
+      )
+    );
+  } catch {
     return null;
   }
-
-  const meta = data.user.user_metadata || {};
-  return (
-    cleanValue(typeof meta.full_name === "string" ? meta.full_name : null) ||
-    cleanValue(
-      `${typeof meta.first_name === "string" ? meta.first_name : ""} ${
-        typeof meta.last_name === "string" ? meta.last_name : ""
-      }`
-    )
-  );
 }
 
 function profileToVcardContact(profile: ProfileRecord) {
@@ -90,21 +94,28 @@ export async function GET(request: Request, context: RouteContext) {
   });
   const filename = buildVcardFilename(slug);
 
-  queueAnalyticsEvent({
-    event_type: "vcard_download",
-    profile_id: profile.id,
-    user_id: profile.user_id,
-    source: "unknown",
-    action_type: "custom_button",
-    action_label: "Add to Contacts",
-    action_url: `/api/vcard/${slug}`,
-    user_agent: request.headers.get("user-agent") || null,
-    referrer: request.headers.get("referer") || null,
-    metadata: {}
-  }, {
-    logLabel: "vCard analytics insert failed",
-    logContext: { slug }
-  });
+  try {
+    queueAnalyticsEvent({
+      event_type: "vcard_download",
+      profile_id: profile.id,
+      user_id: profile.user_id,
+      source: "unknown",
+      action_type: "custom_button",
+      action_label: "Add to Contacts",
+      action_url: `/api/vcard/${slug}`,
+      user_agent: request.headers.get("user-agent") || null,
+      referrer: request.headers.get("referer") || null,
+      metadata: {}
+    }, {
+      logLabel: "vCard analytics insert failed",
+      logContext: { slug }
+    });
+  } catch (error) {
+    console.error("vCard analytics queue failed", {
+      slug,
+      error: error instanceof Error ? error.message : String(error)
+    });
+  }
 
   return new NextResponse(vcard, {
     status: 200,

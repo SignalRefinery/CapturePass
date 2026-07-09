@@ -20,22 +20,26 @@ function cleanValue(value?: string | null) {
 async function getAuthFullName(userId?: string | null) {
   if (!userId) return null;
 
-  const admin = createAdminClient();
-  const { data, error } = await admin.auth.admin.getUserById(userId);
+  try {
+    const admin = createAdminClient();
+    const { data, error } = await admin.auth.admin.getUserById(userId);
 
-  if (error || !data?.user) {
+    if (error || !data?.user) {
+      return null;
+    }
+
+    const meta = data.user.user_metadata || {};
+    return (
+      cleanValue(typeof meta.full_name === "string" ? meta.full_name : null) ||
+      cleanValue(
+        `${typeof meta.first_name === "string" ? meta.first_name : ""} ${
+          typeof meta.last_name === "string" ? meta.last_name : ""
+        }`
+      )
+    );
+  } catch {
     return null;
   }
-
-  const meta = data.user.user_metadata || {};
-  return (
-    cleanValue(typeof meta.full_name === "string" ? meta.full_name : null) ||
-    cleanValue(
-      `${typeof meta.first_name === "string" ? meta.first_name : ""} ${
-        typeof meta.last_name === "string" ? meta.last_name : ""
-      }`
-    )
-  );
 }
 
 function getPassUrl(request: Request, token: string) {
