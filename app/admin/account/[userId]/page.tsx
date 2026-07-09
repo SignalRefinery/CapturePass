@@ -11,6 +11,10 @@ import {
 } from "@/lib/profile-buttons";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import {
+  deleteBusinessAssetUrl,
+  uploadProfileLogoAsset
+} from "@/lib/business/assets";
 import { classifySlug } from "@/lib/slug-moderation";
 import { normalizeUrl } from "@/lib/utils";
 import { getSiteOrigin } from "@/lib/site-url";
@@ -71,7 +75,7 @@ async function updateUserAction(formData: FormData) {
       const { data: currentProfile, error: currentProfileError } = await admin
         .from("profiles")
         .select(
-          "full_name, email, slug, organization_name, role_line, website_url, phone, text_phone, promo_code_used, intro, primary_link_1_title, primary_link_1_url, primary_link_1_type, primary_link_2_title, primary_link_2_url, primary_link_2_type, primary_link_3_title, primary_link_3_url, primary_link_3_type, primary_link_4_title, primary_link_4_url, primary_link_4_type"
+          "id, full_name, email, slug, organization_name, role_line, website_url, phone, text_phone, promo_code_used, intro, brand_logo_url, primary_link_1_title, primary_link_1_url, primary_link_1_type, primary_link_2_title, primary_link_2_url, primary_link_2_type, primary_link_3_title, primary_link_3_url, primary_link_3_type, primary_link_4_title, primary_link_4_url, primary_link_4_type"
         )
         .eq("user_id", userId)
         .maybeSingle();
@@ -195,6 +199,45 @@ async function updateUserAction(formData: FormData) {
         }
       }
 
+      break;
+    }
+    case "brand_logo": {
+      const { data: currentProfile, error: currentProfileError } = await admin
+        .from("profiles")
+        .select("id, brand_logo_url")
+        .eq("user_id", userId)
+        .maybeSingle();
+
+      if (currentProfileError || !currentProfile?.id) {
+        throw new Error("Unable to load the current profile logo.");
+      }
+
+      const logoAction = String(formData.get("logo_action") || "upload");
+
+      if (logoAction === "delete") {
+        await deleteBusinessAssetUrl((currentProfile.brand_logo_url as string | null) || null);
+        updates.brand_logo_url = null;
+        break;
+      }
+
+      const logoFile = formData.get("brand_logo_file");
+      if (!(logoFile instanceof File) || logoFile.size === 0) {
+        throw new Error("Choose a PNG logo to upload.");
+      }
+
+      if (logoFile.size > 5 * 1024 * 1024) {
+        throw new Error("Logos must be 5 MB or smaller.");
+      }
+
+      if (logoFile.type !== "image/png") {
+        throw new Error("Logos must be PNG files.");
+      }
+
+      updates.brand_logo_url = await uploadProfileLogoAsset({
+        file: logoFile,
+        oldUrl: (currentProfile.brand_logo_url as string | null) || null,
+        profileId: currentProfile.id
+      });
       break;
     }
     case "full_name":
@@ -827,6 +870,66 @@ export default async function AdminUserPage({ params, searchParams }: PageProps)
                 </div>
               </div>
             </form>
+
+          <div className="card" style={{ padding: 20 }}>
+            <h2 className="section-title" style={{ fontSize: 22 }}>
+              Brand logo
+            </h2>
+            <p className="editor-copy" style={{ marginTop: 0 }}>
+              Upload a PNG logo for the public profile, pass pages, and admin-managed branding workflows.
+            </p>
+
+            <form action={updateUserAction} className="admin-profile-editor-form" encType="multipart/form-data">
+              <input type="hidden" name="userId" value={profile.user_id} />
+              <input type="hidden" name="field" value="brand_logo" />
+              <input type="hidden" name="logo_action" value="upload" />
+
+              <div className="card" style={{ padding: 14 }}>
+                <label className="label" htmlFor="brand-logo-file">
+                  Logo PNG
+                </label>
+                {profile.brand_logo_url ? (
+                  <div className="business-logo-preview" style={{ margin: "8px 0 0" }}>
+                    {/* eslint-disable-next-line @next/next/no-img-element -- storage-backed customer logos are remote runtime uploads. */}
+                    <img src={profile.brand_logo_url} alt={`${profile.full_name || profile.email || "User"} logo`} />
+                    <span className="table-subtext">Current logo</span>
+                  </div>
+                ) : (
+                  <span className="table-subtext">No logo uploaded.</span>
+                )}
+                <input
+                  id="brand-logo-file"
+                  className="editor-input"
+                  name="brand_logo_file"
+                  type="file"
+                  accept="image/png"
+                  style={{ marginTop: 8 }}
+                />
+                <p className="editor-copy" style={{ margin: "8px 0 0", fontSize: 14 }}>
+                  PNG only. Max 5 MB.
+                </p>
+              </div>
+
+              <div className="admin-save-footer">
+                <button className="button primary" type="submit">
+                  Save logo
+                </button>
+              </div>
+            </form>
+
+            {profile.brand_logo_url ? (
+              <form action={updateUserAction} className="admin-profile-editor-form" style={{ marginTop: 12 }}>
+                <input type="hidden" name="userId" value={profile.user_id} />
+                <input type="hidden" name="field" value="brand_logo" />
+                <input type="hidden" name="logo_action" value="delete" />
+                <div className="admin-save-footer">
+                  <button className="button secondary" type="submit">
+                    Remove logo
+                  </button>
+                </div>
+              </form>
+            ) : null}
+          </div>
 
           <div className="card" style={{ padding: 20 }}>
             <h2 className="section-title" style={{ fontSize: 22 }}>
