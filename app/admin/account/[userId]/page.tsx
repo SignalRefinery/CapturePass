@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import Link from "next/link";
 import { Shell } from "@/components/shared/shell";
+import { AdminAccountLogoSection } from "@/components/admin/admin-account-logo-section";
 import {
   PROFILE_BUTTON_TYPES,
   getProfileButtonEditorValue,
@@ -11,10 +12,6 @@ import {
 } from "@/lib/profile-buttons";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import {
-  deleteBusinessAssetUrl,
-  uploadProfileLogoAsset
-} from "@/lib/business/assets";
 import { classifySlug } from "@/lib/slug-moderation";
 import { normalizeUrl } from "@/lib/utils";
 import { getSiteOrigin } from "@/lib/site-url";
@@ -199,49 +196,6 @@ async function updateUserAction(formData: FormData) {
         }
       }
 
-      break;
-    }
-    case "brand_logo": {
-      try {
-        const { data: currentProfile, error: currentProfileError } = await admin
-          .from("profiles")
-          .select("id, brand_logo_url")
-          .eq("user_id", userId)
-          .maybeSingle();
-
-        if (currentProfileError || !currentProfile?.id) {
-          throw new Error("Unable to load the current profile logo.");
-        }
-
-        const logoAction = String(formData.get("logo_action") || "upload");
-
-        if (logoAction === "delete") {
-          await deleteBusinessAssetUrl((currentProfile.brand_logo_url as string | null) || null);
-          updates.brand_logo_url = null;
-        } else {
-          const logoFile = formData.get("brand_logo_file");
-          if (!(logoFile instanceof File) || logoFile.size === 0) {
-            throw new Error("Choose a PNG logo to upload.");
-          }
-
-          if (logoFile.size > 5 * 1024 * 1024) {
-            throw new Error("Logos must be 5 MB or smaller.");
-          }
-
-          if (logoFile.type !== "image/png") {
-            throw new Error("Logos must be PNG files.");
-          }
-
-          updates.brand_logo_url = await uploadProfileLogoAsset({
-            file: logoFile,
-            oldUrl: (currentProfile.brand_logo_url as string | null) || null,
-            profileId: currentProfile.id
-          });
-        }
-      } catch (error) {
-        const message = error instanceof Error ? error.message : "logo_save_failed";
-        redirect(`/admin/account/${userId}?error=${encodeURIComponent(message)}#brand-logo`);
-      }
       break;
     }
     case "full_name":
@@ -447,10 +401,6 @@ async function updateUserAction(formData: FormData) {
 
   revalidatePath("/admin");
   revalidatePath(`/admin/account/${userId}`);
-
-  if (field === "brand_logo") {
-    redirect(`/admin/account/${userId}?saved=logo#brand-logo`);
-  }
 
   if (field === "email") {
     redirect(`/admin/account/${userId}?saved=email`);
@@ -901,65 +851,11 @@ export default async function AdminUserPage({ params, searchParams }: PageProps)
               </div>
             </form>
 
-          <div className="card" style={{ padding: 20 }}>
-            <h2 className="section-title" style={{ fontSize: 22 }}>
-              Brand logo
-            </h2>
-            <p className="editor-copy" style={{ marginTop: 0 }}>
-              Upload a PNG logo for the public profile, pass pages, and admin-managed branding workflows.
-            </p>
-
-            <form action={updateUserAction} className="admin-profile-editor-form" encType="multipart/form-data">
-              <input type="hidden" name="userId" value={profile.user_id} />
-              <input type="hidden" name="field" value="brand_logo" />
-              <input type="hidden" name="logo_action" value="upload" />
-
-              <div className="card" style={{ padding: 14 }}>
-                <label className="label" htmlFor="brand-logo-file">
-                  Logo PNG
-                </label>
-                {profile.brand_logo_url ? (
-                  <div className="business-logo-preview" style={{ margin: "8px 0 0" }}>
-                    {/* eslint-disable-next-line @next/next/no-img-element -- storage-backed customer logos are remote runtime uploads. */}
-                    <img src={profile.brand_logo_url} alt={`${profile.full_name || profile.email || "User"} logo`} />
-                    <span className="table-subtext">Current logo</span>
-                  </div>
-                ) : (
-                  <span className="table-subtext">No logo uploaded.</span>
-                )}
-                <input
-                  id="brand-logo-file"
-                  className="editor-input"
-                  name="brand_logo_file"
-                  type="file"
-                  accept="image/png"
-                  style={{ marginTop: 8 }}
-                />
-                <p className="editor-copy" style={{ margin: "8px 0 0", fontSize: 14 }}>
-                  PNG only. Max 5 MB.
-                </p>
-              </div>
-
-              <div className="admin-save-footer">
-                <button className="button primary" type="submit">
-                  Save logo
-                </button>
-              </div>
-            </form>
-
-            {profile.brand_logo_url ? (
-              <form action={updateUserAction} className="admin-profile-editor-form" style={{ marginTop: 12 }}>
-                <input type="hidden" name="userId" value={profile.user_id} />
-                <input type="hidden" name="field" value="brand_logo" />
-                <input type="hidden" name="logo_action" value="delete" />
-                <div className="admin-save-footer">
-                  <button className="button secondary" type="submit">
-                    Remove logo
-                  </button>
-                </div>
-              </form>
-            ) : null}
-          </div>
+          <AdminAccountLogoSection
+            userId={profile.user_id}
+            brandLogoUrl={profile.brand_logo_url}
+            displayName={profile.full_name || profile.email || "User"}
+          />
 
           <div className="card" style={{ padding: 20 }}>
             <h2 className="section-title" style={{ fontSize: 22 }}>
