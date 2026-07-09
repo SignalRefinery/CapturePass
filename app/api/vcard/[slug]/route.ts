@@ -1,201 +1,21 @@
 import { NextResponse } from "next/server";
-import { queueAnalyticsEvent } from "@/lib/analytics/record-event";
-import { getProfileBySlugServer } from "@/lib/profile-service-server";
-import { createAdminClient } from "@/lib/supabase/admin";
-import { PROFILE_CACHE_HEADERS } from "@/lib/privacy/profile-privacy";
-import { isSlugPubliclyAllowed } from "@/lib/slug-moderation";
-import { profileCanRenderPublicly } from "@/lib/plans";
-import {
-  buildVcardFilename,
-  buildVcardResponseHeaders,
-  buildVcardText
-} from "@/lib/vcard";
-import type { ProfileRecord } from "@/lib/types";
-
-const VCARD_VERSION_HEADER = {
-  "X-CapturePass-VCard-Version": "88a349a-vcard-version-test"
-} as const;
 
 type RouteContext = {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 };
 
-function cleanValue(value?: string | null) {
-  const trimmed = (value || "").trim();
-  return trimmed.length ? trimmed : null;
-}
+export async function GET(_request: Request, context: RouteContext) {
+  const { slug } = await context.params;
 
-async function getAuthFullName(userId?: string | null) {
-  if (!userId) return null;
-
-  try {
-    const admin = createAdminClient();
-    const { data, error } = await admin.auth.admin.getUserById(userId);
-
-    if (error || !data?.user) {
-      return null;
+  return new NextResponse(`BEGIN:VCARD
+VERSION:3.0
+FN:${slug}
+END:VCARD`, {
+    status: 200,
+    headers: {
+      "X-CapturePass-VCard-Version": "route-isolation-test",
+      "Content-Type": "text/vcard; charset=utf-8",
+      "Content-Disposition": `attachment; filename="${slug}.vcf"`
     }
-
-    const meta = data.user.user_metadata || {};
-    return (
-      cleanValue(typeof meta.full_name === "string" ? meta.full_name : null) ||
-      cleanValue(
-        `${typeof meta.first_name === "string" ? meta.first_name : ""} ${
-          typeof meta.last_name === "string" ? meta.last_name : ""
-        }`
-      )
-    );
-  } catch {
-    return null;
-  }
-}
-
-function profileToVcardContact(profile: ProfileRecord) {
-  return {
-    full_name: profile.full_name,
-    organization_name: profile.organization_name,
-    role_line: profile.role_line,
-    intro: profile.intro,
-    email: profile.email,
-    phone: profile.phone,
-    website_url: profile.website_url,
-    show_email: true,
-    show_phone: true
-  };
-}
-
-function getProfileUrl(request: Request, slug: string) {
-  const configuredOrigin = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL;
-  const origin = configuredOrigin || new URL(request.url).origin;
-  return new URL(`/${slug}`, origin).toString();
-}
-
-function humanizeSlug(slug: string) {
-  const words = slug
-    .replace(/[-_]+/g, " ")
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean);
-
-  if (!words.length) {
-    return "CapturePass Contact";
-  }
-
-  return words.map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
-}
-
-async function getProfileForVcard(slug: string) {
-  try {
-    const admin = createAdminClient();
-    const { data, error } = await admin
-      .from("profiles")
-      .select("*")
-      .eq("slug", slug)
-      .maybeSingle();
-
-    if (!error && data) {
-      return data as ProfileRecord;
-    }
-  } catch {
-    // Fall through to the shared public-profile lookup.
-  }
-
-  try {
-    return (await getProfileBySlugServer(slug)) as ProfileRecord | null;
-  } catch {
-    return null;
-  }
-}
-
-export async function GET(request: Request, context: any) {
-  try {
-    const { slug } = context.params;
-    const profile = await getProfileForVcard(slug);
-    const publicProfileUrl = getProfileUrl(request, slug);
-
-    if (profile && profileCanRenderPublicly(profile) && isSlugPubliclyAllowed(profile.slug, profile.slug_status)) {
-      const contact = profileToVcardContact(profile);
-      const authFullName = await getAuthFullName(profile.user_id || null);
-      const displayName = authFullName || contact.full_name;
-      const vcard = buildVcardText({
-        fullName: displayName,
-        organizationName: contact.organization_name,
-        title: contact.role_line,
-        email: contact.show_email ? contact.email : null,
-        phone: contact.show_phone ? contact.phone : null,
-        websiteUrl: contact.website_url,
-        profileUrl: publicProfileUrl,
-        note: contact.intro
-      });
-
-      try {
-        queueAnalyticsEvent({
-          event_type: "vcard_download",
-          profile_id: profile.id,
-          user_id: profile.user_id,
-          source: "unknown",
-          action_type: "custom_button",
-          action_label: "Add to Contacts",
-          action_url: `/api/vcard/${slug}`,
-          user_agent: request.headers.get("user-agent") || null,
-          referrer: request.headers.get("referer") || null,
-          metadata: {}
-        }, {
-          logLabel: "vCard analytics insert failed",
-          logContext: { slug }
-        });
-      } catch (error) {
-        console.error("vCard analytics queue failed", {
-          slug,
-          error: error instanceof Error ? error.message : String(error)
-        });
-      }
-
-      return new NextResponse(vcard, {
-        status: 200,
-        headers: {
-          ...PROFILE_CACHE_HEADERS,
-          ...VCARD_VERSION_HEADER,
-          ...buildVcardResponseHeaders(buildVcardFilename(slug))
-        }
-      });
-    }
-
-    const fallbackVcard = buildVcardText({
-      fullName: humanizeSlug(slug),
-      profileUrl: publicProfileUrl,
-      note: `CapturePass profile: ${publicProfileUrl}`
-    });
-
-    return new NextResponse(fallbackVcard, {
-      status: 200,
-      headers: {
-        ...PROFILE_CACHE_HEADERS,
-        ...VCARD_VERSION_HEADER,
-        ...buildVcardResponseHeaders(buildVcardFilename(slug))
-      }
-    });
-  } catch (error) {
-    const { slug } = context.params;
-    const publicProfileUrl = getProfileUrl(request, slug);
-    console.error("vCard route failed", {
-      slug,
-      error: error instanceof Error ? error.message : String(error)
-    });
-
-    const fallbackVcard = buildVcardText({
-      fullName: humanizeSlug(slug),
-      profileUrl: publicProfileUrl,
-      note: `CapturePass profile: ${publicProfileUrl}`
-    });
-
-    return new NextResponse(fallbackVcard, {
-      status: 200,
-      headers: {
-        ...PROFILE_CACHE_HEADERS,
-        ...VCARD_VERSION_HEADER,
-        ...buildVcardResponseHeaders(buildVcardFilename(slug))
-      }
-    });
-  }
+  });
 }
