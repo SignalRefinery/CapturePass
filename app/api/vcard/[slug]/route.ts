@@ -6,16 +6,16 @@ type RouteContext = {
 
 export async function GET(_request: Request, context: RouteContext) {
   const { slug } = await context.params;
+  const filename = `${slug}.vcf`;
+  const body = `BEGIN:VCARD\r\nVERSION:3.0\r\nFN:${slug}\r\nEND:VCARD\r\n`;
 
-  return new NextResponse(`BEGIN:VCARD
-VERSION:3.0
-FN:${slug}
-END:VCARD`, {
+  return new NextResponse(body, {
     status: 200,
     headers: {
       "X-CapturePass-VCard-Version": "route-isolation-test",
-      "Content-Type": "text/vcard; charset=utf-8",
-      "Content-Disposition": `attachment; filename="${slug}.vcf"`
+      "Content-Type": "text/x-vcard; charset=utf-8",
+      "Content-Disposition": `attachment; filename="${filename}"; filename*=UTF-8''${encodeURIComponent(filename)}`,
+      "X-Content-Type-Options": "nosniff"
     }
   });
 }
