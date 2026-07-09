@@ -13,11 +13,11 @@ import {
 import type { ProfileRecord } from "@/lib/types";
 
 const VCARD_VERSION_HEADER = {
-  "X-CapturePass-VCard-Version": "50360b3-vcard-hard-fallback"
+  "X-CapturePass-VCard-Version": "88a349a-vcard-version-test"
 } as const;
 
 type RouteContext = {
-  params: Promise<{ slug: string }>;
+  params: { slug: string };
 };
 
 function cleanValue(value?: string | null) {
@@ -107,9 +107,9 @@ async function getProfileForVcard(slug: string) {
   }
 }
 
-export async function GET(request: Request, context: RouteContext) {
+export async function GET(request: Request, context: any) {
   try {
-    const { slug } = await context.params;
+    const { slug } = context.params;
     const profile = await getProfileForVcard(slug);
     const publicProfileUrl = getProfileUrl(request, slug);
 
@@ -176,7 +176,7 @@ export async function GET(request: Request, context: RouteContext) {
       }
     });
   } catch (error) {
-    const { slug } = await context.params;
+    const { slug } = context.params;
     const publicProfileUrl = getProfileUrl(request, slug);
     console.error("vCard route failed", {
       slug,
