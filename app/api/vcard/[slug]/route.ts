@@ -66,9 +66,32 @@ function getProfileUrl(request: Request, slug: string) {
   return new URL(`/${slug}`, origin).toString();
 }
 
+async function getProfileForVcard(slug: string) {
+  try {
+    const admin = createAdminClient();
+    const { data, error } = await admin
+      .from("profiles")
+      .select("*")
+      .eq("slug", slug)
+      .maybeSingle();
+
+    if (!error && data) {
+      return data as ProfileRecord;
+    }
+  } catch {
+    // Fall through to the shared public-profile lookup.
+  }
+
+  try {
+    return (await getProfileBySlugServer(slug)) as ProfileRecord | null;
+  } catch {
+    return null;
+  }
+}
+
 export async function GET(request: Request, context: RouteContext) {
   const { slug } = await context.params;
-  const profile = (await getProfileBySlugServer(slug)) as ProfileRecord | null;
+  const profile = await getProfileForVcard(slug);
 
   if (
     !profile ||
