@@ -131,7 +131,7 @@ export function buildVcardText(contact: VcardContact) {
 
 export function buildVcardResponseHeaders(filename: string) {
   return {
-    "Content-Type": "text/vcard; charset=utf-8",
+    "Content-Type": "application/octet-stream",
     "Content-Disposition": `attachment; filename="${filename}"; filename*=UTF-8''${encodeURIComponent(filename)}`,
     "X-Content-Type-Options": "nosniff"
   };
