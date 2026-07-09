@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import * as vcard from "@/lib/vcard";
 
 type RouteContext = {
   params: Promise<{ slug: string }>;
