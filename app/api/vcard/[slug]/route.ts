@@ -17,12 +17,13 @@ export async function GET(_request: Request, context: RouteContext) {
   void vcard.buildVcardFilename(slug);
   const filename = `${slug}.vcf`;
   void vcard.buildVcardResponseHeaders(filename);
+  void vcard.buildVcardText({ fullName: slug });
   const body = `BEGIN:VCARD\r\nVERSION:3.0\r\nFN:${slug}\r\nEND:VCARD\r\n`;
 
   return new NextResponse(body, {
     status: 200,
     headers: {
-      "X-CapturePass-VCard-Step": "2 buildVcardResponseHeaders",
+      "X-CapturePass-VCard-Step": "3 buildVcardText",
       "X-CapturePass-VCard-Version": "route-isolation-test",
       "Content-Type": "text/x-vcard; charset=utf-8",
       "Content-Disposition": `attachment; filename="${filename}"; filename*=UTF-8''${encodeURIComponent(filename)}`,
