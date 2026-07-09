@@ -202,42 +202,46 @@ async function updateUserAction(formData: FormData) {
       break;
     }
     case "brand_logo": {
-      const { data: currentProfile, error: currentProfileError } = await admin
-        .from("profiles")
-        .select("id, brand_logo_url")
-        .eq("user_id", userId)
-        .maybeSingle();
+      try {
+        const { data: currentProfile, error: currentProfileError } = await admin
+          .from("profiles")
+          .select("id, brand_logo_url")
+          .eq("user_id", userId)
+          .maybeSingle();
 
-      if (currentProfileError || !currentProfile?.id) {
-        throw new Error("Unable to load the current profile logo.");
+        if (currentProfileError || !currentProfile?.id) {
+          throw new Error("Unable to load the current profile logo.");
+        }
+
+        const logoAction = String(formData.get("logo_action") || "upload");
+
+        if (logoAction === "delete") {
+          await deleteBusinessAssetUrl((currentProfile.brand_logo_url as string | null) || null);
+          updates.brand_logo_url = null;
+        } else {
+          const logoFile = formData.get("brand_logo_file");
+          if (!(logoFile instanceof File) || logoFile.size === 0) {
+            throw new Error("Choose a PNG logo to upload.");
+          }
+
+          if (logoFile.size > 5 * 1024 * 1024) {
+            throw new Error("Logos must be 5 MB or smaller.");
+          }
+
+          if (logoFile.type !== "image/png") {
+            throw new Error("Logos must be PNG files.");
+          }
+
+          updates.brand_logo_url = await uploadProfileLogoAsset({
+            file: logoFile,
+            oldUrl: (currentProfile.brand_logo_url as string | null) || null,
+            profileId: currentProfile.id
+          });
+        }
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "logo_save_failed";
+        redirect(`/admin/account/${userId}?error=${encodeURIComponent(message)}#brand-logo`);
       }
-
-      const logoAction = String(formData.get("logo_action") || "upload");
-
-      if (logoAction === "delete") {
-        await deleteBusinessAssetUrl((currentProfile.brand_logo_url as string | null) || null);
-        updates.brand_logo_url = null;
-        break;
-      }
-
-      const logoFile = formData.get("brand_logo_file");
-      if (!(logoFile instanceof File) || logoFile.size === 0) {
-        throw new Error("Choose a PNG logo to upload.");
-      }
-
-      if (logoFile.size > 5 * 1024 * 1024) {
-        throw new Error("Logos must be 5 MB or smaller.");
-      }
-
-      if (logoFile.type !== "image/png") {
-        throw new Error("Logos must be PNG files.");
-      }
-
-      updates.brand_logo_url = await uploadProfileLogoAsset({
-        file: logoFile,
-        oldUrl: (currentProfile.brand_logo_url as string | null) || null,
-        profileId: currentProfile.id
-      });
       break;
     }
     case "full_name":
@@ -444,6 +448,10 @@ async function updateUserAction(formData: FormData) {
   revalidatePath("/admin");
   revalidatePath(`/admin/account/${userId}`);
 
+  if (field === "brand_logo") {
+    redirect(`/admin/account/${userId}?saved=logo#brand-logo`);
+  }
+
   if (field === "email") {
     redirect(`/admin/account/${userId}?saved=email`);
   }
@@ -525,6 +533,28 @@ export default async function AdminUserPage({ params, searchParams }: PageProps)
               </p>
             </div>
           ) : null}
+          {query.saved === "logo" ? (
+            <div className="card" style={{ padding: 20 }}>
+              <div className="dashboard-kicker">Updated</div>
+              <p className="editor-copy">
+                Logo saved successfully.
+              </p>
+            </div>
+          ) : null}
+          {query.error ? (
+            <div className="card" style={{ padding: 20 }}>
+              <div className="dashboard-kicker">Save error</div>
+              <p className="editor-copy">
+                {query.error === "Choose a PNG logo to upload."
+                  ? "Choose a PNG logo before saving."
+                  : query.error === "Logos must be PNG files."
+                    ? "Logos must be PNG files."
+                    : query.error === "Logos must be 5 MB or smaller."
+                      ? "Logos must be 5 MB or smaller."
+                      : "We could not save the logo right now."}
+              </p>
+            </div>
+          ) : null}
           <div>
             <div className="dashboard-kicker">Admin account detail</div>
             <h1 className="section-title" style={{ marginTop: 6 }}>
@@ -532,7 +562,7 @@ export default async function AdminUserPage({ params, searchParams }: PageProps)
             </h1>
           </div>
 
-          <div className="card" style={{ padding: 20 }}>
+          <div className="card" id="brand-logo" style={{ padding: 20 }}>
             <h2 className="section-title" style={{ fontSize: 22 }}>
               User
             </h2>
