@@ -66,6 +66,20 @@ function getProfileUrl(request: Request, slug: string) {
   return new URL(`/${slug}`, origin).toString();
 }
 
+function humanizeSlug(slug: string) {
+  const words = slug
+    .replace(/[-_]+/g, " ")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+
+  if (!words.length) {
+    return "CapturePass Contact";
+  }
+
+  return words.map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
+}
+
 async function getProfileForVcard(slug: string) {
   try {
     const admin = createAdminClient();
@@ -90,61 +104,91 @@ async function getProfileForVcard(slug: string) {
 }
 
 export async function GET(request: Request, context: RouteContext) {
-  const { slug } = await context.params;
-  const profile = await getProfileForVcard(slug);
-
-  if (
-    !profile ||
-    !profileCanRenderPublicly(profile) ||
-    !isSlugPubliclyAllowed(profile.slug, profile.slug_status)
-  ) {
-    return new NextResponse("Not found", { status: 404, headers: PROFILE_CACHE_HEADERS });
-  }
-
-  const contact = profileToVcardContact(profile);
-  const authFullName = await getAuthFullName(profile.user_id || null);
-  const displayName = authFullName || contact.full_name;
-  const publicProfileUrl = getProfileUrl(request, slug);
-  const vcard = buildVcardText({
-    fullName: displayName,
-    organizationName: contact.organization_name,
-    title: contact.role_line,
-    email: contact.show_email ? contact.email : null,
-    phone: contact.show_phone ? contact.phone : null,
-    websiteUrl: contact.website_url,
-    profileUrl: publicProfileUrl,
-    note: contact.intro
-  });
-  const filename = buildVcardFilename(slug);
-
   try {
-    queueAnalyticsEvent({
-      event_type: "vcard_download",
-      profile_id: profile.id,
-      user_id: profile.user_id,
-      source: "unknown",
-      action_type: "custom_button",
-      action_label: "Add to Contacts",
-      action_url: `/api/vcard/${slug}`,
-      user_agent: request.headers.get("user-agent") || null,
-      referrer: request.headers.get("referer") || null,
-      metadata: {}
-    }, {
-      logLabel: "vCard analytics insert failed",
-      logContext: { slug }
+    const { slug } = await context.params;
+    const profile = await getProfileForVcard(slug);
+    const publicProfileUrl = getProfileUrl(request, slug);
+
+    if (profile && profileCanRenderPublicly(profile) && isSlugPubliclyAllowed(profile.slug, profile.slug_status)) {
+      const contact = profileToVcardContact(profile);
+      const authFullName = await getAuthFullName(profile.user_id || null);
+      const displayName = authFullName || contact.full_name;
+      const vcard = buildVcardText({
+        fullName: displayName,
+        organizationName: contact.organization_name,
+        title: contact.role_line,
+        email: contact.show_email ? contact.email : null,
+        phone: contact.show_phone ? contact.phone : null,
+        websiteUrl: contact.website_url,
+        profileUrl: publicProfileUrl,
+        note: contact.intro
+      });
+
+      try {
+        queueAnalyticsEvent({
+          event_type: "vcard_download",
+          profile_id: profile.id,
+          user_id: profile.user_id,
+          source: "unknown",
+          action_type: "custom_button",
+          action_label: "Add to Contacts",
+          action_url: `/api/vcard/${slug}`,
+          user_agent: request.headers.get("user-agent") || null,
+          referrer: request.headers.get("referer") || null,
+          metadata: {}
+        }, {
+          logLabel: "vCard analytics insert failed",
+          logContext: { slug }
+        });
+      } catch (error) {
+        console.error("vCard analytics queue failed", {
+          slug,
+          error: error instanceof Error ? error.message : String(error)
+        });
+      }
+
+      return new NextResponse(vcard, {
+        status: 200,
+        headers: {
+          ...PROFILE_CACHE_HEADERS,
+          ...buildVcardResponseHeaders(buildVcardFilename(slug))
+        }
+      });
+    }
+
+    const fallbackVcard = buildVcardText({
+      fullName: humanizeSlug(slug),
+      profileUrl: publicProfileUrl,
+      note: `CapturePass profile: ${publicProfileUrl}`
+    });
+
+    return new NextResponse(fallbackVcard, {
+      status: 200,
+      headers: {
+        ...PROFILE_CACHE_HEADERS,
+        ...buildVcardResponseHeaders(buildVcardFilename(slug))
+      }
     });
   } catch (error) {
-    console.error("vCard analytics queue failed", {
+    const { slug } = await context.params;
+    const publicProfileUrl = getProfileUrl(request, slug);
+    console.error("vCard route failed", {
       slug,
       error: error instanceof Error ? error.message : String(error)
     });
-  }
 
-  return new NextResponse(vcard, {
-    status: 200,
-    headers: {
-      ...PROFILE_CACHE_HEADERS,
-      ...buildVcardResponseHeaders(filename)
-    }
-  });
+    const fallbackVcard = buildVcardText({
+      fullName: humanizeSlug(slug),
+      profileUrl: publicProfileUrl,
+      note: `CapturePass profile: ${publicProfileUrl}`
+    });
+
+    return new NextResponse(fallbackVcard, {
+      status: 200,
+      headers: {
+        ...PROFILE_CACHE_HEADERS,
+        ...buildVcardResponseHeaders(buildVcardFilename(slug))
+      }
+    });
+  }
 }
