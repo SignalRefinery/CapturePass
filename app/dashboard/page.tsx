@@ -35,7 +35,7 @@ const PENDING_CHECKOUT_COOKIE = "taptagg_pending_checkout";
 
 function passHrefFor(profile: ProfileRecord) {
   if (profile.private_token) {
-    return `/pass/${profile.private_token}`;
+    return `/dashboard/pass?token=${encodeURIComponent(profile.private_token)}`;
   }
 
   if (profile.slug) {

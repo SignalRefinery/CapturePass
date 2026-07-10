@@ -18,11 +18,17 @@ function publicPassPathFor(profile: ProfileRecord) {
 
 export async function DashboardPassPageContent({
   requestedView: _requestedView,
-  passError: _passError
+  passError: _passError,
+  token: requestedToken
 }: {
   requestedView?: string | null;
   passError?: string | null;
+  token?: string | null;
 }) {
+  if (requestedToken) {
+    redirect(`/pass/${encodeURIComponent(requestedToken)}`);
+  }
+
   const supabase = await createClient();
   const {
     data: { user }

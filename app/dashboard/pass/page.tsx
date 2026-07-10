@@ -3,9 +3,14 @@ import { DashboardPassPageContent } from "./pass-page";
 export default async function DashboardPassPage({
   searchParams
 }: {
-  searchParams?: Promise<{ pass_error?: string }>;
+  searchParams?: Promise<{ pass_error?: string; token?: string }>;
 }) {
   const params = searchParams ? await searchParams : {};
 
-  return <DashboardPassPageContent passError={params.pass_error || null} />;
+  return (
+    <DashboardPassPageContent
+      passError={params.pass_error || null}
+      token={params.token || null}
+    />
+  );
 }
