@@ -7,6 +7,7 @@ import { sendSlugApprovedEmail } from "@/lib/notifications/send-slug-approved-em
 import { normalizeIndividualPlanKey } from "@/lib/plans";
 import { requireCapturePassAdmin } from "@/lib/auth/admin";
 import { getSiteOrigin } from "@/lib/site-url";
+import { getReadableProfileUrl } from "@/lib/urls/profile-url";
 import {
   ALLOWED_AFFILIATE_TIERS,
   ALLOWED_BOOLEAN_FIELDS,
@@ -47,10 +48,11 @@ async function sendCardProductionEmail(profile: ProfileRecord) {
   if (!process.env.RESEND_API_KEY || profile.card_notification_sent_at) return;
 
   const siteUrl = getSiteOrigin();
-  const tokenUrl = profile.private_token ? `${siteUrl}/u/${profile.private_token}` : null;
-  const qrUrl = buildQuickChartQrUrl(tokenUrl);
+  const readableUrl = getReadableProfileUrl(profile);
+  const digitalPassUrl = profile.private_token ? `${siteUrl}/u/${profile.private_token}` : null;
+  const qrUrl = buildQuickChartQrUrl(readableUrl);
 
-  if (!tokenUrl || !qrUrl) return;
+  if (!readableUrl || !qrUrl) return;
 
   await fetch("https://api.resend.com/emails", {
     method: "POST",
@@ -67,7 +69,8 @@ async function sendCardProductionEmail(profile: ProfileRecord) {
         <p><strong>Name:</strong> ${profile.full_name || "—"}</p>
         <p><strong>Email:</strong> ${profile.email || "—"}</p>
         <p><strong>Slug:</strong> ${profile.slug || "—"}</p>
-        <p><strong>Card / QR URL:</strong> <a href="${tokenUrl}">${tokenUrl}</a></p>
+        <p><strong>Card / QR URL:</strong> <a href="${readableUrl}">${readableUrl}</a></p>
+        <p><strong>Digital Pass URL:</strong> <a href="${digitalPassUrl || readableUrl}">${digitalPassUrl || readableUrl}</a></p>
         <p><strong>QR image URL:</strong> <a href="${qrUrl}">${qrUrl}</a></p>
         <p><img src="${qrUrl}" alt="QR code" width="300" height="300" /></p>
       `

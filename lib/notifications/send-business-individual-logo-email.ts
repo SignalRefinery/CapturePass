@@ -39,8 +39,8 @@ export async function sendBusinessIndividualLogoEmail({
   if (!logoUrl) return;
 
   const readableUrl = getReadableProfileUrl(profile);
-  const tokenUrl = getIssuedProfileUrl(profile);
-  const qrAttachment = buildQrPngAttachment(tokenUrl, profile.slug || profile.private_token);
+  const digitalPassUrl = getIssuedProfileUrl(profile);
+  const qrAttachment = buildQrPngAttachment(readableUrl, profile.slug || profile.private_token);
   const qrUrl = qrAttachment?.path || "";
   const customerName = profile.full_name || "—";
   const customerEmail = profile.email || "—";
@@ -71,7 +71,8 @@ export async function sendBusinessIndividualLogoEmail({
             <tr><td><strong>Stripe Plan</strong></td><td>${escapeEmailHtml(stripePlan)}</td></tr>
             <tr><td><strong>Slug</strong></td><td>${escapeEmailHtml(profile.slug || "—")}</td></tr>
             <tr><td><strong>Readable Profile URL</strong></td><td><a href="${readableUrl}">${readableUrl}</a></td></tr>
-            <tr><td><strong>Card / QR URL</strong></td><td><a href="${tokenUrl}">${tokenUrl}</a></td></tr>
+            <tr><td><strong>Card / QR URL</strong></td><td><a href="${readableUrl}">${readableUrl}</a></td></tr>
+            <tr><td><strong>Digital Pass URL</strong></td><td><a href="${digitalPassUrl}">${digitalPassUrl}</a></td></tr>
             <tr><td><strong>QR image URL</strong></td><td><a href="${qrUrl}">${qrUrl}</a></td></tr>
             <tr><td><strong>Logo URL</strong></td><td><a href="${escapeEmailHtml(logoUrl)}">${escapeEmailHtml(logoUrl)}</a></td></tr>
           </table>

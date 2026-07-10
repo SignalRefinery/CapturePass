@@ -5,6 +5,7 @@ import { normalizeBusinessType } from "@/lib/business-types";
 import { buildQuickChartQrUrl } from "@/lib/notifications/qr";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendRegistrationEmail } from "@/lib/notifications/send-registration-email";
+import { getReadableProfileUrl } from "@/lib/urls/profile-url";
 import { getSiteOrigin } from "@/lib/site-url";
 import {
   BUSINESS_INDIVIDUAL_EXTRA_CARD_PLAN_KEY,
@@ -410,10 +411,11 @@ async function sendCardNotification(userId: string, session?: Stripe.Checkout.Se
   if (error || !profile || profile.card_notification_sent_at) return;
 
   const siteUrl = getSiteOrigin();
-  const tokenUrl = profile.private_token ? `${siteUrl}/u/${profile.private_token}` : null;
-  const qrUrl = buildQuickChartQrUrl(tokenUrl);
+  const readableUrl = getReadableProfileUrl(profile);
+  const digitalPassUrl = profile.private_token ? `${siteUrl}/u/${profile.private_token}` : null;
+  const qrUrl = buildQuickChartQrUrl(readableUrl);
 
-  if (!process.env.RESEND_API_KEY || !tokenUrl || !qrUrl) return;
+  if (!process.env.RESEND_API_KEY || !readableUrl || !qrUrl) return;
 
   const checkoutSession = session as Stripe.Checkout.Session & {
     customer_details?: {
@@ -480,7 +482,8 @@ async function sendCardNotification(userId: string, session?: Stripe.Checkout.Se
         <p><strong>Email:</strong> ${customerEmail}</p>
         ${shippingHtml}
         <p><strong>Slug:</strong> ${profile.slug || "—"}</p>
-        <p><strong>Card / QR URL:</strong> <a href="${tokenUrl}">${tokenUrl}</a></p>
+        <p><strong>Card / QR URL:</strong> <a href="${readableUrl}">${readableUrl}</a></p>
+        <p><strong>Digital Pass URL:</strong> <a href="${digitalPassUrl || readableUrl}">${digitalPassUrl || readableUrl}</a></p>
         <p><strong>QR image URL:</strong> <a href="${qrUrl}">${qrUrl}</a></p>
         <p><img src="${qrUrl}" alt="QR code" width="300" height="300" /></p>
       `,
